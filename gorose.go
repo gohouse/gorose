@@ -10,6 +10,7 @@ import (
 )
 
 var DB *sql.DB
+var Tx *sql.Tx
 var dbDriver string = "mysql" // sqlite, postgre...
 var dbDefault string = "mysql"
 var dbConfig = map[string]map[string]interface{}{
@@ -89,6 +90,8 @@ type Database struct {
 	Max_      string
 	Min_      string
 	Group_    string
+	Trans_    bool
+	Data_     interface{}
 }
 
 func (this *Database) Connect(arg interface{}) *Database {
@@ -368,7 +371,7 @@ func (this *Database) buildSql() string {
 	// table
 	table := this.Table_
 	// join
-	join := utils.If(strings.Join(this.Join_, "") == "", "", "INNER JOIN "+strings.Join(this.Join_, " "))
+	join := utils.If(strings.Join(this.Join_, "") == "", "", strings.Join(this.Join_, " "))
 	// where
 	where := utils.If(this.parseWhere() == "", "", "WHERE "+this.parseWhere()).(string)
 	// group
@@ -381,7 +384,7 @@ func (this *Database) buildSql() string {
 	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+strconv.Itoa(this.Offset_)).(string)
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
-	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, order, limit, offset)
+	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
 
 	return sqlstr
 }
@@ -417,7 +420,6 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	var result_map = make(map[string]interface{})
 	// Fetch rows
 	for rows.Next() {
-		//jsonstring += "{"
 		// get RawBytes from data
 		err = rows.Scan(scanArgs...)
 		if err != nil {
@@ -441,6 +443,158 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 	return result
+}
+
+/**
+ *　执行增删改 ｓｑｌ 语句
+ */
+func (this *Database) Execute(sqlstring string) int64 {
+	var operType string = strings.ToLower(sqlstring[0:6])
+	if operType == "select" {
+		panic("该方法不允许select操作, 请使用Query")
+	}
+	if this.Trans_ == true {
+		stmt, err := Tx.Prepare(sqlstring)
+		checkErr(err)
+		return this.parseExecute(stmt, operType)
+	} else {
+		stmt, err := DB.Prepare(sqlstring)
+		checkErr(err)
+		return this.parseExecute(stmt, operType)
+	}
+}
+
+func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
+	var res int64
+	var err error
+	result, err := stmt.Exec()
+	checkErr(err)
+
+	switch operType {
+	case "insert":
+		res, err = result.LastInsertId()
+	case "update":
+		res, err = result.RowsAffected()
+	case "delete":
+		res, err = result.RowsAffected()
+	}
+	checkErr(err)
+	return res
+}
+
+func (this *Database) buildExecut(operType string) string {
+	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
+	// update : {"name":"fizz", "website":"fizzday.net"}
+	// delete : ...
+	upOrDel, insertkey, insertval := this.buildData()
+	where := utils.If(this.parseWhere() == "", "", "WHERE "+this.parseWhere()).(string)
+	var sqlstr string
+
+	switch operType {
+	case "insert":
+		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.Table_, insertkey, insertval)
+	case "update":
+		sqlstr = fmt.Sprintf("update %s set %s %s", this.Table_, upOrDel, where)
+	case "delete":
+		sqlstr = fmt.Sprintf("update %s set %s %s", this.Table_, upOrDel, where)
+	}
+	fmt.Println(sqlstr)
+	return sqlstr
+}
+
+func (this *Database) buildData() (string, string, string) {
+	// insert
+	var dataFields []string
+	var dataValues []string
+	// update or delete
+	var dataObj []string
+
+	data := this.Data_
+	fmt.Println(data, utils.GetType(data))
+	dataType := utils.GetType(data)
+	switch dataType {
+	case "[]map[string]interface {}":
+		datas := data.([]map[string]interface{})
+		for _, item := range datas {
+			var dataValuesSub []string
+			for key, val := range item {
+				if utils.InArray(key, utils.Astoi(dataFields)) == false {
+					dataFields = append(dataFields, key)
+				}
+				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			}
+			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+		}
+	//case "map[string]interface {}":
+	default:
+		datas := make(map[string]string)
+		switch dataType {
+		case "map[string]interface {}":
+			for key, val := range data.(map[string]interface{}) {
+				datas[key] = utils.ParseStr(val)
+			}
+		case "map[string]int":
+			for key, val := range data.(map[string]int) {
+				datas[key] = utils.ParseStr(val)
+			}
+		case "map[string]string":
+			for key, val := range data.(map[string]string) {
+				datas[key] = val
+			}
+		}
+
+		//datas := data.(map[string]interface{})
+		var dataValuesSub []string
+		for key, val := range datas {
+			dataFields = append(dataFields, key)
+			dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			// update or delete
+			dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+		}
+		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+	}
+
+	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, "")
+}
+func (this *Database) Data(data interface{}) *Database {
+	//var tmp []interface{}
+	//tmp = append(tmp, utils.GetType(data))
+	//tmp = append(tmp, data)
+	this.Data_ = data
+	return this
+}
+func (this *Database) Insert() int64 {
+	sqlstr := this.buildExecut("insert")
+	return this.Execute(sqlstr)
+}
+func (this *Database) Update() int64 {
+	sqlstr := this.buildExecut("insert")
+	return this.Execute(sqlstr)
+}
+func (this *Database) Delete(sqlstring string) int64 {
+	sqlstr := this.buildExecut("insert")
+	return this.Execute(sqlstr)
+}
+func (this *Database) Begin() *sql.Tx {
+	tx, _ := DB.Begin()
+	this.Trans_ = true
+	Tx = tx
+	return tx
+}
+func (this *Database) Commit() *Database {
+	Tx.Commit()
+	this.Trans_ = false
+	return this
+}
+func (this *Database) Rollback() *Database {
+	Tx.Rollback()
+	this.Trans_ = false
+	return this
+}
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
