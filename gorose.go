@@ -1,65 +1,107 @@
-package main
+package gorose
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"log"
-	"strings"
-	"kuaixinwen/utils"
+	_ "github.com/go-sql-driver/mysql"
 	"strconv"
+	"strings"
+	"utils"
 )
 
 var DB *sql.DB
-
-var config = map[string]map[string]interface{} {
-	"mysql":{
-		"host":"localhost",
-		"username":"root",
-		"password":"",
-		"port":"3306",
+var dbDriver string = "mysql" // sqlite, postgre...
+var dbDefault string = "mysql"
+var dbConfig = map[string]map[string]interface{}{
+	"mysql": {
+		"host":     "localhost",
+		"username": "root",
+		"password": "",
+		"port":     "3306",
 		"database": "test",
-		"charset": "utf8",
+		"charset":  "utf8",
+		"protocol": "tcp",
 	},
-}
-
-func init() {
-	var err error
-	DB, err = sql.Open("mysql", "gcore:gcore@tcp(192.168.200.248:3306)/test?charset=utf8")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	err = DB.Ping()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-}
-
-type Database struct {
-	// Where_ := {{"and",{"a", 1}}, {"or",{"a", "=", 2}}}
-	Table_  string
-	Fields_ string
-	Where_ [][]interface{}
-	OrWhere_ [][]interface{}
-	Order_     string
-	Limit_     int
-	Offset_    int
-	Page_      int
-	bindParams []interface{}
+	"mysql_dev": {
+		"host":     "localhost",
+		"username": "root",
+		"password": "",
+		"port":     "3306",
+		"database": "gorose",
+		"charset":  "utf8",
+		"protocol": "tcp",
+	},
 }
 
 var regex = []string{"=", ">", "<", "!=", ">=", "<=", "in", "not in", "between", "not between"}
 
-func (this *Database) Table(Table_ string) *Database {
-	this.Table_ = Table_
+func init() {
+	Connect(dbDefault)
+}
+
+//var instance *Database
+//var once sync.Once
+//func GetInstance() *Database {
+//	once.Do(func() {
+//		instance = &Database{}
+//	})
+//	return instance
+//}
+func Connect(arg interface{}) *sql.DB {
+	var err error
+	var dbObj map[string]interface{}
+	if utils.GetType(arg) == "string" {
+		dbObj = dbConfig[arg.(string)]
+	} else {
+		dbObj = arg.(map[string]interface{})
+	}
+
+	conn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s", dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
+	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
+	DB, err = sql.Open(dbDriver, conn)
+	if err != nil {
+		//log.Fatal(err.Error())
+		panic(err.Error())
+	}
+	err = DB.Ping()
+	if err != nil {
+		//log.Fatal(err.Error())
+		panic(err.Error())
+	}
+
+	return DB
+}
+
+type Database struct {
+	Table_    string
+	Fields_   string
+	Where_    [][]interface{}
+	OrWhere_  [][]interface{}
+	Order_    string
+	Limit_    int
+	Offset_   int
+	Page_     int
+	Join_     []string
+	Distinct_ bool
+	Count_    string
+	Sum_      string
+	Avg_      string
+	Max_      string
+	Min_      string
+	Group_    string
+}
+
+func (this *Database) Connect(arg interface{}) *Database {
+	Connect(arg)
 	return this
 }
 func (this *Database) Fields(Fields_ string) *Database {
 	this.Fields_ = Fields_
 	return this
 }
-func (this *Database) GetFields() string {
-	return this.Fields_
+func (this *Database) Table(Table_ string) *Database {
+	this.Table_ = Table_
+	return this
 }
 func (this *Database) Order(Order_ string) *Database {
 	this.Order_ = Order_
@@ -81,186 +123,277 @@ func (this *Database) First() map[string]interface{} {
 	this.Limit_ = 1
 	// 构建sql
 	sqls := this.buildSql()
-fmt.Println(sqls)
+	fmt.Println(sqls)
 	// 执行查询
 	result := this.Query(sqls)
 
-	if (len(result) == 0) {
+	if len(result) == 0 {
 		return nil
 	}
 
 	return result[0]
 }
 func (this *Database) Get() []map[string]interface{} {
-	this.Limit_ = 1
 	// 构建sql
 	sqls := this.buildSql()
-fmt.Println(sqls)
+	fmt.Println(sqls)
 	// 执行查询
 	result := this.Query(sqls)
 
-	if (len(result) == 0) {
+	if len(result) == 0 {
 		return nil
 	}
 
 	return result
 }
 func (this *Database) Where(args ...interface{}) *Database {
-	w := []interface{}{"and", args}
+	argsLen := len(args)
+
+	argsType := "string"
+
+	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
+	if argsLen == 1 {
+		argsType = utils.GetType(args[0])
+	}
+
+	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为参数类型(三种类型), 第三项为具体传入的参数
+	w := []interface{}{"and", argsType, args}
 	this.Where_ = append(this.Where_, w)
+
 	return this
 }
 func (this *Database) OrWhere(args ...interface{}) *Database {
-	w := []interface{}{"or", args}
+	argsLen := len(args)
+
+	argsType := "string"
+
+	if argsLen == 1 {
+		argsType = utils.GetType(args[0])
+	}
+
+	w := []interface{}{"or", argsType, args}
 	this.Where_ = append(this.Where_, w)
 	return this
 }
-func (this *Database) parseWhere() string {
-	// example1.0 := string "a=3 and b>4"
-	// example1.1 := map[string]interface{} {"a":1, "b":"bye"}
-	// example1.2 := [][]interface{} {{"a",1},{"b",">",2},{"c","=",4}}
-	// example2.0 := []interface{} {"a", 3}
-	// example3.0 := []interface{} {"a", ">", 4}
-	var sqlstr []string
+func (this *Database) Join(args ...interface{}) *Database {
+	this.parseJoin(args, "INNER")
 
-	// where
+	return this
+}
+func (this *Database) LeftJoin(args ...interface{}) *Database {
+	this.parseJoin(args, "LEFT")
+
+	return this
+}
+func (this *Database) RightJoin(args ...interface{}) *Database {
+	this.parseJoin(args, "RIGHT")
+
+	return this
+}
+
+func (this *Database) Distinct() *Database {
+	this.Distinct_ = true
+
+	return this
+}
+func (this *Database) Count(count string) *Database {
+	this.Count_ = "count(" + count + ") as count"
+
+	return this
+}
+func (this *Database) Sum(sum string) *Database {
+	this.Sum_ = "sum(" + sum + ") as sum"
+
+	return this
+}
+func (this *Database) Avg(avg string) *Database {
+	this.Avg_ = "avg(" + avg + ") as avg"
+
+	return this
+}
+func (this *Database) Max(max string) *Database {
+	this.Max_ = "max(" + max + ") as max"
+
+	return this
+}
+func (this *Database) Min(min string) *Database {
+	this.Min_ = "min(" + min + ") as min"
+
+	return this
+}
+
+func (this *Database) parseJoin(args []interface{}, joinType string) bool {
+	var w string
+	argsLength := len(args)
+	switch argsLength {
+	case 1:
+		w = args[0].(string)
+	case 4:
+		w = utils.ParseStr(args[0]) + " ON " + utils.ParseStr(args[1]) + " " + utils.ParseStr(args[2]) + " " + utils.ParseStr(args[3])
+	default:
+		panic("join格式错误")
+	}
+
+	this.Join_ = append(this.Join_, joinType+" JOIN "+w)
+
+	return true
+}
+
+/**
+ * where解析器
+ */
+func (this *Database) parseWhere() string {
 	wheres := this.Where_
 
-	// 查看args的长度
-	//var whereFileds []interface{}
+	// where解析后存放每一项的容器
+	var where []string
 
 	for _, args := range wheres {
-		var sqlstrItem string = " "+args[0].(string)+" "
+		// and或者or条件
+		var condition string = args[0].(string)
+		// 数据类型
+		var dataType string = args[1].(string)
 		// 统计当前数组中有多少个参数
-		item := args[1].([]interface{})
-		argLen := len(item)
-		switch argLen {
-		case 3:
-			if (!utils.TypeCheck(item[0], "string")) {
-				panic("where条件参数有误!")
-			}
-			if (!utils.TypeCheck(item[1], "string")) {
-				panic("where条件参数有误!")
-			}
-			if (!utils.InArray(item[1], utils.Astoi(regex))) {
-				panic("where运算条件参数有误!!")
-			}
+		params := args[2].([]interface{})
+		paramsLength := len(params)
 
-			sqlstrItem += item[0].(string) +" "+ item[1].(string) + " "
-
-			switch item[1] {
-			case "in":
-				sqlstrItem += "(" + strings.Join(item[2].([]string), ",") + ")"
-			case "not in":
-				sqlstrItem += "(" + strings.Join(item[2].([]string), ",") + ")"
-			case "between":
-				tmpB := item[2].([]string)
-				sqlstrItem += tmpB[0] + " and " + tmpB[1]
-			case "not between":
-				tmpB := item[2].([]string)
-				sqlstrItem += tmpB[0] + " and " + tmpB[1]
-			default:
-				sqlstrItem += utils.ParseStr(item[2])
-			}
-
-		case 2:
-			if (!utils.TypeCheck(item[0], "string")) {
-				panic("where条件参数有误!")
-			}
-
-			sqlstrItem += item[0].(string) + "=" + utils.ParseStr(item[1])
-
+		switch paramsLength {
+		case 3: // 常规3个参数:  {"id",">",1}
+			where = append(where, condition+" ("+this.parseParams(params)+")")
+		case 2: // 常规2个参数:  {"id",1}
+			where = append(where, condition+" ("+this.parseParams(params)+")")
 		case 1: // 二维数组或字符串
-			dataType := utils.GetType(item)
-
 			if dataType == "string" { // sql 语句字符串
-				sqlstrItem += item[0].(string)
+				where = append(where, condition+" ("+params[0].(string)+")")
 			} else if dataType == "map[string]interface {}" { // 一维数组
-				for key, val := range item[0].(map[string]interface{}) {
-					sqlstrItem += key+"="+utils.ParseStr(val)
+				var whereArr []string
+				for key, val := range params[0].(map[string]interface{}) {
+					whereArr = append(whereArr, "("+key+"="+utils.AddSingleQuotes(val)+")")
 				}
-			} else if dataType == "[]map[string]interface {}" { // 二维数组
-				var sqlstrItemOne []string
-				for _, arr := range item[0].([][]interface{}) {	// {{"a", 1}}
-					arrLen := len(arr)
-					switch arrLen {
+				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+			} else if dataType == "[][]interface {}" { // 二维数组
+				var whereMore []string
+				for _, arr := range params[0].([][]interface{}) { // {{"a", 1}, {"id", ">", 1}}
+					whereMoreLength := len(arr)
+					switch whereMoreLength {
 					case 2:
-						if (!utils.TypeCheck(arr[0], "string")) {
-							panic("where条件参数有误!")
-						}
-						sqlstrItemOne = append(sqlstrItemOne, arr[0].(string)+"="+arr[1].(string))
+						whereMore = append(whereMore, "("+this.parseParams(arr)+")")
 					case 3:
-						if (!utils.TypeCheck(arr[0], "string")) {
-							panic("where条件参数有误!")
-						}
-						if (!utils.InArray(arr[1], utils.Astoi(regex))) {
-							panic("where运算条件参数有误!!")
-						}
-						var sqlstrItemOneSub string = arr[0].(string)+" "+arr[1].(string)+" "
-						switch arr[1] {
-						case "in":
-							sqlstrItemOneSub += "(" + strings.Join(arr[2].([]string), ",") + ")"
-							sqlstrItemOne = append(sqlstrItemOne,  sqlstrItemOneSub)
-						case "not in":
-							sqlstrItemOneSub += "(" + strings.Join(arr[2].([]string), ",") + ")"
-							sqlstrItemOne = append(sqlstrItemOne,  sqlstrItemOneSub)
-						case "between":
-							tmpB := arr[2].([]string)
-							sqlstrItemOneSub += tmpB[0] + " and " + tmpB[1]
-						case "not between":
-							tmpB := arr[2].([]string)
-							sqlstrItemOneSub += tmpB[0] + " and " + tmpB[1]
-						default:
-							sqlstrItemOne = append(sqlstrItemOne, utils.ParseStr(arr[2]))
-						}
+						whereMore = append(whereMore, "("+this.parseParams(arr)+")")
 					default:
 						panic("where数据格式有误")
 					}
 				}
-				sqlstrItem += strings.Join(sqlstrItemOne, " and ")
+				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
 			} else { // 不符合的类型
 				panic("where条件格式错误")
 			}
 		}
-
-		sqlstr = append(sqlstr, sqlstrItem)
 	}
 
-	where3 := strings.Join(sqlstr, " ")
-	where2 := strings.Trim(where3, " ")
-	where := strings.TrimLeft(where2, "and")
-
-	return where
+	return strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and")
 }
-func (this *Database) buildSql() (string) {
+
+/**
+ * 将where条件中的参数转换为where条件字符串
+ * example: {"id",">",1}, {"age", 18}
+ */
+func (this *Database) parseParams(args []interface{}) string {
+
+	paramsLength := len(args)
+
+	// 存储当前所有数据的数组
+	var paramsToArr []string
+
+	switch paramsLength {
+	case 3: // 常规3个参数:  {"id",">",1}
+		if !utils.TypeCheck(args[0], "string") {
+			panic("where条件参数有误!")
+		}
+		if !utils.TypeCheck(args[1], "string") {
+			panic("where条件参数有误!")
+		}
+		if !utils.InArray(args[1], utils.Astoi(regex)) {
+			panic("where运算条件参数有误!!")
+		}
+
+		paramsToArr = append(paramsToArr, args[0].(string))
+		paramsToArr = append(paramsToArr, args[1].(string))
+
+		switch args[1] {
+		case "in":
+			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
+		case "not in":
+			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
+		case "between":
+			tmpB := args[2].([]string)
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
+		case "not between":
+			tmpB := args[2].([]string)
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
+		default:
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[2]))
+		}
+	case 2:
+		if !utils.TypeCheck(args[0], "string") {
+			panic("where条件参数有误!")
+		}
+		paramsToArr = append(paramsToArr, args[0].(string))
+		paramsToArr = append(paramsToArr, "=")
+		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[1]))
+	}
+
+	return strings.Join(paramsToArr, " ")
+}
+func (this *Database) buildSql() string {
+	// 聚合
+	unionArr := []string{
+		this.Count_,
+		this.Sum_,
+		this.Avg_,
+		this.Max_,
+		this.Min_,
+	}
+	var union string
+	for _, item := range unionArr {
+		if item != "" {
+			union = item
+			break
+		}
+	}
+	// distinct
+	distinct := utils.If(this.Distinct_, "distinct", "")
 	// fields
 	fields := utils.If(this.Fields_ == "", "*", this.Fields_).(string)
+	// table
+	table := this.Table_
+	// join
+	join := utils.If(strings.Join(this.Join_, "") == "", "", "INNER JOIN "+strings.Join(this.Join_, " "))
 	// where
-	where := utils.If(this.parseWhere()=="", "", "where "+this.parseWhere()).(string)
-
-	order := utils.If(this.Order_=="", "", "order by "+this.Order_).(string)
+	where := utils.If(this.parseWhere() == "", "", "WHERE "+this.parseWhere()).(string)
+	// group
+	group := utils.If(this.Group_ == "", "", "GROUP BY "+this.Group_).(string)
+	// order
+	order := utils.If(this.Order_ == "", "", "ORDER BY "+this.Order_).(string)
 	// limit
-	limit := utils.If(this.Limit_==0, "limit 100", "limit "+strconv.Itoa(this.Limit_)).(string)
+	limit := utils.If(this.Limit_ == 0, "LIMIT 1000", "LIMIT "+strconv.Itoa(this.Limit_)).(string)
 	// offset
-	offset := utils.If(this.Offset_==0, "", "offset "+strconv.Itoa(this.Offset_)).(string)
-	// count
+	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+strconv.Itoa(this.Offset_)).(string)
 
-	sqlstr := "select "+fields+" from "+this.Table_+" "+where+" "+order+" "+limit+" "+offset
+	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
+	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, order, limit, offset)
 
 	return sqlstr
 }
 
-func (this *Database) Query(sqlstring string) ([]map[string]interface{}) {
-	defer DB.Close()
+func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	stmt, err := DB.Prepare(sqlstring)
 	if err != nil {
-		fmt.Println("Query Error", err)
 		panic(err.Error())
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query()
 	if err != nil {
-		fmt.Println("Query Error", err)
 		panic(err.Error())
 	}
 	defer rows.Close()
@@ -314,8 +447,8 @@ func main() {
 	fmt.Println("start")
 
 	var db Database
-
-	query := db.Table("userinfo").Fields("id, lvs").
+	//init()
+	query := db.Table("users").Fields("id, name").
 		Where("id", "<", 100).
 		Where("id", ">", 1).Get()
 	fmt.Println(query)
