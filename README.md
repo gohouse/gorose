@@ -1,15 +1,15 @@
 # gorose
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
 ## install
-- 1. install gorose
+- install gorose
 ```go
 go get github.com/gohouse/gorose
 ```
-- 2. install utils as a func tool box which used in gorose
+- install utils as a func tool box which used in gorose
 ```go
 go get github.com/gohouse/utils
 ```
-### config
+## config
 ```go
 import {
 	github.com/gohouse/utils,
@@ -74,12 +74,16 @@ User := db.Table("user")
 - fetch one row
 ```go
 User.First()
+// or
+db.Fisrt()
 ```
 parse sql result: `select * from user limit 1`  
 
 - count
 ```go
 User.Count("*")
+// or 
+db.Count("*")
 ```
 parse sql result: `select count(*) as count from user`  
 
@@ -141,4 +145,21 @@ User.Where("id", 5).Delete()
 ```
 parse sql result: `delete from user where id=5`  
 
-
+## TODO
+- list  
+[x] where nested  
+[] transaction union  
+- sample  
+```go
+db.Where(func(){
+	db.Where().OrWhere(func(){
+		db.Where().OrWhere()
+	})
+})
+```
+```go
+db.Transaction(func(){
+	db.Table("user").Data().Where().Update()
+	db.Table("card").Data().Insert()
+})
+```
