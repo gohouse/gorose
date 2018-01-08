@@ -162,6 +162,7 @@ func (this *Database) Where(args ...interface{}) *Database {
 
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为参数类型(三种类型), 第三项为具体传入的参数
 	w := []interface{}{"and", argsType, args}
+
 	this.Where_ = append(this.Where_, w)
 
 	return this
