@@ -109,8 +109,8 @@ parse sql result: `select avg(age) as avg from user`
 ```go
 db.Begin()
 res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-res := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if (res == 0) {
+res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
+if (res == 0 || res2 == 0) {
 	db.Rollback()
 }
 db.Commit()
@@ -123,7 +123,11 @@ db.Execute("update user set job='it2' where id=3")
 ```
 #### Call chaining
 ```go
-db.Table("user").Data(map[string]interface{}{"age":17, "job":"it3"}).Where("id", 1).OrWhere("age",">",30).Update()
+db.Table("user").
+	Data(map[string]interface{}{"age":17, "job":"it3"}).
+    Where("id", 1).
+    OrWhere("age",">",30).
+    Update()
 ```
 parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`  
 
@@ -131,7 +135,7 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 - insert  
 ```go
 User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
-User.Data([]map[string]interface{}{{"age":17, "job":"it3"},"age":17, "job":"it4"}).Insert()
+User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
 ```
 parse sql result: 
 ```sql

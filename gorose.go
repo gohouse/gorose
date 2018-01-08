@@ -57,7 +57,8 @@ func Connect(arg interface{}) *sql.DB {
 		dbObj = arg.(map[string]interface{})
 	}
 
-	conn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s", dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
+	conn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s",
+		dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
 	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
 	DB, err = sql.Open(dbDriver, conn)
 	if err != nil {
