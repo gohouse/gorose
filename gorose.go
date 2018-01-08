@@ -34,7 +34,7 @@ var dbConfig = map[string]map[string]interface{}{
 	},
 }
 
-var regex = []string{"=", ">", "<", "!=", ">=", "<=", "in", "not in", "between", "not between"}
+var regex = []string{"=", ">", "<", "!=", ">=", "<=", "like", "in", "not in", "between", "not between"}
 
 func init() {
 	Connect(dbDefault)
@@ -78,7 +78,6 @@ type Database struct {
 	Table_    string
 	Fields_   string
 	Where_    [][]interface{}
-	OrWhere_  [][]interface{}
 	Order_    string
 	Limit_    int
 	Offset_   int
@@ -201,30 +200,43 @@ func (this *Database) Distinct() *Database {
 
 	return this
 }
-func (this *Database) Count(count string) *Database {
-	this.Count_ = "count(" + count + ") as count"
-
-	return this
+func (this *Database) Count(count string) int {
+	return this.buildUnion("count", count)
 }
-func (this *Database) Sum(sum string) *Database {
-	this.Sum_ = "sum(" + sum + ") as sum"
-
-	return this
+func (this *Database) Sum(sum string) int {
+	return this.buildUnion("sum", sum)
 }
-func (this *Database) Avg(avg string) *Database {
-	this.Avg_ = "avg(" + avg + ") as avg"
-
-	return this
+func (this *Database) Avg(avg string) int {
+	return this.buildUnion("avg", avg)
 }
-func (this *Database) Max(max string) *Database {
-	this.Max_ = "max(" + max + ") as max"
-
-	return this
+func (this *Database) Max(max string) int {
+	return this.buildUnion("max", max)
 }
-func (this *Database) Min(min string) *Database {
-	this.Min_ = "min(" + min + ") as min"
+func (this *Database) Min(min string) int {
+	return this.buildUnion("min", min)
+}
+func (this *Database) buildUnion(union, field string) int {
+	unionStr := union + "(" + field + ") as " + union
+	switch union {
+	case "count":
+		this.Count_ = unionStr
+	case "sum":
+		this.Sum_ = unionStr
+	case "avg":
+		this.Avg_ = unionStr
+	case "max":
+		this.Max_ = unionStr
+	case "min":
+		this.Min_ = unionStr
+	}
 
-	return this
+	// 构建sql
+	sqls := this.buildSql()
+	fmt.Println(sqls)
+	// 执行查询
+	result := this.Query(sqls)
+
+	return utils.ParseInt(result[0][union])
 }
 
 func (this *Database) parseJoin(args []interface{}, joinType string) bool {
@@ -248,9 +260,9 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
  * where解析器
  */
 func (this *Database) parseWhere() string {
+	// 取出所有where
 	wheres := this.Where_
-
-	// where解析后存放每一项的容器
+	//// where解析后存放每一项的容器
 	var where []string
 
 	for _, args := range wheres {
@@ -264,16 +276,16 @@ func (this *Database) parseWhere() string {
 
 		switch paramsLength {
 		case 3: // 常规3个参数:  {"id",">",1}
-			where = append(where, condition+" ("+this.parseParams(params)+")")
+			where = append(where, condition+" "+this.parseParams(params))
 		case 2: // 常规2个参数:  {"id",1}
-			where = append(where, condition+" ("+this.parseParams(params)+")")
+			where = append(where, condition+" "+this.parseParams(params))
 		case 1: // 二维数组或字符串
 			if dataType == "string" { // sql 语句字符串
 				where = append(where, condition+" ("+params[0].(string)+")")
 			} else if dataType == "map[string]interface {}" { // 一维数组
 				var whereArr []string
 				for key, val := range params[0].(map[string]interface{}) {
-					whereArr = append(whereArr, "("+key+"="+utils.AddSingleQuotes(val)+")")
+					whereArr = append(whereArr, key+"="+utils.AddSingleQuotes(val))
 				}
 				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
 			} else if dataType == "[][]interface {}" { // 二维数组
@@ -281,16 +293,29 @@ func (this *Database) parseWhere() string {
 				for _, arr := range params[0].([][]interface{}) { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
 					switch whereMoreLength {
-					case 2:
-						whereMore = append(whereMore, "("+this.parseParams(arr)+")")
 					case 3:
-						whereMore = append(whereMore, "("+this.parseParams(arr)+")")
+						whereMore = append(whereMore, this.parseParams(arr))
+					case 2:
+						whereMore = append(whereMore, this.parseParams(arr))
 					default:
 						panic("where数据格式有误")
 					}
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
-			} else { // 不符合的类型
+			} else if dataType == "func()" {
+				// 清空Where_,给嵌套的where让路,复用这个节点
+				this.Where_ = [][]interface{}{}
+
+				// 执行嵌套where放入Database struct
+				(params[0].(func()))()
+				// 再解析一遍后来嵌套进去的where
+				wherenested := this.parseWhere()
+				// 嵌套的where放入一个括号内
+				where = append(where, condition+" ("+wherenested+")")
+
+				//// 返还原来的where
+				//this.Where_ = wheres
+			} else {
 				panic("where条件格式错误")
 			}
 		}
@@ -326,6 +351,8 @@ func (this *Database) parseParams(args []interface{}) string {
 		paramsToArr = append(paramsToArr, args[1].(string))
 
 		switch args[1] {
+		case "like":
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes("%"+utils.ParseStr(args[2])+"%"))
 		case "in":
 			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
 		case "not in":
@@ -375,13 +402,14 @@ func (this *Database) buildSql() string {
 	// join
 	join := utils.If(strings.Join(this.Join_, "") == "", "", strings.Join(this.Join_, " "))
 	// where
-	where := utils.If(this.parseWhere() == "", "", "WHERE "+this.parseWhere()).(string)
+	parseWhere := this.parseWhere()
+	where := utils.If(parseWhere == "", "", "WHERE "+parseWhere).(string)
 	// group
 	group := utils.If(this.Group_ == "", "", "GROUP BY "+this.Group_).(string)
 	// order
 	order := utils.If(this.Order_ == "", "", "ORDER BY "+this.Order_).(string)
 	// limit
-	limit := utils.If(this.Limit_ == 0, "LIMIT 1000", "LIMIT "+strconv.Itoa(this.Limit_)).(string)
+	limit := utils.If(this.Limit_ == 0, "", "LIMIT "+strconv.Itoa(this.Limit_)).(string)
 	// offset
 	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+strconv.Itoa(this.Offset_)).(string)
 
