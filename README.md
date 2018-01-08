@@ -105,6 +105,12 @@ User.Avg("age")
 ```
 parse sql result: `select avg(age) as avg from user`  
 
+- distinct
+```go
+User.Fields("id, name").Distinct()
+```
+parse sql result: `select distinct id,name from user`  
+
 #### transaction
 ```go
 db.Begin()
@@ -151,8 +157,8 @@ parse sql result: `delete from user where id=5`
 
 ## TODO
 - list  
-[x] where nested  
-[] transaction union  
+[] where nested  
+[] transaction union (auto begin, rollback or commit) 
 - sample  
 ```go
 db.Where(func(){
