@@ -111,6 +111,28 @@ User.Fields("id, name").Distinct()
 ```
 parse sql result: `select distinct id,name from user`  
 
+#### where nested (嵌套where)
+```go
+db.Table("user").Where("id", ">", 1).Where(func() {
+		db.Where("name", "fizz").OrWhere(func() {
+			db.Where("name", "fizz2").Where(func() {
+				db.Where("name", "fizz3").OrWhere("website", "fizzday")
+			})
+		})
+	}).Where("job", "it").First()
+```
+parse sql result: 
+```sql
+SELECT  * FROM user  
+    WHERE  id > '1' 
+        and ( name = 'fizz' 
+            or ( name = 'fizz2' 
+                and ( name = 'fizz3' or website like '%fizzday%')
+                )
+            ) 
+    and job = 'it' LIMIT 1
+```  
+
 #### transaction
 ```go
 db.Begin()
@@ -162,8 +184,8 @@ parse sql result: `delete from user where id=5`
 - sample  
 ```go
 db.Where(func(){
-	db.Where().OrWhere(func(){
-		db.Where().OrWhere()
+	db.Where().OrWhere(func() *db{
+		return db.Where().OrWhere()
 	})
 })
 ```
