@@ -9,25 +9,53 @@ go get github.com/gohouse/gorose
 ```go
 go get github.com/gohouse/utils
 ```
-## config
+## config and sample
+- multi config 
 ```go
-import {
-	github.com/gohouse/utils,
-	github.com/gohouse/gorose
+import "github.com/gohouse/gorose"
+
+var dbConfig = map[string]map[string]string {
+	"mysql": {
+		"host":     "localhost",
+		"username": "root",
+		"password": "",
+		"port":     "3306",
+		"database": "test",
+		"charset":  "utf8",
+		"protocol": "tcp",
+	},
+	"mysql_dev": {
+		"host":     "localhost",
+		"username": "root",
+		"password": "",
+		"port":     "3306",
+		"database": "gorose",
+		"charset":  "utf8",
+		"protocol": "tcp",
+	},
 }
-defer gorose.DB.Close()
-var conf = map[string]interface{}{
-    "host":     "localhost",
-    "username": "root",
-    "password": "root",
-    "port":     "3306",
-    "database": "test",
-    "charset":  "utf8",
-    "protocol": "tcp",
-}
-gorose.Connect(conf)
+
+gorose.Open(dbConfig, "mysql")
 
 var db gorose.Database
+
+func main() {
+    res := db.Table("users").First()
+    
+    fmt.Println(res)
+}
+```
+- single config
+```go
+gorose.Open(map[string]string {
+                "host":     "localhost",
+                "username": "root",
+                "password": "",
+                "port":     "3306",
+                "database": "test",
+                "charset":  "utf8",
+                "protocol": "tcp",
+            })
 ```
 ## example
 ### query
@@ -190,7 +218,22 @@ insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```go
 User.Where("id", 5).Delete()
 ```
-parse sql result: `delete from user where id=5`  
+parse sql result: `delete from user where id=5`
+
+## Temporary connection
+```go
+db.Connect("mysql_dev").Table().First()
+// or
+db.Connect(map[string]string {
+                "host":     "localhost",
+                "username": "root",
+                "password": "",
+                "port":     "3306",
+                "database": "test",
+                "charset":  "utf8",
+                "protocol": "tcp",
+            }).Table().First()
+```  
 
 ## TODO (finish)
 - list  

@@ -43,10 +43,11 @@ type Database struct {
 	Data_     interface{}
 }
 
-//func (this *Database) Connect(arg interface{}) *Database {
-//	Connect(arg)
-//	return this
-//}
+func (this *Database) Connect(arg interface{}) *Database {
+	var conn Connection
+	conn.Connect(arg)
+	return this
+}
 func (this *Database) Fields(Fields_ string) *Database {
 	this.Fields_ = Fields_
 	return this
