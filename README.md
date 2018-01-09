@@ -247,6 +247,7 @@ db.Where(func(){
 	})
 })
 ```
+- transaction
 ```go
 db.Transaction(func(){
 	db.Table("user").Data().Where().Update()
