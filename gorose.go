@@ -4,41 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"strconv"
 	"strings"
-	"utils"
+	"github.com/gohouse/utils"
 )
-
-var DB *sql.DB
-var Tx *sql.Tx
-var dbDriver string = "mysql" // sqlite, postgre...
-var dbDefault string = "mysql"
-var dbConfig = map[string]map[string]interface{}{
-	"mysql": {
-		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "test",
-		"charset":  "utf8",
-		"protocol": "tcp",
-	},
-	"mysql_dev": {
-		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "gorose",
-		"charset":  "utf8",
-		"protocol": "tcp",
-	},
-}
 
 var regex = []string{"=", ">", "<", "!=", ">=", "<=", "like", "in", "not in", "between", "not between"}
 
-func init() {
-	Connect(dbDefault)
-}
+//func init() {
+//	DB = conn.DB
+//}
 
 //var instance *Database
 //var once sync.Once
@@ -48,31 +22,6 @@ func init() {
 //	})
 //	return instance
 //}
-func Connect(arg interface{}) *sql.DB {
-	var err error
-	var dbObj map[string]interface{}
-	if utils.GetType(arg) == "string" {
-		dbObj = dbConfig[arg.(string)]
-	} else {
-		dbObj = arg.(map[string]interface{})
-	}
-
-	conn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s",
-		dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
-	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
-	DB, err = sql.Open(dbDriver, conn)
-	if err != nil {
-		//log.Fatal(err.Error())
-		panic(err.Error())
-	}
-	err = DB.Ping()
-	if err != nil {
-		//log.Fatal(err.Error())
-		panic(err.Error())
-	}
-
-	return DB
-}
 
 type Database struct {
 	Table_    string
@@ -94,10 +43,10 @@ type Database struct {
 	Data_     interface{}
 }
 
-func (this *Database) Connect(arg interface{}) *Database {
-	Connect(arg)
-	return this
-}
+//func (this *Database) Connect(arg interface{}) *Database {
+//	Connect(arg)
+//	return this
+//}
 func (this *Database) Fields(Fields_ string) *Database {
 	this.Fields_ = Fields_
 	return this
@@ -409,9 +358,9 @@ func (this *Database) buildSql() string {
 	// order
 	order := utils.If(this.Order_ == "", "", "ORDER BY "+this.Order_).(string)
 	// limit
-	limit := utils.If(this.Limit_ == 0, "", "LIMIT "+strconv.Itoa(this.Limit_)).(string)
+	limit := utils.If(this.Limit_ == 0, "", "LIMIT "+utils.ParseStr(this.Limit_)).(string)
 	// offset
-	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+strconv.Itoa(this.Offset_)).(string)
+	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+utils.ParseStr(this.Offset_)).(string)
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
 	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
@@ -420,6 +369,7 @@ func (this *Database) buildSql() string {
 }
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
+	fmt.Println(DB)
 	stmt, err := DB.Prepare(sqlstring)
 	if err != nil {
 		panic(err.Error())
