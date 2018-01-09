@@ -621,6 +621,24 @@ func (this *Database) Rollback() *Database {
 	this.Trans_ = false
 	return this
 }
+
+/**
+ * simple transaction
+ */
+func (this *Database) Transaction(closure func()) bool {
+	defer func() {
+		if err := recover(); err != nil {
+			this.Rollback()
+			panic(err)
+		}
+	}()
+
+	this.Begin()
+	closure()
+	this.Commit()
+
+	return true
+}
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
