@@ -134,14 +134,29 @@ SELECT  * FROM user
 ```  
 
 #### transaction
+- standard using
 ```go
 db.Begin()
+
 res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if (res == 0 || res2 == 0) {
+if (res == 0) {
 	db.Rollback()
 }
+
+res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
+if (res2 == 0) {
+	db.Rollback()
+}
+
 db.Commit()
+```
+- simple using
+```go
+db.Transaction(func() {
+    db.Execute("update area set job='sadf' where id=14")
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+})
 ```
 
 ### execute
@@ -177,10 +192,10 @@ User.Where("id", 5).Delete()
 ```
 parse sql result: `delete from user where id=5`  
 
-## TODO
+## TODO (finish)
 - list  
-[] where nested  
-[] transaction union (auto begin, rollback or commit) 
+[x] where nested  
+[x] transaction union (auto begin, rollback or commit) 
 - sample  
 ```go
 db.Where(func(){
