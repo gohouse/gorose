@@ -8,10 +8,6 @@ gorose(go orm), a mini database orm for golang , which inspired by the famous ph
 ```go
 go get github.com/gohouse/gorose
 ```
-- install utils as a func tool box which used in gorose
-```go
-go get github.com/gohouse/utils
-```
 ## config and sample
 - multi config 
 ```go

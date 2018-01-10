@@ -8,10 +8,6 @@ gorose(go orm), 一个小巧强悍的go语言数据库操作orm, 灵感来源于
 ```go
 go get github.com/gohouse/gorose
 ```
-- 安装gorose中使用到的函数工具包
-```go
-go get github.com/gohouse/utils
-```
 
 ## 配置和示例
 - 多个数据库连接配置  
