@@ -1,5 +1,8 @@
 # gorose
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
+
+- [english document](https://github.com/gohouse/gorose)
+- [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
 ## install
 - install gorose
 ```go
@@ -254,3 +257,6 @@ db.Transaction(func(){
 	db.Table("card").Data().Insert()
 })
 ```
+
+------------
+#### [点击查看最新更新动态](https://github.com/gohouse/gorose)
