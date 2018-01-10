@@ -258,5 +258,8 @@ db.Transaction(func(){
 })
 ```
 
+## TODO  
+[] Separation of reading and writing
+
 ------------
 #### [点击查看最新更新动态](https://github.com/gohouse/gorose)

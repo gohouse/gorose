@@ -252,5 +252,8 @@ db.Connect(map[string]string {
             }).Table().First()
 ```  
 
+## TODO
+[] 读写分离
+
 ------------
 #### [点击查看最新更新动态](https://github.com/gohouse/gorose)
