@@ -1,38 +1,43 @@
-# gorose
-gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
-## install
-- install gorose
+    gorose(go orm), 一个小巧强悍的go语言数据库操作orm, 灵感来源于laravel的数据库操作orm, 也就是eloquent, php、python、ruby开发者, 都会喜欢上这个orm的操作方式, 主要是链式操作比较风骚
+
+- [English Document](https://github.com/gohouse/gorose)
+- [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
+
+## 安装
+- 安装 gorose
 ```go
 go get github.com/gohouse/gorose
 ```
-- install utils as a func tool box which used in gorose
+- 安装gorose中使用到的函数工具包
 ```go
 go get github.com/gohouse/utils
 ```
-## config and sample
-- multi config 
+
+## 配置和示例
+- 多个数据库连接配置  
+
 ```go
 import "github.com/gohouse/gorose"
 
 var dbConfig = map[string]map[string]string {
-	"mysql": {
-		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "test",
-		"charset":  "utf8",
-		"protocol": "tcp",
-	},
-	"mysql_dev": {
-		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "gorose",
-		"charset":  "utf8",
-		"protocol": "tcp",
-	},
+    "mysql": {
+        "host":     "localhost",
+        "username": "root",
+        "password": "",
+        "port":     "3306",
+        "database": "test",
+        "charset":  "utf8",
+        "protocol": "tcp",
+    },
+    "mysql_dev": {
+        "host":     "localhost",
+        "username": "root",
+        "password": "",
+        "port":     "3306",
+        "database": "gorose",
+        "charset":  "utf8",
+        "protocol": "tcp",
+    },
 }
 
 gorose.Open(dbConfig, "mysql")
@@ -45,7 +50,8 @@ func main() {
     fmt.Println(res)
 }
 ```
-- single config
+- 简单的但数据库配置  
+
 ```go
 gorose.Open(map[string]string {
                 "host":     "localhost",
@@ -57,13 +63,15 @@ gorose.Open(map[string]string {
                 "protocol": "tcp",
             })
 ```
-## example
-### query
-#### Native string
+
+## 用法示例
+### 查询
+#### 原生sql语句查询
 ```go
 db.Query("select * from user where id = 1")
 ```
-#### call chaining
+#### 链式调用查询  
+
 ```go
 db.Table("user").
     Field("id, name").  // field
@@ -80,7 +88,7 @@ db.Table("user").
     Offset(1).  // offset
     Get()   // fetch multi rows
 ```
-parse sql result: 
+得到sql结果: 
 ```go
 select id,name from user 
     where (id>1) 
@@ -94,52 +102,53 @@ select id,name from user
     order by age asc 
     limit 10 offset 1
 ```  
-#### more query usage
-- get user obj
+
+#### 更多链式查询示例
+- 获取user表对象
 ```go
 User := db.Table("user")
 ```
-- fetch one row
+- 查询一条
 ```go
 User.First()
-// or
+// 或者
 db.Fisrt()
 ```
 parse sql result: `select * from user limit 1`  
 
-- count
+- count统计
 ```go
 User.Count("*")
-// or 
+// 或(下同) 
 db.Count("*")
 ```
-parse sql result: `select count(*) as count from user`  
+最终执行的sql为: `select count(*) as count from user`  
 
 - max
 ```go
 User.Max("age")
 ```
-parse sql result: `select max(age) as max from user`  
+最终执行的sql为: `select max(age) as max from user`  
 
 - min
 ```go
 User.Min("age")
 ```
-parse sql result: `select min(age) as min from user`  
+最终执行的sql为: `select min(age) as min from user`  
 
 - avg
 ```go
 User.Avg("age")
 ```
-parse sql result: `select avg(age) as avg from user`  
+最终执行的sql为: `select avg(age) as avg from user`  
 
 - distinct
 ```go
 User.Fields("id, name").Distinct()
 ```
-parse sql result: `select distinct id,name from user`  
+最终执行的sql为: `select distinct id,name from user`  
 
-#### where nested (嵌套where)
+#### 嵌套where的查询 (where nested)
 ```go
 db.Table("user").Where("id", ">", 1).Where(func() {
 		db.Where("name", "fizz").OrWhere(func() {
@@ -149,8 +158,8 @@ db.Table("user").Where("id", ">", 1).Where(func() {
 		})
 	}).Where("job", "it").First()
 ```
-parse sql result: 
-```sql
+最终执行的sql为: 
+```go
 SELECT  * FROM user  
     WHERE  id > '1' 
         and ( name = 'fizz' 
@@ -161,8 +170,9 @@ SELECT  * FROM user
     and job = 'it' LIMIT 1
 ```  
 
-#### transaction
-- standard using
+#### 事务
+- 标准用法  
+
 ```go
 db.Begin()
 
@@ -178,7 +188,8 @@ if (res2 == 0) {
 
 db.Commit()
 ```
-- simple using
+- 简单用法, 用闭包实现, 自动开始事务, 回滚或提交事务  
+
 ```go
 db.Transaction(func() {
     db.Execute("update area set job='sadf' where id=14")
@@ -187,12 +198,13 @@ db.Transaction(func() {
 })
 ```
 
-### execute
-#### Native string
+### 增删改操作
+#### 原生sql字符串
 ```go
 db.Execute("update user set job='it2' where id=3")
 ```
-#### Call chaining
+#### 链式调用  
+
 ```go
 db.Table("user").
 	Data(map[string]interface{}{"age":17, "job":"it3"}).
@@ -200,30 +212,35 @@ db.Table("user").
     OrWhere("age",">",30).
     Update()
 ```
-parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`  
+最终执行的sql为: `update user set age=17, job='ite3' where (id=1) or (age>30)`  
 
-#### more execute usage
-- insert  
+#### 更多增删改的用法
+- insert   
+
 ```go
 User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
 User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
 ```
-parse sql result: 
-```sql
+最终执行的sql为:  
+
+```go
 insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
 
-- delete  
+- delete   
+ 
 ```go
 User.Where("id", 5).Delete()
 ```
-parse sql result: `delete from user where id=5`
+最终执行的sql为: `delete from user where id=5`
 
-## Temporary connection
+## 切换数据库连接  
+
 ```go
+// 连接最开始配置的第二个链接(mysql_dev是key)
 db.Connect("mysql_dev").Table().First()
-// or
+// 或者直接输入连接配置
 db.Connect(map[string]string {
                 "host":     "localhost",
                 "username": "root",
@@ -235,22 +252,5 @@ db.Connect(map[string]string {
             }).Table().First()
 ```  
 
-## TODO (finish)
-- list  
-[x] where nested  
-[x] transaction union (auto begin, rollback or commit) 
-- sample  
-```go
-db.Where(func(){
-	db.Where().OrWhere(func() *db{
-		return db.Where().OrWhere()
-	})
-})
-```
-- transaction
-```go
-db.Transaction(func(){
-	db.Table("user").Data().Where().Update()
-	db.Table("card").Data().Insert()
-})
-```
+------------
+#### [点击查看最新更新动态](https://github.com/gohouse/gorose)
