@@ -1,7 +1,16 @@
+## 简介
 gorose(go orm), 一个小巧强悍的go语言数据库操作orm, 灵感来源于laravel的数据库操作orm, 也就是eloquent, php、python、ruby开发者, 都会喜欢上这个orm的操作方式, 主要是链式操作比较风骚
 
-- [English Document](https://github.com/gohouse/gorose)
+## 文档
+- [english document](https://github.com/gohouse/gorose)
 - [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
+
+## 先睹为快
+```go
+db.Table("tablename").First()
+db.Table("tablename").Distinct().Where("id", ">", 5).Get()
+db.Table("tablename").Fields("id, name, age, job").Group("job").Limit(10).Offset(20).Order("id desc").Get()
+```
 
 ## 安装
 - 安装 gorose
