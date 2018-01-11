@@ -1,8 +1,17 @@
-# gorose
+## brief introduction
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
 
+## document
 - [english document](https://github.com/gohouse/gorose)
 - [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
+
+## quick scan
+```go
+db.Table("tablename").First()
+db.Table("tablename").Distinct().Where("id", ">", 5).Get()
+db.Table("tablename").Fields("id, name, age, job").Group("job").Limit(10).Offset(20).Order("id desc").Get()
+```
+
 ## install
 - install gorose
 ```go
