@@ -13,7 +13,7 @@ var (
 	SqlLogs []string	// all sql logs
 )
 
-func Open(arg ...interface{}) Database{
+func Open(arg ...interface{}) *sql.DB{
 	if len(arg) == 1 {
 		Connect(arg[0])
 	} else {
@@ -21,9 +21,7 @@ func Open(arg ...interface{}) Database{
 		Connect(arg[1])
 	}
 
-	var db Database
-
-	return db
+	return DB
 }
 
 func Connect(arg interface{}) *sql.DB {
