@@ -366,12 +366,11 @@ func (this *Database) buildSql() string {
 	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
 
 	SqlLogs = append(SqlLogs, sqlstr)
-	fmt.Println(sqlstr)
+	//fmt.Println(sqlstr)
 	return sqlstr
 }
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
-	defer DB.Close()
 	stmt, err := DB.Prepare(sqlstring)
 	//fmt.Println(stmt)
 	checkErr(err)
@@ -431,7 +430,7 @@ func (this *Database) Execute(sqlstring string) int64 {
 	if operType == "select" {
 		panic("该方法不允许select操作, 请使用Query")
 	}
-	defer DB.Close()
+
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
 		checkErr(err)
@@ -479,7 +478,7 @@ func (this *Database) buildExecut(operType string) string {
 	}
 
 	SqlLogs = append(SqlLogs, sqlstr)
-	fmt.Println(sqlstr)
+	//fmt.Println(sqlstr)
 	return sqlstr
 }
 

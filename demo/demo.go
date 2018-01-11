@@ -27,12 +27,17 @@ var dbConfig = map[string]map[string]string {
 }
 
 func main() {
-	gorose.Open(dbConfig, "mysql_dev")
-
+	// open a db connection
+	DB := gorose.Open(dbConfig, "mysql_dev")
+	// close db
+	defer DB.Close()
+	// get the db chaining object
 	var db gorose.Database
 
 	res := db.Table("users").First()
+	res2 := db.Table("users").Limit(2).Get()
 
 	fmt.Println(res)
+	fmt.Println(res2)
 }
 
