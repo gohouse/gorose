@@ -248,6 +248,17 @@ db.Connect(map[string]string {
             }).Table().First()
 ```  
 
+## 获取原始连接 DB
+```go
+gorose.GetDB()
+```
+
+## 获取所有sql记录, 或者获取最后一条sql语句
+```go
+db.SqlLogs()
+db.LastSql()
+```
+
 ## TODO
 [] 读写分离
 
