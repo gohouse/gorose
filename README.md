@@ -234,10 +234,22 @@ db.Connect(map[string]string {
             }).Table().First()
 ```  
 
+## get origin connection DB  
+```go
+gorose.GetDB()
+```
+
+## get sql logs or last sql
+```go
+db.SqlLogs()
+db.LastSql()
+```
+
 ## TODO (finish)
 - list  
 [x] where nested  
 [x] transaction union (auto begin, rollback or commit) 
+[] Separation of reading and writing
 - sample  
 ```go
 db.Where(func(){
@@ -254,8 +266,6 @@ db.Transaction(func(){
 })
 ```
 
-## TODO  
-[] Separation of reading and writing
 
 ------------
-#### [点击查看最新更新动态](https://github.com/gohouse/gorose)
+#### [ click for getting the news ](https://github.com/gohouse/gorose)

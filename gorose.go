@@ -24,59 +24,58 @@ var regex = []string{"=", ">", "<", "!=", ">=", "<=", "like", "in", "not in", "b
 //}
 
 type Database struct {
-	Table_    string
-	Fields_   string
-	Where_    [][]interface{}
-	Order_    string
-	Limit_    int
-	Offset_   int
-	Page_     int
-	Join_     []string
-	Distinct_ bool
-	Count_    string
-	Sum_      string
-	Avg_      string
-	Max_      string
-	Min_      string
-	Group_    string
-	Trans_    bool
-	Data_     interface{}
+	table    string
+	fields   string
+	where    [][]interface{}
+	order    string
+	limit    int
+	offset   int
+	page     int
+	join     []string
+	distinct bool
+	count    string
+	sum      string
+	avg      string
+	max      string
+	min      string
+	group    string
+	trans    bool
+	data     interface{}
 }
 
 func (this *Database) Connect(arg interface{}) *Database {
-	var conn Connection
-	conn.Connect(arg)
+	Connect(arg)
 	return this
 }
-func (this *Database) Fields(Fields_ string) *Database {
-	this.Fields_ = Fields_
+func (this *Database) Fields(fields string) *Database {
+	this.fields = fields
 	return this
 }
-func (this *Database) Table(Table_ string) *Database {
-	this.Table_ = Table_
+func (this *Database) Table(table string) *Database {
+	this.table = table
 	return this
 }
-func (this *Database) Order(Order_ string) *Database {
-	this.Order_ = Order_
+func (this *Database) Order(order string) *Database {
+	this.order = order
 	return this
 }
-func (this *Database) Limit(Limit_ int) *Database {
-	this.Limit_ = Limit_
+func (this *Database) Limit(limit int) *Database {
+	this.limit = limit
 	return this
 }
-func (this *Database) Offset(Offset_ int) *Database {
-	this.Offset_ = Offset_
+func (this *Database) Offset(offset int) *Database {
+	this.offset = offset
 	return this
 }
-func (this *Database) Page(Page_ int) *Database {
-	this.Page_ = Page_
+func (this *Database) Page(page int) *Database {
+	this.page = page
 	return this
 }
 func (this *Database) First() map[string]interface{} {
-	this.Limit_ = 1
+	this.limit = 1
 	// 构建sql
 	sqls := this.buildSql()
-	fmt.Println(sqls)
+
 	// 执行查询
 	result := this.Query(sqls)
 
@@ -89,7 +88,7 @@ func (this *Database) First() map[string]interface{} {
 func (this *Database) Get() []map[string]interface{} {
 	// 构建sql
 	sqls := this.buildSql()
-	fmt.Println(sqls)
+
 	// 执行查询
 	result := this.Query(sqls)
 
@@ -112,7 +111,7 @@ func (this *Database) Where(args ...interface{}) *Database {
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为参数类型(三种类型), 第三项为具体传入的参数
 	w := []interface{}{"and", argsType, args}
 
-	this.Where_ = append(this.Where_, w)
+	this.where = append(this.where, w)
 
 	return this
 }
@@ -126,7 +125,7 @@ func (this *Database) OrWhere(args ...interface{}) *Database {
 	}
 
 	w := []interface{}{"or", argsType, args}
-	this.Where_ = append(this.Where_, w)
+	this.where = append(this.where, w)
 	return this
 }
 func (this *Database) Join(args ...interface{}) *Database {
@@ -146,7 +145,7 @@ func (this *Database) RightJoin(args ...interface{}) *Database {
 }
 
 func (this *Database) Distinct() *Database {
-	this.Distinct_ = true
+	this.distinct = true
 
 	return this
 }
@@ -169,15 +168,15 @@ func (this *Database) buildUnion(union, field string) int {
 	unionStr := union + "(" + field + ") as " + union
 	switch union {
 	case "count":
-		this.Count_ = unionStr
+		this.count = unionStr
 	case "sum":
-		this.Sum_ = unionStr
+		this.sum = unionStr
 	case "avg":
-		this.Avg_ = unionStr
+		this.avg = unionStr
 	case "max":
-		this.Max_ = unionStr
+		this.max = unionStr
 	case "min":
-		this.Min_ = unionStr
+		this.min = unionStr
 	}
 
 	// 构建sql
@@ -201,7 +200,7 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
 		panic("join格式错误")
 	}
 
-	this.Join_ = append(this.Join_, joinType+" JOIN "+w)
+	this.join = append(this.join, joinType+" JOIN "+w)
 
 	return true
 }
@@ -211,7 +210,7 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
  */
 func (this *Database) parseWhere() string {
 	// 取出所有where
-	wheres := this.Where_
+	wheres := this.where
 	//// where解析后存放每一项的容器
 	var where []string
 
@@ -253,8 +252,8 @@ func (this *Database) parseWhere() string {
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
 			} else if dataType == "func()" {
-				// 清空Where_,给嵌套的where让路,复用这个节点
-				this.Where_ = [][]interface{}{}
+				// 清空where,给嵌套的where让路,复用这个节点
+				this.where = [][]interface{}{}
 
 				// 执行嵌套where放入Database struct
 				(params[0].(func()))()
@@ -264,7 +263,7 @@ func (this *Database) parseWhere() string {
 				where = append(where, condition+" ("+wherenested+")")
 
 				//// 返还原来的where
-				//this.Where_ = wheres
+				//this.where = wheres
 			} else {
 				panic("where条件格式错误")
 			}
@@ -330,11 +329,11 @@ func (this *Database) parseParams(args []interface{}) string {
 func (this *Database) buildSql() string {
 	// 聚合
 	unionArr := []string{
-		this.Count_,
-		this.Sum_,
-		this.Avg_,
-		this.Max_,
-		this.Min_,
+		this.count,
+		this.sum,
+		this.avg,
+		this.max,
+		this.min,
 	}
 	var union string
 	for _, item := range unionArr {
@@ -344,48 +343,47 @@ func (this *Database) buildSql() string {
 		}
 	}
 	// distinct
-	distinct := utils.If(this.Distinct_, "distinct", "")
+	distinct := utils.If(this.distinct, "distinct", "")
 	// fields
-	fields := utils.If(this.Fields_ == "", "*", this.Fields_).(string)
+	fields := utils.If(this.fields == "", "*", this.fields).(string)
 	// table
-	table := this.Table_
+	table := this.table
 	// join
-	join := utils.If(strings.Join(this.Join_, "") == "", "", strings.Join(this.Join_, " "))
+	join := utils.If(strings.Join(this.join, "") == "", "", strings.Join(this.join, " "))
 	// where
 	parseWhere := this.parseWhere()
 	where := utils.If(parseWhere == "", "", "WHERE "+parseWhere).(string)
 	// group
-	group := utils.If(this.Group_ == "", "", "GROUP BY "+this.Group_).(string)
+	group := utils.If(this.group == "", "", "GROUP BY "+this.group).(string)
 	// order
-	order := utils.If(this.Order_ == "", "", "ORDER BY "+this.Order_).(string)
+	order := utils.If(this.order == "", "", "ORDER BY "+this.order).(string)
 	// limit
-	limit := utils.If(this.Limit_ == 0, "", "LIMIT "+utils.ParseStr(this.Limit_)).(string)
+	limit := utils.If(this.limit == 0, "", "LIMIT "+utils.ParseStr(this.limit)).(string)
 	// offset
-	offset := utils.If(this.Offset_ == 0, "", "OFFSET "+utils.ParseStr(this.Offset_)).(string)
+	offset := utils.If(this.offset == 0, "", "OFFSET "+utils.ParseStr(this.offset)).(string)
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
 	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
 
+	SqlLogs = append(SqlLogs, sqlstr)
+	fmt.Println(sqlstr)
 	return sqlstr
 }
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
-	fmt.Println(DB)
+	defer DB.Close()
 	stmt, err := DB.Prepare(sqlstring)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer stmt.Close()
+	//fmt.Println(stmt)
+	checkErr(err)
+
 	rows, err := stmt.Query()
-	if err != nil {
-		panic(err.Error())
-	}
+	checkErr(err)
+
 	defer rows.Close()
 	// Get column names
 	columns, err := rows.Columns()
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
+	checkErr(err)
+
 	// Make a slice for the values
 	values := make([]sql.RawBytes, len(columns))
 	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
@@ -403,9 +401,8 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	for rows.Next() {
 		// get RawBytes from data
 		err = rows.Scan(scanArgs...)
-		if err != nil {
-			panic(err.Error()) // proper error handling instead of panic in your app
-		}
+		checkErr(err)
+
 		// Now do something with the data.
 		// Here we just print each column as a string.
 		var value string
@@ -434,7 +431,8 @@ func (this *Database) Execute(sqlstring string) int64 {
 	if operType == "select" {
 		panic("该方法不允许select操作, 请使用Query")
 	}
-	if this.Trans_ == true {
+	defer DB.Close()
+	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
 		checkErr(err)
 		return this.parseExecute(stmt, operType)
@@ -473,12 +471,14 @@ func (this *Database) buildExecut(operType string) string {
 
 	switch operType {
 	case "insert":
-		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.Table_, insertkey, insertval)
+		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.table, insertkey, insertval)
 	case "update":
-		sqlstr = fmt.Sprintf("update %s set %s %s", this.Table_, upOrDel, where)
+		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, upOrDel, where)
 	case "delete":
-		sqlstr = fmt.Sprintf("update %s set %s %s", this.Table_, upOrDel, where)
+		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, upOrDel, where)
 	}
+
+	SqlLogs = append(SqlLogs, sqlstr)
 	fmt.Println(sqlstr)
 	return sqlstr
 }
@@ -490,7 +490,7 @@ func (this *Database) buildData() (string, string, string) {
 	// update or delete
 	var dataObj []string
 
-	data := this.Data_
+	data := this.data
 	fmt.Println(data, utils.GetType(data))
 	dataType := utils.GetType(data)
 	switch dataType {
@@ -541,7 +541,7 @@ func (this *Database) Data(data interface{}) *Database {
 	//var tmp []interface{}
 	//tmp = append(tmp, utils.GetType(data))
 	//tmp = append(tmp, data)
-	this.Data_ = data
+	this.data = data
 	return this
 }
 func (this *Database) Insert() int64 {
@@ -558,18 +558,18 @@ func (this *Database) Delete(sqlstring string) int64 {
 }
 func (this *Database) Begin() *sql.Tx {
 	tx, _ := DB.Begin()
-	this.Trans_ = true
+	this.trans = true
 	Tx = tx
 	return tx
 }
 func (this *Database) Commit() *Database {
 	Tx.Commit()
-	this.Trans_ = false
+	this.trans = false
 	return this
 }
 func (this *Database) Rollback() *Database {
 	Tx.Rollback()
-	this.Trans_ = false
+	this.trans = false
 	return this
 }
 
@@ -590,10 +590,11 @@ func (this *Database) Transaction(closure func()) bool {
 
 	return true
 }
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
+func (this *Database) LastSql() string {
+	return SqlLogs[len(SqlLogs)-1:][0]
+}
+func (this *Database) SqlLogs() []string {
+	return SqlLogs
 }
 
 func main() {
