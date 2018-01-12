@@ -3,7 +3,6 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"github.com/gohouse/utils"
 )
@@ -373,15 +372,15 @@ func (this *Database) buildSql() string {
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	stmt, err := DB.Prepare(sqlstring)
 	//fmt.Println(stmt)
-	checkErr(err)
+	CheckErr(err)
 
 	rows, err := stmt.Query()
-	checkErr(err)
+	CheckErr(err)
 
 	defer rows.Close()
 	// Get column names
 	columns, err := rows.Columns()
-	checkErr(err)
+	CheckErr(err)
 
 	// Make a slice for the values
 	values := make([]sql.RawBytes, len(columns))
@@ -400,7 +399,7 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	for rows.Next() {
 		// get RawBytes from data
 		err = rows.Scan(scanArgs...)
-		checkErr(err)
+		CheckErr(err)
 
 		// Now do something with the data.
 		// Here we just print each column as a string.
@@ -433,11 +432,11 @@ func (this *Database) Execute(sqlstring string) int64 {
 
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
-		checkErr(err)
+		CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	} else {
 		stmt, err := DB.Prepare(sqlstring)
-		checkErr(err)
+		CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	}
 }
@@ -446,7 +445,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	var res int64
 	var err error
 	result, err := stmt.Exec()
-	checkErr(err)
+	CheckErr(err)
 
 	switch operType {
 	case "insert":
@@ -456,7 +455,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	case "delete":
 		res, err = result.RowsAffected()
 	}
-	checkErr(err)
+	CheckErr(err)
 	return res
 }
 

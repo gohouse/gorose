@@ -1,0 +1,19 @@
+package gorose
+
+import (
+	"fmt"
+	"database/sql"
+	_ "github.com/lib/pq"
+)
+
+func Postgres() {
+	dbObj := CurrentConfig
+	var err error
+
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		dbObj["host"], dbObj["port"], dbObj["username"], dbObj["password"], dbObj["database"])
+
+	DB, err = sql.Open("postgres", dsn)
+
+	CheckErr(err)
+}

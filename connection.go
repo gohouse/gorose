@@ -2,7 +2,6 @@ package gorose
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/gohouse/utils"
 )
 
@@ -11,7 +10,12 @@ var (
 	Tx *sql.Tx	// transaction
 	Config map[string]map[string]string	// config
 	SqlLogs []string	// all sql logs
+	CurrentConfig map[string]string
 )
+
+type Connection struct {
+
+}
 
 func Open(arg ...interface{}) *sql.DB{
 	if len(arg) == 1 {
@@ -25,31 +29,45 @@ func Open(arg ...interface{}) *sql.DB{
 }
 
 func Connect(arg interface{}) *sql.DB {
-	var err error
-	var dbObj map[string]string
-
 	if utils.GetType(arg) == "string" {
-		dbObj = Config[arg.(string)]
+		CurrentConfig = Config[arg.(string)]
 	} else {
-		dbObj = arg.(map[string]string)
+		CurrentConfig = arg.(map[string]string)
 	}
 
-	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s", dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
-	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
-	DB, err = sql.Open("mysql", dsn)
-	checkErr(err)
+	// get driver
+	getDriver()
 
-	err = DB.Ping()
-	checkErr(err)
+	var err error = DB.Ping()
+	CheckErr(err)
 
 	return DB
+}
+
+func getDriver() {
+	var err error
+	dbObj := CurrentConfig
+
+	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
+	switch dbObj["driver"] {
+	case "mysql":
+		MySQL()
+	case "sqlite":
+		Sqlite()
+	case "postgre":
+		Postgres()
+	case "oracle":
+		Oracle()
+	}
+
+	CheckErr(err)
 }
 
 func GetDB() *sql.DB {
 	return DB
 }
 
-func checkErr(err error) {
+func CheckErr(err error) {
 	if err != nil {
 		panic(err)
 	}
