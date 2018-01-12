@@ -3,10 +3,10 @@ package gorose
 import (
 	"fmt"
 	"database/sql"
-	_ "github.com/lib/pq"
+	//_ "github.com/lib/pq"
 )
 
-func Postgres() {
+func (this *Connection) Postgres() {
 	dbObj := CurrentConfig
 	var err error
 

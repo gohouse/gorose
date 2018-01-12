@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func Oracle() {
+func (this *Connection) Oracle() {
 	dbObj := CurrentConfig
 	var err error
 

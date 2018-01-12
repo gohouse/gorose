@@ -8,35 +8,37 @@ import (
 var (
 	DB *sql.DB	// origin DB
 	Tx *sql.Tx	// transaction
-	Config map[string]map[string]string	// config
+	Conf map[string]map[string]string	// config
 	SqlLogs []string	// all sql logs
 	CurrentConfig map[string]string
+	//conn Connection
+	Connect Connection
 )
 
 type Connection struct {
 
 }
 
-func Open(arg ...interface{}) *sql.DB{
+func (this *Connection) Open(arg ...interface{}) *sql.DB{
 	if len(arg) == 1 {
-		Connect(arg[0])
+		this.Connect(arg[0])
 	} else {
-		Config = arg[0].(map[string]map[string]string)
-		Connect(arg[1])
+		Conf = arg[0].(map[string]map[string]string)
+		this.Connect(arg[1])
 	}
 
 	return DB
 }
 
-func Connect(arg interface{}) *sql.DB {
+func (this *Connection) Connect(arg interface{}) *sql.DB {
 	if utils.GetType(arg) == "string" {
-		CurrentConfig = Config[arg.(string)]
+		CurrentConfig = Conf[arg.(string)]
 	} else {
 		CurrentConfig = arg.(map[string]string)
 	}
 
 	// get driver
-	getDriver()
+	this.getDriver()
 
 	var err error = DB.Ping()
 	CheckErr(err)
@@ -44,20 +46,20 @@ func Connect(arg interface{}) *sql.DB {
 	return DB
 }
 
-func getDriver() {
+func (this *Connection) getDriver() {
 	var err error
 	dbObj := CurrentConfig
 
 	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
 	switch dbObj["driver"] {
 	case "mysql":
-		MySQL()
+		this.MySQL()
 	case "sqlite":
-		Sqlite()
+		this.Sqlite()
 	case "postgre":
-		Postgres()
+		this.Postgres()
 	case "oracle":
-		Oracle()
+		this.Oracle()
 	}
 
 	CheckErr(err)
