@@ -3,7 +3,6 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"github.com/gohouse/utils"
 )
@@ -44,7 +43,7 @@ type Database struct {
 }
 
 func (this *Database) Connect(arg interface{}) *Database {
-	Connect(arg)
+	Connect.Connect(arg)
 	return this
 }
 func (this *Database) Fields(fields string) *Database {
@@ -181,7 +180,7 @@ func (this *Database) buildUnion(union, field string) int {
 
 	// 构建sql
 	sqls := this.buildSql()
-	fmt.Println(sqls)
+
 	// 执行查询
 	result := this.Query(sqls)
 
@@ -343,27 +342,28 @@ func (this *Database) buildSql() string {
 		}
 	}
 	// distinct
-	distinct := utils.If(this.distinct, "distinct", "")
+	distinct := utils.If(this.distinct, "distinct ", "")
 	// fields
 	fields := utils.If(this.fields == "", "*", this.fields).(string)
 	// table
 	table := this.table
 	// join
-	join := utils.If(strings.Join(this.join, "") == "", "", strings.Join(this.join, " "))
+	join := utils.If(strings.Join(this.join, "") == "", "", " "+strings.Join(this.join, " "))
 	// where
 	parseWhere := this.parseWhere()
-	where := utils.If(parseWhere == "", "", "WHERE "+parseWhere).(string)
+	where := utils.If(parseWhere == "", "", " WHERE "+parseWhere).(string)
 	// group
-	group := utils.If(this.group == "", "", "GROUP BY "+this.group).(string)
+	group := utils.If(this.group == "", "", " GROUP BY "+this.group).(string)
 	// order
-	order := utils.If(this.order == "", "", "ORDER BY "+this.order).(string)
+	order := utils.If(this.order == "", "", " ORDER BY "+this.order).(string)
 	// limit
-	limit := utils.If(this.limit == 0, "", "LIMIT "+utils.ParseStr(this.limit)).(string)
+	limit := utils.If(this.limit == 0, "", " LIMIT "+utils.ParseStr(this.limit)).(string)
 	// offset
-	offset := utils.If(this.offset == 0, "", "OFFSET "+utils.ParseStr(this.offset)).(string)
+	offset := utils.If(this.offset == 0, "", " OFFSET "+utils.ParseStr(this.offset)).(string)
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
-	sqlstr := fmt.Sprintf("SELECT %s %s FROM %s %s %s %s %s %s %s", distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
+	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
+		distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
 
 	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
@@ -373,15 +373,15 @@ func (this *Database) buildSql() string {
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	stmt, err := DB.Prepare(sqlstring)
 	//fmt.Println(stmt)
-	checkErr(err)
+	CheckErr(err)
 
 	rows, err := stmt.Query()
-	checkErr(err)
+	CheckErr(err)
 
 	defer rows.Close()
 	// Get column names
 	columns, err := rows.Columns()
-	checkErr(err)
+	CheckErr(err)
 
 	// Make a slice for the values
 	values := make([]sql.RawBytes, len(columns))
@@ -400,17 +400,21 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	for rows.Next() {
 		// get RawBytes from data
 		err = rows.Scan(scanArgs...)
-		checkErr(err)
+		CheckErr(err)
 
 		// Now do something with the data.
 		// Here we just print each column as a string.
-		var value string
+		var value interface{}
 		for i, col := range values {
+			//fmt.Println(utils.ParseInt(string(col)))
 			// Here we can check if the value is nil (NULL value)
 			if col == nil {
 				value = "NULL"
 			} else {
+				// TODO 根据表字段类型, 最终渲染对应数据类型
 				value = string(col)
+				//var valueInt int = utils.ParseInt(string(col))
+				//value = utils.If(valueInt>0, valueInt,  string(col))
 			}
 			result_map[columns[i]] = value
 		}
@@ -433,11 +437,11 @@ func (this *Database) Execute(sqlstring string) int64 {
 
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
-		checkErr(err)
+		CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	} else {
 		stmt, err := DB.Prepare(sqlstring)
-		checkErr(err)
+		CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	}
 }
@@ -446,7 +450,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	var res int64
 	var err error
 	result, err := stmt.Exec()
-	checkErr(err)
+	CheckErr(err)
 
 	switch operType {
 	case "insert":
@@ -456,7 +460,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	case "delete":
 		res, err = result.RowsAffected()
 	}
-	checkErr(err)
+	CheckErr(err)
 	return res
 }
 
@@ -464,17 +468,20 @@ func (this *Database) buildExecut(operType string) string {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
-	upOrDel, insertkey, insertval := this.buildData()
-	where := utils.If(this.parseWhere() == "", "", "WHERE "+this.parseWhere()).(string)
+	var update, insertkey, insertval string
+	if operType!="delete"{
+		update, insertkey, insertval = this.buildData()
+	}
+	where := utils.If(this.parseWhere() == "", "", " WHERE "+this.parseWhere()).(string)
 	var sqlstr string
 
 	switch operType {
 	case "insert":
 		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.table, insertkey, insertval)
 	case "update":
-		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, upOrDel, where)
+		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, update, where)
 	case "delete":
-		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, upOrDel, where)
+		sqlstr = fmt.Sprintf("delete from %s%s", this.table, where)
 	}
 
 	SqlLogs = append(SqlLogs, sqlstr)
@@ -490,10 +497,10 @@ func (this *Database) buildData() (string, string, string) {
 	var dataObj []string
 
 	data := this.data
-	fmt.Println(data, utils.GetType(data))
+
 	dataType := utils.GetType(data)
 	switch dataType {
-	case "[]map[string]interface {}":
+	case "[]map[string]interface {}":	// insert multi datas
 		datas := data.([]map[string]interface{})
 		for _, item := range datas {
 			var dataValuesSub []string
@@ -506,7 +513,7 @@ func (this *Database) buildData() (string, string, string) {
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
 	//case "map[string]interface {}":
-	default:
+	default:	// update or insert
 		datas := make(map[string]string)
 		switch dataType {
 		case "map[string]interface {}":
@@ -526,11 +533,13 @@ func (this *Database) buildData() (string, string, string) {
 		//datas := data.(map[string]interface{})
 		var dataValuesSub []string
 		for key, val := range datas {
+			// insert
 			dataFields = append(dataFields, key)
 			dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-			// update or delete
+			// update
 			dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
 		}
+		// insert
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
 
@@ -548,11 +557,11 @@ func (this *Database) Insert() int64 {
 	return this.Execute(sqlstr)
 }
 func (this *Database) Update() int64 {
-	sqlstr := this.buildExecut("insert")
+	sqlstr := this.buildExecut("update")
 	return this.Execute(sqlstr)
 }
-func (this *Database) Delete(sqlstring string) int64 {
-	sqlstr := this.buildExecut("insert")
+func (this *Database) Delete() int64 {
+	sqlstr := this.buildExecut("delete")
 	return this.Execute(sqlstr)
 }
 func (this *Database) Begin() *sql.Tx {
@@ -596,13 +605,3 @@ func (this *Database) SqlLogs() []string {
 	return SqlLogs
 }
 
-func main() {
-	fmt.Println("start")
-
-	var db Database
-	//init()
-	query := db.Table("users").Fields("id, name").
-		Where("id", "<", 100).
-		Where("id", ">", 1).Get()
-	fmt.Println(query)
-}
