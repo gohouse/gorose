@@ -3,10 +3,10 @@ package gorose
 import (
 	"fmt"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
 )
 
-func MySQL() {
+func (this *Connection) MySQL() {
 	dbObj := CurrentConfig
 	var err error
 

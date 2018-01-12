@@ -1,11 +1,7 @@
-package main
+package config
 
-import (
-	"github.com/gohouse/gorose"
-	"fmt"
-)
-
-var dbConfig = map[string]map[string]string {
+//var Config = make(map[string]map[string]string)
+var Configs = map[string]map[string]string {
 	"mysql_dev": {
 		"host":     "localhost",
 		"username": "root",
@@ -16,7 +12,17 @@ var dbConfig = map[string]map[string]string {
 		"protocol": "tcp",
 		"driver":	"mysql",
 	},
-	"mysql_postgres": {
+	"postgres_dev": {
+		"host":     "localhost",
+		"username": "root",
+		"password": "",
+		"port":     "3306",
+		"database": "test",
+		"charset":  "utf8",
+		"protocol": "tcp",
+		"driver":	"postgres",
+	},
+	"oracle_dev": {
 		"host":     "localhost",
 		"username": "root",
 		"password": "",
@@ -31,25 +37,9 @@ var dbConfig = map[string]map[string]string {
 		"username": "root",
 		"password": "",
 		"port":     "3306",
-		"database": "./test.db",
+		"database": "./foo.db",
 		"charset":  "utf8",
 		"protocol": "tcp",
 		"driver":	"sqlite",
 	},
 }
-
-func main() {
-	// open a db connection
-	DB := gorose.Open(dbConfig, "mysql_dev")
-	// close db
-	defer DB.Close()
-	// get the db chaining object
-	var db gorose.Database
-
-	res := db.Table("users").First()
-	res2 := db.Table("users").Limit(2).Get()
-
-	fmt.Println(res)
-	fmt.Println(res2)
-}
-

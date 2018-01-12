@@ -5,7 +5,7 @@ import (
 	//_ "github.com/mattn/go-sqlite3"
 )
 
-func Sqlite() {
+func (this *Connection) Sqlite() {
 	dbObj := CurrentConfig
 	var err error
 
