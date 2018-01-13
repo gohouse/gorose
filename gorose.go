@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"github.com/gohouse/utils"
+	"encoding/json"
 )
 
 var regex = []string{"=", ">", "<", "!=", ">=", "<=", "like", "in", "not in", "between", "not between"}
@@ -70,7 +71,8 @@ func (this *Database) Page(page int) *Database {
 	this.page = page
 	return this
 }
-func (this *Database) First() map[string]interface{} {
+//func (this *Database) First() map[string]interface{} {
+func (this *Database) First() interface{} {
 	this.limit = 1
 	// 构建sql
 	sqls := this.buildSql()
@@ -82,9 +84,27 @@ func (this *Database) First() map[string]interface{} {
 		return nil
 	}
 
+	if JsonEncode == true {
+		jsons, _ := json.Marshal(result[0])
+		return string(jsons)
+	}
 	return result[0]
 }
-func (this *Database) Get() []map[string]interface{} {
+//func (this *Database) Get() []map[string]interface{} {
+//	// 构建sql
+//	sqls := this.buildSql()
+//
+//	// 执行查询
+//	result := this.Query(sqls)
+//
+//	if len(result) == 0 {
+//		return nil
+//	}
+//
+//	return result
+//}
+//func (this *Database) Get() []map[string]interface{} {
+func (this *Database) Get() interface{} {
 	// 构建sql
 	sqls := this.buildSql()
 
@@ -95,6 +115,10 @@ func (this *Database) Get() []map[string]interface{} {
 		return nil
 	}
 
+	if JsonEncode == true {
+		jsons, _ := json.Marshal(result)
+		return string(jsons)
+	}
 	return result
 }
 func (this *Database) Where(args ...interface{}) *Database {
@@ -367,63 +391,71 @@ func (this *Database) buildSql() string {
 
 	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
+	// reset Database struct
+	this.reset()
+
 	return sqlstr
+}
+
+func (this *Database) reset(){
+	this.table = ""
+	this.fields = ""
+	this.where = [][]interface{}{}
+	this.order = ""
+	this.limit = 0
+	this.offset = 0
+	this.page = 0
+	this.join = []string {}
+	this.distinct = false
+	this.count = ""
+	this.sum = ""
+	this.avg = ""
+	this.max = ""
+	this.min = ""
+	this.group = ""
+	this.trans = false
+
+	var tmp interface{}
+	this.data = tmp
 }
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	stmt, err := DB.Prepare(sqlstring)
-	//fmt.Println(stmt)
 	CheckErr(err)
 
+	defer stmt.Close()
 	rows, err := stmt.Query()
 	CheckErr(err)
 
 	defer rows.Close()
-	// Get column names
 	columns, err := rows.Columns()
 	CheckErr(err)
 
-	// Make a slice for the values
-	values := make([]sql.RawBytes, len(columns))
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	// See http://code.google.com/p/go-wiki/wiki/InterfaceSlice for details
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
-	}
+	count := len(columns)
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	scanArgs := make([]interface{}, count)
 
-	// 结果
-	var result []map[string]interface{}
-	var result_map = make(map[string]interface{})
-	// Fetch rows
 	for rows.Next() {
-		// get RawBytes from data
-		err = rows.Scan(scanArgs...)
-		CheckErr(err)
-
-		// Now do something with the data.
-		// Here we just print each column as a string.
-		var value interface{}
-		for i, col := range values {
-			//fmt.Println(utils.ParseInt(string(col)))
-			// Here we can check if the value is nil (NULL value)
-			if col == nil {
-				value = "NULL"
-			} else {
-				// TODO 根据表字段类型, 最终渲染对应数据类型
-				value = string(col)
-				//var valueInt int = utils.ParseInt(string(col))
-				//value = utils.If(valueInt>0, valueInt,  string(col))
-			}
-			result_map[columns[i]] = value
+		for i := 0; i < count; i++ {
+			scanArgs[i] = &values[i]
 		}
-		result = append(result, result_map)
+		rows.Scan(scanArgs...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
 	}
-	if err = rows.Err(); err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
-	return result
+	return tableData
 }
 
 /**
@@ -479,13 +511,15 @@ func (this *Database) buildExecut(operType string) string {
 	case "insert":
 		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.table, insertkey, insertval)
 	case "update":
-		sqlstr = fmt.Sprintf("update %s set %s %s", this.table, update, where)
+		sqlstr = fmt.Sprintf("update %s set %s%s", this.table, update, where)
 	case "delete":
 		sqlstr = fmt.Sprintf("delete from %s%s", this.table, where)
 	}
 
 	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
+	this.reset()
+
 	return sqlstr
 }
 

@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
+	// connect db
 	DB := gorose.Connect.Open(config.Configs,"mysql_dev")
+	// query return json
+	gorose.JsonEncode = true
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -26,9 +29,9 @@ func main() {
 	//============== result ======================
 
 	//SELECT * FROM users WHERE  id > '2' LIMIT 1
-	//map[id:3 name:gorose age:18 website:go-rose.com job:go orm]
+	//{"age":18,"id":3,"job":"go orm","name":"gorose","website":"go-rose.com"}
 	//SELECT * FROM users LIMIT 2
-	//[map[id:1 name:fizz age:18 website:fizzday.net job:it] map[id:2 name:fizzday age:18 website:fizzday.net job:engineer]]
+	//[{"age":18,"id":1,"job":"it","name":"fizz","website":"fizzday.net"},{"age":18,"id":2,"job":"engineer","name":"fizzday","website":"fizzday.net"}]
 
 }
 
