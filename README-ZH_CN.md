@@ -153,6 +153,28 @@ User.Fields("id, name").Distinct()
 ```
 最终执行的sql为: `select distinct id,name from user`  
 
+#### join
+```go
+db.Table("user")
+    .Join("card","user.id","=","card.user_id")
+    .Limit(10)
+    .Get()
+```
+最终执行的sql为: 
+```go
+select * from user inner join card on user.id=card.user_id limit 10
+```
+```go
+db.Table("user")
+    .LeftJoin("card","user.id","=","card.user_id")
+    .First()
+```
+最终执行的sql为: 
+```go
+select * from user left join card on user.id=card.user_id limit 1
+```
+> RightJoin : right join
+
 #### 嵌套where的查询 (where nested)
 ```go
 db.Table("user").Where("id", ">", 1).Where(func() {

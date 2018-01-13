@@ -13,6 +13,7 @@ var (
 	CurrentConfig map[string]string
 	//conn Connection
 	Connect Connection
+	JsonEncode bool
 )
 
 type Connection struct {
