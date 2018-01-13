@@ -107,7 +107,7 @@ func (this *Database) First() interface{} {
 func (this *Database) Get() interface{} {
 	// 构建sql
 	sqls := this.buildSql()
-
+fmt.Println(sqls)
 	// 执行查询
 	result := this.Query(sqls)
 
@@ -172,8 +172,8 @@ func (this *Database) Distinct() *Database {
 
 	return this
 }
-func (this *Database) Count(count string) int {
-	return this.buildUnion("count", count)
+func (this *Database) Count() int {
+	return this.buildUnion("count", "*")
 }
 func (this *Database) Sum(sum string) int {
 	return this.buildUnion("sum", sum)
@@ -208,7 +208,7 @@ func (this *Database) buildUnion(union, field string) int {
 	// 执行查询
 	result := this.Query(sqls)
 
-	return utils.ParseInt(result[0][union])
+	return int(result[0][union].(int64))
 }
 
 func (this *Database) parseJoin(args []interface{}, joinType string) bool {
