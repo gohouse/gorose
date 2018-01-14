@@ -1,9 +1,8 @@
 ## 简介
 gorose(go orm), 一个小巧强悍的go语言数据库操作orm, 灵感来源于laravel的数据库操作orm, 也就是eloquent, php、python、ruby开发者, 都会喜欢上这个orm的操作方式, 主要是链式操作比较风骚
 
-## 文档
-- [english document](https://github.com/gohouse/gorose)
-- [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
+## github
+- [https://github.com/gohouse/gorose](https://github.com/gohouse/gorose)
 
 ## 先睹为快
 ```go
