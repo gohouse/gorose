@@ -4,6 +4,9 @@ gorose(go orm), a mini database orm for golang , which inspired by the famous ph
 ## document
 - [中文文档](https://www.kancloud.cn/fizz/gorose)
 
+## 随时在线交流心得
+qq群: 470809220  
+
 ## quick scan
 ```go
 db.Table("tablename").First()
