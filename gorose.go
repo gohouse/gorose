@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 )
 
-var regex = []string{"=", ">", "<", "!=", ">=", "<=", "like", "in", "not in", "between", "not between"}
+var regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
 
 //func init() {
 //	DB = conn.DB
@@ -88,6 +88,9 @@ func (this *Database) First() interface{} {
 		jsons, _ := json.Marshal(result[0])
 		return string(jsons)
 	}
+
+	this.reset()
+
 	return result[0]
 }
 //func (this *Database) Get() []map[string]interface{} {
@@ -107,7 +110,7 @@ func (this *Database) First() interface{} {
 func (this *Database) Get() interface{} {
 	// 构建sql
 	sqls := this.buildSql()
-fmt.Println(sqls)
+
 	// 执行查询
 	result := this.Query(sqls)
 
@@ -119,6 +122,9 @@ fmt.Println(sqls)
 		jsons, _ := json.Marshal(result)
 		return string(jsons)
 	}
+
+	this.reset()
+
 	return result
 }
 func (this *Database) Where(args ...interface{}) *Database {
@@ -207,6 +213,8 @@ func (this *Database) buildUnion(union, field string) int {
 
 	// 执行查询
 	result := this.Query(sqls)
+
+	this.reset()
 
 	return int(result[0][union].(int64))
 }
@@ -392,7 +400,6 @@ func (this *Database) buildSql() string {
 	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
 	// reset Database struct
-	this.reset()
 
 	return sqlstr
 }
@@ -456,6 +463,36 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 		tableData = append(tableData, entry)
 	}
 	return tableData
+}
+
+func (this *Database) JsonEncode(encode bool) *Database {
+	JsonEncode = encode
+
+	return this
+}
+func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
+	var step = 0
+	for {
+		this.limit = limit
+		this.offset = step*limit
+
+		// 查询当前区块的数据
+		data := this.Query(this.buildSql())
+
+		if len(data) == 0 {
+			this.reset()
+			break
+		}
+
+		callback(data)
+
+		//fmt.Println(res)
+		if len(data)<limit {
+			this.reset()
+			break
+		}
+		step++
+	}
 }
 
 /**

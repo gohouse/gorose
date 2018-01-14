@@ -197,32 +197,24 @@ SELECT  * FROM user
     and job = 'it' LIMIT 1
 ```  
 
-#### 事务
-- 标准用法  
-
+#### 分块获取数据
 ```go
-db.Begin()
-
-res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-if (res == 0) {
-	db.Rollback()
-}
-
-res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if (res2 == 0) {
-	db.Rollback()
-}
-
-db.Commit()
-```
-- 简单用法, 用闭包实现, 自动开始事务, 回滚或提交事务  
-
-```go
-db.Transaction(func() {
-    db.Execute("update area set job='sadf' where id=14")
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+db.JsonEncode(false)    // 如果在项目入口设置了返回json JsonEncode=true
+db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+    // for _,item := range data {
+    // 	   fmt.Println(item)
+    // }
+    fmt.Println(data)
 })
+```
+打印结果:  
+```go
+// map[id:3 name:gorose]
+// map[id:4 name:fizzday]
+// map[id:5 name:fizz3]
+// map[id:6 name:gohouse]
+[map[id:3 name:gorose] map[name:fizzday id:4]]
+[map[id:5 name:fizz3] map[id:6 name:gohouse]]
 ```
 
 ### 增删改操作
@@ -261,6 +253,34 @@ insert into user (age, job) values (17, 'it3') (17, 'it4')
 User.Where("id", 5).Delete()
 ```
 最终执行的sql为: `delete from user where id=5`
+
+## 事务
+- 标准用法  
+
+```go
+db.Begin()
+
+res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
+if (res == 0) {
+	db.Rollback()
+}
+
+res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
+if (res2 == 0) {
+	db.Rollback()
+}
+
+db.Commit()
+```
+- 简单用法, 用闭包实现, 自动开始事务, 回滚或提交事务  
+
+```go
+db.Transaction(func() {
+    db.Execute("update area set job='sadf' where id=14")
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+})
+```
 
 ## 切换数据库连接  
 

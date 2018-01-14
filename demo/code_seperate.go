@@ -30,9 +30,9 @@ func main() {
 			code1 := item["code3"]
 
 			//code查询是否在code2中1
-			exists := db.Table("codes_copy").Where("code4", code1).Count("*")
+			exists := db.Table("codes_copy").Where("code4", code1).Count()
 			fmt.Println(exists)
-			if exists.(int64)>0{
+			if exists>0{
 				db.Table("codes_copy").Where("code3", code1).Data(map[string]int{"tag1":1}).Update()
 				fmt.Println(db.LastSql())
 			} else {

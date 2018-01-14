@@ -2,8 +2,7 @@
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
 
 ## document
-- [english document](https://github.com/gohouse/gorose)
-- [中文文档](https://github.com/gohouse/gorose/blob/master/README-ZH_CN.md)
+- [中文文档](https://www.kancloud.cn/fizz/gorose)
 
 ## quick scan
 ```go
@@ -180,7 +179,7 @@ db.Table("user").Where("id", ">", 1).Where(func() {
 	}).Where("job", "it").First()
 ```
 parse sql result: 
-```sql
+```go
 SELECT  * FROM user  
     WHERE  id > '1' 
         and ( name = 'fizz' 
@@ -191,30 +190,24 @@ SELECT  * FROM user
     and job = 'it' LIMIT 1
 ```  
 
-#### transaction
-- standard using
+#### chunk data block
 ```go
-db.Begin()
-
-res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-if (res == 0) {
-	db.Rollback()
-}
-
-res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if (res2 == 0) {
-	db.Rollback()
-}
-
-db.Commit()
-```
-- simple using
-```go
-db.Transaction(func() {
-    db.Execute("update area set job='sadf' where id=14")
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+db.JsonEncode(false)    // if set JsonEncode=true in project entrance
+db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+    // for _,item := range data {
+    // 	   fmt.Println(item)
+    // }
+    fmt.Println(data)
 })
+```
+result:  
+```go
+// map[id:3 name:gorose]
+// map[id:4 name:fizzday]
+// map[id:5 name:fizz3]
+// map[id:6 name:gohouse]
+[map[id:3 name:gorose] map[name:fizzday id:4]]
+[map[id:5 name:fizz3] map[id:6 name:gohouse]]
 ```
 
 ### execute
@@ -239,7 +232,7 @@ User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
 User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
 ```
 parse sql result: 
-```sql
+```go
 insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
@@ -249,6 +242,32 @@ insert into user (age, job) values (17, 'it3') (17, 'it4')
 User.Where("id", 5).Delete()
 ```
 parse sql result: `delete from user where id=5`
+
+## transaction
+- standard using
+```go
+db.Begin()
+
+res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
+if (res == 0) {
+	db.Rollback()
+}
+
+res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
+if (res2 == 0) {
+	db.Rollback()
+}
+
+db.Commit()
+```
+- simple using
+```go
+db.Transaction(func() {
+    db.Execute("update area set job='sadf' where id=14")
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
+    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+})
+```
 
 ## Temporary connection
 ```go
