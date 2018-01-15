@@ -1,11 +1,10 @@
 package gorose
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 	"github.com/gohouse/utils"
-	"encoding/json"
+	"database/sql"
 )
 
 var regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
@@ -71,8 +70,8 @@ func (this *Database) Page(page int) *Database {
 	this.page = page
 	return this
 }
-//func (this *Database) First() map[string]interface{} {
-func (this *Database) First() interface{} {
+func (this *Database) First() map[string]interface{} {
+//func (this *Database) First() interface{} {
 	this.limit = 1
 	// 构建sql
 	sqls := this.buildSql()
@@ -84,10 +83,10 @@ func (this *Database) First() interface{} {
 		return nil
 	}
 
-	if JsonEncode == true {
-		jsons, _ := json.Marshal(result[0])
-		return string(jsons)
-	}
+	//if JsonEncode == true {
+	//	jsons, _ := json.Marshal(result[0])
+	//	return string(jsons)
+	//}
 
 	this.reset()
 
@@ -106,8 +105,8 @@ func (this *Database) First() interface{} {
 //
 //	return result
 //}
-//func (this *Database) Get() []map[string]interface{} {
-func (this *Database) Get() interface{} {
+func (this *Database) Get() []map[string]interface{} {
+//func (this *Database) Get() interface{} {
 	// 构建sql
 	sqls := this.buildSql()
 
@@ -118,10 +117,10 @@ func (this *Database) Get() interface{} {
 		return nil
 	}
 
-	if JsonEncode == true {
-		jsons, _ := json.Marshal(result)
-		return string(jsons)
-	}
+	//if JsonEncode == true {
+	//	jsons, _ := json.Marshal(result)
+	//	return string(jsons)
+	//}
 
 	this.reset()
 
@@ -428,15 +427,15 @@ func (this *Database) reset(){
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	stmt, err := DB.Prepare(sqlstring)
-	CheckErr(err)
+	utils.CheckErr(err)
 
 	defer stmt.Close()
 	rows, err := stmt.Query()
-	CheckErr(err)
+	utils.CheckErr(err)
 
 	defer rows.Close()
 	columns, err := rows.Columns()
-	CheckErr(err)
+	utils.CheckErr(err)
 
 	count := len(columns)
 	tableData := make([]map[string]interface{}, 0)
@@ -465,10 +464,8 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 	return tableData
 }
 
-func (this *Database) JsonEncode(encode bool) *Database {
-	JsonEncode = encode
-
-	return this
+func (this *Database) JsonEncode(data interface{}) string {
+	return utils.JsonEncode(data)
 }
 func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 	var step = 0
@@ -506,11 +503,11 @@ func (this *Database) Execute(sqlstring string) int64 {
 
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
-		CheckErr(err)
+		utils.CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	} else {
 		stmt, err := DB.Prepare(sqlstring)
-		CheckErr(err)
+		utils.CheckErr(err)
 		return this.parseExecute(stmt, operType)
 	}
 }
@@ -519,7 +516,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	var res int64
 	var err error
 	result, err := stmt.Exec()
-	CheckErr(err)
+	utils.CheckErr(err)
 
 	switch operType {
 	case "insert":
@@ -529,7 +526,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
 	case "delete":
 		res, err = result.RowsAffected()
 	}
-	CheckErr(err)
+	utils.CheckErr(err)
 	return res
 }
 

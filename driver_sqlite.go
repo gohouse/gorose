@@ -3,6 +3,7 @@ package gorose
 import (
 	"database/sql"
 	//_ "github.com/mattn/go-sqlite3"
+	"github.com/gohouse/utils"
 )
 
 func (this *Connection) Sqlite() {
@@ -12,5 +13,5 @@ func (this *Connection) Sqlite() {
 	dsn := dbObj["database"]
 	DB, err = sql.Open("sqlite3", dsn)
 
-	CheckErr(err)
+	utils.CheckErr(err)
 }

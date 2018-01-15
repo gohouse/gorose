@@ -196,7 +196,6 @@ SELECT  * FROM user
 
 #### chunk data block
 ```go
-db.JsonEncode(false)    // if set JsonEncode=true in project entrance
 db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
     // for _,item := range data {
     // 	   fmt.Println(item)
@@ -299,26 +298,15 @@ db.SqlLogs()
 db.LastSql()
 ```
 
+## json return
+```go
+result := db.Table("user").Get()
+jsonStr := db.JsonEncode(result)
+```
+
 ## TODO (finish)
 - list  
-[x] where nested  
-[x] transaction union (auto begin, rollback or commit) 
 [] Separation of reading and writing
-- sample  
-```go
-db.Where(func(){
-	db.Where().OrWhere(func() *db{
-		return db.Where().OrWhere()
-	})
-})
-```
-- transaction
-```go
-db.Transaction(func(){
-	db.Table("user").Data().Where().Update()
-	db.Table("card").Data().Insert()
-})
-```
 
 
 ------------

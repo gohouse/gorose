@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"database/sql"
 	//_ "github.com/lib/pq"
+	"github.com/gohouse/utils"
 )
 
 func (this *Connection) Postgres() {
@@ -15,5 +16,5 @@ func (this *Connection) Postgres() {
 
 	DB, err = sql.Open("postgres", dsn)
 
-	CheckErr(err)
+	utils.CheckErr(err)
 }
