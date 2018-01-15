@@ -8,12 +8,13 @@ import (
 var (
 	DB *sql.DB	// origin DB
 	Tx *sql.Tx	// transaction
+	Stmt *sql.Stmt
 	Conf map[string]map[string]string	// config
 	SqlLogs []string	// all sql logs
 	CurrentConfig map[string]string
 	//conn Connection
 	Connect Connection
-	JsonEncode bool
+	//JsonEncode bool
 )
 
 type Connection struct {
@@ -42,7 +43,7 @@ func (this *Connection) Connect(arg interface{}) *sql.DB {
 	this.getDriver()
 
 	var err error = DB.Ping()
-	CheckErr(err)
+	utils.CheckErr(err)
 
 	return DB
 }
@@ -63,15 +64,10 @@ func (this *Connection) getDriver() {
 		this.Oracle()
 	}
 
-	CheckErr(err)
+	utils.CheckErr(err)
 }
 
 func GetDB() *sql.DB {
 	return DB
 }
 
-func CheckErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}

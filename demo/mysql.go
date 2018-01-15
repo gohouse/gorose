@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gohouse/gorose"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"./config"
+	"fmt"
 )
 
 func main() {
@@ -22,6 +22,7 @@ func main() {
 	res2 := db.Table("users").Limit(2).Get()
 	fmt.Println(db.LastSql())
 	fmt.Println(res2)
+	fmt.Println(db.JsonEncode(res2))
 
 	//============== result ======================
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"database/sql"
 	//_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/utils"
 )
 
 func (this *Connection) MySQL() {
@@ -14,5 +15,5 @@ func (this *Connection) MySQL() {
 		dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
 	DB, err = sql.Open("mysql", dsn)
 
-	CheckErr(err)
+	utils.CheckErr(err)
 }

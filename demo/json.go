@@ -2,29 +2,26 @@ package main
 
 import (
 	"github.com/gohouse/gorose"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"./config"
+	"github.com/gohouse/utils"
+	"fmt"
 )
 
 func main() {
 	// connect db
 	DB := gorose.Connect.Open(config.Configs,"mysql_dev")
-	// query return json
-	gorose.JsonEncode = true
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
 	var db gorose.Database
 
-	res := db.Table("users").Where("id",">",2).First()
-	fmt.Println(db.LastSql())
-	fmt.Println(res)
-
 	// return json
 	res2 := db.Table("users").Limit(2).Get()
 	fmt.Println(db.LastSql())
-	fmt.Println(res2)
+	fmt.Println(utils.JsonEncode(res2))
+	// or
+	fmt.Println(db.JsonEncode(res2))
 
 	//============== result ======================
 
