@@ -1,11 +1,12 @@
 ## brief introduction
+(gorose, 最风骚的go orm, 开箱即用, 一分钟上手, 链式操作, 让golang操作数据库成为一种享受, 妈妈再也看不到我处理数据的痛苦了)  
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
 
 ## document
 - [中文文档](https://www.kancloud.cn/fizz/gorose)
 
 ## 随时在线交流心得
-qq群: 470809220  
+[点击加入qq群: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)  
 
 ## quick scan
 ```go
