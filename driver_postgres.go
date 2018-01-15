@@ -10,7 +10,7 @@ func (this *Connection) Postgres() {
 	dbObj := CurrentConfig
 	var err error
 
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbObj["host"], dbObj["port"], dbObj["username"], dbObj["password"], dbObj["database"])
 
 	DB, err = sql.Open("postgres", dsn)
