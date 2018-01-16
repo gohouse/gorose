@@ -15,13 +15,21 @@ func main() {
 	var db gorose.Database
 
 	res := db.Table("users").Count()
-	max := db.Table("users").Max("age")
-	db.Table("users").Min("age")
-	db.Table("users").Avg("age")
-	db.Table("users").Sum("age")
-	fmt.Println(db.LastSql())
 	fmt.Println(res)
+
+	max := db.Table("users").Max("money")
 	fmt.Println(max)
+
+	min := db.Table("users").Min("age")
+	fmt.Println(min)
+
+	avg := db.Table("users").Avg("age")
+	fmt.Println(avg)
+
+	sum := db.Table("users").Sum("age")
+	fmt.Println(sum)
+
+	fmt.Println(db.LastSql())
 
 }
 

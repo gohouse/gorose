@@ -23,7 +23,7 @@ func main() {
 		"id":14,
 	}
 
-	res := db.Table("area").Data(data).Where(where).Update()
+	res := db.Table("users").Data(data).Where(where).Update()
 	fmt.Println(db.LastSql())
 	fmt.Println(res)
 
