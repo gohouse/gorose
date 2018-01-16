@@ -16,7 +16,7 @@ func main() {
 
 	data := map[string]interface{}{
 		"age":17,
-		"job":"it3",
+		"job":"it2",
 		"name":"fizz4",
 	}
 	res := db.Table("users").Data(data).Insert()

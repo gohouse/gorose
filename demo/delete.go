@@ -15,7 +15,7 @@ func main() {
 	var db gorose.Database
 
 	where := map[string]interface{}{
-		"id":15,
+		"id":17,
 	}
 	res := db.Table("users").Where(where).Delete()
 	fmt.Println(db.LastSql())
