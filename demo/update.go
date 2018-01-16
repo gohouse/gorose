@@ -17,10 +17,10 @@ func main() {
 	data := map[string]interface{}{
 		"age":17,
 		"job":"it3",
-		"name":"fizz4",
+		"name":"fizz5",
 	}
 	where := map[string]interface{}{
-		"id":14,
+		"id":17,
 	}
 
 	res := db.Table("users").Data(data).Where(where).Update()

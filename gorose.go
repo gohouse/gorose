@@ -29,7 +29,6 @@ type Database struct {
 	order    string
 	limit    int
 	offset   int
-	page     int
 	join     []string
 	distinct bool
 	count    string
@@ -54,6 +53,10 @@ func (this *Database) Table(table string) *Database {
 	this.table = table
 	return this
 }
+func (this *Database) Group(group string) *Database {
+	this.group = group
+	return this
+}
 func (this *Database) Order(order string) *Database {
 	this.order = order
 	return this
@@ -67,7 +70,7 @@ func (this *Database) Offset(offset int) *Database {
 	return this
 }
 func (this *Database) Page(page int) *Database {
-	this.page = page
+	this.offset = (page-1) * this.limit
 	return this
 }
 func (this *Database) First() map[string]interface{} {
@@ -411,7 +414,6 @@ func (this *Database) reset(){
 	this.order = ""
 	this.limit = 0
 	this.offset = 0
-	this.page = 0
 	this.join = []string {}
 	this.distinct = false
 	this.count = ""
@@ -622,17 +624,17 @@ func (this *Database) Data(data interface{}) *Database {
 	this.data = data
 	return this
 }
-func (this *Database) Insert() int64 {
+func (this *Database) Insert() int {
 	sqlstr := this.buildExecut("insert")
-	return this.Execute(sqlstr)
+	return int(this.Execute(sqlstr))
 }
-func (this *Database) Update() int64 {
+func (this *Database) Update() int {
 	sqlstr := this.buildExecut("update")
-	return this.Execute(sqlstr)
+	return int(this.Execute(sqlstr))
 }
-func (this *Database) Delete() int64 {
+func (this *Database) Delete() int {
 	sqlstr := this.buildExecut("delete")
-	return this.Execute(sqlstr)
+	return int(this.Execute(sqlstr))
 }
 func (this *Database) Begin() *sql.Tx {
 	tx, _ := DB.Begin()
