@@ -19,7 +19,7 @@ func main() {
 		"job":"it3",
 		"name":"fizz4",
 	}
-	res := db.Table("area").Data(data).Insert()
+	res := db.Table("users").Data(data).Insert()
 	fmt.Println(db.LastSql())
 	fmt.Println(res)
 

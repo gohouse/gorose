@@ -178,21 +178,21 @@ func (this *Database) Distinct() *Database {
 	return this
 }
 func (this *Database) Count() int {
-	return this.buildUnion("count", "*")
+	return int(this.buildUnion("count", "*").(int64))
 }
-func (this *Database) Sum(sum string) int {
+func (this *Database) Sum(sum string) interface{} {
 	return this.buildUnion("sum", sum)
 }
-func (this *Database) Avg(avg string) int {
+func (this *Database) Avg(avg string) interface{} {
 	return this.buildUnion("avg", avg)
 }
-func (this *Database) Max(max string) int {
+func (this *Database) Max(max string) interface{} {
 	return this.buildUnion("max", max)
 }
-func (this *Database) Min(min string) int {
+func (this *Database) Min(min string) interface{} {
 	return this.buildUnion("min", min)
 }
-func (this *Database) buildUnion(union, field string) int {
+func (this *Database) buildUnion(union, field string) interface{} {
 	unionStr := union + "(" + field + ") as " + union
 	switch union {
 	case "count":
@@ -215,7 +215,8 @@ func (this *Database) buildUnion(union, field string) int {
 
 	this.reset()
 
-	return int(result[0][union].(int64))
+	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
+	return result[0][union]
 }
 
 func (this *Database) parseJoin(args []interface{}, joinType string) bool {
@@ -451,6 +452,7 @@ func (this *Database) Query(sqlstring string) []map[string]interface{} {
 		for i, col := range columns {
 			var v interface{}
 			val := values[i]
+			//fmt.Println(val, reflect.TypeOf(val))
 			b, ok := val.([]byte)
 			if ok {
 				v = string(b)

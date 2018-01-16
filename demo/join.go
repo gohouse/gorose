@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./config"
-	"fmt"
 	"github.com/gohouse/gorose"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"./config"
 )
 
 func main() {
@@ -14,11 +14,17 @@ func main() {
 	// get the db chaining object
 	var db gorose.Database
 
-	where := map[string]interface{}{
-		"id":15,
-	}
-	res := db.Table("users").Where(where).Delete()
+	user := db.Table("users a").
+		Join("area b","a.id","=","b.uid").
+		Where().Get()
+
 	fmt.Println(db.LastSql())
-	fmt.Println(res)
+	fmt.Println(user)
+
+	// return json
+	//res2 := user.Limit(2).Get()
+	//fmt.Println(db.LastSql())
+	//fmt.Println(user)
 
 }
+
