@@ -16,7 +16,7 @@ func main() {
 
 	user := db.Table("users a").
 		Join("area b","a.id","=","b.uid").
-		Where().Get()
+		Where("id",">",1).Get()
 
 	fmt.Println(db.LastSql())
 	fmt.Println(user)

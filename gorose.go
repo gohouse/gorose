@@ -117,33 +117,19 @@ func (this *Database) Get() []map[string]interface{} {
 	return result
 }
 func (this *Database) Where(args ...interface{}) *Database {
-	argsLen := len(args)
-
-	argsType := "string"
-
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
-	if argsLen == 1 {
-		argsType = utils.GetType(args[0])
-	}
 
-	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为参数类型(三种类型), 第三项为具体传入的参数
-	w := []interface{}{"and", argsType, args}
+	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
+	w := []interface{}{"and", args}
 
 	this.where = append(this.where, w)
 
 	return this
 }
 func (this *Database) OrWhere(args ...interface{}) *Database {
-	argsLen := len(args)
-
-	argsType := "string"
-
-	if argsLen == 1 {
-		argsType = utils.GetType(args[0])
-	}
-
-	w := []interface{}{"or", argsType, args}
+	w := []interface{}{"or", args}
 	this.where = append(this.where, w)
+
 	return this
 }
 func (this *Database) Join(args ...interface{}) *Database {
@@ -238,10 +224,8 @@ func (this *Database) parseWhere() string {
 	for _, args := range wheres {
 		// and或者or条件
 		var condition string = args[0].(string)
-		// 数据类型
-		var dataType string = args[1].(string)
 		// 统计当前数组中有多少个参数
-		params := args[2].([]interface{})
+		params := args[1].([]interface{})
 		paramsLength := len(params)
 
 		switch paramsLength {
@@ -250,17 +234,17 @@ func (this *Database) parseWhere() string {
 		case 2: // 常规2个参数:  {"id",1}
 			where = append(where, condition+" "+this.parseParams(params))
 		case 1: // 二维数组或字符串
-			if dataType == "string" { // sql 语句字符串
-				where = append(where, condition+" ("+params[0].(string)+")")
-			} else if dataType == "map[string]interface {}" { // 一维数组
+			if paramReal,ok := params[0].(string); ok {
+				where = append(where, condition+" ("+paramReal+")")
+			} else if paramReal,ok := params[0].(map[string]interface {}); ok { // 一维数组
 				var whereArr []string
-				for key, val := range params[0].(map[string]interface{}) {
+				for key, val := range paramReal {
 					whereArr = append(whereArr, key+"="+utils.AddSingleQuotes(val))
 				}
 				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
-			} else if dataType == "[][]interface {}" { // 二维数组
+			} else if paramReal,ok := params[0].([][]interface {}); ok { // 二维数组
 				var whereMore []string
-				for _, arr := range params[0].([][]interface{}) { // {{"a", 1}, {"id", ">", 1}}
+				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
 					switch whereMoreLength {
 					case 3:
@@ -272,12 +256,12 @@ func (this *Database) parseWhere() string {
 					}
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
-			} else if dataType == "func()" {
+			} else if paramReal,ok := params[0].(func()); ok {
 				// 清空where,给嵌套的where让路,复用这个节点
 				this.where = [][]interface{}{}
 
 				// 执行嵌套where放入Database struct
-				(params[0].(func()))()
+				paramReal()
 				// 再解析一遍后来嵌套进去的where
 				wherenested := this.parseWhere()
 				// 嵌套的where放入一个括号内
@@ -307,15 +291,15 @@ func (this *Database) parseParams(args []interface{}) string {
 
 	switch paramsLength {
 	case 3: // 常规3个参数:  {"id",">",1}
-		if !utils.TypeCheck(args[0], "string") {
-			panic("where条件参数有误!")
-		}
-		if !utils.TypeCheck(args[1], "string") {
-			panic("where条件参数有误!")
-		}
-		if !utils.InArray(args[1], utils.Astoi(regex)) {
-			panic("where运算条件参数有误!!")
-		}
+		//if !utils.TypeCheck(args[0], "string") {
+		//	panic("where条件参数有误!")
+		//}
+		//if !utils.TypeCheck(args[1], "string") {
+		//	panic("where条件参数有误!")
+		//}
+		//if !utils.InArray(args[1], utils.Astoi(regex)) {
+		//	panic("where运算条件参数有误!!")
+		//}
 
 		paramsToArr = append(paramsToArr, args[0].(string))
 		paramsToArr = append(paramsToArr, args[1].(string))
@@ -337,9 +321,9 @@ func (this *Database) parseParams(args []interface{}) string {
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[2]))
 		}
 	case 2:
-		if !utils.TypeCheck(args[0], "string") {
-			panic("where条件参数有误!")
-		}
+		//if !utils.TypeCheck(args[0], "string") {
+		//	panic("where条件参数有误!")
+		//}
 		paramsToArr = append(paramsToArr, args[0].(string))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[1]))
