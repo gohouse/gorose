@@ -395,24 +395,25 @@ func (this *Database) buildSql() string {
 }
 
 func (this *Database) reset(){
-	this.table = ""
-	this.fields = ""
-	this.where = [][]interface{}{}
-	this.order = ""
-	this.limit = 0
-	this.offset = 0
-	this.join = []string {}
-	this.distinct = false
-	this.count = ""
-	this.sum = ""
-	this.avg = ""
-	this.max = ""
-	this.min = ""
-	this.group = ""
-	this.trans = false
-
-	var tmp interface{}
-	this.data = tmp
+	this = new(Database)
+	//this.table = ""
+	//this.fields = ""
+	//this.where = [][]interface{}{}
+	//this.order = ""
+	//this.limit = 0
+	//this.offset = 0
+	//this.join = []string {}
+	//this.distinct = false
+	//this.count = ""
+	//this.sum = ""
+	//this.avg = ""
+	//this.max = ""
+	//this.min = ""
+	//this.group = ""
+	//this.trans = false
+	//
+	//var tmp interface{}
+	//this.data = tmp
 }
 
 func (this *Database) Query(sqlstring string) []map[string]interface{} {
