@@ -6,7 +6,7 @@ import (
 	"github.com/gohouse/gorose/demo/config"
 )
 func TestDatabase_First(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -21,7 +21,7 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -36,7 +36,7 @@ func TestDatabase_Get(test *testing.T) {
 	}
 }
 func TestDatabase_Insert(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -70,7 +70,7 @@ func TestDatabase_Insert(test *testing.T) {
 	}
 }
 func TestDatabase_Count(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -85,7 +85,7 @@ func TestDatabase_Count(test *testing.T) {
 	}
 }
 func TestDatabase_Sum(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -100,7 +100,7 @@ func TestDatabase_Sum(test *testing.T) {
 	}
 }
 func TestDatabase_Avg(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -115,7 +115,7 @@ func TestDatabase_Avg(test *testing.T) {
 	}
 }
 func TestDatabase_Max(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -130,7 +130,7 @@ func TestDatabase_Max(test *testing.T) {
 	}
 }
 func TestDatabaseMin(test *testing.T) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object
@@ -145,7 +145,7 @@ func TestDatabaseMin(test *testing.T) {
 	}
 }
 func BenchmarkDatabase_First(bmtest *testing.B) {
-	Connect.Open(config.Configs,"mysql_dev")
+	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object

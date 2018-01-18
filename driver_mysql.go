@@ -8,7 +8,7 @@ import (
 )
 
 func (this *Connection) MySQL() {
-	dbObj := CurrentConfig
+	dbObj := Connect.CurrentConfig
 	var err error
 
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s",

@@ -42,7 +42,7 @@ type Database struct {
 }
 
 func (this *Database) Connect(arg interface{}) *Database {
-	Connect.Connect(arg)
+	Connect.Boot(arg)
 	return this
 }
 func (this *Database) Fields(fields string) *Database {
@@ -95,19 +95,6 @@ func (this *Database) First() map[string]interface{} {
 
 	return result[0]
 }
-//func (this *Database) Get() []map[string]interface{} {
-//	// 构建sql
-//	sqls := this.buildSql()
-//
-//	// 执行查询
-//	result := this.Query(sqls)
-//
-//	if len(result) == 0 {
-//		return nil
-//	}
-//
-//	return result
-//}
 func (this *Database) Get() []map[string]interface{} {
 //func (this *Database) Get() interface{} {
 	// 构建sql
@@ -229,7 +216,7 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
 	case 1:
 		w = args[0].(string)
 	case 4:
-		w = utils.ParseStr(args[0]) + " ON " + utils.ParseStr(args[1]) + " " + utils.ParseStr(args[2]) + " " + utils.ParseStr(args[3])
+		w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 	default:
 		panic("join格式错误")
 	}
@@ -636,21 +623,17 @@ func (this *Database) Delete() int {
 	sqlstr := this.buildExecut("delete")
 	return int(this.Execute(sqlstr))
 }
-func (this *Database) Begin() *sql.Tx {
-	tx, _ := DB.Begin()
+func (this *Database) Begin() {
+	Tx, _ = DB.Begin()
 	this.trans = true
-	Tx = tx
-	return tx
 }
-func (this *Database) Commit() *Database {
+func (this *Database) Commit() {
 	Tx.Commit()
 	this.trans = false
-	return this
 }
-func (this *Database) Rollback() *Database {
+func (this *Database) Rollback() {
 	Tx.Rollback()
 	this.trans = false
-	return this
 }
 
 /**

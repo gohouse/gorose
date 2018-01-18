@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// connect db
-	DB := gorose.Connect.Open(config.Configs,"mysql_dev")
+	DB := gorose.Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object

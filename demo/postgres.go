@@ -11,7 +11,7 @@ import (
 func main() {
 	//gorose.T
 	// open a db connection
-	DB := gorose.Connect.Open(config.Configs, "postgres_dev")
+	DB := gorose.Connect.Open(config.DbConfig, "mysql_dev")
 	// close db
 	defer DB.Close()
 	// get the db chaining object
