@@ -8,7 +8,7 @@ import (
 )
 
 func (this *Connection) Postgres() {
-	dbObj := CurrentConfig
+	dbObj := Connect.CurrentConfig
 	var err error
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

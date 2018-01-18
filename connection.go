@@ -8,41 +8,54 @@ import (
 var (
 	DB *sql.DB	// origin DB
 	Tx *sql.Tx	// transaction
-	Stmt *sql.Stmt
-	Conf map[string]map[string]string	// config
+	//Stmt *sql.Stmt
 	SqlLogs []string	// all sql logs
-	CurrentConfig map[string]string
-	//conn Connection
 	Connect Connection
-	//JsonEncode bool
 )
 
 type Connection struct {
-
+	DbConfig map[string]map[string]string
+	CurrentConfig map[string]string
 }
 
-func (this *Connection) Open(arg ...interface{}) *sql.DB{
-	if len(arg) == 1 {
-		this.Connect(arg[0])
-	} else {
-		Conf = arg[0].(map[string]map[string]string)
-		this.Connect(arg[1])
+//type aaa string
+
+func (this *Connection) Open(args ...interface{}) *sql.DB{
+	if len(args) == 1 {
+		if confReal,ok := args[0].(map[string]string); ok {
+			this.Boot(confReal)
+		} else {
+			panic("配置文件格式有误!")
+		}
+	} else if len(args) == 2 {
+		if confReal,ok := args[0].(map[string]string); ok {
+			this.Boot(confReal)
+		} else if confReal,ok := args[0].(map[string]map[string]string); ok {
+			Connect.DbConfig = confReal
+			if confReal,ok := args[1].(string); ok {
+				this.Boot(confReal)
+			} else {
+				panic("选择默认数据库格式有误!")
+			}
+		} else {
+			panic("配置文件格式有误!")
+		}
 	}
 
 	return DB
 }
 
-func (this *Connection) Connect(arg interface{}) *sql.DB {
-	if utils.GetType(arg) == "string" {
-		CurrentConfig = Conf[arg.(string)]
-	} else {
-		CurrentConfig = arg.(map[string]string)
+func (this *Connection) Boot(arg interface{}) *sql.DB {
+	if argReal,ok := arg.(string); ok {
+		Connect.CurrentConfig = Connect.DbConfig[argReal]
+	} else if argReal,ok := arg.(map[string]string); ok {
+		Connect.CurrentConfig = argReal
 	}
 
 	// get driver
 	this.getDriver()
 
-	var err error = DB.Ping()
+	err := DB.Ping()
 	utils.CheckErr(err)
 
 	return DB
@@ -50,7 +63,7 @@ func (this *Connection) Connect(arg interface{}) *sql.DB {
 
 func (this *Connection) getDriver() {
 	var err error
-	dbObj := CurrentConfig
+	dbObj := Connect.CurrentConfig
 
 	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
 	switch dbObj["driver"] {

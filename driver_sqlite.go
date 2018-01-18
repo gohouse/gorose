@@ -7,7 +7,7 @@ import (
 )
 
 func (this *Connection) Sqlite() {
-	dbObj := CurrentConfig
+	dbObj := Connect.CurrentConfig
 	var err error
 
 	dsn := dbObj["database"]

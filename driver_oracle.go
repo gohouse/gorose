@@ -8,7 +8,7 @@ import (
 )
 
 func (this *Connection) Oracle() {
-	dbObj := CurrentConfig
+	dbObj := Connect.CurrentConfig
 	var err error
 
 	dsn := fmt.Sprintf("%s/%s@%s", dbObj["username"], dbObj["password"], dbObj["database"])
