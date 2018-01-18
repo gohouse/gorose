@@ -8,6 +8,11 @@ gorose(go orm), a mini database orm for golang , which inspired by the famous ph
 ## 随时在线交流心得
 [点击加入qq群: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)  
 
+## install
+```go
+go get github.com/gohouse/gorose
+```
+
 ## quick scan
 ```go
 db.Table("tablename").First()
