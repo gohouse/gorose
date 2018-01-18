@@ -13,6 +13,10 @@ gorose(go orm), a mini database orm for golang , which inspired by the famous ph
 db.Table("tablename").First()
 db.Table("tablename").Distinct().Where("id", ">", 5).Get()
 db.Table("tablename").Fields("id, name, age, job").Group("job").Limit(10).Offset(20).Order("id desc").Get()
+// query str
+db.Query("select * from user)
+db.Query("select * from user where id=?", 1)
+db.Execute("update users set name=? where id=?", "fizz", 1)
 ```
 
 ## install
