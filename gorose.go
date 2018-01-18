@@ -387,7 +387,6 @@ func (this *Database) buildSql() string {
 	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
 		distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
 
-	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
 	// reset Database struct
 
@@ -415,12 +414,28 @@ func (this *Database) reset(){
 	this.data = tmp
 }
 
-func (this *Database) Query(sqlstring string) []map[string]interface{} {
+func (this *Database) Query(args ...interface{}) []map[string]interface{} {
+	lenArgs := len(args)
+	var sqlstring string
+	var vals []interface{}
+
+	sqlstring = args[0].(string)
+
+	if lenArgs > 1 {
+		for k,v := range args {
+			if k > 0 {
+				vals = append(vals, v)
+			}
+		}
+	}
+	// 记录sqllog
+	SqlLogs = append(SqlLogs, fmt.Sprintf(sqlstring, vals...))
+
 	stmt, err := DB.Prepare(sqlstring)
 	utils.CheckErr(err)
 
 	defer stmt.Close()
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(vals...)
 	utils.CheckErr(err)
 
 	defer rows.Close()
@@ -486,7 +501,23 @@ func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) 
 /**
  *　执行增删改 ｓｑｌ 语句
  */
-func (this *Database) Execute(sqlstring string) int64 {
+func (this *Database) Execute(args ...interface{}) int64 {
+	lenArgs := len(args)
+	var sqlstring string
+	var vals []interface{}
+
+	sqlstring = args[0].(string)
+
+	if lenArgs > 1 {
+		for k,v := range args {
+			if k > 0 {
+				vals = append(vals, v)
+			}
+		}
+	}
+	// 记录sqllog
+	SqlLogs = append(SqlLogs, fmt.Sprintf(sqlstring, vals...))
+
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
 		panic("该方法不允许select操作, 请使用Query")
@@ -495,18 +526,18 @@ func (this *Database) Execute(sqlstring string) int64 {
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
 		utils.CheckErr(err)
-		return this.parseExecute(stmt, operType)
+		return this.parseExecute(stmt, operType, vals)
 	} else {
 		stmt, err := DB.Prepare(sqlstring)
 		utils.CheckErr(err)
-		return this.parseExecute(stmt, operType)
+		return this.parseExecute(stmt, operType, vals)
 	}
 }
 
-func (this *Database) parseExecute(stmt *sql.Stmt, operType string) int64 {
+func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interface{}) int64 {
 	var res int64
 	var err error
-	result, err := stmt.Exec()
+	result, err := stmt.Exec(vals...)
 	utils.CheckErr(err)
 
 	switch operType {
@@ -540,8 +571,6 @@ func (this *Database) buildExecut(operType string) string {
 	case "delete":
 		sqlstr = fmt.Sprintf("delete from %s%s", this.table, where)
 	}
-
-	SqlLogs = append(SqlLogs, sqlstr)
 	//fmt.Println(sqlstr)
 	this.reset()
 
