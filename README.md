@@ -26,27 +26,29 @@ go get github.com/gohouse/gorose
 import "github.com/gohouse/gorose"
 
 var dbConfig = map[string]map[string]string {
-	"mysql": {
+	"mysql_master": {
 		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "test",
-		"charset":  "utf8",
-		"protocol": "tcp",
+        "username": "root",
+        "password": "root",
+        "port":     "3306",
+        "database": "test",
+        "charset":  "utf8",
+        "protocol": "tcp",
+        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle)
 	},
 	"mysql_dev": {
 		"host":     "localhost",
-		"username": "root",
-		"password": "",
-		"port":     "3306",
-		"database": "gorose",
-		"charset":  "utf8",
-		"protocol": "tcp",
+        "username": "root",
+        "password": "root",
+        "port":     "3306",
+        "database": "test",
+        "charset":  "utf8",
+        "protocol": "tcp",
+        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle)
 	},
 }
 
-gorose.Open(dbConfig, "mysql")
+gorose.Open(dbConfig, "mysql_master")
 
 var db gorose.Database
 
@@ -66,6 +68,7 @@ gorose.Open(map[string]string {
                 "database": "test",
                 "charset":  "utf8",
                 "protocol": "tcp",
+                "driver":   "mysql",
             })
 ```
 ## example
