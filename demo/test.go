@@ -18,11 +18,5 @@ func main() {
 
 	fmt.Println(db.LastSql())
 	fmt.Println(user)
-
-	// return json
-	//res2 := user.Limit(2).Get()
-	//fmt.Println(db.LastSql())
-	//fmt.Println(user)
-
 }
 

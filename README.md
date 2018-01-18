@@ -48,7 +48,7 @@ var dbConfig = map[string]map[string]string {
 	},
 }
 
-gorose.Open(dbConfig, "mysql_master")
+gorose.Connect.Open(dbConfig, "mysql_master")
 
 var db gorose.Database
 
@@ -60,7 +60,7 @@ func main() {
 ```
 - single config
 ```go
-gorose.Open(map[string]string {
+gorose.Connect.Open(map[string]string {
                 "host":     "localhost",
                 "username": "root",
                 "password": "",
