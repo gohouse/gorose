@@ -5,10 +5,12 @@ import (
 	"strings"
 	"github.com/gohouse/utils"
 	"database/sql"
+	"strconv"
 )
 
 var regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
 
+type MultiData []map[string]interface{}
 //var instance *Database
 //var once sync.Once
 //func GetInstance() *Database {
@@ -223,9 +225,9 @@ func (this *Database) buildSql() string {
 	// order
 	order := utils.If(this.order == "", "", " ORDER BY "+this.order).(string)
 	// limit
-	limit := utils.If(this.limit == 0, "", " LIMIT "+utils.ParseStr(this.limit)).(string)
+	limit := utils.If(this.limit == 0, "", " LIMIT "+strconv.Itoa(this.limit))
 	// offset
-	offset := utils.If(this.offset == 0, "", " OFFSET "+utils.ParseStr(this.offset)).(string)
+	offset := utils.If(this.offset == 0, "", " OFFSET "+strconv.Itoa(this.offset))
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
 	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
@@ -275,15 +277,16 @@ func (this *Database) parseWhere() string {
 		case 2: // 常规2个参数:  {"id",1}
 			where = append(where, condition+" "+this.parseParams(params))
 		case 1: // 二维数组或字符串
-			if paramReal,ok := params[0].(string); ok {
+			switch paramReal := params[0].(type) {
+			case string:
 				where = append(where, condition+" ("+paramReal+")")
-			} else if paramReal,ok := params[0].(map[string]interface {}); ok { // 一维数组
+			case map[string]interface {}: // 一维数组
 				var whereArr []string
 				for key, val := range paramReal {
 					whereArr = append(whereArr, key+"="+utils.AddSingleQuotes(val))
 				}
 				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
-			} else if paramReal,ok := params[0].([][]interface {}); ok { // 二维数组
+			case [][]interface {}: // 二维数组
 				var whereMore []string
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
@@ -297,7 +300,7 @@ func (this *Database) parseWhere() string {
 					}
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
-			} else if paramReal,ok := params[0].(func()); ok {
+			case func():
 				// 清空where,给嵌套的where让路,复用这个节点
 				this.where = [][]interface{}{}
 
@@ -307,10 +310,7 @@ func (this *Database) parseWhere() string {
 				wherenested := this.parseWhere()
 				// 嵌套的where放入一个括号内
 				where = append(where, condition+" ("+wherenested+")")
-
-				//// 返还原来的where
-				//this.where = wheres
-			} else {
+			default:
 				panic("where条件格式错误")
 			}
 		}
@@ -564,14 +564,13 @@ func (this *Database) buildData() (string, string, string) {
 
 	data := this.data
 
-	dataType := utils.GetType(data)
-	switch dataType {
-	case "[]map[string]interface {}":	// insert multi datas
-		datas := data.([]map[string]interface{})
+	switch data.(type) {
+	case MultiData:	// insert multi datas ([]map[string]interface{})
+		datas := data.(MultiData)
 		for _, item := range datas {
 			var dataValuesSub []string
 			for key, val := range item {
-				if utils.InArray(key, utils.Astoi(dataFields)) == false {
+				if utils.InArray(key, dataFields) == false {
 					dataFields = append(dataFields, key)
 				}
 				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
@@ -581,16 +580,16 @@ func (this *Database) buildData() (string, string, string) {
 	//case "map[string]interface {}":
 	default:	// update or insert
 		datas := make(map[string]string)
-		switch dataType {
-		case "map[string]interface {}":
+		switch data.(type) {
+		case map[string]interface {}:
 			for key, val := range data.(map[string]interface{}) {
 				datas[key] = utils.ParseStr(val)
 			}
-		case "map[string]int":
+		case map[string]int:
 			for key, val := range data.(map[string]int) {
 				datas[key] = utils.ParseStr(val)
 			}
-		case "map[string]string":
+		case map[string]string:
 			for key, val := range data.(map[string]string) {
 				datas[key] = val
 			}
