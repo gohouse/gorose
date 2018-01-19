@@ -317,8 +317,8 @@ jsonStr := db.JsonEncode(result)
 ```
 
 ## TODO (finish)
-- list  
-[] Separation of reading and writing
+
+[] connection pool
 
 
 ------------

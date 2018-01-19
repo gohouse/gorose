@@ -9,7 +9,17 @@ var DbConfig = map[string]map[string]string{
 			"database": "test",
 			"charset":  "utf8",
 			"protocol": "tcp",
-			"driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle)
+			"driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+		},
+		"mssql_dev": {
+			"host":     "192.168.200.248",
+			"username": "gcore",
+			"password": "gcore",
+			"port":     "3306",
+			"database": "test",
+			//"charset":  "utf8",
+			//"protocol": "tcp",
+			"driver":   "mssql",
 		},
 		"postgres_dev": {
 			"host":     "localhost",
