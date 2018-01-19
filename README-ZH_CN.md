@@ -44,9 +44,9 @@ var dbConfig = map[string]map[string]string {
     },
 }
 
-gorose.Open(dbConfig, "mysql")
-
-var db gorose.Database
+db := gorose.Open(config.DbConfig, "mysql_dev")
+// close DB
+defer db.Close()
 
 func main() {
     res := db.Table("users").First()
@@ -310,7 +310,6 @@ db.LastSql()
 ```
 
 ## TODO
-[] 读写分离
 
 ------------
 #### [点击查看最新更新动态](https://github.com/gohouse/gorose)

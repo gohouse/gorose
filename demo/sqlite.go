@@ -9,13 +9,9 @@ import (
 )
 
 func main() {
-	//gorose.T
-	// open a db connection
-	DB := gorose.Connect.Open(config.DbConfig, "mysql_dev")
-	// close db
-	defer DB.Close()
-	// get the db chaining object
-	var db gorose.Database
+	db := gorose.Open(config.DbConfig, "sqlite_dev")
+	// close DB
+	defer db.Close()
 
 	//res := db.Table("users").First()
 	//fmt.Println(res)
