@@ -20,20 +20,20 @@ type Connection struct {
 
 //type aaa string
 
-func (this *Connection) Open(args ...interface{}) *sql.DB{
+func Open(args ...interface{}) (Database){
 	if len(args) == 1 {
 		if confReal,ok := args[0].(map[string]string); ok {
-			this.Boot(confReal)
+			Connect.Boot(confReal)
 		} else {
 			panic("配置文件格式有误!")
 		}
 	} else if len(args) == 2 {
 		if confReal,ok := args[0].(map[string]string); ok {
-			this.Boot(confReal)
+			Connect.Boot(confReal)
 		} else if confReal,ok := args[0].(map[string]map[string]string); ok {
 			Connect.DbConfig = confReal
 			if confReal,ok := args[1].(string); ok {
-				this.Boot(confReal)
+				Connect.Boot(confReal)
 			} else {
 				panic("选择默认数据库格式有误!")
 			}
@@ -42,7 +42,7 @@ func (this *Connection) Open(args ...interface{}) *sql.DB{
 		}
 	}
 
-	return DB
+	return Dbstruct
 }
 
 func (this *Connection) Boot(arg interface{}) *sql.DB {

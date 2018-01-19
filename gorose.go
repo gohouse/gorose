@@ -8,7 +8,10 @@ import (
 	"strconv"
 )
 
-var regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
+var (
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
+	Dbstruct Database
+)
 
 type MultiData []map[string]interface{}
 //var instance *Database
@@ -38,7 +41,9 @@ type Database struct {
 	trans    bool
 	data     interface{}
 }
-
+func (this *Database) Close(){
+	DB.Close()
+}
 func (this *Database) Connect(arg interface{}) *Database {
 	Connect.Boot(arg)
 	return this
@@ -337,9 +342,9 @@ func (this *Database) parseParams(args []interface{}) string {
 		//if !utils.TypeCheck(args[1], "string") {
 		//	panic("where条件参数有误!")
 		//}
-		//if !utils.InArray(args[1], utils.Astoi(regex)) {
-		//	panic("where运算条件参数有误!!")
-		//}
+		if !utils.InArray(args[1], regex) {
+			panic("where运算条件参数有误!!")
+		}
 
 		paramsToArr = append(paramsToArr, args[0].(string))
 		paramsToArr = append(paramsToArr, args[1].(string))

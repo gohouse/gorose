@@ -57,9 +57,9 @@ var dbConfig = map[string]map[string]string {
 	},
 }
 
-gorose.Connect.Open(dbConfig, "mysql_master")
-
-var db gorose.Database
+db := gorose.Open(config.DbConfig, "mysql_dev")
+// close DB
+defer db.Close()
 
 func main() {
     res := db.Table("users").First()
@@ -69,7 +69,7 @@ func main() {
 ```
 - single config
 ```go
-gorose.Connect.Open(map[string]string {
+gorose.Open(map[string]string {
                 "host":     "localhost",
                 "username": "root",
                 "password": "",

@@ -8,11 +8,9 @@ import (
 )
 
 func main() {
-	DB := gorose.Connect.Open(config.DbConfig, "mysql_dev")
+	db := gorose.Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db gorose.Database
+	defer db.Close()
 
 	data := map[string]interface{}{
 		"age":17,

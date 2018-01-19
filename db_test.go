@@ -8,11 +8,9 @@ import (
 // go test -v
 // go test -test.bench=.
 func TestDatabase_First(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).First()
 
@@ -23,11 +21,9 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).Limit(10).Get()
 
@@ -38,11 +34,9 @@ func TestDatabase_Get(test *testing.T) {
 	}
 }
 func TestDatabase_Insert(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	// insert
 	res := db.Table("users").Data(map[string]interface{}{"name":"fizz5", "age":19}).Insert()
@@ -72,11 +66,9 @@ func TestDatabase_Insert(test *testing.T) {
 	}
 }
 func TestDatabase_Count(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",100).Count()
 
@@ -87,11 +79,9 @@ func TestDatabase_Count(test *testing.T) {
 	}
 }
 func TestDatabase_Sum(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).Sum("age")
 
@@ -102,11 +92,9 @@ func TestDatabase_Sum(test *testing.T) {
 	}
 }
 func TestDatabase_Avg(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).Avg("age")
 
@@ -117,11 +105,9 @@ func TestDatabase_Avg(test *testing.T) {
 	}
 }
 func TestDatabase_Max(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).Max("age")
 
@@ -132,11 +118,9 @@ func TestDatabase_Max(test *testing.T) {
 	}
 }
 func TestDatabase_Min(test *testing.T) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
 
 	res := db.Table("users").Where("id",">",2).Min("age")
 
@@ -147,11 +131,10 @@ func TestDatabase_Min(test *testing.T) {
 	}
 }
 func BenchmarkDatabase_First(bmtest *testing.B) {
-	Connect.Open(config.DbConfig, "mysql_dev")
+	db := Open(config.DbConfig, "mysql_dev")
 	// close DB
-	defer DB.Close()
-	// get the db chaining object
-	var db Database
+	defer db.Close()
+	
 	for cnt := 0; cnt < bmtest.N; cnt++ {
 		//db.Table("users").Where("id",">",2).First()	// 316623 ns
 		//db.Table("users").Fields("id").First()	// 279397
