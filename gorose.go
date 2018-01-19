@@ -9,10 +9,6 @@ import (
 
 var regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
 
-//func init() {
-//	DB = conn.DB
-//}
-
 //var instance *Database
 //var once sync.Once
 //func GetInstance() *Database {
@@ -168,6 +164,7 @@ func (this *Database) Max(max string) interface{} {
 func (this *Database) Min(min string) interface{} {
 	return this.buildUnion("min", min)
 }
+
 func (this *Database) buildUnion(union, field string) interface{} {
 	unionStr := union + "(" + field + ") as " + union
 	switch union {
@@ -194,6 +191,51 @@ func (this *Database) buildUnion(union, field string) interface{} {
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
 	return result[0][union]
 }
+func (this *Database) buildSql() string {
+	// 聚合
+	unionArr := []string{
+		this.count,
+		this.sum,
+		this.avg,
+		this.max,
+		this.min,
+	}
+	var union string
+	for _, item := range unionArr {
+		if item != "" {
+			union = item
+			break
+		}
+	}
+	// distinct
+	distinct := utils.If(this.distinct, "distinct ", "")
+	// fields
+	fields := utils.If(this.fields == "", "*", this.fields).(string)
+	// table
+	table := this.table
+	// join
+	join := utils.If(strings.Join(this.join, "") == "", "", " "+strings.Join(this.join, " "))
+	// where
+	parseWhere := this.parseWhere()
+	where := utils.If(parseWhere == "", "", " WHERE "+parseWhere).(string)
+	// group
+	group := utils.If(this.group == "", "", " GROUP BY "+this.group).(string)
+	// order
+	order := utils.If(this.order == "", "", " ORDER BY "+this.order).(string)
+	// limit
+	limit := utils.If(this.limit == 0, "", " LIMIT "+utils.ParseStr(this.limit)).(string)
+	// offset
+	offset := utils.If(this.offset == 0, "", " OFFSET "+utils.ParseStr(this.offset)).(string)
+
+	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
+	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
+		distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
+
+	//fmt.Println(sqlstr)
+	// reset Database struct
+
+	return sqlstr
+}
 
 func (this *Database) parseJoin(args []interface{}, joinType string) bool {
 	var w string
@@ -211,7 +253,6 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
 
 	return true
 }
-
 /**
  * where解析器
  */
@@ -277,7 +318,6 @@ func (this *Database) parseWhere() string {
 
 	return strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and")
 }
-
 /**
  * 将where条件中的参数转换为where条件字符串
  * example: {"id",">",1}, {"age", 18}
@@ -331,74 +371,38 @@ func (this *Database) parseParams(args []interface{}) string {
 
 	return strings.Join(paramsToArr, " ")
 }
-func (this *Database) buildSql() string {
-	// 聚合
-	unionArr := []string{
-		this.count,
-		this.sum,
-		this.avg,
-		this.max,
-		this.min,
-	}
-	var union string
-	for _, item := range unionArr {
-		if item != "" {
-			union = item
+
+func (this *Database) JsonEncode(data interface{}) string {
+	return utils.JsonEncode(data)
+}
+func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
+	var step = 0
+	for {
+		this.limit = limit
+		this.offset = step*limit
+
+		// 查询当前区块的数据
+		data := this.Query(this.buildSql())
+
+		if len(data) == 0 {
+			this.reset()
 			break
 		}
+
+		callback(data)
+
+		//fmt.Println(res)
+		if len(data)<limit {
+			this.reset()
+			break
+		}
+		step++
 	}
-	// distinct
-	distinct := utils.If(this.distinct, "distinct ", "")
-	// fields
-	fields := utils.If(this.fields == "", "*", this.fields).(string)
-	// table
-	table := this.table
-	// join
-	join := utils.If(strings.Join(this.join, "") == "", "", " "+strings.Join(this.join, " "))
-	// where
-	parseWhere := this.parseWhere()
-	where := utils.If(parseWhere == "", "", " WHERE "+parseWhere).(string)
-	// group
-	group := utils.If(this.group == "", "", " GROUP BY "+this.group).(string)
-	// order
-	order := utils.If(this.order == "", "", " ORDER BY "+this.order).(string)
-	// limit
-	limit := utils.If(this.limit == 0, "", " LIMIT "+utils.ParseStr(this.limit)).(string)
-	// offset
-	offset := utils.If(this.offset == 0, "", " OFFSET "+utils.ParseStr(this.offset)).(string)
-
-	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
-	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
-		distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
-
-	//fmt.Println(sqlstr)
-	// reset Database struct
-
-	return sqlstr
 }
 
-func (this *Database) reset(){
-	this = new(Database)
-	//this.table = ""
-	//this.fields = ""
-	//this.where = [][]interface{}{}
-	//this.order = ""
-	//this.limit = 0
-	//this.offset = 0
-	//this.join = []string {}
-	//this.distinct = false
-	//this.count = ""
-	//this.sum = ""
-	//this.avg = ""
-	//this.max = ""
-	//this.min = ""
-	//this.group = ""
-	//this.trans = false
-	//
-	//var tmp interface{}
-	//this.data = tmp
-}
-
+/**
+ *　执行查询 ｓｑｌ 语句
+ */
 func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 	lenArgs := len(args)
 	var sqlstring string
@@ -442,8 +446,7 @@ func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 			var v interface{}
 			val := values[i]
 			//fmt.Println(val, reflect.TypeOf(val))
-			b, ok := val.([]byte)
-			if ok {
+			if b, ok := val.([]byte); ok {
 				v = string(b)
 			} else {
 				v = val
@@ -454,35 +457,6 @@ func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 	}
 	return tableData
 }
-
-func (this *Database) JsonEncode(data interface{}) string {
-	return utils.JsonEncode(data)
-}
-func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
-	var step = 0
-	for {
-		this.limit = limit
-		this.offset = step*limit
-
-		// 查询当前区块的数据
-		data := this.Query(this.buildSql())
-
-		if len(data) == 0 {
-			this.reset()
-			break
-		}
-
-		callback(data)
-
-		//fmt.Println(res)
-		if len(data)<limit {
-			this.reset()
-			break
-		}
-		step++
-	}
-}
-
 /**
  *　执行增删改 ｓｑｌ 语句
  */
@@ -518,6 +492,27 @@ func (this *Database) Execute(args ...interface{}) int64 {
 		return this.parseExecute(stmt, operType, vals)
 	}
 }
+func (this *Database) reset(){
+	//this = new(Database)
+	this.table = ""
+	this.fields = ""
+	this.where = [][]interface{}{}
+	this.order = ""
+	this.limit = 0
+	this.offset = 0
+	this.join = []string {}
+	this.distinct = false
+	this.count = ""
+	this.sum = ""
+	this.avg = ""
+	this.max = ""
+	this.min = ""
+	this.group = ""
+	this.trans = false
+
+	var tmp interface{}
+	this.data = tmp
+}
 
 func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interface{}) int64 {
 	var res int64
@@ -536,7 +531,6 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []inter
 	utils.CheckErr(err)
 	return res
 }
-
 func (this *Database) buildExecut(operType string) string {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
@@ -561,7 +555,6 @@ func (this *Database) buildExecut(operType string) string {
 
 	return sqlstr
 }
-
 func (this *Database) buildData() (string, string, string) {
 	// insert
 	var dataFields []string
@@ -649,7 +642,6 @@ func (this *Database) Rollback() {
 	Tx.Rollback()
 	this.trans = false
 }
-
 /**
  * simple transaction
  */
@@ -667,6 +659,7 @@ func (this *Database) Transaction(closure func()) bool {
 
 	return true
 }
+
 func (this *Database) LastSql() string {
 	return SqlLogs[len(SqlLogs)-1:][0]
 }

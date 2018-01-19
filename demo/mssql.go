@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/gohouse/gorose"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/denisenkom/go-mssqldb"
 	"./config"
 	"fmt"
 )
 
 func main() {
-	DB := gorose.Connect.Open(config.DbConfig, "mysql_dev")
+	DB := gorose.Connect.Open(config.DbConfig, "mssql_dev")
 	// close DB
 	defer DB.Close()
 	// get the db chaining object

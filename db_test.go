@@ -6,7 +6,7 @@ import (
 	"github.com/gohouse/gorose/demo/config"
 )
 // go test -v
-// go test -test.bench
+// go test -test.bench=.
 func TestDatabase_First(test *testing.T) {
 	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB

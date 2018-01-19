@@ -75,6 +75,8 @@ func (this *Connection) getDriver() {
 		this.Postgres()
 	case "oracle":
 		this.Oracle()
+	case "mssql":
+		this.MsSQL()
 	}
 
 	utils.CheckErr(err)

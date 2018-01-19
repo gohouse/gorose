@@ -26,3 +26,6 @@ func main() {
 	fmt.Println(user)
 }
 
+func TTT()  {
+	fmt.Sprintf("TTT")
+}
