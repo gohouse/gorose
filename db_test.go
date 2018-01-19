@@ -131,7 +131,7 @@ func TestDatabase_Max(test *testing.T) {
 		test.Log("PASS: max=", res)
 	}
 }
-func TestDatabaseMin(test *testing.T) {
+func TestDatabase_Min(test *testing.T) {
 	Connect.Open(config.DbConfig, "mysql_dev")
 	// close DB
 	defer DB.Close()
