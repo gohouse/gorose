@@ -137,8 +137,17 @@ func BenchmarkDatabase_First(bmtest *testing.B) {
 	
 	for cnt := 0; cnt < bmtest.N; cnt++ {
 		//db.Table("users").Where("id",">",2).First()	// 316623 ns
-		//db.Table("users").Fields("id").First()	// 279397
-		db.Table("users").Fields("id").Where("id","<",10).Group("id").Order("id asc").First()	// 319225
+		db.Table("users").Fields("id").First()	// 279397
+		//db.Table("users").Fields("id").Where("id","<",10).Group("id").Order("id asc").First()	// 319225
 	}
 
+}
+func BenchmarkDatabase_Get(bmtest *testing.B) {
+	db := Open(config.DbConfig, "mysql_dev")
+	// close DB
+	defer db.Close()
+
+	for cnt := 0; cnt < bmtest.N; cnt++ {
+		db.Table("users").Fields("id").Limit(10).Get()	// 279397
+	}
 }
