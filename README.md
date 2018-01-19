@@ -1,6 +1,7 @@
 ## brief introduction
 (gorose, 最风骚的go orm, 开箱即用, 一分钟上手, 链式操作, 让golang操作数据库成为一种享受, 妈妈再也看不到我处理数据的痛苦了)  
-gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer
+gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer  
+目前提供5大数据库驱动, mysql,sqlite,postgres,oracle,mssql, 同时可以自由更换驱动
 
 ## document
 - [中文文档](https://www.kancloud.cn/fizz/gorose)
@@ -43,7 +44,7 @@ var dbConfig = map[string]map[string]string {
         "database": "test",
         "charset":  "utf8",
         "protocol": "tcp",
-        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle)
+        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
 	},
 	"mysql_dev": {
         "host":     "localhost",
@@ -53,7 +54,7 @@ var dbConfig = map[string]map[string]string {
         "database": "test",
         "charset":  "utf8",
         "protocol": "tcp",
-        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle)
+        "driver":   "mysql",
 	},
 }
 
