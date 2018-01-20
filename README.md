@@ -33,7 +33,10 @@ go get github.com/gohouse/gorose
 ## config and sample
 - multi config 
 ```go
-import "github.com/gohouse/gorose"
+import (
+	"github.com/gohouse/gorose"
+	"fmt"
+)
 
 var dbConfig = map[string]map[string]string {
 	"mysql_master": {
