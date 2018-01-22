@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	DB sql.DB	// origin DB
-	Tx sql.Tx	// transaction
+	DB *sql.DB	// origin DB
+	Tx *sql.Tx	// transaction
 	//Stmt *sql.Stmt
 	Connect Connection
 )
