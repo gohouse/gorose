@@ -40,9 +40,15 @@ type Database struct {
 	group    string
 	trans    bool
 	data     interface{}
+	sqlLogs  []string
 }
 func (this *Database) Close(){
+	this.sqlLogs = []string{}
 	DB.Close()
+}
+func (this *Database) Ping() {
+	err := DB.Ping()
+	utils.CheckErr(err)
 }
 func (this *Database) Connect(arg interface{}) *Database {
 	Connect.Boot(arg)
@@ -85,16 +91,12 @@ func (this *Database) First() map[string]interface{} {
 	// 执行查询
 	result := this.Query(sqls)
 
+	// 之所以不在 Query 中统一reset, 是因为chunk会复用到查询相关条件
+	this.reset()
+
 	if len(result) == 0 {
 		return nil
 	}
-
-	//if JsonEncode == true {
-	//	jsons, _ := json.Marshal(result[0])
-	//	return string(jsons)
-	//}
-
-	this.reset()
 
 	return result[0]
 }
@@ -423,7 +425,7 @@ func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 		}
 	}
 	// 记录sqllog
-	SqlLogs = append(SqlLogs, fmt.Sprintf(sqlstring, vals...))
+	this.sqlLogs = append(this.sqlLogs, fmt.Sprintf(sqlstring, vals...))
 
 	stmt, err := DB.Prepare(sqlstring)
 	utils.CheckErr(err)
@@ -480,7 +482,7 @@ func (this *Database) Execute(args ...interface{}) int64 {
 		}
 	}
 	// 记录sqllog
-	SqlLogs = append(SqlLogs, fmt.Sprintf(sqlstring, vals...))
+	this.sqlLogs = append(this.sqlLogs, fmt.Sprintf(sqlstring, vals...))
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
@@ -496,6 +498,9 @@ func (this *Database) Execute(args ...interface{}) int64 {
 		utils.CheckErr(err)
 		return this.parseExecute(stmt, operType, vals)
 	}
+}
+func (this *Database) Reset(){
+	this.reset()
 }
 func (this *Database) reset(){
 	//this = new(Database)
@@ -665,9 +670,9 @@ func (this *Database) Transaction(closure func()) bool {
 }
 
 func (this *Database) LastSql() string {
-	return SqlLogs[len(SqlLogs)-1:][0]
+	return this.sqlLogs[len(this.sqlLogs)-1:][0]
 }
 func (this *Database) SqlLogs() []string {
-	return SqlLogs
+	return this.sqlLogs
 }
 

@@ -6,10 +6,9 @@ import (
 )
 
 var (
-	DB *sql.DB	// origin DB
-	Tx *sql.Tx	// transaction
+	DB sql.DB	// origin DB
+	Tx sql.Tx	// transaction
 	//Stmt *sql.Stmt
-	SqlLogs []string	// all sql logs
 	Connect Connection
 )
 
