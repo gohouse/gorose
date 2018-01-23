@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
-	_ "github.com/denisenkom/go-mssqldb"
 	"./config"
 	"fmt"
+	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/gohouse/gorose"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id",">",2).First()
+	res := db.Table("users").Where("id", ">", 2).First()
 	fmt.Println(db.LastSql())
 	fmt.Println(res)
 
@@ -30,4 +30,3 @@ func main() {
 	//[map[id:1 name:fizz age:18 website:fizzday.net job:it] map[id:2 name:fizzday age:18 website:fizzday.net job:engineer]]
 
 }
-

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
+	"./config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"./config"
+	"github.com/gohouse/gorose"
 )
 
 func main() {
@@ -13,8 +13,8 @@ func main() {
 	defer db.Close()
 
 	user := db.Table("users a").
-		Join("area b","a.id","=","b.uid").
-		Where("id",">",1).Get()
+		Join("area b", "a.id", "=", "b.uid").
+		Where("id", ">", 1).Get()
 
 	fmt.Println(db.LastSql())
 	fmt.Println(user)
@@ -25,4 +25,3 @@ func main() {
 	//fmt.Println(user)
 
 }
-

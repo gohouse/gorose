@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
+	"./config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"./config"
+	"github.com/gohouse/gorose"
 )
 
 func main() {
@@ -17,4 +17,3 @@ func main() {
 	fmt.Println(db.LastSql())
 	fmt.Println(user)
 }
-

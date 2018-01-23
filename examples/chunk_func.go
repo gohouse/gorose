@@ -7,8 +7,8 @@ import (
 //var data = []int {1,2,3,4,5,6,7,8,9,0}
 var Data []int
 
-func init()  {
-	Data = append(Data, 1,2,3,4,5,6,7,8,9,0)
+func init() {
+	Data = append(Data, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
 }
 
 func main() {
@@ -17,15 +17,14 @@ func main() {
 	})
 }
 
-
-func chunk(limit int, callback func(arg []int))  {
+func chunk(limit int, callback func(arg []int)) {
 	var step = 0
 	for {
-		start := step*limit
-		if len(Data)<=start {
+		start := step * limit
+		if len(Data) <= start {
 			break
 		}
-		current_data := Data[start:limit+start]
+		current_data := Data[start : limit+start]
 
 		var res []int
 		for _, item := range current_data {
@@ -33,8 +32,8 @@ func chunk(limit int, callback func(arg []int))  {
 		}
 
 		callback(res)
-//fmt.Println(res)
-		if len(current_data)<limit {
+		//fmt.Println(res)
+		if len(current_data) < limit {
 			break
 		}
 		step++

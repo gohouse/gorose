@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
+	"./config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"./config"
+	"github.com/gohouse/gorose"
 	//"github.com/devfeel/dotweb"
 )
 
@@ -20,13 +20,13 @@ func main() {
 	//		})
 	//	})
 	//}).Where("job", "it").First()
-//user := GetNewsList(db)
-//	fmt.Println(db.SqlLogs())
-//	fmt.Println(user)
-//
-//	fmt.Println(db)
-//	db.Reset()
-//	fmt.Println(db)
+	//user := GetNewsList(db)
+	//	fmt.Println(db.SqlLogs())
+	//	fmt.Println(user)
+	//
+	//	fmt.Println(db)
+	//	db.Reset()
+	//	fmt.Println(db)
 	news := db.Table("news").
 		Where("status", 1).
 		Order("id desc").
@@ -35,9 +35,8 @@ func main() {
 		First()
 
 	fmt.Println(db.LastSql())
-		fmt.Println(news)
+	fmt.Println(news)
 }
-
 
 // 获取列表
 func GetNewsList(db gorose.Database) interface{} {
@@ -49,6 +48,6 @@ func GetNewsList(db gorose.Database) interface{} {
 		Get()
 }
 
-func TTT()  {
+func TTT() {
 	fmt.Sprintf("TTT")
 }

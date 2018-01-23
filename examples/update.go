@@ -3,8 +3,8 @@ package main
 import (
 	"./config"
 	"fmt"
-	"github.com/gohouse/gorose"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose"
 )
 
 func main() {
@@ -13,12 +13,12 @@ func main() {
 	defer db.Close()
 
 	data := map[string]interface{}{
-		"age":17,
-		"job":"it3",
-		"name":"fizz5",
+		"age":  17,
+		"job":  "it3",
+		"name": "fizz5",
 	}
 	where := map[string]interface{}{
-		"id":17,
+		"id": 17,
 	}
 
 	res := db.Table("users").Data(data).Where(where).Update()

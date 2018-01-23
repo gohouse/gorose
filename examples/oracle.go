@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
-	"fmt"
-	"encoding/json"
-	_ "github.com/mattn/go-oci8"
 	"./config"
+	"encoding/json"
+	"fmt"
+	"github.com/gohouse/gorose"
+	_ "github.com/mattn/go-oci8"
 )
 
 func main() {
@@ -22,4 +22,3 @@ func main() {
 	fmt.Println(string(jsons))
 
 }
-

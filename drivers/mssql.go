@@ -1,8 +1,8 @@
 package gorose
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 	//_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gohouse/utils"
 )

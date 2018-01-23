@@ -1,19 +1,20 @@
 package gorose
 
 import (
-	"fmt"
-	"strings"
-	"github.com/gohouse/utils"
 	"database/sql"
+	"fmt"
+	"github.com/gohouse/utils"
 	"strconv"
+	"strings"
 )
 
 var (
-	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
+	regex    = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
 	Dbstruct Database
 )
 
 type MultiData []map[string]interface{}
+
 //var instance *Database
 //var once sync.Once
 //func GetInstance() *Database {
@@ -42,7 +43,8 @@ type Database struct {
 	data     interface{}
 	sqlLogs  []string
 }
-func (this *Database) Close(){
+
+func (this *Database) Close() {
 	this.sqlLogs = []string{}
 	DB.Close()
 }
@@ -79,11 +81,11 @@ func (this *Database) Offset(offset int) *Database {
 	return this
 }
 func (this *Database) Page(page int) *Database {
-	this.offset = (page-1) * this.limit
+	this.offset = (page - 1) * this.limit
 	return this
 }
 func (this *Database) First() map[string]interface{} {
-//func (this *Database) First() interface{} {
+	//func (this *Database) First() interface{} {
 	this.limit = 1
 	// 构建sql
 	sqls := this.buildSql()
@@ -101,7 +103,7 @@ func (this *Database) First() map[string]interface{} {
 	return result[0]
 }
 func (this *Database) Get() []map[string]interface{} {
-//func (this *Database) Get() interface{} {
+	//func (this *Database) Get() interface{} {
 	// 构建sql
 	sqls := this.buildSql()
 
@@ -262,6 +264,7 @@ func (this *Database) parseJoin(args []interface{}, joinType string) bool {
 
 	return true
 }
+
 /**
  * where解析器
  */
@@ -287,13 +290,13 @@ func (this *Database) parseWhere() string {
 			switch paramReal := params[0].(type) {
 			case string:
 				where = append(where, condition+" ("+paramReal+")")
-			case map[string]interface {}: // 一维数组
+			case map[string]interface{}: // 一维数组
 				var whereArr []string
 				for key, val := range paramReal {
 					whereArr = append(whereArr, key+"="+utils.AddSingleQuotes(val))
 				}
 				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
-			case [][]interface {}: // 二维数组
+			case [][]interface{}: // 二维数组
 				var whereMore []string
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
@@ -325,6 +328,7 @@ func (this *Database) parseWhere() string {
 
 	return strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and")
 }
+
 /**
  * 将where条件中的参数转换为where条件字符串
  * example: {"id",">",1}, {"age", 18}
@@ -386,7 +390,7 @@ func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) 
 	var step = 0
 	for {
 		this.limit = limit
-		this.offset = step*limit
+		this.offset = step * limit
 
 		// 查询当前区块的数据
 		data := this.Query(this.buildSql())
@@ -399,7 +403,7 @@ func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) 
 		callback(data)
 
 		//fmt.Println(res)
-		if len(data)<limit {
+		if len(data) < limit {
 			this.reset()
 			break
 		}
@@ -418,7 +422,7 @@ func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 	sqlstring = args[0].(string)
 
 	if lenArgs > 1 {
-		for k,v := range args {
+		for k, v := range args {
 			if k > 0 {
 				vals = append(vals, v)
 			}
@@ -464,6 +468,7 @@ func (this *Database) Query(args ...interface{}) []map[string]interface{} {
 	}
 	return tableData
 }
+
 /**
  *　执行增删改 ｓｑｌ 语句
  */
@@ -475,7 +480,7 @@ func (this *Database) Execute(args ...interface{}) int64 {
 	sqlstring = args[0].(string)
 
 	if lenArgs > 1 {
-		for k,v := range args {
+		for k, v := range args {
 			if k > 0 {
 				vals = append(vals, v)
 			}
@@ -499,10 +504,10 @@ func (this *Database) Execute(args ...interface{}) int64 {
 		return this.parseExecute(stmt, operType, vals)
 	}
 }
-func (this *Database) Reset(){
+func (this *Database) Reset() {
 	this.reset()
 }
-func (this *Database) reset(){
+func (this *Database) reset() {
 	//this = new(Database)
 	this.table = ""
 	this.fields = ""
@@ -510,7 +515,7 @@ func (this *Database) reset(){
 	this.order = ""
 	this.limit = 0
 	this.offset = 0
-	this.join = []string {}
+	this.join = []string{}
 	this.distinct = false
 	this.count = ""
 	this.sum = ""
@@ -546,7 +551,7 @@ func (this *Database) buildExecut(operType string) string {
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
 	var update, insertkey, insertval string
-	if operType!="delete"{
+	if operType != "delete" {
 		update, insertkey, insertval = this.buildData()
 	}
 	where := utils.If(this.parseWhere() == "", "", " WHERE "+this.parseWhere()).(string)
@@ -575,7 +580,7 @@ func (this *Database) buildData() (string, string, string) {
 	data := this.data
 
 	switch data.(type) {
-	case MultiData:	// insert multi datas ([]map[string]interface{})
+	case MultiData: // insert multi datas ([]map[string]interface{})
 		datas := data.(MultiData)
 		for _, item := range datas {
 			var dataValuesSub []string
@@ -588,10 +593,10 @@ func (this *Database) buildData() (string, string, string) {
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
 	//case "map[string]interface {}":
-	default:	// update or insert
+	default: // update or insert
 		datas := make(map[string]string)
 		switch data.(type) {
-		case map[string]interface {}:
+		case map[string]interface{}:
 			for key, val := range data.(map[string]interface{}) {
 				datas[key] = utils.ParseStr(val)
 			}
@@ -651,6 +656,7 @@ func (this *Database) Rollback() {
 	Tx.Rollback()
 	this.trans = false
 }
+
 /**
  * simple transaction
  */
@@ -675,4 +681,3 @@ func (this *Database) LastSql() string {
 func (this *Database) SqlLogs() []string {
 	return this.sqlLogs
 }
-

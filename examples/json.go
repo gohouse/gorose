@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
-	_ "github.com/go-sql-driver/mysql"
 	"./config"
-	"github.com/gohouse/utils"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose"
+	"github.com/gohouse/utils"
 )
 
 func main() {
@@ -29,4 +29,3 @@ func main() {
 	//[{"age":18,"id":1,"job":"it","name":"fizz","website":"fizzday.net"},{"age":18,"id":2,"job":"engineer","name":"fizzday","website":"fizzday.net"}]
 
 }
-
