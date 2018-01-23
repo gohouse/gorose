@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 工具函数
-go get githu.com/gohouse/utils
+go get github.com/gohouse/utils
 
 # 以下为数据库驱动, 按需安装
 
