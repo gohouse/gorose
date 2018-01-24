@@ -1,0 +1,24 @@
+language: go
+sudo: required
+
+env:
+  global:
+    - ORACLE_FILE=oracle-xe-11.2.0-1.0.x86_64.rpm.zip
+    - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+    - ORACLE_SID=XE
+    - PKG_CONFIG_PATH="."
+
+before_install:
+  - .travis/oracle/download.sh
+  - .travis/oracle/install.sh
+  - >
+    { echo "Name: oci8"; echo "Description: Oracle Call Interface"; echo "Version: 11.1";
+      echo "Cflags: -I$ORACLE_HOME/rdbms/public";
+      echo "Libs: -L$ORACLE_HOME/lib -Wl,-rpath,$ORACLE_HOME/lib -lclntsh";
+    } | tee oci8.pc
+
+before_script:
+  - >
+    { echo "CREATE USER scott IDENTIFIED BY tiger;";
+      echo "GRANT CONNECT, RESOURCE to scott;";
+    } | "$ORACLE_HOME/bin/sqlplus" -L -S / AS SYSDBA
