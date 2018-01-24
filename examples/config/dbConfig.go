@@ -23,7 +23,7 @@ var DbConfig = map[string]map[string]string{
 	},
 	"postgres_dev": {
 		"host":     "localhost",
-		"username": "root",
+		"username": "postgres",
 		"password": "",
 		"port":     "5432",
 		"database": "test",

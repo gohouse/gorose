@@ -9,7 +9,11 @@ import (
 )
 
 func main() {
-	db := gorose.Open(config.DbConfig, "postgres_dev")
+	db, err := gorose.Open(config.DbConfig, "postgres_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
