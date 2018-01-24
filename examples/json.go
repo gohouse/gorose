@@ -10,7 +10,11 @@ import (
 
 func main() {
 	// connect db
-	db := gorose.Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 

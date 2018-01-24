@@ -1,15 +1,21 @@
-package gorose
+package test
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose/demo/config"
+	"github.com/gohouse/gorose/examples/config"
 	"testing"
+	"github.com/gohouse/gorose"
+	"fmt"
 )
 
 // go test -v
 // go test -test.bench=.
 func TestDatabase_First(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -22,7 +28,11 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -35,7 +45,11 @@ func TestDatabase_Get(test *testing.T) {
 	}
 }
 func TestDatabase_Insert(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -67,7 +81,11 @@ func TestDatabase_Insert(test *testing.T) {
 	}
 }
 func TestDatabase_Count(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -80,7 +98,11 @@ func TestDatabase_Count(test *testing.T) {
 	}
 }
 func TestDatabase_Sum(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -93,7 +115,11 @@ func TestDatabase_Sum(test *testing.T) {
 	}
 }
 func TestDatabase_Avg(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -106,7 +132,11 @@ func TestDatabase_Avg(test *testing.T) {
 	}
 }
 func TestDatabase_Max(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -119,7 +149,11 @@ func TestDatabase_Max(test *testing.T) {
 	}
 }
 func TestDatabase_Min(test *testing.T) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -132,7 +166,11 @@ func TestDatabase_Min(test *testing.T) {
 	}
 }
 func BenchmarkDatabase_First(bmtest *testing.B) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 
@@ -144,7 +182,11 @@ func BenchmarkDatabase_First(bmtest *testing.B) {
 
 }
 func BenchmarkDatabase_Get(bmtest *testing.B) {
-	db := Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	// close DB
 	defer db.Close()
 

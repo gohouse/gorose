@@ -1,20 +1,17 @@
-package gorose
+package drivers
 
 import (
-	"database/sql"
 	"fmt"
 	//_ "github.com/lib/pq"
-	"github.com/gohouse/utils"
 )
 
-func (this *Connection) Postgres() {
-	dbObj := Connect.CurrentConfig
-	var err error
+func Postgres(dbObj map[string]string) (driver string, dsn string) {
+	// driver
+	driver = "postgres"
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	// dsn string
+	dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbObj["host"], dbObj["port"], dbObj["username"], dbObj["password"], dbObj["database"])
 
-	DB, err = sql.Open("postgres", dsn)
-
-	utils.CheckErr(err)
+	return
 }

@@ -1,17 +1,15 @@
-package gorose
+package drivers
 
 import (
-	"database/sql"
 	//_ "github.com/mattn/go-sqlite3"
-	"github.com/gohouse/utils"
 )
 
-func (this *Connection) Sqlite() {
-	dbObj := Connect.CurrentConfig
-	var err error
+func Sqlite3(dbObj map[string]string) (driver string, dsn string) {
+	// driver
+	driver = "sqlite3"
 
-	dsn := dbObj["database"]
-	DB, err = sql.Open("sqlite3", dsn)
+	// dsn string
+	dsn = dbObj["database"]
 
-	utils.CheckErr(err)
+	return
 }

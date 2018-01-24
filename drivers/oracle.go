@@ -1,18 +1,17 @@
-package gorose
+package drivers
 
 import (
-	"database/sql"
 	//_ "github.com/mattn/go-oci8"
 	"fmt"
-	"github.com/gohouse/utils"
 )
 
-func (this *Connection) Oracle() {
-	dbObj := Connect.CurrentConfig
-	var err error
+func Oracle(dbObj map[string]string) (driver string, dsn string) {
+	// driver
+	driver = "oci8"
 
-	dsn := fmt.Sprintf("%s/%s@%s", dbObj["username"], dbObj["password"], dbObj["database"])
-	DB, err = sql.Open("oci8", dsn)
+	// dsn string
+	dsn = fmt.Sprintf("%s/%s@%s",
+		dbObj["username"], dbObj["password"], dbObj["database"])
 
-	utils.CheckErr(err)
+	return
 }

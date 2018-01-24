@@ -1,19 +1,18 @@
-package gorose
+package drivers
 
 import (
-	"database/sql"
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/utils"
 )
 
-func (this *Connection) MySQL() {
-	dbObj := Connect.CurrentConfig
-	var err error
+func MySQL(dbObj map[string]string) (driver string, dsn string) {
+	// driver
+	driver = "mysql"
 
-	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s",
-		dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"], dbObj["port"], dbObj["database"], dbObj["charset"])
-	DB, err = sql.Open("mysql", dsn)
+	// dsn string
+	dsn = fmt.Sprintf("%s:%s@%s(%s:%s)/%s?charset=%s",
+		dbObj["username"], dbObj["password"], dbObj["protocol"], dbObj["host"],
+		dbObj["port"], dbObj["database"], dbObj["charset"])
 
-	utils.CheckErr(err)
+	return
 }
