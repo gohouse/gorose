@@ -62,7 +62,7 @@ func (this *Connection) boot() error {
 		driver, dsn = drivers.MySQL(dbObj)
 	case "sqlite3":
 		driver, dsn = drivers.Sqlite3(dbObj)
-	case "postgre":
+	case "postgres":
 		driver, dsn = drivers.Postgres(dbObj)
 	case "oracle":
 		driver, dsn = drivers.Oracle(dbObj)
