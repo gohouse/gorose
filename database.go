@@ -158,7 +158,7 @@ func (this *Database) Get() ([]map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-fmt.Println(sqls)
+
 	// 执行查询
 	result, err := this.Query(sqls)
 	if err != nil {
