@@ -3,7 +3,7 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
-	"github.com/gohouse/utils"
+	"github.com/gohouse/gorose/utils"
 	"strconv"
 	"strings"
 )

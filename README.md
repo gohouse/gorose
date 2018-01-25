@@ -1,13 +1,24 @@
-# Gorose
-
-### Documentation
-- [English document](docs/en/README.md)
-- [中文文档](docs/zh-CN/README.md)
+# Gorose Orm
 
 ### What is Gorose?
 
 Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravle's eloquent. It will be friendly for php developer and python or ruby developer.  
 Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,mssql.
+
+### Documentation
+
+- [English document](docs/en/README.md)
+- [中文文档](docs/zh-CN/README.md)
+
+### quick scan
+
+```go
+// select id as uid,name,age from users where id=1 order by id desc limit 10
+db.Table("users").Where("id",1).Fields("id as uid,name,age").Order("id desc").Limit(10).Get()
+// query string
+db.Query("select * from user limit 10")
+db.Execute("update users set name='fizzday' where id=?", 1)
+```
 
 ### Requirement
 
