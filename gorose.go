@@ -11,6 +11,8 @@ var (
 	Tx *sql.Tx // transaction
 	//Stmt *sql.Stmt
 	Connect Connection
+	SetMaxOpenConns	int = 0
+	SetMaxIdleConns	int = 1
 )
 
 type Connection struct {
@@ -56,6 +58,7 @@ func (this *Connection) parseConfig(args interface{}) error {
 		if Connect.Default == ""{
 			return errors.New("配置文件默认数据库链接未设置!")
 		}
+		// 获取指定的默认数据库链接信息
 		if defaultDbConnection,ok := confReal[Connect.Default]; ok{
 			if configs,ok := defaultDbConnection.(map[string]string);ok{
 				Connect.CurrentConfig = configs
@@ -64,6 +67,21 @@ func (this *Connection) parseConfig(args interface{}) error {
 			}
 		} else {
 			return errors.New("指定的数据库链接不存在!")
+		}
+		// 设置连接池信息
+		if mo,ok := confReal["SetMaxOpenConns"];ok{
+			if moInt,ok := mo.(int);ok{
+				SetMaxOpenConns	= moInt
+			} else {
+				return errors.New("连接池信息配置的值只能是数字")
+			}
+		}
+		if mi,ok := confReal["SetMaxIdleConns"];ok{
+			if miInt,ok := mi.(int);ok{
+				SetMaxIdleConns	= miInt
+			} else {
+				return errors.New("连接池信息配置的值只能是数字")
+			}
 		}
 	} else {
 		return errors.New("配置文件格式有误2!")
@@ -91,6 +109,8 @@ func (this *Connection) boot() error {
 
 	// 开始驱动
 	DB, err = sql.Open(driver, dsn)
+	DB.SetMaxOpenConns(SetMaxOpenConns)
+	DB.SetMaxIdleConns(SetMaxIdleConns)
 
 	if err != nil {
 		return err
