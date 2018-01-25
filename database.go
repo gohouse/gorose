@@ -46,9 +46,9 @@ type Database struct {
 	sqlLogs  []string
 }
 
-func (this *Database) Close() {
+func (this *Database) Close() error {
 	this.sqlLogs = []string{}
-	DB.Close()
+	return DB.Close()
 }
 func (this *Database) Ping() error {
 	return DB.Ping()
