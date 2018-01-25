@@ -14,43 +14,62 @@ var (
 )
 
 type Connection struct {
-	DbConfig      map[string]map[string]string
+	DbConfig      map[string]interface{}
 	Default       string
 	CurrentConfig map[string]string
 }
 
-//type aaa string
-
 func Open(args ...interface{}) (Database, error) {
 	if len(args) == 1 {
-		if confReal, ok := args[0].(map[string]string); ok {
-			Connect.CurrentConfig = confReal
-			//Connect.Boot(confReal)
-		} else {
-			return Database{}, errors.New("配置文件格式有误!")
-		}
+		// continue
 	} else if len(args) == 2 {
-		if confReal, ok := args[0].(map[string]string); ok {
-			Connect.CurrentConfig = confReal
-			//Connect.Boot(confReal)
-		} else if confReal, ok := args[0].(map[string]map[string]string); ok {
-			Connect.DbConfig = confReal
-			if confReal, ok := args[1].(string); ok {
-				Connect.CurrentConfig = Connect.DbConfig[confReal]
-				//Connect.Boot(confReal)
-			} else {
-				return Database{}, errors.New("配置文件格式有误!")
-			}
+		if confReal, ok := args[1].(string); ok {
+			Connect.Default = confReal
 		} else {
-			return Database{}, errors.New("配置文件格式有误!")
+			return Database{}, errors.New("指定默认数据库只能位字符串!")
 		}
+	} else {
+		return Database{},errors.New("Open方法只接收1个或2个参数!")
+	}
+	// 解析config
+	err := Connect.parseConfig(args[0])
+	if err!=nil{
+		return Database{},err
 	}
 
-	err := Connect.boot()
+	// 驱动数据库
+	errs := Connect.boot()
 
-	return Dbstruct, err
+	return Dbstruct, errs
 }
 
+func (this *Connection) parseConfig(args interface{}) error {
+	if confReal, ok := args.(map[string]string); ok {
+		Connect.CurrentConfig = confReal
+	} else if confReal, ok := args.(map[string]interface{}); ok {
+		Connect.DbConfig = confReal
+		if defaultDb,ok := confReal["default"]; ok{
+			if Connect.Default == "" {
+				Connect.Default = defaultDb.(string)
+			}
+		}
+		if Connect.Default == ""{
+			return errors.New("配置文件默认数据库链接未设置!")
+		}
+		if defaultDbConnection,ok := confReal[Connect.Default]; ok{
+			if configs,ok := defaultDbConnection.(map[string]string);ok{
+				Connect.CurrentConfig = configs
+			} else {
+				return errors.New("数据库配置格式有误!")
+			}
+		} else {
+			return errors.New("指定的数据库链接不存在!")
+		}
+	} else {
+		return errors.New("配置文件格式有误2!")
+	}
+	return nil
+}
 func (this *Connection) boot() error {
 	dbObj := Connect.CurrentConfig
 	var driver, dsn string

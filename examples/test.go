@@ -6,7 +6,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
 	//"github.com/devfeel/dotweb"
-	"reflect"
 )
 
 func main() {
@@ -33,23 +32,10 @@ func main() {
 	//	db.Reset()
 	//	fmt.Println(db)
 	//var res gorose.MapData
-	type Result struct {
-		Id int
-		Name string
-	}
-	var res Result
-	var res2 gorose.MapData
-
 	news, _ := db.Table("news").
 		Where("id","<",3).
-		First(&res)
-	news2, _ := db.Table("news").
-		Where("id","<",3).
-		First(&res2)
+		First()
 	fmt.Println(db.LastSql())
 	fmt.Println(news)
-	fmt.Println(news2)
-	//res = news
-	fmt.Println(reflect.TypeOf(news))
 }
 

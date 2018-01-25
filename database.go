@@ -54,10 +54,6 @@ func (this *Database) Ping() error {
 	return DB.Ping()
 }
 
-//func (this *Database) Connect(arg interface{}) *Database {
-//	Connect.Boot(arg)
-//	return this
-//}
 func (this *Database) Fields(fields string) *Database {
 	this.fields = fields
 	return this
@@ -768,17 +764,21 @@ func (this *Database) SqlLogs() []string {
 /**
  * simple transaction
  */
-//func (this *Database) Transaction(closure func()) bool {
-//	defer func() {
-//		if err := recover(); err != nil {
-//			this.Rollback()
-//			panic(err)
-//		}
-//	}()
-//
-//	this.Begin()
-//	closure()
-//	this.Commit()
-//
-//	return true
-//}
+func (this *Database) Transaction(closure func() (error)) bool {
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		this.Rollback()
+	//		panic(err)
+	//	}
+	//}()
+
+	this.Begin()
+	err := closure()
+	if err!=nil {
+		this.Rollback()
+		return false
+	}
+	this.Commit()
+
+	return true
+}
