@@ -19,7 +19,11 @@ func TestDatabase_First(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).First()
+	res,err := db.Table("users").Where("id", ">", 2).First()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if _, ok := res["id"]; ok == false {
 		test.Error("FAIL: test failed.")
@@ -36,7 +40,11 @@ func TestDatabase_Get(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).Limit(10).Get()
+	res,err := db.Table("users").Where("id", ">", 2).Limit(10).Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if _, ok := res[0]["id"]; ok == false {
 		test.Error("FAIL: test failed.")
@@ -54,7 +62,11 @@ func TestDatabase_Insert(test *testing.T) {
 	defer db.Close()
 
 	// insert
-	res := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Insert()
+	res,err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Insert()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res > 0 {
 		test.Log("PASS: insert=", res)
@@ -63,7 +75,11 @@ func TestDatabase_Insert(test *testing.T) {
 	}
 
 	// update
-	res2 := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", res).Update()
+	res2,err := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", res).Update()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res2 > 0 {
 		test.Log("PASS: Update=", res2)
@@ -72,7 +88,11 @@ func TestDatabase_Insert(test *testing.T) {
 	}
 
 	// delete
-	res3 := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", res).Delete()
+	res3,err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", res).Delete()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res3 > 0 {
 		test.Log("PASS: Delete=", res3)
@@ -89,7 +109,11 @@ func TestDatabase_Count(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 100).Count()
+	res,err := db.Table("users").Where("id", ">", 100).Count()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res >= 0 {
 		test.Log("PASS: count=", res)
@@ -106,7 +130,11 @@ func TestDatabase_Sum(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).Sum("age")
+	res,err := db.Table("users").Where("id", ">", 2).Sum("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res == nil {
 		test.Error("FAIL: test failed.")
@@ -123,7 +151,11 @@ func TestDatabase_Avg(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).Avg("age")
+	res,err := db.Table("users").Where("id", ">", 2).Avg("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res == nil {
 		test.Error("FAIL: test failed.")
@@ -140,7 +172,11 @@ func TestDatabase_Max(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).Max("age")
+	res,err := db.Table("users").Where("id", ">", 2).Max("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res == nil {
 		test.Error("FAIL: test failed.")
@@ -157,7 +193,11 @@ func TestDatabase_Min(test *testing.T) {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).Min("age")
+	res,err := db.Table("users").Where("id", ">", 2).Min("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res == nil {
 		test.Error("FAIL: test failed.")
@@ -181,16 +221,16 @@ func BenchmarkDatabase_First(bmtest *testing.B) {
 	}
 
 }
-func BenchmarkDatabase_Get(bmtest *testing.B) {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	// close DB
-	defer db.Close()
-
-	for cnt := 0; cnt < bmtest.N; cnt++ {
-		db.Table("users").Fields("id").Limit(10).Get() // 279397
-	}
-}
+//func BenchmarkDatabase_Get(bmtest *testing.B) {
+//	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+//	if err != nil {
+//		fmt.Println(err)
+//		return
+//	}
+//	// close DB
+//	defer db.Close()
+//
+//	for cnt := 0; cnt < bmtest.N; cnt++ {
+//		db.Table("users").Fields("id").Limit(10).Get() // 279397
+//	}
+//}

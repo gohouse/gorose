@@ -54,7 +54,8 @@ func InArray(needle interface{}, hystack interface{}) bool {
 			}
 		}
 	default:
-		panic("needle only support string,int,int64 type")
+		return false
+		//panic("needle only support string,int,int64 type")
 	}
 	//for _, item := range hystack {
 	//	if GetType(needle) == GetType(item) {
@@ -76,7 +77,7 @@ func ParseStr(data interface{}) string {
 	case string:
 		return data.(string)
 	default:
-		panic("只能转换数字类型")
+		return ""
 	}
 }
 
@@ -112,11 +113,14 @@ func Implode(data interface{}, glue string) string {
 /**
  * json转码
  */
-func JsonEncode(data interface{}) string {
+func JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
-	CheckErr(err)
 
-	return string(res)
+	if err != nil {
+		return "",err
+	}
+
+	return string(res), err
 }
 
 // todo

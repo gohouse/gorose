@@ -16,12 +16,20 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Where("id", ">", 2).First()
+	res,err := db.Table("users").Where("id", ">", 2).First()
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(db.LastSql())
 	fmt.Println(res)
 
 	// return json
-	res2 := db.Table("users").Limit(2).Get()
+	res2,err := db.Table("users").Limit(2).Get()
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(db.LastSql())
 	fmt.Println(res2)
 	//fmt.Println(db.JsonEncode(res2))

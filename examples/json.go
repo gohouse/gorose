@@ -5,7 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
-	"github.com/gohouse/utils"
+	"github.com/gohouse/gorose/utils"
 )
 
 func main() {
@@ -19,11 +19,15 @@ func main() {
 	defer db.Close()
 
 	// return json
-	res2 := db.Table("users").Limit(2).Get()
+	res2,err := db.Table("users").Limit(2).Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(db.LastSql())
-	fmt.Println(utils.JsonEncode(res2))
-	// or
 	fmt.Println(db.JsonEncode(res2))
+	// or
+	fmt.Println(utils.JsonEncode(res2))
 
 	//============== result ======================
 

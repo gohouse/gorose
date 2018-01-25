@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
 	//"github.com/devfeel/dotweb"
+	"reflect"
 )
 
 func main() {
@@ -31,27 +32,24 @@ func main() {
 	//	fmt.Println(db)
 	//	db.Reset()
 	//	fmt.Println(db)
-	news := db.Table("news").
-		Where("status", 1).
-		Order("id desc").
-		Limit(10).
-		Page(1).
-		First()
+	//var res gorose.MapData
+	type Result struct {
+		Id int
+		Name string
+	}
+	var res Result
+	var res2 gorose.MapData
 
+	news, _ := db.Table("news").
+		Where("id","<",3).
+		First(&res)
+	news2, _ := db.Table("news").
+		Where("id","<",3).
+		First(&res2)
 	fmt.Println(db.LastSql())
 	fmt.Println(news)
+	fmt.Println(news2)
+	//res = news
+	fmt.Println(reflect.TypeOf(news))
 }
 
-// 获取列表
-func GetNewsList(db gorose.Database) interface{} {
-	return db.Table("news").
-		Where("status", 1).
-		Order("id desc").
-		Limit(10).
-		Page(1).
-		Get()
-}
-
-func TTT() {
-	fmt.Sprintf("TTT")
-}

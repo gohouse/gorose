@@ -21,8 +21,11 @@ func main() {
 	//fmt.Println(res)
 
 	// return json
-	res2 := db.Table("users").Limit(2).Get()
-	jsons, _ := json.Marshal(res2)
-	fmt.Println(string(jsons))
+	res2,err := db.Table("users").Limit(2).Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(res2)
 
 }

@@ -16,7 +16,11 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	user := db.Query("select * from users where id>? limit ?", 1, 2)
+	user,err := db.Query("select * from users where id>? limit ?", 1, 2)
+	if err != nil{
+		fmt.Println(err)
+		return
+	}
 
 	fmt.Println(db.LastSql())
 	fmt.Println(user)

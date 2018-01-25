@@ -16,9 +16,13 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	user := db.Table("users a").
+	user,err := db.Table("users a").
 		Join("area b", "a.id", "=", "b.uid").
-		Where("id", ">", 1).Get()
+		Where("a.id", ">", 1).Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	fmt.Println(db.LastSql())
 	fmt.Println(user)

@@ -16,19 +16,39 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").Count()
+	res,err := db.Table("users").Count()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(res)
 
-	max := db.Table("users").Max("money")
+	max,err := db.Table("users").Max("money")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(max)
 
-	min := db.Table("users").Min("age")
+	min,err := db.Table("users").Min("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(min)
 
-	avg := db.Table("users").Avg("age")
+	avg,err := db.Table("users").Avg("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(avg)
 
-	sum := db.Table("users").Sum("age")
+	sum,err := db.Table("users").Sum("age")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(sum)
 
 	fmt.Println(db.LastSql())

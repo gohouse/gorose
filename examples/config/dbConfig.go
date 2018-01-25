@@ -49,6 +49,6 @@ var DbConfig = map[string]map[string]string{
 		"database": "./foo.db",
 		//"charset":  "utf8",
 		//"protocol": "tcp",
-		"driver": "sqlite",
+		"driver": "sqlite3",
 	},
 }

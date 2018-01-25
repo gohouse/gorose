@@ -21,7 +21,11 @@ func main() {
 		"job":  "it2",
 		"name": "fizz4",
 	}
-	res := db.Table("users").Data(data).Insert()
+	res,err := db.Table("users").Data(data).Insert()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(db.LastSql())
 	fmt.Println(res)
 
