@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 	// close DB
-	defer db.Close()
+	//defer db.Close()
 
 	//user := db.Table("users").Where("id", ">", 1).Where(func() {
 	//	db.Where("name", "fizz").OrWhere(func() {
@@ -32,7 +32,7 @@ func main() {
 	//	db.Reset()
 	//	fmt.Println(db)
 	//var res gorose.MapData
-	news, _ := db.Table("news").
+	news, _ := db.Table("users").
 		Where("id","<",3).
 		First()
 	fmt.Println(db.LastSql())

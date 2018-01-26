@@ -244,7 +244,7 @@ func (this *Database) buildQuery() (string, error) {
 	// fields
 	fields := utils.If(this.fields == "", "*", this.fields).(string)
 	// table
-	table := this.table
+	table := Connect.CurrentConfig["prefix"]+this.table
 	// join
 	parseJoin, err := this.parseJoin()
 	if err != nil {
@@ -290,13 +290,14 @@ func (this *Database) buildExecut(operType string) (string, error) {
 	where := utils.If( res== "", "", " WHERE "+res).(string)
 	var sqlstr string
 
+	tableName := Connect.CurrentConfig["prefix"]+this.table
 	switch operType {
 	case "insert":
-		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", this.table, insertkey, insertval)
+		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", tableName, insertkey, insertval)
 	case "update":
-		sqlstr = fmt.Sprintf("update %s set %s%s", this.table, update, where)
+		sqlstr = fmt.Sprintf("update %s set %s%s", tableName, update, where)
 	case "delete":
-		sqlstr = fmt.Sprintf("delete from %s%s", this.table, where)
+		sqlstr = fmt.Sprintf("delete from %s%s", tableName, where)
 	}
 	//fmt.Println(sqlstr)
 	this.Reset()
@@ -390,7 +391,6 @@ func (this *Database) buildUnion(union, field string) (interface{}, error) {
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
 	return result[0][union], nil
 }
-
 
 /**
  * 将where条件中的参数转换为where条件字符串
@@ -650,6 +650,7 @@ func (this *Database) JsonEncode(data interface{}) string {
  *　执行查询 sql 语句
  */
 func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, error) {
+	//defer DB.Close()
 	tableData := make([]map[string]interface{}, 0)
 
 	lenArgs := len(args)
@@ -715,6 +716,7 @@ func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, erro
  *　执行增删改 ｓｑｌ 语句
  */
 func (this *Database) Execute(args ...interface{}) (int64, error) {
+	//defer DB.Close()
 	lenArgs := len(args)
 	var sqlstring string
 	var vals []interface{}
