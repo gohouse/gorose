@@ -16,6 +16,7 @@ db.Execute("update users set name=? where id=?", "fizz", 1)
 ```
 
 ## 用法示例
+
 - 多个数据库连接配置  
 
 ```go
@@ -66,6 +67,7 @@ func main() {
 ```
 
 - 简单的数据库配置  
+
 ```go
 gorose.Open(map[string]string{
                 "database": "./foo.db",
