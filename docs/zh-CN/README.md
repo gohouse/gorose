@@ -356,5 +356,19 @@ result := db.Table("user").Get()
 jsonStr := db.JsonEncode(result)
 ```
 
+## 目录说明
+```sh
+/docs/      ---- 文档目录, 这里包含多个语言的不同使用文档
+/drivers/   ---- 不同数据库的驱动目录, 可以自由增加任何其他数据库的目录
+/examples/  ---- 使用示例目录, 可以在这里找到大部分的用例
+/test/      ---- go testing 自动测试, 包括简单的压力测试
+/utils/     ---- 工具包, 放置常用工具函数
+/vendor/    ---- 采用glide管理的依赖包
+database.go ---- 数据库映射操作的核心文件
+glide.yaml  ---- 项目依赖管理的配置文件
+gorose.go   ---- 数据库链接,数据库驱动加载核心文件
+README.md   ---- 文档说明文件
+```
+
 ------------
 #### [点击查看最新更新动态](https://github.com/gohouse/gorose)
