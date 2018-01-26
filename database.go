@@ -104,19 +104,19 @@ func (this *Database) OrWhere(args ...interface{}) *Database {
 }
 func (this *Database) Join(args ...interface{}) *Database {
 	//this.parseJoin(args, "INNER")
-	this.join = append(this.join, []interface{}{"INNER",args})
+	this.join = append(this.join, []interface{}{"INNER", args})
 
 	return this
 }
 func (this *Database) LeftJoin(args ...interface{}) *Database {
 	//this.parseJoin(args, "LEFT")
-	this.join = append(this.join, []interface{}{"LEFT",args})
+	this.join = append(this.join, []interface{}{"LEFT", args})
 
 	return this
 }
 func (this *Database) RightJoin(args ...interface{}) *Database {
 	//this.parseJoin(args, "RIGHT")
-	this.join = append(this.join, []interface{}{"RIGHT",args})
+	this.join = append(this.join, []interface{}{"RIGHT", args})
 
 	return this
 }
@@ -279,16 +279,15 @@ func (this *Database) buildExecut(operType string) (string, error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
-	var update, insertkey, insertval string
+	var update, insertkey, insertval, sqlstr string
 	if operType != "delete" {
 		update, insertkey, insertval = this.buildData()
 	}
-	res,err := this.parseWhere()
-	if err!=nil{
-		return res,err
+	res, err := this.parseWhere()
+	if err != nil {
+		return res, err
 	}
-	where := utils.If( res== "", "", " WHERE "+res).(string)
-	var sqlstr string
+	where := utils.If(res == "", "", " WHERE "+res).(string)
 
 	tableName := Connect.CurrentConfig["prefix"]+this.table
 	switch operType {
@@ -302,7 +301,7 @@ func (this *Database) buildExecut(operType string) (string, error) {
 	//fmt.Println(sqlstr)
 	this.Reset()
 
-	return sqlstr,nil
+	return sqlstr, nil
 }
 func (this *Database) buildData() (string, string, string) {
 	// insert
@@ -405,7 +404,7 @@ func (this *Database) parseParams(args []interface{}) (string, error) {
 	switch paramsLength {
 	case 3: // 常规3个参数:  {"id",">",1}
 		if !utils.InArray(args[1], regex) {
-			return "",errors.New("where运算条件参数有误!!")
+			return "", errors.New("where parameter is wrong")
 		}
 
 		paramsToArr = append(paramsToArr, args[0].(string))
@@ -449,12 +448,12 @@ func (this *Database) parseJoin() (string, error) {
 		var args []interface{}
 
 		if len(join) != 2 {
-			return "", errors.New("join条件有误")
+			return "", errors.New("join conditions are wrong")
 		}
 
 		// 获取真正的where条件
 		if args, ok = join[1].([]interface{}); !ok {
-			return "", errors.New("join条件有误")
+			return "", errors.New("join conditions are wrong")
 		}
 
 		argsLength := len(args)
@@ -464,10 +463,10 @@ func (this *Database) parseJoin() (string, error) {
 		case 4:
 			w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 		default:
-			return "", errors.New("join格式错误")
+			return "", errors.New("join format error")
 		}
 
-		returnJoinArr = append(returnJoinArr, " "+join[0].(string)+ " JOIN "+w)
+		returnJoinArr = append(returnJoinArr, " "+join[0].(string)+" JOIN "+w)
 	}
 
 	return strings.Join(returnJoinArr, " "), nil
@@ -527,7 +526,7 @@ func (this *Database) parseWhere() (string, error) {
 						}
 						whereMore = append(whereMore, res)
 					default:
-						return "", errors.New("where数据格式有误")
+						return "", errors.New("where data format is wrong")
 					}
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
@@ -538,14 +537,14 @@ func (this *Database) parseWhere() (string, error) {
 				// 执行嵌套where放入Database struct
 				paramReal()
 				// 再解析一遍后来嵌套进去的where
-				wherenested,err := this.parseWhere()
-				if err!=nil{
-					return "",err
+				wherenested, err := this.parseWhere()
+				if err != nil {
+					return "", err
 				}
 				// 嵌套的where放入一个括号内
 				where = append(where, condition+" ("+wherenested+")")
 			default:
-				return "", errors.New("where数据格式有误")
+				return "", errors.New("where data format is wrong")
 			}
 		}
 	}
@@ -556,8 +555,8 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []inter
 	var res int64
 	var err error
 	result, errs := stmt.Exec(vals...)
-	if errs != nil{
-		return 0,errs
+	if errs != nil {
+		return 0, errs
 	}
 
 	switch operType {
@@ -573,40 +572,40 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []inter
 }
 
 func (this *Database) Insert() (int, error) {
-	sqlstr,err := this.buildExecut("insert")
-	if err!=nil{
-		return 0,nil
+	sqlstr, err := this.buildExecut("insert")
+	if err != nil {
+		return 0, nil
 	}
 
-	res,errs := this.Execute(sqlstr)
-	if errs!=nil{
-		return 0,nil
+	res, errs := this.Execute(sqlstr)
+	if errs != nil {
+		return 0, nil
 	}
-	return int(res),nil
+	return int(res), nil
 }
 func (this *Database) Update() (int, error) {
-	sqlstr,err := this.buildExecut("update")
-	if err!=nil{
-		return 0,nil
+	sqlstr, err := this.buildExecut("update")
+	if err != nil {
+		return 0, nil
 	}
 
-	res,errs := this.Execute(sqlstr)
-	if errs!=nil{
-		return 0,nil
+	res, errs := this.Execute(sqlstr)
+	if errs != nil {
+		return 0, nil
 	}
-	return int(res),nil
+	return int(res), nil
 }
 func (this *Database) Delete() (int, error) {
-	sqlstr,err := this.buildExecut("delete")
-	if err!=nil{
-		return 0,nil
+	sqlstr, err := this.buildExecut("delete")
+	if err != nil {
+		return 0, nil
 	}
 
-	res,errs := this.Execute(sqlstr)
-	if errs!=nil{
-		return 0,nil
+	res, errs := this.Execute(sqlstr)
+	if errs != nil {
+		return 0, nil
 	}
-	return int(res),nil
+	return int(res), nil
 }
 func (this *Database) Begin() {
 	Tx, _ = DB.Begin()
@@ -647,7 +646,7 @@ func (this *Database) JsonEncode(data interface{}) string {
 }
 
 /**
- *　执行查询 sql 语句
+ * 执行查询 SQL 语句
  */
 func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, error) {
 	//defer DB.Close()
@@ -712,8 +711,9 @@ func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, erro
 	}
 	return tableData, nil
 }
+
 /**
- *　执行增删改 ｓｑｌ 语句
+ * 执行增删改 SQL 语句
  */
 func (this *Database) Execute(args ...interface{}) (int64, error) {
 	//defer DB.Close()
@@ -735,18 +735,18 @@ func (this *Database) Execute(args ...interface{}) (int64, error) {
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
-		return 0, errors.New("该方法不允许select操作, 请使用Query")
+		return 0, errors.New("this method does not allow select operations, use Query")
 	}
 
 	if this.trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
-		if err!= nil {
+		if err != nil {
 			return 0, err
 		}
 		return this.parseExecute(stmt, operType, vals)
 	} else {
 		stmt, err := DB.Prepare(sqlstring)
-		if err!= nil {
+		if err != nil {
 			return 0, err
 		}
 		return this.parseExecute(stmt, operType, vals)
@@ -754,7 +754,7 @@ func (this *Database) Execute(args ...interface{}) (int64, error) {
 }
 
 func (this *Database) LastSql() string {
-	if len(this.sqlLogs)>0{
+	if len(this.sqlLogs) > 0 {
 		return this.sqlLogs[len(this.sqlLogs)-1:][0]
 	}
 	return ""
@@ -776,7 +776,7 @@ func (this *Database) Transaction(closure func() (error)) bool {
 
 	this.Begin()
 	err := closure()
-	if err!=nil {
+	if err != nil {
 		this.Rollback()
 		return false
 	}
