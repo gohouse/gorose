@@ -1,0 +1,28 @@
+hash: 7659beac372f47c21b93a1c33cfcb87313fd85c8cfeb5251e2e273e1b11ba367
+updated: 2018-01-25T22:14:07.824435936+08:00
+imports:
+- name: github.com/denisenkom/go-mssqldb
+  version: 7deea793d3c7703dd74a1a38f09223b8c2cd0501
+- name: github.com/go-sql-driver/mysql
+  version: 2cc627ac8defc45d65066ae98f898166f580f9a4
+- name: github.com/lib/pq
+  version: 19c8e9ad00952ce0c64489b60e8df88bb16dd514
+  subpackages:
+  - oid
+- name: github.com/mattn/go-oci8
+  version: 73e70e9fc52baed56e26e53fb22c21a913e69490
+- name: github.com/mattn/go-sqlite3
+  version: 9bdd5428f7d3754cbda0efab73be02be36e921ed
+- name: golang.org/x/crypto
+  version: 3d37316aaa6bd9929127ac9a527abf408178ea7b
+  subpackages:
+  - md4
+- name: golang.org/x/net
+  version: 0ed95abb35c445290478a5348a7b38bb154135fd
+  subpackages:
+  - context
+- name: google.golang.org/appengine
+  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
+  subpackages:
+  - cloudsql
+testImports: []
