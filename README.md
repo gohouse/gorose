@@ -1,14 +1,14 @@
 # Gorose Orm
 
-### What is Gorose?
-
-Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravle's eloquent. It will be friendly for php developer and python or ruby developer.  
-Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,mssql.
-
 ### Documentation
 
 - [中文文档](docs/zh-CN/README.md)
 - [English document](docs/en/README.md)
+
+### What is Gorose?
+
+Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravle's eloquent. It will be friendly for php developer and python or ruby developer.  
+Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,mssql.
 
 ### quick scan
 
