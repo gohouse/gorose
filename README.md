@@ -1,4 +1,4 @@
-# Gorose Orm
+# Gorose ORM
 
 ### Documentation
 
@@ -10,30 +10,31 @@
 Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravle's eloquent. It will be friendly for php developer and python or ruby developer.  
 Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,mssql.
 
-### quick scan
+### Quick Preview
 
 ```go
 // select id as uid,name,age from users where id=1 order by id desc limit 10
 db.Table("users").Where("id",1).Fields("id as uid,name,age").Order("id desc").Limit(10).Get()
+
 // query string
 db.Query("select * from user limit 10")
 db.Execute("update users set name='fizzday' where id=?", 1)
 ```
 
-### character
+### Features
 
-- Chain operation  
-- connection pool  
+- Chain Operation
+- Connection Pool
 
 ### Requirement
 
 - Golang 1.6+
-- [Glide](https://glide.sh) (Optional, Dependencies management for golang)
+- [Glide](https://glide.sh) (optional, dependencies management for golang)
 
 ### Installation
 
+- for [Glide](https://glide.sh): `$ glide get github.com/gohouse/gorose`
 - `$ go get -u github.com/gohouse/gorose`
-- for Glide: `$ glide get github.com/gohouse/gorose`
 
 ### Base Usage
 ```go
@@ -47,20 +48,24 @@ import (
 
 // DB Config.(Recommend to use configuration file to import)
 var DbConfig = map[string]interface{}{
-	"default":         "mysql_dev", // 默认数据库配置
-	"SetMaxOpenConns": 300,         // (连接池)最大打开的连接数，默认值为0表示不限制
-	"SetMaxIdleConns": 10,         // (连接池)闲置的连接数, 默认1
+	// Default database configuration
+	"default": "mysql_dev",
+	// (Connection pool) Max open connections, default value 0 means unlimit.
+	"SetMaxOpenConns": 300,
+	// (Connection pool) Max idle connections, default value is 1.
+	"SetMaxIdleConns": 10,
 
-	"mysql_dev": map[string]string{// 定义名为 mysql_dev 的数据库配置
-		"host": "192.168.200.248", // 数据库地址
-		"username": "gcore",       // 数据库用户名
-		"password": "gcore",       // 数据库密码
-		"port": "3306",            // 端口
-		"database": "test",        // 链接的数据库名字
-		"charset": "utf8",         // 字符集
-		"protocol": "tcp",         // 链接协议
-		"prefix": "",              // 表前缀
-		"driver": "mysql",         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+	// Define the database configuration character "mysql_dev".
+	"mysql_dev": map[string]string{
+		"host":     "192.168.200.248",
+		"username": "gcore",
+		"password": "gcore",
+		"port":     "3306",
+		"database": "test",
+		"charset":  "utf8",
+		"protocol": "tcp",
+		"prefix":   "",      // Table prefix
+		"driver":   "mysql", // Database driver(mysql,sqlite,postgres,oracle,mssql)
 	},
 }
 
@@ -86,9 +91,7 @@ MIT
 
 ### Exchange and Discussion
 
-- QQ group number: 470809220
-
-- [点击加入qq群: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)  
+- [Join QQ group number: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)
 
 ### Contribution
 
