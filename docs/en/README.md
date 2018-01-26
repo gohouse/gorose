@@ -1,18 +1,8 @@
 ## brief introduction
-(gorose, 最风骚的go orm, 开箱即用, 一分钟上手, 链式操作, 让golang操作数据库成为一种享受, 妈妈再也看不到我处理数据的痛苦了)  
 gorose(go orm), a mini database orm for golang , which inspired by the famous php framwork laravle's eloquent. it will be friendly for php developer and python or ruby developer  
-目前提供5大数据库驱动, mysql,sqlite,postgres,oracle,mssql, 同时可以自由更换驱动
 
 ## document
 - [中文文档](https://www.kancloud.cn/fizz/gorose)
-
-## 随时在线交流心得
-[点击加入qq群: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)  
-
-## install
-```go
-go get github.com/gohouse/gorose
-```
 
 ## quick scan
 ```go
@@ -25,83 +15,93 @@ db.Query("select * from user where id=?", 1)
 db.Execute("update users set name=? where id=?", "fizz", 1)
 ```
 
-## install
-- install gorose
-```go
-go get github.com/gohouse/gorose
-```
 ## config and sample
 - multi config 
-```go
-import (
-	"github.com/gohouse/gorose"
-	"fmt"
-)
 
-var dbConfig = map[string]map[string]string {
-	"mysql_master": {
-        "host":     "localhost",
-        "username": "root",
-        "password": "root",
-        "port":     "3306",
-        "database": "test",
-        "charset":  "utf8",
-        "protocol": "tcp",
-        "driver":   "mysql", // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
-	},
-	"mysql_dev": {
-        "host":     "localhost",
-        "username": "root",
-        "password": "root",
-        "port":     "3306",
-        "database": "test",
-        "charset":  "utf8",
-        "protocol": "tcp",
-        "driver":   "mysql",
-	},
+```go
+package main
+
+import "github.com/gohouse/gorose"
+
+var dbConfig = map[string]interface{} {
+    "default":         "mysql_dev",// 默认数据库配置
+    "SetMaxOpenConns": 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
+    "SetMaxIdleConns": 1,          // (连接池)闲置的连接数, 默认1
+
+    "mysql_dev": map[string]string{// 定义名为 mysql_dev 的数据库配置
+        "host": "192.168.200.248", // 数据库地址
+        "username": "gcore",       // 数据库用户名
+        "password": "gcore",       // 数据库密码
+        "port": "3306",            // 端口
+        "database": "test",        // 链接的数据库名字
+        "charset": "utf8",         // 字符集
+        "protocol": "tcp",         // 链接协议
+        "prefix": "",              // 表前缀
+        "driver": "mysql",         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+    },
+    "sqlite_dev": map[string]string{
+        "database": "./foo.db",
+        "prefix": "",
+        "driver": "sqlite3",
+    },
 }
 
-db := gorose.Open(config.DbConfig, "mysql_dev")
-// close DB
-defer db.Close()
+// database connection init , use the config of "default" connection
+// you can also use other connection in the second param, as the second line of note below
+db,err := gorose.Open(dbConfig)
+// db,err := gorose.Open(dbConfig, "sqlite_dev")
+if err!=nil{
+	fmt.Println(err)
+	return
+}
 
 func main() {
-    res := db.Table("users").First()
-    
+    res,err := db.Table("users").First()
+    if err!=nil{
+    	fmt.Println(err)
+    	return
+    }
     fmt.Println(res)
 }
 ```
+
 - single config
 ```go
-gorose.Open(map[string]string {
-                "host":     "localhost",
-                "username": "root",
-                "password": "",
-                "port":     "3306",
-                "database": "test",
-                "charset":  "utf8",
-                "protocol": "tcp",
-                "driver":   "mysql",
+gorose.Open(map[string]string{
+                "database": "./foo.db",
+                "prefix": "",
+                "driver": "sqlite3",
             })
 ```
+
+- connection poll  
+just set the param in config  
+```go
+"SetMaxOpenConns": 0,        // max open connection, default 0 with no limit
+"SetMaxIdleConns": 1,        // connection with free, default 1
+```
+
 ## example
 ### query
 #### Native string
 ```go
 db.Query("select * from user where id = 1")
+db.Query("select * from user where name = ?", "fizz")
 ```
 #### call chaining
 ```go
 db.Table("user").
-    Field("id, name").  // field
+    Field("id, name, avg(age) as age_avg").  // field
     Where("id",">",1).  // simple where
+    Where("head = 3 or rate is not null").  // where string
     Where(map[string]interface{}{"name":"fizzday", "age":18}).  // where object
-    Where([]map[string]interface{}{{"website", "like", "fizz"}, {"job", "it"}}).    // multi where
+    Where([]map[string]interface{}{{"website", "like", "%fizz%"}, {"job", "it"}}).    // multi where
     Where("head = 3 or rate is not null").  // where string
     OrWhere("cash", "1000000"). // or where ...
     OrWhere("score", "between", []string{50, 80}).  // between
     OrWhere("role", "not in", []string{"admin", "read"}).   // in 
     Group("job").   // group
+    Having("age_avg>1").   // having
     Order("age asc").   // order 
     Limit(10).  // limit
     Offset(1).  // offset
@@ -111,6 +111,7 @@ parse sql result:
 ```go
 select id,name from user 
     where (id>1) 
+    and (head =3 or rate is not null)
     and (name='fizzday' and age='18') 
     and ((website like '%fizz%') and (job='it'))
     and (head =3 or rate is not null)
@@ -118,6 +119,7 @@ select id,name from user
     or (score between '50' and '100') 
     or (role not in ('admin', 'read'))
     group by job 
+    having age_avg>1
     order by age asc 
     limit 10 offset 1
 ```  
@@ -133,6 +135,13 @@ User.First()
 db.Fisrt()
 ```
 parse sql result: `select * from user limit 1`  
+
+- fetch a value of one field  
+```go
+name := User.Value("name")
+// or
+db.Value("name")
+```
 
 - count
 ```go
@@ -178,13 +187,13 @@ parse sql result:
 select * from user inner join card on user.id=card.user_id limit 10
 ```
 ```go
-db.Table("user")
-    .LeftJoin("card","user.id","=","card.user_id")
+db.Table("user a")
+    .LeftJoin("card b","a.id","=","b.user_id")
     .First()
 ```
 parse sql result: 
 ```go
-select * from user left join card on user.id=card.user_id limit 1
+select * from user a left join card b on a.id=b.user_id limit 1
 ```
 > RightJoin : right join
 
@@ -193,7 +202,7 @@ select * from user left join card on user.id=card.user_id limit 1
 db.Table("user").Where("id", ">", 1).Where(func() {
 		db.Where("name", "fizz").OrWhere(func() {
 			db.Where("name", "fizz2").Where(func() {
-				db.Where("name", "fizz3").OrWhere("website", "fizzday")
+				db.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
 			})
 		})
 	}).Where("job", "it").First()
@@ -204,13 +213,14 @@ SELECT  * FROM user
     WHERE  id > '1' 
         and ( name = 'fizz' 
             or ( name = 'fizz2' 
-                and ( name = 'fizz3' or website like '%fizzday%')
+                and ( name = 'fizz3' or website like 'fizzday%')
                 )
             ) 
     and job = 'it' LIMIT 1
 ```  
 
 #### chunk data block
+- Chunk  
 ```go
 db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
     // for _,item := range data {
@@ -233,6 +243,7 @@ result:
 #### Native string
 ```go
 db.Execute("update user set job='it2' where id=3")
+db.Execute("update user set job='it2' where id=?", 3)
 ```
 #### Call chaining
 ```go
@@ -281,27 +292,26 @@ db.Commit()
 ```
 - simple using
 ```go
-db.Transaction(func() {
-    db.Execute("update area set job='sadf' where id=14")
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
-    db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+trans := db.Transaction(func() (error) {
+	
+    _,err := db.Execute("update area set job='sadf' where id=14")
+    if err!=nil {
+    	return err
+    }
+    
+    _,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
+    if err!=nil {
+        return err
+    }
+        
+    _,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+    if err!=nil {
+        return err
+    }
+    
+    return nil
 })
 ```
-
-## Temporary connection
-```go
-db.Connect("mysql_dev").Table().First()
-// or
-db.Connect(map[string]string {
-                "host":     "localhost",
-                "username": "root",
-                "password": "",
-                "port":     "3306",
-                "database": "test",
-                "charset":  "utf8",
-                "protocol": "tcp",
-            }).Table().First()
-```  
 
 ## get origin connection DB  
 ```go
@@ -310,8 +320,8 @@ gorose.GetDB()
 
 ## get sql logs or last sql
 ```go
-db.SqlLogs()
-db.LastSql()
+sqllogs := db.SqlLogs()
+lastsql := db.LastSql()
 ```
 
 ## json return
@@ -319,11 +329,6 @@ db.LastSql()
 result := db.Table("user").Get()
 jsonStr := db.JsonEncode(result)
 ```
-
-## TODO (finish)
-
-[] connection pool
-
 
 ------------
 #### [ click for getting the news ](https://github.com/gohouse/gorose)

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	regex    = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "in", "not in", "between", "not between"}
+	regex    = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
 	Dbstruct Database
 )
 
@@ -182,6 +182,16 @@ func (this *Database) Get() ([]map[string]interface{}, error) {
 	this.Reset()
 
 	return result, nil
+}
+func (this *Database) Value(arg string) (interface{}, error) {
+	res, err := this.First()
+	if err!=nil{
+		return nil,err
+	}
+	if val,ok := res[arg];ok{
+		return val,nil
+	}
+	return nil, errors.New("the field is not exists")
 }
 func (this *Database) Count() (int, error) {
 	res, err := this.buildUnion("count", "*")
@@ -419,6 +429,8 @@ func (this *Database) parseParams(args []interface{}) (string, error) {
 
 		switch args[1] {
 		case "like":
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(args[2])))
+		case "not like":
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(args[2])))
 		case "in":
 			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")

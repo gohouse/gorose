@@ -52,6 +52,14 @@ func TestDatabase_Execute(test *testing.T) {
 		test.Error("FAIL: test failed.")
 	}
 }
+func TestDatabase_Value(test *testing.T) {
+	res,err := db.Table("users").Value("name")
+	if err != nil {
+		test.Error("FAIL: test failed.")
+		return
+	}
+	test.Log("PASS: name =", res)
+}
 func TestDatabase_First(test *testing.T) {
 	res,err := db.Table("users").First()
 	if err != nil {

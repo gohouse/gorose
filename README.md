@@ -83,6 +83,8 @@ MIT
 
 - QQ group number: 470809220
 
+- [点击加入qq群: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)  
+
 ### Contribution
 
 - [Issues](https://github.com/gohouse/gorose/issues)

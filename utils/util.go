@@ -139,6 +139,36 @@ func UcFirst(arg string) string {
 	}
 	return strings.ToUpper(arg[0:1])+arg[1:]
 }
+func Empty2(params interface{}) bool {
+	//初始化变量
+	var (
+		flag          bool = true
+		default_value reflect.Value
+	)
+
+	r := reflect.ValueOf(params)
+
+	//获取对应类型默认值
+	default_value = reflect.Zero(r.Type())
+	//由于params 接口类型 所以default_value也要获取对应接口类型的值 如果获取不为接口类型 一直为返回false
+	if !reflect.DeepEqual(r.Interface(), default_value.Interface()) {
+		flag = false
+	}
+	return flag
+}
+func Empty(arg interface{}) bool {
+	switch arg.(type) {
+	case int:
+		return If(arg.(int) == 0, true, false).(bool)
+	case int64:
+		return If(arg.(int) == 0, true, false).(bool)
+	case string:
+		return If(arg.(string) == "", true, false).(bool)
+	default:
+		return true
+	}
+}
+
 func SuccessReturn(args ...interface{}) interface{} {
 	argsLength := len(args)
 
