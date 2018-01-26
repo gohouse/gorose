@@ -13,7 +13,7 @@ var DbConfig = map[string]interface{}{
 		"database": "test",        // 链接的数据库名字
 		"charset": "utf8",         // 字符集
 		"protocol": "tcp",         // 链接协议
-		"prefix": "fizz_",              // 表前缀
+		"prefix": "",              // 表前缀
 		"driver": "mysql",         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
 	},
 	"mssql_dev": map[string]string{

@@ -41,6 +41,7 @@ type Database struct {
 	max      string
 	min      string
 	group    string
+	having    string
 	trans    bool
 	data     interface{}
 	sqlLogs  []string
@@ -68,6 +69,10 @@ func (this *Database) Data(data interface{}) *Database {
 }
 func (this *Database) Group(group string) *Database {
 	this.group = group
+	return this
+}
+func (this *Database) Having(having string) *Database {
+	this.having = having
 	return this
 }
 func (this *Database) Order(order string) *Database {
@@ -259,6 +264,8 @@ func (this *Database) buildQuery() (string, error) {
 	where := utils.If(parseWhere == "", "", " WHERE "+parseWhere).(string)
 	// group
 	group := utils.If(this.group == "", "", " GROUP BY "+this.group).(string)
+	// having
+	having := utils.If(this.having == "", "", " HAVING "+this.having).(string)
 	// order
 	order := utils.If(this.order == "", "", " ORDER BY "+this.order).(string)
 	// limit
@@ -267,8 +274,8 @@ func (this *Database) buildQuery() (string, error) {
 	offset := utils.If(this.offset == 0, "", " OFFSET "+strconv.Itoa(this.offset))
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
-	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s",
-		distinct, utils.If(union != "", union, fields), table, join, where, group, order, limit, offset)
+	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
+		distinct, utils.If(union != "", union, fields), table, join, where, group, having, order, limit, offset)
 
 	//fmt.Println(sqlstr)
 	// Reset Database struct
@@ -412,7 +419,7 @@ func (this *Database) parseParams(args []interface{}) (string, error) {
 
 		switch args[1] {
 		case "like":
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes("%"+utils.ParseStr(args[2])+"%"))
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(args[2])))
 		case "in":
 			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
 		case "not in":
@@ -635,6 +642,7 @@ func (this *Database) Reset() {
 	this.max = ""
 	this.min = ""
 	this.group = ""
+	this.having = ""
 	this.trans = false
 
 	var tmp interface{}

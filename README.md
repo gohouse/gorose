@@ -7,8 +7,8 @@ Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,ms
 
 ### Documentation
 
-- [English document](docs/en/README.md)
 - [中文文档](docs/zh-CN/README.md)
+- [English document](docs/en/README.md)
 
 ### quick scan
 
@@ -19,6 +19,11 @@ db.Table("users").Where("id",1).Fields("id as uid,name,age").Order("id desc").Li
 db.Query("select * from user limit 10")
 db.Execute("update users set name='fizzday' where id=?", 1)
 ```
+
+### character
+
+- Chain operation  
+- connection pool  
 
 ### Requirement
 

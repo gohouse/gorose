@@ -66,10 +66,10 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	res,err := db.Table("users").Fields("id").Where("id", ">", 0).OrWhere("id", "<", 10).
-		Order("id asc").Group("id").Limit(1).Offset(0).Get()
+	res,err := db.Table("users").Fields("id,sum(age) as sum").Where("id", ">", 0).OrWhere("age", ">", 0).
+		Group("id").Having("sum>1").Order("id asc").Limit(1).Offset(0).Get()
 	if err != nil {
-		test.Error("FAIL: test failed.")
+		test.Error(fmt.Sprintf("FAIL: test failed. %s",err))
 		return
 	}
 
