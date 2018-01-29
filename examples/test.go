@@ -33,8 +33,9 @@ func main() {
 	//	fmt.Println(db)
 	//var res gorose.MapData
 	news, _ := db.Table("users").
-		Where("id","<",3).
-		First()
+				Where("id","<",3).
+				First()
+
 	fmt.Println(db.LastSql())
 	fmt.Println(news)
 }

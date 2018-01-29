@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 	fmt.Println(db.LastSql())
-	fmt.Println(res)
+	fmt.Println("id:%d", res["id"])
 
 	// return json
 	res2,err := db.Table("users").Limit(2).Get()

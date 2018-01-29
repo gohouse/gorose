@@ -13,6 +13,8 @@ Currently provides five major database drivers: mysql,sqlite3,postgres,oracle,ms
 ### quick scan
 
 ```go
+// select * from users where id=1 limit 1
+db.Table("users").Where("id",1).First()
 // select id as uid,name,age from users where id=1 order by id desc limit 10
 db.Table("users").Where("id",1).Fields("id as uid,name,age").Order("id desc").Limit(10).Get()
 // query string
