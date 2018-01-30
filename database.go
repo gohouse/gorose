@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	regex    = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
-	Dbstruct Database
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
+	//Dbstruct Database
 )
 
-type MapData map[string]interface{}
-type MultiData []map[string]interface{}
+//type MapData map[string]interface{}
+//type MultiData []map[string]interface{}
 
 //var instance *Database
 //var once sync.Once
@@ -41,26 +41,23 @@ type Database struct {
 	max      string
 	min      string
 	group    string
-	having    string
-	trans    bool
+	having   string
 	data     interface{}
-	sqlLogs  []string
+	//trans    bool
+	//sqlLogs  []string
 }
 
-func (this *Database) Close() error {
-	this.sqlLogs = []string{}
-	return DB.Close()
+func (this *Database) Factory() *Database {
+	return this
 }
-func (this *Database) Ping() error {
-	return DB.Ping()
-}
-
 func (this *Database) Fields(fields string) *Database {
 	this.fields = fields
 	return this
 }
 func (this *Database) Table(table string) *Database {
 	this.table = table
+	//database := Dbstruct.Factory()
+	//database.table = table
 	return this
 }
 func (this *Database) Data(data interface{}) *Database {
@@ -148,7 +145,7 @@ func (this *Database) First(args ...interface{}) (map[string]interface{}, error)
 	}
 
 	// 之所以不在 Query 中统一Reset, 是因为chunk会复用到查询相关条件
-	this.Reset()
+	//this.Reset()
 
 	if len(res) == 0 {
 		return nil, nil
@@ -179,17 +176,17 @@ func (this *Database) Get() ([]map[string]interface{}, error) {
 	//	return string(jsons)
 	//}
 
-	this.Reset()
+	//this.Reset()
 
 	return result, nil
 }
 func (this *Database) Value(arg string) (interface{}, error) {
 	res, err := this.First()
-	if err!=nil{
-		return nil,err
+	if err != nil {
+		return nil, err
 	}
-	if val,ok := res[arg];ok{
-		return val,nil
+	if val, ok := res[arg]; ok {
+		return val, nil
 	}
 	return nil, errors.New("the field is not exists")
 }
@@ -214,16 +211,17 @@ func (this *Database) Min(min string) (interface{}, error) {
 }
 func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 	var step = 0
+	var offset = this.offset
 	for {
 		this.limit = limit
-		this.offset = step * limit
+		this.offset = offset + step*limit
 
 		// 查询当前区块的数据
 		sqls, _ := this.buildQuery()
 		data, _ := this.Query(sqls)
 
 		if len(data) == 0 {
-			this.Reset()
+			//this.Reset()
 			break
 		}
 
@@ -231,7 +229,7 @@ func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) 
 
 		//fmt.Println(res)
 		if len(data) < limit {
-			this.Reset()
+			//this.Reset()
 			break
 		}
 		step++
@@ -259,7 +257,7 @@ func (this *Database) buildQuery() (string, error) {
 	// fields
 	fields := utils.If(this.fields == "", "*", this.fields).(string)
 	// table
-	table := Connect.CurrentConfig["prefix"]+this.table
+	table := Connect.CurrentConfig["prefix"] + this.table
 	// join
 	parseJoin, err := this.parseJoin()
 	if err != nil {
@@ -306,7 +304,7 @@ func (this *Database) buildExecut(operType string) (string, error) {
 	}
 	where := utils.If(res == "", "", " WHERE "+res).(string)
 
-	tableName := Connect.CurrentConfig["prefix"]+this.table
+	tableName := Connect.CurrentConfig["prefix"] + this.table
 	switch operType {
 	case "insert":
 		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", tableName, insertkey, insertval)
@@ -316,7 +314,7 @@ func (this *Database) buildExecut(operType string) (string, error) {
 		sqlstr = fmt.Sprintf("delete from %s%s", tableName, where)
 	}
 	//fmt.Println(sqlstr)
-	this.Reset()
+	//this.Reset()
 
 	return sqlstr, nil
 }
@@ -330,8 +328,8 @@ func (this *Database) buildData() (string, string, string) {
 	data := this.data
 
 	switch data.(type) {
-	case MultiData: // insert multi datas ([]map[string]interface{})
-		datas := data.(MultiData)
+	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
+		datas := data.([]map[string]interface{})
 		for _, item := range datas {
 			var dataValuesSub []string
 			for key, val := range item {
@@ -626,39 +624,40 @@ func (this *Database) Delete() (int, error) {
 	}
 	return int(res), nil
 }
-func (this *Database) Begin() {
-	Tx, _ = DB.Begin()
-	this.trans = true
-}
-func (this *Database) Commit() {
-	Tx.Commit()
-	this.trans = false
-}
-func (this *Database) Rollback() {
-	Tx.Rollback()
-	this.trans = false
-}
+
+//func (this *Database) Begin() {
+//	Tx, _ = DB.Begin()
+//	this.trans = true
+//}
+//func (this *Database) Commit() {
+//	Tx.Commit()
+//	this.trans = false
+//}
+//func (this *Database) Rollback() {
+//	Tx.Rollback()
+//	this.trans = false
+//}
 func (this *Database) Reset() {
 	//this = new(Database)
-	this.table = ""
-	this.fields = ""
-	this.where = [][]interface{}{}
-	this.order = ""
-	this.limit = 0
-	this.offset = 0
-	this.join = [][]interface{}{}
-	this.distinct = false
+	//this.table = ""
+	//this.fields = ""
+	//this.where = [][]interface{}{}
+	//this.order = ""
+	//this.limit = 0
+	//this.offset = 0
+	//this.join = [][]interface{}{}
+	//this.distinct = false
 	this.count = ""
 	this.sum = ""
 	this.avg = ""
 	this.max = ""
 	this.min = ""
-	this.group = ""
-	this.having = ""
-	this.trans = false
-
-	var tmp interface{}
-	this.data = tmp
+	//this.group = ""
+	//this.having = ""
+	//this.trans = false
+	//
+	//var tmp interface{}
+	//this.data = tmp
 }
 func (this *Database) JsonEncode(data interface{}) string {
 	res, _ := utils.JsonEncode(data)
@@ -686,7 +685,7 @@ func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, erro
 		}
 	}
 	// 记录sqllog
-	this.sqlLogs = append(this.sqlLogs, fmt.Sprintf(sqlstring, vals...))
+	Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
 
 	stmt, err := DB.Prepare(sqlstring)
 	if err != nil {
@@ -751,14 +750,14 @@ func (this *Database) Execute(args ...interface{}) (int64, error) {
 		}
 	}
 	// 记录sqllog
-	this.sqlLogs = append(this.sqlLogs, fmt.Sprintf(sqlstring, vals...))
+	Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
 		return 0, errors.New("this method does not allow select operations, use Query")
 	}
 
-	if this.trans == true {
+	if Connect.Trans == true {
 		stmt, err := Tx.Prepare(sqlstring)
 		if err != nil {
 			return 0, err
@@ -773,34 +772,34 @@ func (this *Database) Execute(args ...interface{}) (int64, error) {
 	}
 }
 
-func (this *Database) LastSql() string {
-	if len(this.sqlLogs) > 0 {
-		return this.sqlLogs[len(this.sqlLogs)-1:][0]
-	}
-	return ""
-}
-func (this *Database) SqlLogs() []string {
-	return this.sqlLogs
-}
-
-/**
- * simple transaction
- */
-func (this *Database) Transaction(closure func() (error)) bool {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		this.Rollback()
-	//		panic(err)
-	//	}
-	//}()
-
-	this.Begin()
-	err := closure()
-	if err != nil {
-		this.Rollback()
-		return false
-	}
-	this.Commit()
-
-	return true
-}
+//func (this *Database) LastSql() string {
+//	if len(Connect.SqlLog) > 0 {
+//		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
+//	}
+//	return ""
+//}
+//func (this *Database) SqlLogs() []string {
+//	return Connect.SqlLog
+//}
+//
+///**
+// * simple transaction
+// */
+//func (this *Database) Transaction(closure func() (error)) bool {
+//	//defer func() {
+//	//	if err := recover(); err != nil {
+//	//		this.Rollback()
+//	//		panic(err)
+//	//	}
+//	//}()
+//
+//	this.Begin()
+//	err := closure()
+//	if err != nil {
+//		this.Rollback()
+//		return false
+//	}
+//	this.Commit()
+//
+//	return true
+//}

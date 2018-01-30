@@ -12,7 +12,7 @@ import (
 // go test -v
 // go test -test.bench=.
 
-var db gorose.Database
+var db gorose.Connection
 var err error
 func init(){
 	db, err = gorose.Open(config.DbConfig, "mysql_dev")

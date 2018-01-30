@@ -3,8 +3,7 @@ package config
 var DbConfig = map[string]interface{}{
 	"default":         "mysql_dev", // 默认数据库配置
 	"SetMaxOpenConns": 300,         // (连接池)最大打开的连接数，默认值为0表示不限制
-	"SetMaxIdleConns": 10,         // (连接池)闲置的连接数, 默认1
-
+	"SetMaxIdleConns": 10,          // (连接池)闲置的连接数, 默认-1
 	"mysql_dev": map[string]string{// 定义名为 mysql_dev 的数据库配置
 		"host": "192.168.200.248", // 数据库地址
 		"username": "gcore",       // 数据库用户名
@@ -22,7 +21,7 @@ var DbConfig = map[string]interface{}{
 		"password": "gcore",
 		"port":     "1433",
 		"database": "test",
-		"prefix": "",
+		"prefix":   "",
 		//"charset":  "utf8",
 		//"protocol": "tcp",
 		"driver": "mssql",
@@ -33,7 +32,7 @@ var DbConfig = map[string]interface{}{
 		"password": "",
 		"port":     "5432",
 		"database": "test",
-		"prefix": "",
+		"prefix":   "",
 		//"charset":  "utf8",
 		//"protocol": "tcp",
 		"driver": "postgres",
@@ -44,7 +43,7 @@ var DbConfig = map[string]interface{}{
 		"password": "",
 		//"port":     "1521",
 		"database": "test",
-		"prefix": "",
+		"prefix":   "",
 		//"charset":  "utf8",
 		//"protocol": "tcp",
 		"driver": "oracle",
@@ -55,7 +54,7 @@ var DbConfig = map[string]interface{}{
 		//"password": "",
 		//"port":     "3306",
 		"database": "./foo.db",
-		"prefix": "",
+		"prefix":   "",
 		//"charset":  "utf8",
 		//"protocol": "tcp",
 		"driver": "sqlite3",
