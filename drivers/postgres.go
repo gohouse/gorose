@@ -5,6 +5,7 @@ import (
 	//_ "github.com/lib/pq"
 )
 
+// postgres driver
 func Postgres(dbObj map[string]string) (driver string, dsn string) {
 	// driver
 	driver = "postgres"

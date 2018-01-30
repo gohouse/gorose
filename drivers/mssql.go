@@ -5,6 +5,7 @@ import (
 	//_ "github.com/denisenkom/go-mssqldb"
 )
 
+// mssql sqlserver driver
 func MsSQL(dbObj map[string]string) (driver string, dsn string) {
 	// driver
 	driver = "mssql"
