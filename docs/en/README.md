@@ -294,19 +294,28 @@ db.Commit()
 ```go
 trans := db.Transaction(func() (error) {
 	
-    _,err := db.Execute("update area set job='sadf' where id=14")
+    res1,err := db.Execute("update area set job='sadf' where id=14")
     if err!=nil {
     	return err
     }
+    if res1==0 {
+    	return errors.New("update failed")
+    }
     
-    _,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
+    res2,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
     if err!=nil {
         return err
     }
+    if res2==0 {
+    	return errors.New("Insert failed")
+    }
         
-    _,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
+    res3,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
     if err!=nil {
         return err
+    }
+    if res3==0 {
+    	return errors.New("Update failed")
     }
     
     return nil
