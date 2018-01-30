@@ -103,3 +103,15 @@ MIT
 
 - [Issues](https://github.com/gohouse/gorose/issues)
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
+
+### release notes
+> 0.9.0  
+
+- improve multi connection and nulti transation
+
+> 0.8.0  
+
+- add connection pool  
+- adjust dir for open source standard  
+- add glide version control  
+- translate for english and chinese docment  
