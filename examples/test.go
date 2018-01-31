@@ -16,27 +16,27 @@ func main() {
 	}
 	// close DB
 	//defer db.Close()
-
-	//user := db.Table("users").Where("id", ">", 1).Where(func() {
-	//	db.Where("name", "fizz").OrWhere(func() {
-	//		db.Where("name", "fizz2").Where(func() {
-	//			db.Where("name", "fizz3").OrWhere("website", "fizzday")
-	//		})
-	//	})
-	//}).Where("job", "it").First()
+	var Users = db.Table("users")
+	user,err := Users.Where("id", ">", 1).Where(func() {
+		Users.Where("name", "fizz").OrWhere(func() {
+			Users.Where("name", "fizz2").Where(func() {
+				Users.Where("name", "fizz3").OrWhere("website", "fizzday")
+			})
+		})
+	}).Where("job", "it").First()
 	//user := GetNewsList(db)
-	//	fmt.Println(db.SqlLogs())
-	//	fmt.Println(user)
+		fmt.Println(db.SqlLogs())
+		fmt.Println(user)
 	//
 	//	fmt.Println(db)
 	//	db.Reset()
 	//	fmt.Println(db)
 	//var res gorose.MapData
-	news, _ := db.Table("users").
-				Where("id","<",3).
-				First()
-
-	fmt.Println(db.LastSql())
-	fmt.Println(news)
+	//news, _ := db.Table("users").
+	//			Where("id","<",3).
+	//			First()
+	//
+	//fmt.Println(db.LastSql())
+	//fmt.Println(news)
 }
 

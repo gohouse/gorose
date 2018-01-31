@@ -133,23 +133,17 @@ User := db.Table("user")
 - 查询一条  
 ```go
 User.First()
-// 或者
-db.Fisrt()
 ```
 最终执行的sql为: `select * from user limit 1`  
 
 - 查询某一个字段的值  
 ```go
 name := User.Value("name")
-// 或者
-db.Value("name")
 ```
 
 - count统计  
 ```go
 User.Count("*")
-// 或(下同) 
-db.Count("*")
 ```
 最终执行的sql为: `select count(*) as count from user`  
 
@@ -206,10 +200,10 @@ select * from user a left join card b on a.id=b.user_id limit 1
 
 #### 嵌套where的查询 (where nested)
 ```go
-db.Table("user").Where("id", ">", 1).Where(func() {
-		db.Where("name", "fizz").OrWhere(func() {
-			db.Where("name", "fizz2").Where(func() {
-				db.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+User.Where("id", ">", 1).Where(func() {
+		User.Where("name", "fizz").OrWhere(func() {
+			User.Where("name", "fizz2").Where(func() {
+				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
 			})
 		})
 	}).Where("job", "it").First()
@@ -233,7 +227,7 @@ SELECT  * FROM user
     chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑  
     目的是做到, 无感知处理大量数据
 ```go
-db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
     // for _,item := range data {
     // 	   fmt.Println(item)
     // }

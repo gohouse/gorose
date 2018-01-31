@@ -131,23 +131,17 @@ User := db.Table("user")
 - fetch one row
 ```go
 User.First()
-// or
-db.Fisrt()
 ```
 parse sql result: `select * from user limit 1`  
 
 - fetch a value of one field  
 ```go
 name := User.Value("name")
-// or
-db.Value("name")
 ```
 
 - count
 ```go
-User.Count("*")
-// or 
-db.Count("*")
+User.Count()
 ```
 parse sql result: `select count(*) as count from user`  
 
@@ -199,10 +193,10 @@ select * from user a left join card b on a.id=b.user_id limit 1
 
 #### where nested (嵌套where)
 ```go
-db.Table("user").Where("id", ">", 1).Where(func() {
-		db.Where("name", "fizz").OrWhere(func() {
-			db.Where("name", "fizz2").Where(func() {
-				db.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+User.Where("id", ">", 1).Where(func() {
+		User.Where("name", "fizz").OrWhere(func() {
+			User.Where("name", "fizz2").Where(func() {
+				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
 			})
 		})
 	}).Where("job", "it").First()
@@ -222,7 +216,7 @@ SELECT  * FROM user
 #### chunk data block
 - Chunk  
 ```go
-db.Table("users").Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
     // for _,item := range data {
     // 	   fmt.Println(item)
     // }
