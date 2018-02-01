@@ -28,22 +28,22 @@ var (
 
 // Database is data mapper struct
 type Database struct {
-	table    string
-	fields   string
-	where    [][]interface{}
-	order    string
-	limit    int
-	offset   int
-	join     [][]interface{}
-	distinct bool
-	count    string
-	sum      string
-	avg      string
-	max      string
-	min      string
-	group    string
-	having   string
-	data     interface{}
+	table    string          // table
+	fields   string          // fields
+	where    [][]interface{} // where
+	order    string          // order
+	limit    int             // limit
+	offset   int             // offset
+	join     [][]interface{} // join
+	distinct bool            // distinct
+	count    string          // count
+	sum      string          // sum
+	avg      string          // avg
+	max      string          // max
+	min      string          // min
+	group    string          // group
+	having   string          // having
+	data     interface{}     // data
 	//trans    bool
 	//sqlLogs  []string
 }
