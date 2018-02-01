@@ -24,6 +24,10 @@ func main() {
 			})
 		})
 	}).Where("job", "it").First()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	//user := GetNewsList(db)
 	fmt.Println(db.SqlLogs())
 	fmt.Println(user)
