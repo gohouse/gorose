@@ -1,9 +1,4 @@
 # Gorose ORM
-↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-> 升级提示: 由于0.8.0做出了大的调整, 已经下载过老版本的, 在升级最新版本时, 需要彻底删除老版本的 gohouse/gorose 目录, 方可升级到新版本  
-update notes: if you want updating to the new version, you have to delete the old version directory of 'gohouse/gorose'
-
-↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
