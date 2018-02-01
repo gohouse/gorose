@@ -26,7 +26,7 @@ var (
 //	return instance
 //}
 
-// Data mapper struct
+// Database is data mapper struct
 type Database struct {
 	table    string
 	fields   string

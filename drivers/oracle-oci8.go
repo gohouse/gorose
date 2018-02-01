@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// oracle driver
+// Oracle driver
 func Oracle(dbObj map[string]string) (driver string, dsn string) {
 	// driver
 	driver = "oci8"

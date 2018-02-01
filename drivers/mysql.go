@@ -5,7 +5,7 @@ import (
 	//_ "github.com/go-sql-driver/mysql"
 )
 
-// mysql driver
+// MySQL driver
 func MySQL(dbObj map[string]string) (driver string, dsn string) {
 	// driver
 	driver = "mysql"
