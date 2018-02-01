@@ -7,12 +7,14 @@ import (
 )
 
 var (
-	DB *sql.DB // origin DB
-	Tx *sql.Tx // transaction DB
-	//Stmt *sql.Stmt
+	// origin DB
+	DB *sql.DB
+	// transaction DB
+	Tx *sql.Tx
+	// Connection Object
 	Connect Connection
-	//this.SetMaxOpenConns int = 0
-	//this.SetMaxIdleConns int = -1
+	//conn.SetMaxOpenConns int = 0
+	//conn.SetMaxIdleConns int = -1
 )
 
 func init() {
@@ -36,6 +38,7 @@ type Connection struct {
 	// max freedom connections leave
 	SetMaxIdleConns int
 }
+
 // Open instance of sql.DB.Oper
 func Open(args ...interface{}) (Connection, error) {
 	if len(args) == 1 {
@@ -62,8 +65,9 @@ func Open(args ...interface{}) (Connection, error) {
 
 	return Connect, errs
 }
+
 // Parse input config
-func (this *Connection) parseConfig(args interface{}) error {
+func (conn *Connection) parseConfig(args interface{}) error {
 	if confReal, ok := args.(map[string]string); ok {
 		Connect.CurrentConfig = confReal
 	} else if confReal, ok := args.(map[string]interface{}); ok {
@@ -92,7 +96,7 @@ func (this *Connection) parseConfig(args interface{}) error {
 		// 设置连接池信息
 		if mo, ok := confReal["SetMaxOpenConns"]; ok {
 			if moInt, ok := mo.(int); ok {
-				this.SetMaxOpenConns = moInt
+				conn.SetMaxOpenConns = moInt
 			} else {
 				// 连接池信息配置的值只能是数字
 				return errors.New("the value of connection pool config need int")
@@ -100,7 +104,7 @@ func (this *Connection) parseConfig(args interface{}) error {
 		}
 		if mi, ok := confReal["SetMaxIdleConns"]; ok {
 			if miInt, ok := mi.(int); ok {
-				this.SetMaxIdleConns = miInt
+				conn.SetMaxIdleConns = miInt
 			} else {
 				return errors.New("the value of connection pool config need int")
 			}
@@ -110,8 +114,9 @@ func (this *Connection) parseConfig(args interface{}) error {
 	}
 	return nil
 }
+
 // Boot sql driver
-func (this *Connection) boot() error {
+func (conn *Connection) boot() error {
 	dbObj := Connect.CurrentConfig
 	var driver, dsn string
 	var err error
@@ -132,8 +137,8 @@ func (this *Connection) boot() error {
 
 	// 开始驱动
 	DB, err = sql.Open(driver, dsn)
-	DB.SetMaxOpenConns(this.SetMaxOpenConns)
-	DB.SetMaxIdleConns(this.SetMaxIdleConns)
+	DB.SetMaxOpenConns(conn.SetMaxOpenConns)
+	DB.SetMaxIdleConns(conn.SetMaxIdleConns)
 
 	if err != nil {
 		return err
@@ -144,76 +149,88 @@ func (this *Connection) boot() error {
 
 	return err2
 }
+
 // Close database
-func (this *Connection) Close() error {
+func (conn *Connection) Close() error {
 	Connect.SqlLog = []string{}
 	return DB.Close()
 }
+
 // Ping db
-func (this *Connection) Ping() error {
+func (conn *Connection) Ping() error {
 	return DB.Ping()
 }
+
 // Table is set table from database
-func (this *Connection) Table(table string) *Database {
-	//this.table = table
+func (conn *Connection) Table(table string) *Database {
+	//conn.table = table
 	var database Database
 	return database.Table(table)
 }
+
 // Begin transaction begin
-func (this *Connection) Begin() {
+func (conn *Connection) Begin() {
 	Tx, _ = DB.Begin()
 	Connect.Trans = true
 }
+
 // Commit is transaction commit
-func (this *Connection) Commit() {
+func (conn *Connection) Commit() {
 	Tx.Commit()
 	Connect.Trans = false
 }
+
 // Rollback is transaction rollback
-func (this *Connection) Rollback() {
+func (conn *Connection) Rollback() {
 	Tx.Rollback()
 	Connect.Trans = false
 }
+
 // Transaction is simple transaction
-func (this *Connection) Transaction(closure func() error) bool {
+func (conn *Connection) Transaction(closure func() error) bool {
 	//defer func() {
 	//	if err := recover(); err != nil {
-	//		this.Rollback()
+	//		conn.Rollback()
 	//		panic(err)
 	//	}
 	//}()
 
-	this.Begin()
+	conn.Begin()
 	err := closure()
 	if err != nil {
-		this.Rollback()
+		conn.Rollback()
 		return false
 	}
-	this.Commit()
+	conn.Commit()
 
 	return true
 }
+
 // Query str
-func (this *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
+func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
 	var database Database
 	return database.Query(args...)
 }
+
 // Execute str
-func (this *Connection) Execute(args ...interface{}) (int64, error) {
+func (conn *Connection) Execute(args ...interface{}) (int64, error) {
 	var database Database
 	return database.Execute(args...)
 }
+
 // LastSql is get last query sql
-func (this *Connection) LastSql() string {
+func (conn *Connection) LastSql() string {
 	if len(Connect.SqlLog) > 0 {
 		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
 	}
 	return ""
 }
-// all sql query logs in this request
-func (this *Connection) SqlLogs() []string {
+
+// SqlLogs is all sql query logs in this request
+func (conn *Connection) SqlLogs() []string {
 	return Connect.SqlLog
 }
+
 // GetDB is get origin *sql.DB
 func GetDB() *sql.DB {
 	return DB
