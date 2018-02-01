@@ -39,8 +39,14 @@ db.Execute("update users set name='fizzday' where id=?", 1)
 
 ### Installation
 
-- for [Glide](https://glide.sh): `$ glide get github.com/gohouse/gorose`
-- `$ go get -u github.com/gohouse/gorose`
+- standard:  
+```go
+go get -u github.com/gohouse/gorose
+```
+- or for [Glide](https://glide.sh):  
+```go
+glide get github.com/gohouse/gorose
+```
 
 ### Base Usage
 ```go
@@ -97,6 +103,7 @@ MIT
 
 ### Exchange and Discussion
 
+- [join gitter: https://gitter.im/gorose/wechat](https://gitter.im/gorose/wechat?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 - [Join QQ group number: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)
 
 ### Contribution
