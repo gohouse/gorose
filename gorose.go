@@ -22,24 +22,6 @@ func init() {
 	Connect.SetMaxIdleConns = -1
 }
 
-// Connection is the database pre handle
-type Connection struct {
-	// all config sets
-	DbConfig map[string]interface{}
-	// default database
-	Default string
-	// current config on use
-	CurrentConfig map[string]string
-	// all sql logs
-	SqlLog []string
-	// if in transaction, the code auto change
-	Trans bool
-	// max open connections
-	SetMaxOpenConns int
-	// max freedom connections leave
-	SetMaxIdleConns int
-}
-
 // Open instance of sql.DB.Oper
 func Open(args ...interface{}) (Connection, error) {
 	if len(args) == 1 {
@@ -65,6 +47,24 @@ func Open(args ...interface{}) (Connection, error) {
 	errs := Connect.boot()
 
 	return Connect, errs
+}
+
+// Connection is the database pre handle
+type Connection struct {
+	// all config sets
+	DbConfig map[string]interface{}
+	// default database
+	Default string
+	// current config on use
+	CurrentConfig map[string]string
+	// all sql logs
+	SqlLog []string
+	// if in transaction, the code auto change
+	Trans bool
+	// max open connections
+	SetMaxOpenConns int
+	// max freedom connections leave
+	SetMaxIdleConns int
 }
 
 // Parse input config
