@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Data tmp
 var Data []int
 
 func init() {

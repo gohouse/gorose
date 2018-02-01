@@ -1,5 +1,5 @@
 package config
-
+// DbConfig: 所有数据库配置
 var DbConfig = map[string]interface{}{
 	"default":         "mysql_dev", // 默认数据库配置
 	"SetMaxOpenConns": 300,         // (连接池)最大打开的连接数，默认值为0表示不限制

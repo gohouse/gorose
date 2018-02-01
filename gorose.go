@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	// origin DB
+	// DB is origin DB
 	DB *sql.DB
-	// transaction DB
+	// Tx is transaction DB
 	Tx *sql.Tx
-	// Connection Object
+	// Connect is the Connection Object
 	Connect Connection
 	//conn.SetMaxOpenConns int = 0
 	//conn.SetMaxIdleConns int = -1
@@ -21,7 +21,7 @@ func init() {
 	Connect.SetMaxOpenConns = 0
 	Connect.SetMaxIdleConns = -1
 }
-
+// Connection is the database pre handle
 type Connection struct {
 	// all config sets
 	DbConfig map[string]interface{}

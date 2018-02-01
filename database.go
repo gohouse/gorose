@@ -48,43 +48,43 @@ type Database struct {
 	//sqlLogs  []string
 }
 
-// select fields
+// Fields: select fields
 func (this *Database) Fields(fields string) *Database {
 	this.fields = fields
 	return this
 }
 
-// select table
+// Table: select table
 func (this *Database) Table(table string) *Database {
 	this.table = table
 	return this
 }
 
-// insert or update data
+// Data: insert or update data
 func (this *Database) Data(data interface{}) *Database {
 	this.data = data
 	return this
 }
 
-// select group by
+// Group: select group by
 func (this *Database) Group(group string) *Database {
 	this.group = group
 	return this
 }
 
-// select having
+// Having: select having
 func (this *Database) Having(having string) *Database {
 	this.having = having
 	return this
 }
 
-// select order by
+// Order: select order by
 func (this *Database) Order(order string) *Database {
 	this.order = order
 	return this
 }
 
-// select limit
+// Limit: select limit
 func (this *Database) Limit(limit int) *Database {
 	this.limit = limit
 	return this

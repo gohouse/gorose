@@ -8,18 +8,8 @@ import (
 	"strings"
 )
 
-func CheckErr(err error) error {
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-/**
- * 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
- * (能不用则不用,由于涉及到使用reflect包,性能堪忧)
- */
+// GetType: 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
+// (能不用则不用,由于涉及到使用reflect包,性能堪忧)
 func GetType(params interface{}) string {
 	//数据初始化
 	v := reflect.ValueOf(params)
@@ -29,10 +19,7 @@ func GetType(params interface{}) string {
 	//类型名称对比
 	return v_t.String()
 }
-
-/**
- * 给定元素值 是否在 指定的数组中
- */
+// InArray:给定元素值 是否在 指定的数组中
 func InArray(needle interface{}, hystack interface{}) bool {
 	switch key := needle.(type) {
 	case string:
@@ -67,7 +54,7 @@ func InArray(needle interface{}, hystack interface{}) bool {
 
 	return false
 }
-
+// ParseStr 转换为string
 func ParseStr(data interface{}) string {
 	switch data.(type) {
 	case int:
@@ -80,27 +67,18 @@ func ParseStr(data interface{}) string {
 		return ""
 	}
 }
-
-/**
- * 三元运算
- */
+// If: 三元运算
 func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	if condition {
 		return trueVal
 	}
 	return falseVal
 }
-
-/**
- * 添加单引号
- */
+// AddSingleQuotes: 添加单引号
 func AddSingleQuotes(data interface{}) string {
 	return "'" + strings.Trim(ParseStr(data), " ") + "'"
 }
-
-/**
- * 字符串转数组, 接受混合类型, 最终输出的是字符串类型
- */
+// Implode: 字符串转数组, 接受混合类型, 最终输出的是字符串类型
 func Implode(data interface{}, glue string) string {
 	var tmp []string
 	for _, item := range data.([]interface{}) {
@@ -109,10 +87,7 @@ func Implode(data interface{}, glue string) string {
 
 	return strings.Join(tmp, glue)
 }
-
-/**
- * json转码
- */
+// JsonEncode: json转码
 func JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
 
@@ -133,29 +108,14 @@ func JsonEncode(data interface{}) (string, error) {
 //
 //	return string(res)
 //}
+// UcFirst: 字符串第一个字母转成大写
 func UcFirst(arg string) string {
 	if len(arg) == 0 {
 		return arg
 	}
 	return strings.ToUpper(arg[0:1]) + arg[1:]
 }
-func Empty2(params interface{}) bool {
-	//初始化变量
-	var (
-		flag          bool = true
-		default_value reflect.Value
-	)
-
-	r := reflect.ValueOf(params)
-
-	//获取对应类型默认值
-	default_value = reflect.Zero(r.Type())
-	//由于params 接口类型 所以default_value也要获取对应接口类型的值 如果获取不为接口类型 一直为返回false
-	if !reflect.DeepEqual(r.Interface(), default_value.Interface()) {
-		flag = false
-	}
-	return flag
-}
+// Empty: 是否位假
 func Empty(arg interface{}) bool {
 	switch arg.(type) {
 	case int:
@@ -168,7 +128,7 @@ func Empty(arg interface{}) bool {
 		return true
 	}
 }
-
+// SuccessReturn: 接口成功返回
 func SuccessReturn(args ...interface{}) interface{} {
 	argsLength := len(args)
 
@@ -219,7 +179,7 @@ func SuccessReturn(args ...interface{}) interface{} {
 
 	return data
 }
-
+// FailReturn: 接口失败返回
 func FailReturn(args ...interface{}) interface{} {
 	var data []interface{}
 	argsLength := len(args)
