@@ -19,6 +19,7 @@ func GetType(params interface{}) string {
 	//类型名称对比
 	return vT.String()
 }
+
 // InArray :给定元素值 是否在 指定的数组中
 func InArray(needle interface{}, hystack interface{}) bool {
 	switch key := needle.(type) {
@@ -54,6 +55,7 @@ func InArray(needle interface{}, hystack interface{}) bool {
 
 	return false
 }
+
 // ParseStr 转换为string
 func ParseStr(data interface{}) string {
 	switch data.(type) {
@@ -67,6 +69,7 @@ func ParseStr(data interface{}) string {
 		return ""
 	}
 }
+
 // If : 三元运算
 func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	if condition {
@@ -74,10 +77,12 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	}
 	return falseVal
 }
+
 // AddSingleQuotes : 添加单引号
 func AddSingleQuotes(data interface{}) string {
 	return "'" + strings.Trim(ParseStr(data), " ") + "'"
 }
+
 // Implode : 字符串转数组, 接受混合类型, 最终输出的是字符串类型
 func Implode(data interface{}, glue string) string {
 	var tmp []string
@@ -87,6 +92,7 @@ func Implode(data interface{}, glue string) string {
 
 	return strings.Join(tmp, glue)
 }
+
 // JsonEncode : json转码
 func JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
@@ -98,16 +104,6 @@ func JsonEncode(data interface{}) (string, error) {
 	return string(res), err
 }
 
-// todo
-//func JsonDecode(data string) interface{}{
-//	type res struct{
-//		arr []
-//	}
-//	err := json.Unmarshal(data, &res)
-//	gorose.CheckErr(err)
-//
-//	return string(res)
-//}
 // UcFirst : 字符串第一个字母转成大写
 func UcFirst(arg string) string {
 	if len(arg) == 0 {
@@ -115,6 +111,7 @@ func UcFirst(arg string) string {
 	}
 	return strings.ToUpper(arg[0:1]) + arg[1:]
 }
+
 // Empty : 是否位假
 func Empty(arg interface{}) bool {
 	switch arg.(type) {
@@ -128,6 +125,7 @@ func Empty(arg interface{}) bool {
 		return true
 	}
 }
+
 // SuccessReturn : 接口成功返回
 func SuccessReturn(args ...interface{}) interface{} {
 	argsLength := len(args)
@@ -179,6 +177,7 @@ func SuccessReturn(args ...interface{}) interface{} {
 
 	return data
 }
+
 // FailReturn : 接口失败返回
 func FailReturn(args ...interface{}) interface{} {
 	var data []interface{}

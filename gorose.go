@@ -21,6 +21,7 @@ func init() {
 	Connect.SetMaxOpenConns = 0
 	Connect.SetMaxIdleConns = -1
 }
+
 // Connection is the database pre handle
 type Connection struct {
 	// all config sets
