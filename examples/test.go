@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	//defer db.Close()
 	var Users = db.Table("users")
-	user,err := Users.Where("id", ">", 1).Where(func() {
+	user, err := Users.Where("id", ">", 1).Where(func() {
 		Users.Where("name", "fizz").OrWhere(func() {
 			Users.Where("name", "fizz2").Where(func() {
 				Users.Where("name", "fizz3").OrWhere("website", "fizzday")
@@ -25,8 +25,8 @@ func main() {
 		})
 	}).Where("job", "it").First()
 	//user := GetNewsList(db)
-		fmt.Println(db.SqlLogs())
-		fmt.Println(user)
+	fmt.Println(db.SqlLogs())
+	fmt.Println(user)
 	//
 	//	fmt.Println(db)
 	//	db.Reset()
@@ -39,4 +39,3 @@ func main() {
 	//fmt.Println(db.LastSql())
 	//fmt.Println(news)
 }
-

@@ -25,7 +25,7 @@ func main() {
 		"id": 17,
 	}
 
-	res,err := db.Table("users").Data(data).Where(where).Update()
+	res, err := db.Table("users").Data(data).Where(where).Update()
 	if err != nil {
 		fmt.Println(err)
 		return

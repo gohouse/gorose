@@ -11,7 +11,7 @@ func MsSQL(dbObj map[string]string) (driver string, dsn string) {
 	driver = "mssql"
 
 	// dsn string
-	dsn = fmt.Sprintf("server=%s;port=%d;database=%s;user id=%s;password=%s",
+	dsn = fmt.Sprintf("server=%s;port=%s;database=%s;user id=%s;password=%s",
 		dbObj["host"], dbObj["port"], dbObj["database"], dbObj["username"], dbObj["password"])
 
 	return

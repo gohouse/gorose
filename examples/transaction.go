@@ -2,10 +2,10 @@ package main
 
 import (
 	"./config"
+	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
-	"errors"
 )
 
 func main() {
@@ -27,22 +27,22 @@ func main() {
 		"id": 17,
 	}
 
-	trans := db.Transaction(func() (error) {
+	trans := db.Transaction(func() error {
 
-		res2,err2 := db.Table("users").Data(data2).Insert()
+		res2, err2 := db.Table("users").Data(data2).Insert()
 		if err2 != nil {
 			return err2
 		}
-		if res2==0 {
+		if res2 == 0 {
 			return errors.New("Insert failed")
 		}
 		fmt.Println(res2)
 
-		res1,err := db.Table("users").Data(data2).Where(where).Update()
+		res1, err := db.Table("users").Data(data2).Where(where).Update()
 		if err != nil {
 			return err
 		}
-		if res1==0 {
+		if res1 == 0 {
 			return errors.New("update failed")
 		}
 		fmt.Println(res1)

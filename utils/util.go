@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
+	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
-	"encoding/json"
-	"net/http"
 )
 
 func CheckErr(err error) error {
@@ -117,7 +117,7 @@ func JsonEncode(data interface{}) (string, error) {
 	res, err := json.Marshal(data)
 
 	if err != nil {
-		return "",err
+		return "", err
 	}
 
 	return string(res), err
@@ -134,10 +134,10 @@ func JsonEncode(data interface{}) (string, error) {
 //	return string(res)
 //}
 func UcFirst(arg string) string {
-	if (len(arg) == 0) {
+	if len(arg) == 0 {
 		return arg
 	}
-	return strings.ToUpper(arg[0:1])+arg[1:]
+	return strings.ToUpper(arg[0:1]) + arg[1:]
 }
 func Empty2(params interface{}) bool {
 	//初始化变量
@@ -223,7 +223,7 @@ func SuccessReturn(args ...interface{}) interface{} {
 func FailReturn(args ...interface{}) interface{} {
 	var data []interface{}
 	argsLength := len(args)
-	if argsLength==0{
+	if argsLength == 0 {
 		data = append(data, "fail")
 	} else {
 		data = append(data, args[0])

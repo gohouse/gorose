@@ -8,16 +8,16 @@ import (
 )
 
 func main() {
-	db,err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil{
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
 	defer db.Close()
 
-	user,err := db.Query("select * from users where id>? limit ?", 1, 2)
-	if err != nil{
+	user, err := db.Query("select * from users where id>? limit ?", 1, 2)
+	if err != nil {
 		fmt.Println(err)
 		return
 	}

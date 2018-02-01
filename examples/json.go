@@ -19,7 +19,7 @@ func main() {
 	defer db.Close()
 
 	// return json
-	res2,err := db.Table("users").Limit(2).Get()
+	res2, err := db.Table("users").Limit(2).Get()
 	if err != nil {
 		fmt.Println(err)
 		return

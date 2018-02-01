@@ -2,11 +2,11 @@ package gorose
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gohouse/gorose/utils"
 	"strconv"
 	"strings"
-	"errors"
 )
 
 var (

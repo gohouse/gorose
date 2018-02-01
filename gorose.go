@@ -173,7 +173,7 @@ func (this *Connection) Rollback() {
 /**
  * simple transaction
  */
-func (this *Connection) Transaction(closure func() (error)) bool {
+func (this *Connection) Transaction(closure func() error) bool {
 	//defer func() {
 	//	if err := recover(); err != nil {
 	//		this.Rollback()

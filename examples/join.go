@@ -16,9 +16,9 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	user,err := db.Table("users a").
-				Join("area b", "a.id", "=", "b.uid").
-				Where("a.id", ">", 1).Get()
+	user, err := db.Table("users a").
+		Join("area b", "a.id", "=", "b.uid").
+		Where("a.id", ">", 1).Get()
 
 	if err != nil {
 		fmt.Println(err)

@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	db,err := gorose.Open(config.DbConfig, "oracle_dev")
-	if err != nil{
+	db, err := gorose.Open(config.DbConfig, "oracle_dev")
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -21,8 +21,8 @@ func main() {
 	//fmt.Println(res)
 
 	// return json
-	res2,err := db.Table("users").Limit(2).Get()
-	if err != nil{
+	res2, err := db.Table("users").Limit(2).Get()
+	if err != nil {
 		fmt.Println(err)
 		return
 	}

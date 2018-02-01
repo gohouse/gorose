@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	user,err := db.Execute("update users set name=? where id=?", "fizz8", 4)
+	user, err := db.Execute("update users set name=? where id=?", "fizz8", 4)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -8,25 +8,25 @@ import (
 )
 
 func main() {
-	db,err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil{
+	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
 	defer db.Close()
 
-	res,err := db.Table("users").Where("id", ">", 2).First()
-	if err != nil{
+	res, err := db.Table("users").Where("id", ">", 2).First()
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(db.LastSql())
-	fmt.Println("id:%d", res["id"])
+	fmt.Println("id:%s", res["id"])
 
 	// return json
-	res2,err := db.Table("users").Limit(2).Get()
-	if err != nil{
+	res2, err := db.Table("users").Limit(2).Get()
+	if err != nil {
 		fmt.Println(err)
 		return
 	}

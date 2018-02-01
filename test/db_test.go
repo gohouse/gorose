@@ -1,11 +1,11 @@
 package test
 
 import (
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose"
 	"github.com/gohouse/gorose/examples/config"
 	"testing"
-	"github.com/gohouse/gorose"
-	"fmt"
 	"time"
 )
 
@@ -14,7 +14,8 @@ import (
 
 var db gorose.Connection
 var err error
-func init(){
+
+func init() {
 	db, err = gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		var test *testing.T
@@ -25,7 +26,7 @@ func init(){
 	//defer db.Close()
 }
 func TestDatabase_Query(test *testing.T) {
-	res,err := db.Query("select * from users limit ?", 1)
+	res, err := db.Query("select * from users limit ?", 1)
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -40,20 +41,20 @@ func TestDatabase_Query(test *testing.T) {
 func TestDatabase_Execute(test *testing.T) {
 	timestr := fmt.Sprintf("%s", time.Now())
 
-	res,err := db.Execute("update users set updated_at=? where id=?", timestr[:19], 1)
+	res, err := db.Execute("update users set updated_at=? where id=?", timestr[:19], 1)
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
 	}
 
-	if res>0 {
+	if res > 0 {
 		test.Log("PASS: id=", res)
 	} else {
 		test.Error("FAIL: test failed.")
 	}
 }
 func TestDatabase_Value(test *testing.T) {
-	res,err := db.Table("users").Value("name")
+	res, err := db.Table("users").Value("name")
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -61,7 +62,7 @@ func TestDatabase_Value(test *testing.T) {
 	test.Log("PASS: name =", res)
 }
 func TestDatabase_First(test *testing.T) {
-	res,err := db.Table("users").First()
+	res, err := db.Table("users").First()
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -74,10 +75,10 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	res,err := db.Table("users").Fields("id,sum(age) as sum").Where("id", ">", 0).OrWhere("age", ">", 0).
+	res, err := db.Table("users").Fields("id,sum(age) as sum").Where("id", ">", 0).OrWhere("age", ">", 0).
 		Group("id").Having("sum>1").Order("id asc").Limit(1).Offset(0).Get()
 	if err != nil {
-		test.Error(fmt.Sprintf("FAIL: test failed. %s",err))
+		test.Error(fmt.Sprintf("FAIL: test failed. %s", err))
 		return
 	}
 
@@ -88,8 +89,8 @@ func TestDatabase_Get(test *testing.T) {
 	}
 }
 func TestDatabase_Join(test *testing.T) {
-	res,err := db.Table("users a").
-		Join("area b","a.id","=","b.uid").Get()
+	res, err := db.Table("users a").
+		Join("area b", "a.id", "=", "b.uid").Get()
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -104,7 +105,7 @@ func TestDatabase_Join(test *testing.T) {
 func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	db.Begin()
 	// insert
-	res,err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Insert()
+	res, err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Insert()
 	if err != nil {
 		db.Rollback()
 		test.Error("FAIL: test failed.")
@@ -119,7 +120,7 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	}
 
 	// update
-	res2,err := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", res).Update()
+	res2, err := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", res).Update()
 	if err != nil {
 		db.Rollback()
 		test.Error("FAIL: test failed.")
@@ -134,7 +135,7 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	}
 
 	// delete
-	res3,err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", res).Delete()
+	res3, err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", res).Delete()
 	if err != nil {
 		db.Rollback()
 		test.Error("FAIL: test failed.")
@@ -150,7 +151,7 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	db.Commit()
 }
 func TestDatabase_Count(test *testing.T) {
-	res,err := db.Table("users").Where("id", ">", 100).Count()
+	res, err := db.Table("users").Where("id", ">", 100).Count()
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -163,7 +164,7 @@ func TestDatabase_Count(test *testing.T) {
 	}
 }
 func TestDatabase_Sum(test *testing.T) {
-	res,err := db.Table("users").Where("id", ">", 2).Sum("age")
+	res, err := db.Table("users").Where("id", ">", 2).Sum("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -176,7 +177,7 @@ func TestDatabase_Sum(test *testing.T) {
 	}
 }
 func TestDatabase_Avg(test *testing.T) {
-	res,err := db.Table("users").Where("id", ">", 2).Avg("age")
+	res, err := db.Table("users").Where("id", ">", 2).Avg("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -189,7 +190,7 @@ func TestDatabase_Avg(test *testing.T) {
 	}
 }
 func TestDatabase_Max(test *testing.T) {
-	res,err := db.Table("users").Where("id", ">", 2).Max("age")
+	res, err := db.Table("users").Where("id", ">", 2).Max("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -202,7 +203,7 @@ func TestDatabase_Max(test *testing.T) {
 	}
 }
 func TestDatabase_Min(test *testing.T) {
-	res,err := db.Table("users").Where("id", ">", 2).Min("age")
+	res, err := db.Table("users").Where("id", ">", 2).Min("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
 		return
@@ -221,6 +222,7 @@ func BenchmarkDatabase_First(bmtest *testing.B) {
 		//db.Table("users").Fields("id").Where("id","<",10).Group("id").Order("id asc").First()	// 319225
 	}
 }
+
 //func BenchmarkDatabase_Get(bmtest *testing.B) {
 //	db, err := gorose.Open(config.DbConfig, "mysql_dev")
 //	if err != nil {
