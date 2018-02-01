@@ -78,7 +78,7 @@ func TestDatabase_Get(test *testing.T) {
 	res, err := db.Table("users").Fields("id,sum(age) as sum").Where("id", ">", 0).OrWhere("age", ">", 0).
 		Group("id").Having("sum>1").Order("id asc").Limit(1).Offset(0).Get()
 	if err != nil {
-		test.Error(fmt.Sprintf("FAIL: test failed. %s", err))
+		test.Errorf("FAIL: test failed. %s", err)
 		return
 	}
 

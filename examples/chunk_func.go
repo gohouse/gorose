@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-//var data = []int {1,2,3,4,5,6,7,8,9,0}
 var Data []int
 
 func init() {
@@ -24,16 +23,16 @@ func chunk(limit int, callback func(arg []int)) {
 		if len(Data) <= start {
 			break
 		}
-		current_data := Data[start : limit+start]
+		currentData := Data[start : limit+start]
 
 		var res []int
-		for _, item := range current_data {
+		for _, item := range currentData {
 			res = append(res, item)
 		}
 
 		callback(res)
 		//fmt.Println(res)
-		if len(current_data) < limit {
+		if len(currentData) < limit {
 			break
 		}
 		step++

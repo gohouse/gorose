@@ -36,7 +36,7 @@ type Connection struct {
 	// max freedom connections leave
 	SetMaxIdleConns int
 }
-// open instance of sql.DB.Oper
+// Open instance of sql.DB.Oper
 func Open(args ...interface{}) (Connection, error) {
 	if len(args) == 1 {
 		// continue
@@ -62,7 +62,7 @@ func Open(args ...interface{}) (Connection, error) {
 
 	return Connect, errs
 }
-// parse input config
+// Parse input config
 func (this *Connection) parseConfig(args interface{}) error {
 	if confReal, ok := args.(map[string]string); ok {
 		Connect.CurrentConfig = confReal
@@ -110,7 +110,7 @@ func (this *Connection) parseConfig(args interface{}) error {
 	}
 	return nil
 }
-// boot sql driver
+// Boot sql driver
 func (this *Connection) boot() error {
 	dbObj := Connect.CurrentConfig
 	var driver, dsn string
@@ -144,37 +144,37 @@ func (this *Connection) boot() error {
 
 	return err2
 }
-// close database
+// Close database
 func (this *Connection) Close() error {
 	Connect.SqlLog = []string{}
 	return DB.Close()
 }
-// ping db
+// Ping db
 func (this *Connection) Ping() error {
 	return DB.Ping()
 }
-// set table from database
+// Table is set table from database
 func (this *Connection) Table(table string) *Database {
 	//this.table = table
 	var database Database
 	return database.Table(table)
 }
-// transaction begin
+// Begin transaction begin
 func (this *Connection) Begin() {
 	Tx, _ = DB.Begin()
 	Connect.Trans = true
 }
-// transaction commit
+// Commit is transaction commit
 func (this *Connection) Commit() {
 	Tx.Commit()
 	Connect.Trans = false
 }
-// transaction rollback
+// Rollback is transaction rollback
 func (this *Connection) Rollback() {
 	Tx.Rollback()
 	Connect.Trans = false
 }
-// simple transaction
+// Transaction is simple transaction
 func (this *Connection) Transaction(closure func() error) bool {
 	//defer func() {
 	//	if err := recover(); err != nil {
@@ -193,17 +193,17 @@ func (this *Connection) Transaction(closure func() error) bool {
 
 	return true
 }
-// query str
+// Query str
 func (this *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
 	var database Database
 	return database.Query(args...)
 }
-// execute str
+// Execute str
 func (this *Connection) Execute(args ...interface{}) (int64, error) {
 	var database Database
 	return database.Execute(args...)
 }
-// get last query sql
+// LastSql is get last query sql
 func (this *Connection) LastSql() string {
 	if len(Connect.SqlLog) > 0 {
 		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
@@ -214,7 +214,7 @@ func (this *Connection) LastSql() string {
 func (this *Connection) SqlLogs() []string {
 	return Connect.SqlLog
 }
-// get origin *sql.DB
+// GetDB is get origin *sql.DB
 func GetDB() *sql.DB {
 	return DB
 }
