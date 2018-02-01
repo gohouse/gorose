@@ -48,61 +48,61 @@ type Database struct {
 	//sqlLogs  []string
 }
 
-// Fields: select fields
+// Fields : select fields
 func (this *Database) Fields(fields string) *Database {
 	this.fields = fields
 	return this
 }
 
-// Table: select table
+// Table : select table
 func (this *Database) Table(table string) *Database {
 	this.table = table
 	return this
 }
 
-// Data: insert or update data
+// Data : insert or update data
 func (this *Database) Data(data interface{}) *Database {
 	this.data = data
 	return this
 }
 
-// Group: select group by
+// Group : select group by
 func (this *Database) Group(group string) *Database {
 	this.group = group
 	return this
 }
 
-// Having: select having
+// Having : select having
 func (this *Database) Having(having string) *Database {
 	this.having = having
 	return this
 }
 
-// Order: select order by
+// Order : select order by
 func (this *Database) Order(order string) *Database {
 	this.order = order
 	return this
 }
 
-// Limit: select limit
+// Limit : select limit
 func (this *Database) Limit(limit int) *Database {
 	this.limit = limit
 	return this
 }
 
-// select offset
+// Offset : select offset
 func (this *Database) Offset(offset int) *Database {
 	this.offset = offset
 	return this
 }
 
-// select page
+// Page : select page
 func (this *Database) Page(page int) *Database {
 	this.offset = (page - 1) * this.limit
 	return this
 }
 
-// query or execute where condition, the relation is and
+// Where : query or execute where condition, the relation is and
 func (this *Database) Where(args ...interface{}) *Database {
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
 
@@ -114,7 +114,7 @@ func (this *Database) Where(args ...interface{}) *Database {
 	return this
 }
 
-// like where , but the relation is or,
+// OrWhere : like where , but the relation is or,
 func (this *Database) OrWhere(args ...interface{}) *Database {
 	w := []interface{}{"or", args}
 	this.where = append(this.where, w)
@@ -122,7 +122,7 @@ func (this *Database) OrWhere(args ...interface{}) *Database {
 	return this
 }
 
-// select join query
+// Join : select join query
 func (this *Database) Join(args ...interface{}) *Database {
 	//this.parseJoin(args, "INNER")
 	this.join = append(this.join, []interface{}{"INNER", args})
@@ -130,7 +130,7 @@ func (this *Database) Join(args ...interface{}) *Database {
 	return this
 }
 
-// like join , the relation is left
+// LeftJoin : like join , the relation is left
 func (this *Database) LeftJoin(args ...interface{}) *Database {
 	//this.parseJoin(args, "LEFT")
 	this.join = append(this.join, []interface{}{"LEFT", args})
@@ -138,7 +138,7 @@ func (this *Database) LeftJoin(args ...interface{}) *Database {
 	return this
 }
 
-// like join , the relation is right
+// RightJoin : like join , the relation is right
 func (this *Database) RightJoin(args ...interface{}) *Database {
 	//this.parseJoin(args, "RIGHT")
 	this.join = append(this.join, []interface{}{"RIGHT", args})
@@ -146,14 +146,14 @@ func (this *Database) RightJoin(args ...interface{}) *Database {
 	return this
 }
 
-// select distinct
+// Distinct : select distinct
 func (this *Database) Distinct() *Database {
 	this.distinct = true
 
 	return this
 }
 
-// select one row
+// First : select one row
 func (this *Database) First(args ...interface{}) (map[string]interface{}, error) {
 	//var result map[string]interface{}
 	//func (this *Database) First() interface{} {
@@ -180,7 +180,7 @@ func (this *Database) First(args ...interface{}) (map[string]interface{}, error)
 	return res[0], nil
 }
 
-// select more rows , relation limit set
+// Get : select more rows , relation limit set
 func (this *Database) Get() ([]map[string]interface{}, error) {
 	//func (this *Database) Get() interface{} {
 	// 构建sql
@@ -209,7 +209,7 @@ func (this *Database) Get() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-// select one field's value
+// Value : select one field's value
 func (this *Database) Value(arg string) (interface{}, error) {
 	res, err := this.First()
 	if err != nil {
@@ -221,7 +221,7 @@ func (this *Database) Value(arg string) (interface{}, error) {
 	return nil, errors.New("the field is not exists")
 }
 
-// select count rows
+// Count : select count rows
 func (this *Database) Count() (int, error) {
 	res, err := this.buildUnion("count", "*")
 	if err != nil {
@@ -230,27 +230,27 @@ func (this *Database) Count() (int, error) {
 	return int(res.(int64)), nil
 }
 
-// select sum field
+// Sum : select sum field
 func (this *Database) Sum(sum string) (interface{}, error) {
 	return this.buildUnion("sum", sum)
 }
 
-// select avg field
+// Avg : select avg field
 func (this *Database) Avg(avg string) (interface{}, error) {
 	return this.buildUnion("avg", avg)
 }
 
-// select max field
+// Max : select max field
 func (this *Database) Max(max string) (interface{}, error) {
 	return this.buildUnion("max", max)
 }
 
-// select min field
+// Min : select min field
 func (this *Database) Min(min string) (interface{}, error) {
 	return this.buildUnion("min", min)
 }
 
-// select chunk more data to piceses block
+// Chunk : select chunk more data to piceses block
 func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 	var step = 0
 	var offset = this.offset
@@ -278,7 +278,7 @@ func (this *Database) Chunk(limit int, callback func([]map[string]interface{})) 
 	}
 }
 
-// build query string
+// buildQuery : build query string
 func (this *Database) buildQuery() (string, error) {
 	// 聚合
 	unionArr := []string{
@@ -334,7 +334,7 @@ func (this *Database) buildQuery() (string, error) {
 	return sqlstr, nil
 }
 
-// build execute query string
+// buildExecut : build execute query string
 func (this *Database) buildExecut(operType string) (string, error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
@@ -364,7 +364,7 @@ func (this *Database) buildExecut(operType string) (string, error) {
 	return sqlstr, nil
 }
 
-// build inert or update data
+// buildData : build inert or update data
 func (this *Database) buildData() (string, string, string) {
 	// insert
 	var dataFields []string
@@ -421,7 +421,7 @@ func (this *Database) buildData() (string, string, string) {
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, "")
 }
 
-// build union select
+// buildUnion : build union select
 func (this *Database) buildUnion(union, field string) (interface{}, error) {
 	unionStr := union + "(" + field + ") as " + union
 	switch union {
@@ -459,6 +459,7 @@ func (this *Database) buildUnion(union, field string) (interface{}, error) {
  * 将where条件中的参数转换为where条件字符串
  * example: {"id",">",1}, {"age", 18}
  */
+// parseParams : 将where条件中的参数转换为where条件字符串
 func (this *Database) parseParams(args []interface{}) (string, error) {
 	paramsLength := len(args)
 
@@ -504,7 +505,7 @@ func (this *Database) parseParams(args []interface{}) (string, error) {
 	return strings.Join(paramsToArr, " "), nil
 }
 
-// parse the join paragraph
+// parseJoin : parse the join paragraph
 func (this *Database) parseJoin() (string, error) {
 	var join []interface{}
 	var returnJoinArr []string
@@ -540,7 +541,7 @@ func (this *Database) parseJoin() (string, error) {
 	return strings.Join(returnJoinArr, " "), nil
 }
 
-// parse where condition
+// parseWhere : parse where condition
 func (this *Database) parseWhere() (string, error) {
 	// 取出所有where
 	wheres := this.where
@@ -622,7 +623,7 @@ func (this *Database) parseWhere() (string, error) {
 	return strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and"), nil
 }
 
-// parse execute condition
+// parseExecute : parse execute condition
 func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interface{}) (int64, error) {
 	var res int64
 	var err error
@@ -643,7 +644,7 @@ func (this *Database) parseExecute(stmt *sql.Stmt, operType string, vals []inter
 	return res, err
 }
 
-// insert data
+// Insert : insert data
 func (this *Database) Insert() (int, error) {
 	sqlstr, err := this.buildExecut("insert")
 	if err != nil {
@@ -657,7 +658,7 @@ func (this *Database) Insert() (int, error) {
 	return int(res), nil
 }
 
-// update data
+// Update : update data
 func (this *Database) Update() (int, error) {
 	sqlstr, err := this.buildExecut("update")
 	if err != nil {
@@ -671,7 +672,7 @@ func (this *Database) Update() (int, error) {
 	return int(res), nil
 }
 
-// delete data
+// Delete : delete data
 func (this *Database) Delete() (int, error) {
 	sqlstr, err := this.buildExecut("delete")
 	if err != nil {
@@ -698,7 +699,7 @@ func (this *Database) Delete() (int, error) {
 //	this.trans = false
 //}
 
-// reset union select
+// Reset : reset union select
 func (this *Database) Reset() {
 	//this = new(Database)
 	//this.table = ""
@@ -722,13 +723,13 @@ func (this *Database) Reset() {
 	//this.data = tmp
 }
 
-// parse json
+// JsonEncode : parse json
 func (this *Database) JsonEncode(data interface{}) string {
 	res, _ := utils.JsonEncode(data)
 	return res
 }
 
-// query instance of sql.DB.Query
+// Query : query instance of sql.DB.Query
 func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, error) {
 	//defer DB.Close()
 	tableData := make([]map[string]interface{}, 0)
@@ -793,7 +794,7 @@ func (this *Database) Query(args ...interface{}) ([]map[string]interface{}, erro
 	return tableData, nil
 }
 
-// query instance of sql.DB.Execute
+// Execute : query instance of sql.DB.Execute
 func (this *Database) Execute(args ...interface{}) (int64, error) {
 	//defer DB.Close()
 	lenArgs := len(args)
