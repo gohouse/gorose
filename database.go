@@ -545,7 +545,7 @@ func (dba *Database) parseJoin() (string, error) {
 func (dba *Database) parseWhere() (string, error) {
 	// 取出所有where
 	wheres := dba.where
-	//// where解析后存放每一项的容器
+	// where解析后存放每一项的容器
 	var where []string
 
 	for _, args := range wheres {
