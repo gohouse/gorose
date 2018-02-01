@@ -9,7 +9,7 @@ update notes: if you want updating to the new version, you have to delete the ol
 - [中文文档](docs/zh-CN/README.md)
 - [English document](docs/en/README.md)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)]
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/badge/github.com/gohouse/gorose)
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
