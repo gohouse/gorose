@@ -112,7 +112,8 @@ MIT
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
 
 ### release notes
-> 0.9.0  
+
+> 0.8.1
 
 - improve multi connection and nulti transation
 
