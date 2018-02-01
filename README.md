@@ -9,7 +9,8 @@ update notes: if you want updating to the new version, you have to delete the ol
 - [中文文档](docs/zh-CN/README.md)
 - [English document](docs/en/README.md)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://gitter.im/gorose/wechat?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
+[![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
