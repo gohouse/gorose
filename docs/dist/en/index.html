@@ -328,7 +328,7 @@ db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 <li><p>insert</p>
 
 <pre><code class="language-go">User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
-User.Data([]map[string]interface{}{{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;}).Insert()
+User.Data([]map[string]interface{}{ {&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;} }).Insert()
 </code></pre>
 
 <p>parse sql result:</p>

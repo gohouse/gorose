@@ -253,7 +253,7 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 - insert  
 ```go
 User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
-User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
+User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
 parse sql result: 
 ```go
