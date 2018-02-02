@@ -95,7 +95,7 @@ db.Table("user").
     Where("id",">",1).  // simple where
     Where("head = 3 or rate is not null").  // where string
     Where(map[string]interface{}{"name":"fizzday", "age":18}).  // where object
-    Where([]map[string]interface{}{{"website", "like", "%fizz%"}, {"job", "it"}}).    // multi where
+    Where([]map[string]interface{}{ {"website", "like", "%fizz%"}, {"job", "it"} }).    // multi where
     Where("head = 3 or rate is not null").  // where string
     OrWhere("cash", "1000000"). // or where ...
     OrWhere("score", "between", []string{50, 80}).  // between
