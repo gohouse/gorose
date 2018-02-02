@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>{{if (eq .newUrlPath "index.html")}}{{.homeTitle}}{{else}}{{.dataTitle}}{{.suffixTitle}}{{end}}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
 <link rel="stylesheet" href="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.css">
 <!-- <link rel="stylesheet" href="{{.fixLink}}asset/css/style.css"> -->
 <link rel="stylesheet" href="https://wuyumin.github.io/easydoc/dist/static/css/style.css">
