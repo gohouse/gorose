@@ -98,7 +98,7 @@ db.Table("user").
     Where("id",">",1).  // simple where
     Where("head = 3 or rate is not null").  // where string
     Where(map[string]interface{}{"name":"fizzday", "age":18}).  // where object
-    Where([]map[string]interface{}{{"website", "like", "%fizz%"}, {"job", "it"}}).    // multi where
+    Where([]map[string]interface{}{ {"website", "like", "%fizz%"}, {"job", "it"} }).    // multi where
     OrWhere("cash", "1000000"). // or where ...
     OrWhere("score", "between", []string{50, 80}).  // between
     OrWhere("role", "not in", []string{"admin", "read"}).   // in 
@@ -270,7 +270,7 @@ db.Table("user").
 
 ```go
 User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
-User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
+User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
 
 最终执行的sql为:  
