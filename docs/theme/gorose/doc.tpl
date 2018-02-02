@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div class="ui green left vertical menu sidebar">
+<div class="ui left vertical menu sidebar">
     <div class="menu">
         {{.dataMenu}}
 
@@ -22,7 +22,7 @@
 
 <div class="pusher">
     <div class="ui vertical">
-        <div class="ui inverted borderless menu">
+        <div class="ui green inverted borderless menu">
             <a href="javascript:;" class="item" id="btn-sidebar"><i class="sidebar icon"></i></a>
             <a href="{{.fixLink}}index.html" class="item">Home</a>
             <div class="right menu">
