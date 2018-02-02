@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>中文文档 - Gorose</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+<link rel="stylesheet" href="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.css">
+<!-- <link rel="stylesheet" href="/gorose/dist/asset/css/style.css"> -->
+<link rel="stylesheet" href="https://wuyumin.github.io/easydoc/dist/static/css/style.css">
+</head>
+<body>
+
+<div class="ui left vertical menu sidebar">
+    <div class="menu">
+        <ul><li><a href="/gorose/dist/zh-CN/index.html">中文文档</a></li><li><a href="/gorose/dist/en/index.html">English document</a></li><li><a href="/gorose/dist/index.html">首页 | Home</a></li></ul>
+
+        <div></div>
+        <ul class="made-by">
+            <li><a href="https://github.com/wuyumin/easydoc" target="_blank" title="EasyDoc">EasyDoc</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="pusher">
+    <div class="ui vertical">
+        <div class="ui inverted borderless menu">
+            <a href="javascript:;" class="item" id="btn-sidebar"><i class="sidebar icon"></i></a>
+            <a href="/gorose/dist/index.html" class="item">Home</a>
+            <div class="right menu">
+                <a  href="https://github.com/wuyumin/easydoc" class="item" target="_blank" title="EasyDoc">EasyDoc</a>
+            </div>
+        </div>
+
+        <div class="ui grid new-grid">
+            <div class="sixteen wide column">
+                <div class="ui raised segment">
+                    <strong class="ui teal ribbon label">中文文档</strong>
+                    <div class="content">
+                        <h2>简介</h2>
+
+<p>gorose(go orm), 一个小巧强悍的go语言数据库操作orm, 灵感来源于laravel的数据库操作orm, 也就是eloquent, 风骚的链式操作, 会让php、python、ruby开发者毫无抵抗力的爱上gorose</p>
+
+<h2>github</h2>
+
+<ul>
+<li><a href="https://github.com/gohouse/gorose">https://github.com/gohouse/gorose</a></li>
+</ul>
+
+<h2>先睹为快</h2>
+
+<pre><code class="language-go">db.Table(&quot;tablename&quot;).First()
+db.Table(&quot;tablename&quot;).Distinct().Where(&quot;id&quot;, &quot;&gt;&quot;, 5).Get()
+db.Table(&quot;tablename&quot;).Fields(&quot;id, name, age, job&quot;).Group(&quot;job&quot;).Limit(10).Offset(20).Order(&quot;id desc&quot;).Get()
+// query str
+db.Query(&quot;select * from user&quot;)
+db.Query(&quot;select * from user where id=?&quot;, 1)
+db.Execute(&quot;update users set name=? where id=?&quot;, &quot;fizz&quot;, 1)
+</code></pre>
+
+<h2>用法示例</h2>
+
+<ul>
+<li>多个数据库连接配置<br /></li>
+</ul>
+
+<pre><code class="language-go">package main
+
+import &quot;github.com/gohouse/gorose&quot;
+
+var dbConfig = map[string]interface{} {
+    &quot;default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
+    &quot;SetMaxOpenConns&quot;: 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
+    &quot;SetMaxIdleConns&quot;: 1,          // (连接池)闲置的连接数, 默认1
+
+    &quot;mysql_dev&quot;: map[string]string{// 定义名为 mysql_dev 的数据库配置
+        &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
+        &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
+        &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
+        &quot;port&quot;: &quot;3306&quot;,            // 端口
+        &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
+        &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
+        &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
+        &quot;prefix&quot;: &quot;&quot;,              // 表前缀
+        &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+    },
+    &quot;sqlite_dev&quot;: map[string]string{
+        &quot;database&quot;: &quot;./foo.db&quot;,
+        &quot;prefix&quot;: &quot;&quot;,
+        &quot;driver&quot;: &quot;sqlite3&quot;,
+    },
+}
+
+// 初始化数据库链接, 默认会链接配置中 default 指定的值 
+// 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
+db,err := gorose.Open(dbConfig)
+// db,err := gorose.Open(dbConfig, &quot;sqlite_dev&quot;)
+if err!=nil{
+    fmt.Println(err)
+    return
+}
+
+func main() {
+    res,err := db.Table(&quot;users&quot;).First()
+    if err!=nil{
+        fmt.Println(err)
+        return
+    }
+    fmt.Println(res)
+}
+</code></pre>
+
+<ul>
+<li>简单的数据库配置<br /></li>
+</ul>
+
+<pre><code class="language-go">gorose.Open(map[string]string{
+                &quot;database&quot;: &quot;./foo.db&quot;,
+                &quot;prefix&quot;: &quot;&quot;,
+                &quot;driver&quot;: &quot;sqlite3&quot;,
+            })
+</code></pre>
+
+<ul>
+<li>连接池<br />
+直接指定配置文件中对应的数据即可
+<code>go
+&quot;SetMaxOpenConns&quot;: 0,        // (连接池)最大打开的连接数，默认值为0表示不限制
+&quot;SetMaxIdleConns&quot;: 1,        // (连接池)闲置的连接数, 默认1
+</code></li>
+</ul>
+
+<h2>用法示例</h2>
+
+<h3>查询</h3>
+
+<h4>原生sql语句查询</h4>
+
+<pre><code class="language-go">db.Query(&quot;select * from user where id = 1&quot;)
+db.Query(&quot;select * from user where name = ?&quot;, &quot;fizz&quot;)
+</code></pre>
+
+<h4>链式调用查询</h4>
+
+<pre><code class="language-go">db.Table(&quot;user&quot;).
+    Field(&quot;id, name, avg(age) as age_avg&quot;).  // field
+    Where(&quot;id&quot;,&quot;&gt;&quot;,1).  // simple where
+    Where(&quot;head = 3 or rate is not null&quot;).  // where string
+    Where(map[string]interface{}{&quot;name&quot;:&quot;fizzday&quot;, &quot;age&quot;:18}).  // where object
+    Where([]map[string]interface{}{{&quot;website&quot;, &quot;like&quot;, &quot;%fizz%&quot;}, {&quot;job&quot;, &quot;it&quot;}}).    // multi where
+    OrWhere(&quot;cash&quot;, &quot;1000000&quot;). // or where ...
+    OrWhere(&quot;score&quot;, &quot;between&quot;, []string{50, 80}).  // between
+    OrWhere(&quot;role&quot;, &quot;not in&quot;, []string{&quot;admin&quot;, &quot;read&quot;}).   // in 
+    Group(&quot;job&quot;).   // group
+    Having(&quot;age_avg&gt;1&quot;).   // having
+    Order(&quot;age asc&quot;).   // order 
+    Limit(10).  // limit
+    Offset(1).  // offset
+    Get()   // fetch multi rows
+</code></pre>
+
+<p>得到sql结果:</p>
+
+<pre><code class="language-go">select id,name,count(age) from user 
+    where (id&gt;1) 
+    and (head =3 or rate is not null)
+    and (name='fizzday' and age='18') 
+    and ((website like '%fizz%') and (job='it'))
+    or (cash = '100000') 
+    or (score between '50' and '100') 
+    or (role not in ('admin', 'read'))
+    group by job 
+    having age_avg&gt;1
+    order by age asc 
+    limit 10 offset 1
+</code></pre>
+
+<h4>更多链式查询示例</h4>
+
+<ul>
+<li>获取user表对象
+<code>go
+User := db.Table(&quot;user&quot;)
+</code></li>
+
+<li><p>查询一条</p>
+
+<pre><code class="language-go">User.First()
+</code></pre>
+
+<p>最终执行的sql为: <code>select * from user limit 1</code></p></li>
+
+<li><p>查询某一个字段的值</p>
+
+<pre><code class="language-go">name := User.Value(&quot;name&quot;)
+</code></pre></li>
+
+<li><p>count统计</p>
+
+<pre><code class="language-go">User.Count(&quot;*&quot;)
+</code></pre>
+
+<p>最终执行的sql为: <code>select count(*) as count from user</code></p></li>
+
+<li><p>max</p>
+
+<pre><code class="language-go">User.Max(&quot;age&quot;)
+</code></pre>
+
+<p>最终执行的sql为: <code>select max(age) as max from user</code></p></li>
+
+<li><p>min</p>
+
+<pre><code class="language-go">User.Min(&quot;age&quot;)
+</code></pre>
+
+<p>最终执行的sql为: <code>select min(age) as min from user</code></p></li>
+
+<li><p>avg</p>
+
+<pre><code class="language-go">User.Avg(&quot;age&quot;)
+</code></pre>
+
+<p>最终执行的sql为: <code>select avg(age) as avg from user</code></p></li>
+
+<li><p>distinct</p>
+
+<pre><code class="language-go">User.Fields(&quot;id, name&quot;).Distinct()
+</code></pre>
+
+<p>最终执行的sql为: <code>select distinct id,name from user</code></p></li>
+</ul>
+
+<h4>join</h4>
+
+<ul>
+<li><p>普通示例</p>
+
+<pre><code class="language-go">db.Table(&quot;user&quot;)
+.Join(&quot;card&quot;,&quot;user.id&quot;,&quot;=&quot;,&quot;card.user_id&quot;)
+.Limit(10)
+.Get()
+</code></pre>
+
+<p>最终执行的sql为:</p>
+
+<pre><code class="language-go">select * from user inner join card on user.id=card.user_id limit 10  
+</code></pre></li>
+
+<li><p>左链接</p>
+
+<pre><code class="language-go">db.Table(&quot;user a&quot;)
+.LeftJoin(&quot;card b&quot;,&quot;a.id&quot;,&quot;=&quot;,&quot;b.user_id&quot;)
+.First()
+</code></pre>
+
+<p>最终执行的sql为:</p>
+
+<pre><code class="language-go">select * from user a left join card b on a.id=b.user_id limit 1
+</code></pre></li>
+</ul>
+
+<blockquote>
+<p>右链接 : right join</p>
+</blockquote>
+
+<h4>嵌套where的查询 (where nested)</h4>
+
+<pre><code class="language-go">User.Where(&quot;id&quot;, &quot;&gt;&quot;, 1).Where(func() {
+        User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
+            User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
+                User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
+            })
+        })
+    }).Where(&quot;job&quot;, &quot;it&quot;).First()
+</code></pre>
+
+<p>最终执行的sql为:</p>
+
+<pre><code class="language-go">SELECT  * FROM user  
+    WHERE  id &gt; '1' 
+        and ( name = 'fizz' 
+            or ( name = 'fizz2' 
+                and ( name = 'fizz3' or website like 'fizzday%')
+                )
+            ) 
+    and job = 'it' LIMIT 1
+</code></pre>
+
+<h4>分块操作所有数据</h4>
+
+<ul>
+<li>Chunk()<br />
+&gt; 当需要操作大量数据的时候, 一次性取出再操作, 不太合理, 就可以使用chunk方法<br />
+chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以<br />
+chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑<br />
+目的是做到, 无感知处理大量数据
+<code>go
+User.Fields(&quot;id, name&quot;).Where(&quot;id&quot;,&quot;&gt;&quot;,2).Chunk(2, func(data []map[string]interface{}) {
+// for _,item := range data {
+//     fmt.Println(item)
+// }
+fmt.Println(data)
+})
+</code>
+打印结果:<br />
+<code>go
+// map[id:3 name:gorose]
+// map[id:4 name:fizzday]
+// map[id:5 name:fizz3]
+// map[id:6 name:gohouse]
+[map[id:3 name:gorose] map[name:fizzday id:4]]
+[map[id:5 name:fizz3] map[id:6 name:gohouse]]
+</code></li>
+</ul>
+
+<h3>增删改操作</h3>
+
+<h4>原生sql字符串</h4>
+
+<pre><code class="language-go">db.Execute(&quot;update user set job='it2' where id=3&quot;)
+db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
+</code></pre>
+
+<h4>链式调用</h4>
+
+<pre><code class="language-go">db.Table(&quot;user&quot;).
+    Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
+    Where(&quot;id&quot;, 1).
+    OrWhere(&quot;age&quot;,&quot;&gt;&quot;,30).
+    Update()
+</code></pre>
+
+<p>最终执行的sql为: <code>update user set age=17, job='ite3' where (id=1) or (age&gt;30)</code></p>
+
+<h4>更多增删改的用法</h4>
+
+<ul>
+<li>insert<br /></li>
+</ul>
+
+<pre><code class="language-go">User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
+User.Data([]map[string]interface{}{{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;}).Insert()
+</code></pre>
+
+<p>最终执行的sql为:</p>
+
+<pre><code class="language-go">insert into user (age, job) values (17, 'it3')
+insert into user (age, job) values (17, 'it3') (17, 'it4')
+</code></pre>
+
+<ul>
+<li>delete<br /></li>
+</ul>
+
+<pre><code class="language-go">User.Where(&quot;id&quot;, 5).Delete()
+</code></pre>
+
+<p>最终执行的sql为: <code>delete from user where id=5</code></p>
+
+<h2>事务</h2>
+
+<ul>
+<li>标准用法<br /></li>
+</ul>
+
+<pre><code class="language-go">db.Begin()
+
+res,err := db.Table(&quot;user&quot;).Where(&quot;id&quot;, 1).Data(map[string]interface{}{&quot;age&quot;:18}).Update()
+if err != nil || res == 0 {
+    db.Rollback()
+}
+
+res2 := db.Table(&quot;user&quot;).Data(map[string]interface{}{&quot;age&quot;:18}).Insert()
+if err != nil || res2 == 0 {
+    db.Rollback()
+}
+
+db.Commit()
+</code></pre>
+
+<ul>
+<li>简单用法, 用闭包实现, 自动开始,回滚和提交 事务<br /></li>
+</ul>
+
+<pre><code class="language-go">trans := db.Transaction(func() (error) {
+    
+    res1,err := db.Execute(&quot;update area set job='sadf' where id=14&quot;)
+    if err!=nil {
+        return err
+    }
+    if res1==0 {
+        return errors.New(&quot;update failed&quot;)
+    }
+    
+    res2,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Insert()
+    if err!=nil {
+        return err
+    }
+    if res2==0 {
+        return errors.New(&quot;Insert failed&quot;)
+    }
+        
+    res3,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Where(&quot;id&quot;,10).Update()
+    if err!=nil {
+        return err
+    }
+    if res3==0 {
+        return errors.New(&quot;Update failed&quot;)
+    }
+    
+    return nil
+})
+</code></pre>
+
+<h2>获取原始连接 DB</h2>
+
+<pre><code class="language-go">DB := gorose.GetDB()
+</code></pre>
+
+<h3>获取所有sql记录, 或者获取最后一条sql语句</h3>
+
+<pre><code class="language-go">sqllogs := db.SqlLogs()
+lastsql := db.LastSql()
+</code></pre>
+
+<h2>json返回</h2>
+
+<pre><code class="language-go">result := db.Table(&quot;user&quot;).Get()
+jsonStr := db.JsonEncode(result)
+</code></pre>
+
+<h2>目录说明</h2>
+
+<pre><code class="language-sh">/docs/      ---- 文档目录, 这里包含多个语言的不同使用文档
+/drivers/   ---- 不同数据库的驱动目录, 可以自由增加任何其他数据库的目录
+/examples/  ---- 使用示例目录, 可以在这里找到大部分的用例
+/test/      ---- go testing 自动测试, 包括简单的压力测试
+/utils/     ---- 工具包, 放置常用工具函数
+/vendor/    ---- 采用glide管理的依赖包
+database.go ---- 数据库映射操作的核心文件
+glide.yaml  ---- 项目依赖管理的配置文件
+gorose.go   ---- 数据库链接,数据库驱动加载核心文件
+README.md   ---- 文档说明文件
+</code></pre>
+
+<hr />
+
+<h4><a href="https://github.com/gohouse/gorose">点击查看最新更新动态</a></h4>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p id="back2top">&and;</p>
+
+<script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+<!-- <script src="/gorose/dist/asset/js/app.js"></script> -->
+<script src="https://wuyumin.github.io/easydoc/dist/static/js/app.js"></script>
+</body>
+</html>

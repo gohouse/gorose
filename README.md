@@ -8,8 +8,10 @@
 
 ### Documentation
 
-- [中文文档](docs/zh-CN/README.md)
-- [English document](docs/en/README.md)
+- 官方网站 | Official Website  
+<https://gohouse.github.io/gorose>
+- [中文文档](https://gohouse.github.io/gorose/dist/zh-CN/index.html)
+- [English document](https://gohouse.github.io/gorose/dist/zh-CN/en.html)
 
 ### What is Gorose?
 

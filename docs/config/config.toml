@@ -1,0 +1,11 @@
+fixLink = "/gorose/dist/"
+languageCode = "zh-CN"
+theme = "gorose"
+suffixTitle = " - Gorose"
+homeTitle = "Gorose"
+# SCANFILE: The local path begins with src(base on src directory). support external link.
+scanFile = [
+    ["首页 | Home", "src/index.md"],
+    ["中文文档", "src/zh-CN/index.md"],
+    ["English document", "src/en/index.md"],
+]
