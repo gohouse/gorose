@@ -5,12 +5,11 @@
 <title>{{if (eq .newUrlPath "index.html")}}{{.homeTitle}}{{else}}{{.dataTitle}}{{.suffixTitle}}{{end}}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.css">
-<!-- <link rel="stylesheet" href="{{.fixLink}}asset/css/style.css"> -->
-<link rel="stylesheet" href="https://wuyumin.github.io/easydoc/dist/static/css/style.css">
+<link rel="stylesheet" href="{{.fixLink}}asset/css/style.css">
 </head>
 <body>
 
-<div class="ui left vertical menu sidebar">
+<div class="ui green left vertical menu sidebar">
     <div class="menu">
         {{.dataMenu}}
 
@@ -34,7 +33,7 @@
         <div class="ui grid new-grid">
             <div class="sixteen wide column">
                 <div class="ui raised segment">
-                    <strong class="ui teal ribbon label">{{.dataTitle}}</strong>
+                    <strong class="ui green ribbon label">{{.dataTitle}}</strong>
                     <div class="content">
                         {{.dataDoc}}
                     </div>
@@ -49,7 +48,6 @@
 <script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
 <script src="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
-<!-- <script src="{{.fixLink}}asset/js/app.js"></script> -->
-<script src="https://wuyumin.github.io/easydoc/dist/static/js/app.js"></script>
+<script src="{{.fixLink}}asset/js/app.js"></script>
 </body>
 </html>
