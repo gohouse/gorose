@@ -95,7 +95,7 @@ db.Table("user").
     Where("id",">",1).  // simple where
     Where("head = 3 or rate is not null").  // where string
     Where(map[string]interface{}{"name":"fizzday", "age":18}).  // where object
-    Where([]map[string]interface{}{{"website", "like", "%fizz%"}, {"job", "it"}}).    // multi where
+    Where([]map[string]interface{}{ {"website", "like", "%fizz%"}, {"job", "it"} }).    // multi where
     Where("head = 3 or rate is not null").  // where string
     OrWhere("cash", "1000000"). // or where ...
     OrWhere("score", "between", []string{50, 80}).  // between
@@ -253,7 +253,7 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 - insert  
 ```go
 User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
-User.Data([]map[string]interface{}{{"age":17, "job":"it3"},{"age":17, "job":"it4"}).Insert()
+User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
 parse sql result: 
 ```go
