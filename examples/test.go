@@ -42,4 +42,17 @@ func main() {
 	//
 	//fmt.Println(db.LastSql())
 	//fmt.Println(news)
+	var data = map[string]string{
+		"created_at":"2018-02-01 00:00:00",
+	}
+
+	res,err := db.Table("users").Data(data).Insert()
+
+	fmt.Println(res)
+	fmt.Println(err)
+
+	res2,_ := db.Table("users").Order("id desc").First()
+
+	fmt.Println(res2)
+	fmt.Println(res2["created_at"].(string))
 }
