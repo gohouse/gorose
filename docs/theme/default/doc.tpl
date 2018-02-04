@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <title>{{if (eq .newUrlPath "index.html")}}{{.homeTitle}}{{else}}{{.dataTitle}}{{.suffixTitle}}{{end}}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
 <link rel="stylesheet" href="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.css">
-<!-- <link rel="stylesheet" href="{{.fixLink}}asset/css/style.css"> -->
-<link rel="stylesheet" href="https://wuyumin.github.io/easydoc/dist/static/css/style.css">
+<link rel="stylesheet" href="{{.fixLink}}asset/css/style.css">
 </head>
 <body>
 
@@ -17,7 +16,7 @@
 
         <div></div>
         <ul class="made-by">
-            <li><a href="https://github.com/wuyumin/easydoc" target="_blank" title="EasyDoc">EasyDoc</a></li>
+            <li><a href="https://easydoc.089858.com" target="_blank" title="EasyDoc">EasyDoc</a></li>
         </ul>
     </div>
 </div>
@@ -28,7 +27,7 @@
             <a href="javascript:;" class="item" id="btn-sidebar"><i class="sidebar icon"></i></a>
             <a href="{{.fixLink}}index.html" class="item">Home</a>
             <div class="right menu">
-                <a  href="https://github.com/wuyumin/easydoc" class="item" target="_blank" title="EasyDoc">EasyDoc</a>
+                <a  href="https://easydoc.089858.com" class="item" target="_blank" title="EasyDoc">EasyDoc</a>
             </div>
         </div>
 
@@ -50,7 +49,6 @@
 <script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
 <script src="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
-<!-- <script src="{{.fixLink}}asset/js/app.js"></script> -->
-<script src="https://wuyumin.github.io/easydoc/dist/static/js/app.js"></script>
+<script src="{{.fixLink}}asset/js/app.js"></script>
 </body>
 </html>
