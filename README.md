@@ -10,8 +10,8 @@
 
 - 官方网站 | Official Website  
 <https://gohouse.github.io/gorose>
-- [中文文档](https://gohouse.github.io/gorose/dist/zh-CN/index.html)
-- [English document](https://gohouse.github.io/gorose/dist/zh-CN/en.html)
+- [中文文档](https://gohouse.github.io/gorose/dist/zh-cn)
+- [English document](https://gohouse.github.io/gorose/dist/en)
 
 ### What is Gorose?
 

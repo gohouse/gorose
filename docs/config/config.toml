@@ -7,6 +7,6 @@ homeTitle = "Gorose ORM"
 scanFile = [
     ["首页 | Home", "src/index.md"],
     ["Gorose GitHub", "https://github.com/gohouse/gorose"],
-    ["中文文档", "src/zh-CN/index.md"],
+    ["中文文档", "src/zh-cn/index.md"],
     ["English document", "src/en/index.md"],
 ]
