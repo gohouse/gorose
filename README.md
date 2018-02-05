@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
+[![Build Status](https://travis-ci.org/gohouse/gorose.svg?branch=master)](https://travis-ci.org/gohouse/gorose)
 [![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
