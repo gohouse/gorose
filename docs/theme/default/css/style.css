@@ -7,7 +7,7 @@ a{color: #009c95;}
 .menu .made-by{padding: 0.5em;}
 .menu .made-by a{text-align: center;}
 .content{margin-top: 10px;}
-.ui .new-grid{margin-left: 0;margin-right: 0;}
+.ui .new-grid{margin: 1rem 0;}
 .ui.menu{border-radius: 0 !important;}
 
 /* markdown2html style */
@@ -18,5 +18,5 @@ pre code{padding: 0;font-size: 90%;color: #333;background-color: #f2f2f2;border-
 blockquote{margin: 5px 0;padding: 5px 10px;border-left: 2px solid #00b5ad;background-color: #f6f6f6;color: #555;font-size: 1em;}
 
 /* back2top */
-#back2top{position: fixed;bottom: 5px;right: 5px;display: none;width: 30px;height: 30px;border-radius: 30px;line-height: 30px;text-align: center;background: #222;color: #fff;font-weight: bold;cursor: pointer;-webkit-transition: 1s;-moz-transition: 1s;-ms-transition: 1s;-o-transition: 1s;transition: 1s;}
+#back2top{position: fixed;bottom: 5px;right: 5px;display: none;width: 30px;height: 30px;border-radius: 30px;line-height: 30px;text-align: center;background: #222;color: #fff;font-weight: bold;cursor: pointer;-webkit-transition: 1s;-moz-transition: 1s;-ms-transition: 1s;-o-transition: 1s;transition: 1s;z-index: 999;}
 #back2top:hover{background: #555;}
