@@ -60,50 +60,53 @@ db.Execute(&quot;update users set name=? where id=?&quot;, &quot;fizz&quot;, 1)
 <h2>用法示例</h2>
 
 <ul>
-<li>多个数据库连接配置<br /></li>
+<li>多个数据库连接配置和连接使用简单示例<br /></li>
 </ul>
 
 <pre><code class="language-go">package main
 
-import &quot;github.com/gohouse/gorose&quot;
-
-var dbConfig = map[string]interface{} {
-    &quot;default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
-    &quot;SetMaxOpenConns&quot;: 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
-    &quot;SetMaxIdleConns&quot;: 1,          // (连接池)闲置的连接数, 默认1
-
-    &quot;mysql_dev&quot;: map[string]string{// 定义名为 mysql_dev 的数据库配置
-        &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
-        &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
-        &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
-        &quot;port&quot;: &quot;3306&quot;,            // 端口
-        &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
-        &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
-        &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
-        &quot;prefix&quot;: &quot;&quot;,              // 表前缀
-        &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
-    },
-    &quot;sqlite_dev&quot;: map[string]string{
-        &quot;database&quot;: &quot;./foo.db&quot;,
-        &quot;prefix&quot;: &quot;&quot;,
-        &quot;driver&quot;: &quot;sqlite3&quot;,
-    },
-}
-
-// 初始化数据库链接, 默认会链接配置中 default 指定的值 
-// 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
-db,err := gorose.Open(dbConfig)
-// db,err := gorose.Open(dbConfig, &quot;sqlite_dev&quot;)
-if err!=nil{
-    fmt.Println(err)
-    return
-}
+import (
+	&quot;github.com/gohouse/gorose&quot;
+	&quot;fmt&quot;
+)
 
 func main() {
-    res,err := db.Table(&quot;users&quot;).First()
+
+    var dbConfig = map[string]interface{} {
+        &quot;default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
+        &quot;SetMaxOpenConns&quot;: 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
+        &quot;SetMaxIdleConns&quot;: 1,          // (连接池)闲置的连接数, 默认1
+    
+        &quot;mysql_dev&quot;: map[string]string{// 定义名为 mysql_dev 的数据库配置
+            &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
+            &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
+            &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
+            &quot;port&quot;: &quot;3306&quot;,            // 端口
+            &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
+            &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
+            &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
+            &quot;prefix&quot;: &quot;&quot;,              // 表前缀
+            &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+        },
+        &quot;sqlite_dev&quot;: map[string]string{
+            &quot;database&quot;: &quot;./foo.db&quot;,
+            &quot;prefix&quot;: &quot;&quot;,
+            &quot;driver&quot;: &quot;sqlite3&quot;,
+        },
+    }
+
+    // 初始化数据库链接, 默认会链接配置中 default 指定的值 
+    // 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
+    db,err := gorose.Open(dbConfig)
+    // db,err := gorose.Open(dbConfig, &quot;sqlite_dev&quot;)
     if err!=nil{
         fmt.Println(err)
         return
+    }
+    res,err := db.Table(&quot;users&quot;).First()
+    if err!=nil{
+    	fmt.Println(err)
+    	return
     }
     fmt.Println(res)
 }
@@ -266,12 +269,12 @@ User := db.Table(&quot;user&quot;)
 <h4>嵌套where的查询 (where nested)</h4>
 
 <pre><code class="language-go">User.Where(&quot;id&quot;, &quot;&gt;&quot;, 1).Where(func() {
-        User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
-            User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
-                User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
-            })
-        })
-    }).Where(&quot;job&quot;, &quot;it&quot;).First()
+		User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
+			User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
+				User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
+			})
+		})
+	}).Where(&quot;job&quot;, &quot;it&quot;).First()
 </code></pre>
 
 <p>最终执行的sql为:</p>
@@ -297,7 +300,7 @@ chunk的第二个参数是一个回调方法, 用于书写正常的数据处理�
 <code>go
 User.Fields(&quot;id, name&quot;).Where(&quot;id&quot;,&quot;&gt;&quot;,2).Chunk(2, func(data []map[string]interface{}) {
 // for _,item := range data {
-//     fmt.Println(item)
+// 	   fmt.Println(item)
 // }
 fmt.Println(data)
 })
@@ -324,7 +327,7 @@ db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 <h4>链式调用</h4>
 
 <pre><code class="language-go">db.Table(&quot;user&quot;).
-    Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
+	Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
     Where(&quot;id&quot;, 1).
     OrWhere(&quot;age&quot;,&quot;&gt;&quot;,30).
     Update()
@@ -367,12 +370,12 @@ insert into user (age, job) values (17, 'it3') (17, 'it4')
 
 res,err := db.Table(&quot;user&quot;).Where(&quot;id&quot;, 1).Data(map[string]interface{}{&quot;age&quot;:18}).Update()
 if err != nil || res == 0 {
-    db.Rollback()
+	db.Rollback()
 }
 
 res2 := db.Table(&quot;user&quot;).Data(map[string]interface{}{&quot;age&quot;:18}).Insert()
 if err != nil || res2 == 0 {
-    db.Rollback()
+	db.Rollback()
 }
 
 db.Commit()
@@ -383,13 +386,13 @@ db.Commit()
 </ul>
 
 <pre><code class="language-go">trans := db.Transaction(func() (error) {
-    
+	
     res1,err := db.Execute(&quot;update area set job='sadf' where id=14&quot;)
     if err!=nil {
-        return err
+    	return err
     }
     if res1==0 {
-        return errors.New(&quot;update failed&quot;)
+    	return errors.New(&quot;update failed&quot;)
     }
     
     res2,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Insert()
@@ -397,7 +400,7 @@ db.Commit()
         return err
     }
     if res2==0 {
-        return errors.New(&quot;Insert failed&quot;)
+    	return errors.New(&quot;Insert failed&quot;)
     }
         
     res3,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Where(&quot;id&quot;,10).Update()
@@ -405,7 +408,7 @@ db.Commit()
         return err
     }
     if res3==0 {
-        return errors.New(&quot;Update failed&quot;)
+    	return errors.New(&quot;Update failed&quot;)
     }
     
     return nil
