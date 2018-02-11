@@ -225,28 +225,28 @@ SELECT  * FROM user
 
 #### 分块操作所有数据
 - Chunk()  
-> 当需要操作大量数据的时候, 一次性取出再操作, 不太合理, 就可以使用chunk方法  
-    chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以  
-    chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑  
-    目的是做到, 无感知处理大量数据  
-    
-```go
-User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
-    // for _,item := range data {
-    // 	   fmt.Println(item)
-    // }
-    fmt.Println(data)
-})
-```
-打印结果:  
-```go
-// map[id:3 name:gorose]
-// map[id:4 name:fizzday]
-// map[id:5 name:fizz3]
-// map[id:6 name:gohouse]
-[map[id:3 name:gorose] map[name:fizzday id:4]]
-[map[id:5 name:fizz3] map[id:6 name:gohouse]]
-```
+    > 当需要操作大量数据的时候, 一次性取出再操作, 不太合理, 就可以使用chunk方法  
+        chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以  
+        chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑  
+        目的是做到, 无感知处理大量数据  
+        
+    ```go
+    User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+        // for _,item := range data {
+        // 	   fmt.Println(item)
+        // }
+        fmt.Println(data)
+    })
+    ```
+    打印结果:  
+    ```go
+    // map[id:3 name:gorose]
+    // map[id:4 name:fizzday]
+    // map[id:5 name:fizz3]
+    // map[id:6 name:gohouse]
+    [map[id:3 name:gorose] map[name:fizzday id:4]]
+    [map[id:5 name:fizz3] map[id:6 name:gohouse]]
+    ```
 
 ### 增删改操作
 
