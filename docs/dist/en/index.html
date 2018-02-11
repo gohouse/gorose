@@ -66,8 +66,8 @@ db.Execute(&quot;update users set name=? where id=?&quot;, &quot;fizz&quot;, 1)
 <pre><code class="language-go">package main
 
 import (
-	&quot;github.com/gohouse/gorose&quot;
-	&quot;fmt&quot;
+    &quot;github.com/gohouse/gorose&quot;
+    &quot;fmt&quot;
 )
 
 func main() {
@@ -105,8 +105,8 @@ func main() {
     }
     res,err := db.Table(&quot;users&quot;).First()
     if err!=nil{
-    	fmt.Println(err)
-    	return
+        fmt.Println(err)
+        return
     }
     fmt.Println(res)
 }
@@ -263,12 +263,12 @@ User := db.Table(&quot;user&quot;)
 <h4>where nested (嵌套where)</h4>
 
 <pre><code class="language-go">User.Where(&quot;id&quot;, &quot;&gt;&quot;, 1).Where(func() {
-		User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
-			User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
-				User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
-			})
-		})
-	}).Where(&quot;job&quot;, &quot;it&quot;).First()
+        User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
+            User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
+                User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
+            })
+        })
+    }).Where(&quot;job&quot;, &quot;it&quot;).First()
 </code></pre>
 
 <p>parse sql result:</p>
@@ -290,7 +290,7 @@ User := db.Table(&quot;user&quot;)
 <code>go
 User.Fields(&quot;id, name&quot;).Where(&quot;id&quot;,&quot;&gt;&quot;,2).Chunk(2, func(data []map[string]interface{}) {
 // for _,item := range data {
-// 	   fmt.Println(item)
+//     fmt.Println(item)
 // }
 fmt.Println(data)
 })
@@ -317,7 +317,7 @@ db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 <h4>Call chaining</h4>
 
 <pre><code class="language-go">db.Table(&quot;user&quot;).
-	Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
+    Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
     Where(&quot;id&quot;, 1).
     OrWhere(&quot;age&quot;,&quot;&gt;&quot;,30).
     Update()
@@ -358,12 +358,12 @@ db.Begin()</li>
 
 <p>res := db.Table(&ldquo;user&rdquo;).Where(&ldquo;id&rdquo;, 1).Data(map[string]interface{}{&ldquo;age&rdquo;:18}).Update()
 if (res == 0) {
-	db.Rollback()
+    db.Rollback()
 }</p>
 
 <p>res2 := db.Table(&ldquo;user&rdquo;).Data(map[string]interface{}{&ldquo;age&rdquo;:18}).Insert()
 if (res2 == 0) {
-	db.Rollback()
+    db.Rollback()
 }</p>
 
 <p>db.Commit()</p>
@@ -371,13 +371,13 @@ if (res2 == 0) {
 <pre><code>- simple using
 ```go
 trans := db.Transaction(func() (error) {
-	
+    
     res1,err := db.Execute(&quot;update area set job='sadf' where id=14&quot;)
     if err!=nil {
-    	return err
+        return err
     }
     if res1==0 {
-    	return errors.New(&quot;update failed&quot;)
+        return errors.New(&quot;update failed&quot;)
     }
     
     res2,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Insert()
@@ -385,7 +385,7 @@ trans := db.Transaction(func() (error) {
         return err
     }
     if res2==0 {
-    	return errors.New(&quot;Insert failed&quot;)
+        return errors.New(&quot;Insert failed&quot;)
     }
         
     res3,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Where(&quot;id&quot;,10).Update()
@@ -393,7 +393,7 @@ trans := db.Transaction(func() (error) {
         return err
     }
     if res3==0 {
-    	return errors.New(&quot;Update failed&quot;)
+        return errors.New(&quot;Update failed&quot;)
     }
     
     return nil
