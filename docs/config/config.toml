@@ -1,4 +1,4 @@
-fixLink = "/gorose/dist"
+fixLink = "/gorose/dist/"
 languageCode = "zh-CN"
 theme = "gorose"
 suffixTitle = " - Gorose"
