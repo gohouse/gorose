@@ -1,11 +1,10 @@
-fixLink = "/gorose/dist/"
+fixLink = "/"
 languageCode = "zh-CN"
 theme = "gorose"
 suffixTitle = " - Gorose"
 homeTitle = "Gorose ORM"
 # SCANFILE: The local path begins with src(base on src directory). support external link.
 scanFile = [
-    ["首页 | Home", "src/index.md"],
     ["Gorose GitHub", "https://github.com/gohouse/gorose"],
     ["中文文档", "src/zh-cn/index.md"],
     ["English document", "src/en/index.md"],
