@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {

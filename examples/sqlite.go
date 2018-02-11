@@ -1,8 +1,7 @@
 package main
 
 import (
-	"./config"
-	"encoding/json"
+	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	"github.com/gohouse/gorose"
 	_ "github.com/mattn/go-sqlite3"
