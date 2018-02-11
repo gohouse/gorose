@@ -10,23 +10,23 @@
     <meta name="description" content="gorose, 一个小巧强悍的go语言数据库操作orm, 灵感来源于laravel的数据库操作orm, 也就是eloquent, 风骚的链式操作, 会让php、python、ruby开发者毫无抵抗力的爱上gorose">
     <meta name="keywords" content="gorose,goorm,orm,golang">
     <meta name="author" content="https://github.com/gohouse/gorose">
+    <link rel="stylesheet" type="text/css"  href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{.fixLink}}static/css/semantic.min.css">
     <link rel="stylesheet" href="{{.fixLink}}asset/css/style.css">
     
     <!-- Favicons
     ================================================== -->
-    <link rel="shortcut icon" href="{{.fixLink}}asset/img/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{.fixLink}}static/img/favicon.ico" type="image/x-icon">
     <!-- <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="72x72" href="img/apple-touch-icon-72x72.png">
     <link rel="apple-touch-icon" sizes="114x114" href="img/apple-touch-icon-114x114.png"> -->
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" type="text/css"  href="{{.fixLink}}asset/css/bootstrap.css">
+    
     <!-- <link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.css"> -->
 
     <!-- Stylesheet
     ================================================== -->
-    <link rel="stylesheet" type="text/css"  href="{{.fixLink}}asset/css/style_base.css">
-    <link rel="stylesheet" type="text/css" href="{{.fixLink}}asset/css/responsive.css">
+    <link rel="stylesheet" type="text/css"  href="{{.fixLink}}static/css/style_base.css">
+    <link rel="stylesheet" type="text/css" href="{{.fixLink}}static/css/responsive.css">
 
    <!--  <script type="text/javascript" src="js/modernizr.custom.js"></script> -->
 
@@ -37,6 +37,11 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
+  <style>
+    pre code {
+        white-space: unset !important;
+    }
+  </style>
   <body>
     <div id="tf-home">
         <div class="overlay">
@@ -51,7 +56,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                       </button>
-                      <a class="navbar-brand logo" href="index.html">Gorose</a>
+                      <a class="navbar-brand logo" href="{{.fixLink}}index.html">Gorose</a>
                     </div>
 
                     <!-- Collect the nav links, forms, and other content for toggling -->
@@ -111,13 +116,16 @@
     </nav>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script type="text/javascript" src="{{.fixLink}}asset/js/jquery.1.11.1.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script type="text/javascript" src="{{.fixLink}}asset/js/bootstrap.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
+
 
     <!-- Javascripts
     ================================================== -->
-    <script type="text/javascript" src="{{.fixLink}}asset/js/main.js"></script>
-
+    <script type="text/javascript" src="{{.fixLink}}static/js/main.js"></script>
+    <script src="{{.fixLink}}asset/js/app.js"></script>
   </body>
 </html>
