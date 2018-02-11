@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./config"
+	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gohouse/gorose"
