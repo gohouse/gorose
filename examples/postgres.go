@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./config"
+	"github.com/gohouse/gorose/examples/config"
 	"encoding/json"
 	"fmt"
 	"github.com/gohouse/gorose"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./config"
+	"github.com/gohouse/gorose/examples/config"
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"

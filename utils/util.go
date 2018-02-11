@@ -63,6 +63,10 @@ func ParseStr(data interface{}) string {
 		return strconv.Itoa(data.(int))
 	case int64:
 		return strconv.FormatInt(data.(int64), 10)
+	case float32:
+		return strconv.FormatFloat(float64(data.(float32)), 'f', -1, 32)
+	case float64:
+		return strconv.FormatFloat(data.(float64), 'f', -1, 64)
 	case string:
 		return data.(string)
 	default:
@@ -80,7 +84,8 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 
 // AddSingleQuotes : 添加单引号
 func AddSingleQuotes(data interface{}) string {
-	return "'" + strings.Trim(ParseStr(data), " ") + "'"
+	//return "'" + strings.Trim(ParseStr(data), " ") + "'"
+	return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
 }
 
 // Implode : 字符串转数组, 接受混合类型, 最终输出的是字符串类型

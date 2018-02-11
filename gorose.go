@@ -219,6 +219,12 @@ func (conn *Connection) Execute(args ...interface{}) (int64, error) {
 	return database.Execute(args...)
 }
 
+// JsonEncode : parse json
+func (dba *Connection) JsonEncode(arg interface{}) string {
+	var database Database
+	return database.JsonEncode(arg)
+}
+
 // LastSql is get last query sql
 func (conn *Connection) LastSql() string {
 	if len(Connect.SqlLog) > 0 {
