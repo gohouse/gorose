@@ -2,6 +2,69 @@ body, html{
 	text-rendering: optimizeLegibility !important;
 	-webkit-font-smoothing: antialiased !important;
 }
+@media (max-width: 768px){
+	#gorose__document-button {
+		display: none;
+	}
+	.gorose__menu-list .gorose__menu-item {
+		color: #C5C5C5;
+	    text-transform: uppercase;
+	    font-size: 12px;
+	    font-weight: 700;
+	    letter-spacing: 1px;
+	    padding-top: 10px;
+	    padding-bottom: 10px;
+	    line-height: 20px;
+	    position: relative;
+	    display: block;
+	    padding: 10px 15px;
+	}
+	.gorose__menu-list .gorose__menu-item:hover {
+		color: #2F937B;
+	}
+
+}
+@media (min-width:768px){
+	.li-hover:hover .gorose__menu-list, .li-hover:hover .gorose__menu-bg{
+	    display: block;
+	}
+	.gorose__menu-bg {
+		display: none;
+		background: #333;
+		opacity: 0.4;
+		width: 100%;
+		height: 100px;
+		position: absolute;
+		left: 0;
+		top: 50px;
+	}
+	.gorose__menu-list {
+	    display: none;
+	    width: 100%;
+	    line-height: 50px;
+	    height: 100px;
+	    text-align: center;
+	    position: absolute;
+	    left: 0;
+	    top: 50px;
+	}
+	.gorose__menu-list .gorose__menu-item {
+	    width: 100%;
+	    height: 50px;
+	    cursor: pointer;
+	    display: block;
+	    transition: all .5s;
+	    box-sizing: border-box;
+	    background-color: transparent;
+	    border-bottom: 1px solid rgba(0,0,0, 0.3);
+	}
+	.gorose__menu-list .gorose__menu-item:last-child {
+	    border-bottom: none;
+	}
+	.gorose__menu-list .gorose__menu-item:hover {
+	    background: #fff;
+	}
+}
 
 @media (min-width: 1200px){
 	.container {
