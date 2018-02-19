@@ -4,4 +4,4 @@ import:
 - package: github.com/lib/pq
 - package: github.com/go-sql-driver/mysql
 - package: github.com/denisenkom/go-mssqldb
-#- package: github.com/mattn/go-oci8
+- package: github.com/mattn/go-oci8
