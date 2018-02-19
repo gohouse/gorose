@@ -111,9 +111,6 @@ MIT
 - [Issues](https://github.com/gohouse/gorose/issues)
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
 
-### TODO  
-- [] table struct support
-
 ### release notes
 
 > 0.8.1
