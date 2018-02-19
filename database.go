@@ -648,12 +648,12 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 func (dba *Database) Insert() (int, error) {
 	sqlstr, err := dba.buildExecut("insert")
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
-	res, errs := dba.Execute(sqlstr)
-	if errs != nil {
-		return 0, nil
+	res, err := dba.Execute(sqlstr)
+	if err != nil {
+		return 0, err
 	}
 	return int(res), nil
 }
@@ -662,12 +662,12 @@ func (dba *Database) Insert() (int, error) {
 func (dba *Database) Update() (int, error) {
 	sqlstr, err := dba.buildExecut("update")
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	res, errs := dba.Execute(sqlstr)
 	if errs != nil {
-		return 0, nil
+		return 0, err
 	}
 	return int(res), nil
 }
@@ -676,12 +676,12 @@ func (dba *Database) Update() (int, error) {
 func (dba *Database) Delete() (int, error) {
 	sqlstr, err := dba.buildExecut("delete")
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	res, errs := dba.Execute(sqlstr)
 	if errs != nil {
-		return 0, nil
+		return 0, err
 	}
 	return int(res), nil
 }
