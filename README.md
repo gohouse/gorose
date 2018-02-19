@@ -106,15 +106,13 @@ For more usage, please read the Documentation.
 
 MIT
 
-### Exchange and Discussion
-
-- [join gitter: https://gitter.im/gorose/wechat](https://gitter.im/gorose/wechat?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
-- [Join QQ group number: 470809220](https://jq.qq.com/?_wv=1027&k=5JJOG9E)
-
 ### Contribution
 
 - [Issues](https://github.com/gohouse/gorose/issues)
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
+
+### TODO  
+- [] table struct support
 
 ### release notes
 
