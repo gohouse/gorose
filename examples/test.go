@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose"
 	//"github.com/devfeel/dotweb"
+	"github.com/gohouse/gorose/utils"
 )
 
 func main() {
@@ -55,4 +56,7 @@ func main() {
 
 	fmt.Println(res2)
 	fmt.Println(res2["created_at"].(string))
+
+	fmt.Println(utils.JsonEncode(utils.SuccessReturn("success")))
+	fmt.Println(utils.JsonEncode(utils.SuccessReturn("", 200)))
 }

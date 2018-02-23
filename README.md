@@ -94,7 +94,11 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	res := db.Table("users").First()
+	res,err := db.Table("users").First()
+	if err != nil {
+    		fmt.Println(err)
+    		return
+    }
 	fmt.Println(res)
 }
 

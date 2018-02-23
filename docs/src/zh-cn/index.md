@@ -273,7 +273,7 @@ db.Table("user").
 - insert   
 
 ```go
-User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
+res,err := User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
 User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
 
@@ -283,6 +283,9 @@ User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it
 insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
+
+    - res : insert id  
+    - err : error info
 
 - delete   
  

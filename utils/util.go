@@ -74,7 +74,11 @@ func ParseStr(data interface{}) string {
 	}
 }
 
-// If : 三元运算
+// If : ternary operator (三元运算)
+// condition:比较运算
+// trueVal:运算结果为真时的值
+// falseVal:运算结果为假时的值
+// return: 由于不知道传入值的类型, 所有, 必须在接收结果时, 指定对应的值类型
 func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	if condition {
 		return trueVal
@@ -132,6 +136,10 @@ func Empty(arg interface{}) bool {
 }
 
 // SuccessReturn : 接口成功返回
+// args: 传入的值,可接收1~3个值,第一个值是返回的数据,第二个值是状态码,第三个值是附加额外数据.
+// 		这里第二个值默认缺省为200(成功), 第三个值默认缺省为空
+// example: SuccessReturn([]map[string]interface{{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}}, 200, map[string]int{"page":1,"total":93,"limit":10})
+// return: {"data":[{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}], "status":200, "ext":{"page":1,"total":93,"limit":10}}
 func SuccessReturn(args ...interface{}) interface{} {
 	argsLength := len(args)
 
