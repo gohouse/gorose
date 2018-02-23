@@ -306,7 +306,7 @@ if err != nil || res == 0 {
 	db.Rollback()
 }
 
-res2 := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
+res2,err := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
 if err != nil || res2 == 0 {
 	db.Rollback()
 }
