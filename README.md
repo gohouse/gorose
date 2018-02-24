@@ -8,8 +8,7 @@
 
 ### Documentation
 
-- 官方网站 | Official Website  
-<https://gohouse.github.io/gorose>
+- [Official Website(官方网站): https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
 - [中文文档](https://gohouse.github.io/gorose/dist/zh-cn)
 - [English document](https://gohouse.github.io/gorose/dist/en)
 
