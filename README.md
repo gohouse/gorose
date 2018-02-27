@@ -6,9 +6,12 @@
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
+### Official Website | (官方网站)
+
+[https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
+
 ### Documentation
 
-- [Official Website(官方网站): https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
 - [中文文档](https://gohouse.github.io/gorose/dist/zh-cn)
 - [English document](https://gohouse.github.io/gorose/dist/en)
 
