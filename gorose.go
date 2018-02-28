@@ -23,7 +23,11 @@ func init() {
 }
 
 // Open instance of sql.DB.Oper
+// if args has 1 param , it will be derect connection or with default config set
+// if args has 2 params , the second param will be the default dirver key
 func Open(args ...interface{}) (Connection, error) {
+	//fmt.Println(args)
+	//return Connect, errors.New("dsf")
 	if len(args) == 1 {
 		// continue
 	} else if len(args) == 2 {
@@ -69,11 +73,14 @@ type Connection struct {
 
 // Parse input config
 func (conn *Connection) parseConfig(args interface{}) error {
-	if confReal, ok := args.(map[string]string); ok {
+	if confReal, ok := args.(map[string]string); ok {	// direct connection
 		Connect.CurrentConfig = confReal
 	} else if confReal, ok := args.(map[string]interface{}); ok {
+		// store the full connection
 		Connect.DbConfig = confReal
-		if defaultDb, ok := confReal["default"]; ok {
+		// if set the Default conf, store it
+		if defaultDb, ok := confReal["Default"]; ok {
+			// judge if seted
 			if Connect.Default == "" {
 				Connect.Default = defaultDb.(string)
 			}
@@ -83,13 +90,19 @@ func (conn *Connection) parseConfig(args interface{}) error {
 			return errors.New("the default database is missing in config!")
 		}
 		// 获取指定的默认数据库链接信息
-		if defaultDbConnection, ok := confReal[Connect.Default]; ok {
-			if configs, ok := defaultDbConnection.(map[string]string); ok {
-				Connect.CurrentConfig = configs
-			} else {
-				// 数据库配置格式有误!
-				return errors.New("format error in database config!")
+		var connections map[string]map[string]string
+		if connectionsInterface, ok := confReal["Connections"]; ok {
+			switch connectionsInterface.(type) {
+			case map[string]map[string]string:
+				connections = connectionsInterface.(map[string]map[string]string)
+			default:
+				return errors.New("the database connections format error !")
 			}
+		} else {
+			return errors.New("the database connections missing !")
+		}
+		if defaultDbConnection, ok := connections[Connect.Default]; ok {
+			Connect.CurrentConfig = defaultDbConnection
 		} else {
 			// 指定的数据库链接不存在!
 			return errors.New("the database for using is missing!")
