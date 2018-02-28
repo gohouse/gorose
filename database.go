@@ -44,6 +44,7 @@ type Database struct {
 	group    string          // group
 	having   string          // having
 	data     interface{}     // data
+	ifAffectedRows bool		// if return insert AffectedRows, default false
 	//trans    bool
 	//sqlLogs  []string
 }
@@ -222,8 +223,12 @@ func (dba *Database) Value(arg string) (interface{}, error) {
 }
 
 // Count : select count rows
-func (dba *Database) Count() (int, error) {
-	res, err := dba.buildUnion("count", "*")
+func (dba *Database) Count(args ...interface{}) (int, error) {
+	fields := "*"
+	if len(args) >0 {
+		fields = utils.ParseStr(args[0])
+	}
+	res, err := dba.buildUnion("count", fields)
 	if err != nil {
 		return 0, err
 	}
@@ -634,7 +639,12 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 
 	switch operType {
 	case "insert":
-		res, err = result.LastInsertId()
+		if dba.ifAffectedRows {
+			res, err = result.RowsAffected()
+		} else {
+			res, err = result.LastInsertId()
+		}
+
 	case "update":
 		res, err = result.RowsAffected()
 	case "delete":
@@ -645,7 +655,11 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 }
 
 // Insert : insert data
-func (dba *Database) Insert() (int, error) {
+// param ifAffectedRows bool , default false(will return lastInsertId), if true(will return RowsAffected)
+func (dba *Database) Insert(ifAffectedRows ...bool) (int, error) {
+	if len(ifAffectedRows)>0 {
+		dba.ifAffectedRows = ifAffectedRows[0]
+	}
 	sqlstr, err := dba.buildExecut("insert")
 	if err != nil {
 		return 0, err
