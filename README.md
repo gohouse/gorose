@@ -72,23 +72,25 @@ import (
 // DB Config.(Recommend to use configuration file to import)
 var DbConfig = map[string]interface{}{
 	// Default database configuration
-	"default": "mysql_dev",
+	"Default": "mysql_dev",
 	// (Connection pool) Max open connections, default value 0 means unlimit.
 	"SetMaxOpenConns": 300,
 	// (Connection pool) Max idle connections, default value is 1.
 	"SetMaxIdleConns": 10,
 
 	// Define the database configuration character "mysql_dev".
-	"mysql_dev": map[string]string{
-		"host":     "192.168.200.248",
-		"username": "gcore",
-		"password": "gcore",
-		"port":     "3306",
-		"database": "test",
-		"charset":  "utf8",
-		"protocol": "tcp",
-		"prefix":   "",      // Table prefix
-		"driver":   "mysql", // Database driver(mysql,sqlite,postgres,oracle,mssql)
+	"Connections":map[string]map[string]string{
+		"mysql_dev": map[string]string{
+                    "host":     "192.168.200.248",
+                    "username": "gcore",
+                    "password": "gcore",
+                    "port":     "3306",
+                    "database": "test",
+                    "charset":  "utf8",
+                    "protocol": "tcp",
+                    "prefix":   "",      // Table prefix
+                    "driver":   "mysql", // Database driver(mysql,sqlite,postgres,oracle,mssql)
+                },
 	},
 }
 
@@ -122,6 +124,10 @@ MIT
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
 
 ### release notes
+
+> 0.8.2  
+
+- improve config format, new config format support file config like json/toml etc.
 
 > 0.8.1
 

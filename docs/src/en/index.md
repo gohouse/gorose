@@ -29,30 +29,32 @@ import (
 func main() {
 
     var dbConfig = map[string]interface{} {
-        "default":         "mysql_dev",// 默认数据库配置
-        "SetMaxOpenConns": 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
-        "SetMaxIdleConns": 1,          // (连接池)闲置的连接数, 默认1
+        "Default":         "mysql_dev",// Default database connector
+        "SetMaxOpenConns": 0,          // connection pool, max open connections
+        "SetMaxIdleConns": 1,          // connection pool, max freedom connections leave
     
-        "mysql_dev": map[string]string{// 定义名为 mysql_dev 的数据库配置
-            "host": "192.168.200.248", // 数据库地址
-            "username": "gcore",       // 数据库用户名
-            "password": "gcore",       // 数据库密码
-            "port": "3306",            // 端口
-            "database": "test",        // 链接的数据库名字
-            "charset": "utf8",         // 字符集
-            "protocol": "tcp",         // 链接协议
-            "prefix": "",              // 表前缀
-            "driver": "mysql",         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
-        },
-        "sqlite_dev": map[string]string{
-            "database": "./foo.db",
-            "prefix": "",
-            "driver": "sqlite3",
-        },
+        "Connections":map[string]map[string]string{
+            "mysql_dev": {  // define connector name as mysql_dev
+                "host": "192.168.200.248", // host
+                "username": "gcore",       // username
+                "password": "gcore",       // password
+                "port": "3306",            // port
+                "database": "test",        // database
+                "charset": "utf8",         // charset
+                "protocol": "tcp",         // protocol
+                "prefix": "",              // prefix
+                "driver": "mysql",         // driver(mysql,sqlite,postgres,oracle,mssql)
+            },
+            "sqlite_dev": {
+             "database": "./foo.db",
+             "prefix": "",
+             "driver": "sqlite3",
+            },
+    	},
     }
 
-    // 初始化数据库链接, 默认会链接配置中 default 指定的值 
-    // 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
+    // connection initalize, use default config connector
+    //  if give the second param, will connect the given connector
     db,err := gorose.Open(dbConfig)
     // db,err := gorose.Open(dbConfig, "sqlite_dev")
     if err!=nil{
