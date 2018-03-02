@@ -135,7 +135,7 @@ User := db.Table("user")
 ```
 - fetch one row
 ```go
-User.First()
+res,err := User.First()
 ```
 parse sql result: `select * from user limit 1`  
 
@@ -146,13 +146,13 @@ name := User.Value("name")
 
 - count
 ```go
-User.Count()
+res,err := User.Count()
 ```
 parse sql result: `select count(*) as count from user`  
 
 - max
 ```go
-User.Max("age")
+res,err := User.Max("age")
 ```
 parse sql result: `select max(age) as max from user`  
 
@@ -198,7 +198,8 @@ select * from user a left join card b on a.id=b.user_id limit 1
 
 #### where nested (嵌套where)
 ```go
-User.Where("id", ">", 1).Where(func() {
+res,err := 
+	User.Where("id", ">", 1).Where(func() {
 		User.Where("name", "fizz").OrWhere(func() {
 			User.Where("name", "fizz2").Where(func() {
 				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
@@ -241,12 +242,12 @@ result:
 ### execute
 #### Native string
 ```go
-db.Execute("update user set job='it2' where id=3")
-db.Execute("update user set job='it2' where id=?", 3)
+res,err := db.Execute("update user set job='it2' where id=3")
+res,err := db.Execute("update user set job='it2' where id=?", 3)
 ```
 #### Call chaining
 ```go
-db.Table("user").
+res,err := db.Table("user").
 	Data(map[string]interface{}{"age":17, "job":"it3"}).
     Where("id", 1).
     OrWhere("age",">",30).
@@ -257,18 +258,21 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 #### more execute usage
 - insert  
 ```go
-User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
-User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
+res,err := User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
+res,err := User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
 parse sql result: 
 ```go
 insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
+> get RowsAffected or LastInsertId  
+    - RowsAffected: User.RowsAffected  
+    - LastInsertId(default return is): User.LastInsertId    
 
 - delete  
 ```go
-User.Where("id", 5).Delete()
+res,err := User.Where("id", 5).Delete()
 ```
 parse sql result: `delete from user where id=5`
 

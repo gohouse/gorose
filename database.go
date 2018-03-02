@@ -44,7 +44,8 @@ type Database struct {
 	group    string          // group
 	having   string          // having
 	data     interface{}     // data
-	ifAffectedRows bool		// if return insert AffectedRows, default false
+	RowsAffected int		// insert affected rows
+	LastInsertId int		// insert last insert id
 	//trans    bool
 	//sqlLogs  []string
 }
@@ -630,7 +631,7 @@ func (dba *Database) parseWhere() (string, error) {
 
 // parseExecute : parse execute condition
 func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interface{}) (int64, error) {
-	var res int64
+	var rowsAffected int64
 	var err error
 	result, errs := stmt.Exec(vals...)
 	if errs != nil {
@@ -639,27 +640,23 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 
 	switch operType {
 	case "insert":
-		if dba.ifAffectedRows {
-			res, err = result.RowsAffected()
-		} else {
-			res, err = result.LastInsertId()
-		}
-
+		// get rows affected
+		rowsAffected, err = result.RowsAffected()
+		dba.RowsAffected = int(rowsAffected)
+		// get last insert id
+		rowsAffected, err = result.LastInsertId()
+		dba.LastInsertId = int(rowsAffected)
 	case "update":
-		res, err = result.RowsAffected()
+		rowsAffected, err = result.RowsAffected()
 	case "delete":
-		res, err = result.RowsAffected()
+		rowsAffected, err = result.RowsAffected()
 	}
 
-	return res, err
+	return rowsAffected, err
 }
 
 // Insert : insert data
-// param ifAffectedRows bool , default false(will return lastInsertId), if true(will return RowsAffected)
-func (dba *Database) Insert(ifAffectedRows ...bool) (int, error) {
-	if len(ifAffectedRows)>0 {
-		dba.ifAffectedRows = ifAffectedRows[0]
-	}
+func (dba *Database) Insert() (int, error) {
 	sqlstr, err := dba.buildExecut("insert")
 	if err != nil {
 		return 0, err

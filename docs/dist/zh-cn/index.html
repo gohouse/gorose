@@ -114,26 +114,28 @@ import (
 func main() {
 
     var dbConfig = map[string]interface{} {
-        &quot;default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
+        &quot;Default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
         &quot;SetMaxOpenConns&quot;: 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
         &quot;SetMaxIdleConns&quot;: 1,          // (连接池)闲置的连接数, 默认1
     
-        &quot;mysql_dev&quot;: map[string]string{// 定义名为 mysql_dev 的数据库配置
-            &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
-            &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
-            &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
-            &quot;port&quot;: &quot;3306&quot;,            // 端口
-            &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
-            &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
-            &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
-            &quot;prefix&quot;: &quot;&quot;,              // 表前缀
-            &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
-        },
-        &quot;sqlite_dev&quot;: map[string]string{
-            &quot;database&quot;: &quot;./foo.db&quot;,
-            &quot;prefix&quot;: &quot;&quot;,
-            &quot;driver&quot;: &quot;sqlite3&quot;,
-        },
+        &quot;Connections&quot;:map[string]map[string]string{
+            &quot;mysql_dev&quot;: {// 定义名为 mysql_dev 的数据库配置
+                &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
+                &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
+                &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
+                &quot;port&quot;: &quot;3306&quot;,            // 端口
+                &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
+                &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
+                &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
+                &quot;prefix&quot;: &quot;&quot;,              // 表前缀
+                &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+            },
+            &quot;sqlite_dev&quot;: {
+             &quot;database&quot;: &quot;./foo.db&quot;,
+             &quot;prefix&quot;: &quot;&quot;,
+             &quot;driver&quot;: &quot;sqlite3&quot;,
+            },
+    	},
     }
 
     // 初始化数据库链接, 默认会链接配置中 default 指定的值 
@@ -228,7 +230,7 @@ User := db.Table(&quot;user&quot;)
 
 <li><p>查询一条</p>
 
-<pre><code class="language-go">User.First()
+<pre><code class="language-go">res,err := User.First()
 </code></pre>
 
 <p>最终执行的sql为: <code>select * from user limit 1</code></p></li>
@@ -240,7 +242,7 @@ User := db.Table(&quot;user&quot;)
 
 <li><p>count统计</p>
 
-<pre><code class="language-go">User.Count(&quot;*&quot;)
+<pre><code class="language-go">res,err := User.Count(&quot;*&quot;)
 </code></pre>
 
 <p>最终执行的sql为: <code>select count(*) as count from user</code></p></li>
@@ -333,17 +335,15 @@ User := db.Table(&quot;user&quot;)
 <h4>分块操作所有数据</h4>
 
 <ul>
-<li>Chunk()<br />
+<li><p>Chunk()<br />
 &gt; 当需要操作大量数据的时候, 一次性取出再操作, 不太合理, 就可以使用chunk方法<br />
-chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以<br />
-chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑<br />
-目的是做到, 无感知处理大量数据<br />
-<br /></li>
-</ul>
+    chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以<br />
+    chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑<br />
+    目的是做到, 无感知处理大量数据</p>
 
 <pre><code class="language-go">User.Fields(&quot;id, name&quot;).Where(&quot;id&quot;,&quot;&gt;&quot;,2).Chunk(2, func(data []map[string]interface{}) {
     // for _,item := range data {
-    // 	   fmt.Println(item)
+    //     fmt.Println(item)
     // }
     fmt.Println(data)
 })
@@ -357,14 +357,15 @@ chunk的第二个参数是一个回调方法, 用于书写正常的数据处理�
 // map[id:6 name:gohouse]
 [map[id:3 name:gorose] map[name:fizzday id:4]]
 [map[id:5 name:fizz3] map[id:6 name:gohouse]]
-</code></pre>
+</code></pre></li>
+</ul>
 
 <h3>增删改操作</h3>
 
 <h4>原生sql字符串</h4>
 
-<pre><code class="language-go">db.Execute(&quot;update user set job='it2' where id=3&quot;)
-db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
+<pre><code class="language-go">res,err := db.Execute(&quot;update user set job='it2' where id=3&quot;)
+res,err := db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 </code></pre>
 
 <h4>链式调用</h4>
@@ -384,7 +385,7 @@ db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 <li>insert<br /></li>
 </ul>
 
-<pre><code class="language-go">User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
+<pre><code class="language-go">res,err := User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
 User.Data([]map[string]interface{}{ {&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;} }).Insert()
 </code></pre>
 
@@ -393,6 +394,12 @@ User.Data([]map[string]interface{}{ {&quot;age&quot;:17, &quot;job&quot;:&quot;i
 <pre><code class="language-go">insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 </code></pre>
+
+<blockquote>
+<p>获取影响行数和插入id<br />
+    - 获取影响行数: User.RowsAffected<br />
+    - 获取最后插入id(默认返回, 也可以通过此方法获取): User.LastInsertId</p>
+</blockquote>
 
 <ul>
 <li>delete<br /></li>
@@ -416,7 +423,7 @@ if err != nil || res == 0 {
 	db.Rollback()
 }
 
-res2 := db.Table(&quot;user&quot;).Data(map[string]interface{}{&quot;age&quot;:18}).Insert()
+res2,err := db.Table(&quot;user&quot;).Data(map[string]interface{}{&quot;age&quot;:18}).Insert()
 if err != nil || res2 == 0 {
 	db.Rollback()
 }

@@ -21,13 +21,14 @@ func main() {
 		"job":  "it2",
 		"name": "fizz4",
 	}
-	res, err := db.Table("users").Data(data).Insert(true)
+	User := db.Table("users")
+	res, err := User.Data(data).Insert()
+	fmt.Println(res)
 	if err != nil {
-		fmt.Println(res)
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(db.LastSql())
-	fmt.Println(res)
-
+	fmt.Printf("RowsAffected: %d \n", User.RowsAffected)
+	fmt.Printf("LastInsertId: %d", User.LastInsertId)
 }

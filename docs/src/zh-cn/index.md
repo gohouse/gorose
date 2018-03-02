@@ -137,7 +137,7 @@ User := db.Table("user")
 ```
 - 查询一条  
 ```go
-User.First()
+res,err := User.First()
 ```
 最终执行的sql为: `select * from user limit 1`  
 
@@ -148,7 +148,7 @@ name := User.Value("name")
 
 - count统计  
 ```go
-User.Count("*")
+res,err := User.Count("*")
 ```
 最终执行的sql为: `select count(*) as count from user`  
 
@@ -255,8 +255,8 @@ SELECT  * FROM user
 #### 原生sql字符串
 
 ```go
-db.Execute("update user set job='it2' where id=3")
-db.Execute("update user set job='it2' where id=?", 3)
+res,err := db.Execute("update user set job='it2' where id=3")
+res,err := db.Execute("update user set job='it2' where id=?", 3)
 ```
 
 #### 链式调用  
@@ -285,9 +285,9 @@ User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it
 insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
-
-    - res : insert id  
-    - err : error info
+> 获取影响行数和插入id  
+    - 获取影响行数: User.RowsAffected  
+    - 获取最后插入id(默认返回, 也可以通过此方法获取): User.LastInsertId  
 
 - delete   
  

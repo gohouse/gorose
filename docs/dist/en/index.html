@@ -114,30 +114,32 @@ import (
 func main() {
 
     var dbConfig = map[string]interface{} {
-        &quot;default&quot;:         &quot;mysql_dev&quot;,// 默认数据库配置
-        &quot;SetMaxOpenConns&quot;: 0,          // (连接池)最大打开的连接数，默认值为0表示不限制
-        &quot;SetMaxIdleConns&quot;: 1,          // (连接池)闲置的连接数, 默认1
+        &quot;Default&quot;:         &quot;mysql_dev&quot;,// Default database connector
+        &quot;SetMaxOpenConns&quot;: 0,          // connection pool, max open connections
+        &quot;SetMaxIdleConns&quot;: 1,          // connection pool, max freedom connections leave
     
-        &quot;mysql_dev&quot;: map[string]string{// 定义名为 mysql_dev 的数据库配置
-            &quot;host&quot;: &quot;192.168.200.248&quot;, // 数据库地址
-            &quot;username&quot;: &quot;gcore&quot;,       // 数据库用户名
-            &quot;password&quot;: &quot;gcore&quot;,       // 数据库密码
-            &quot;port&quot;: &quot;3306&quot;,            // 端口
-            &quot;database&quot;: &quot;test&quot;,        // 链接的数据库名字
-            &quot;charset&quot;: &quot;utf8&quot;,         // 字符集
-            &quot;protocol&quot;: &quot;tcp&quot;,         // 链接协议
-            &quot;prefix&quot;: &quot;&quot;,              // 表前缀
-            &quot;driver&quot;: &quot;mysql&quot;,         // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
-        },
-        &quot;sqlite_dev&quot;: map[string]string{
-            &quot;database&quot;: &quot;./foo.db&quot;,
-            &quot;prefix&quot;: &quot;&quot;,
-            &quot;driver&quot;: &quot;sqlite3&quot;,
-        },
+        &quot;Connections&quot;:map[string]map[string]string{
+            &quot;mysql_dev&quot;: {  // define connector name as mysql_dev
+                &quot;host&quot;: &quot;192.168.200.248&quot;, // host
+                &quot;username&quot;: &quot;gcore&quot;,       // username
+                &quot;password&quot;: &quot;gcore&quot;,       // password
+                &quot;port&quot;: &quot;3306&quot;,            // port
+                &quot;database&quot;: &quot;test&quot;,        // database
+                &quot;charset&quot;: &quot;utf8&quot;,         // charset
+                &quot;protocol&quot;: &quot;tcp&quot;,         // protocol
+                &quot;prefix&quot;: &quot;&quot;,              // prefix
+                &quot;driver&quot;: &quot;mysql&quot;,         // driver(mysql,sqlite,postgres,oracle,mssql)
+            },
+            &quot;sqlite_dev&quot;: {
+             &quot;database&quot;: &quot;./foo.db&quot;,
+             &quot;prefix&quot;: &quot;&quot;,
+             &quot;driver&quot;: &quot;sqlite3&quot;,
+            },
+    	},
     }
 
-    // 初始化数据库链接, 默认会链接配置中 default 指定的值 
-    // 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
+    // connection initalize, use default config connector
+    //  if give the second param, will connect the given connector
     db,err := gorose.Open(dbConfig)
     // db,err := gorose.Open(dbConfig, &quot;sqlite_dev&quot;)
     if err!=nil{
@@ -228,7 +230,7 @@ User := db.Table(&quot;user&quot;)
 
 <li><p>fetch one row</p>
 
-<pre><code class="language-go">User.First()
+<pre><code class="language-go">res,err := User.First()
 </code></pre>
 
 <p>parse sql result: <code>select * from user limit 1</code></p></li>
@@ -240,14 +242,14 @@ User := db.Table(&quot;user&quot;)
 
 <li><p>count</p>
 
-<pre><code class="language-go">User.Count()
+<pre><code class="language-go">res,err := User.Count()
 </code></pre>
 
 <p>parse sql result: <code>select count(*) as count from user</code></p></li>
 
 <li><p>max</p>
 
-<pre><code class="language-go">User.Max(&quot;age&quot;)
+<pre><code class="language-go">res,err := User.Max(&quot;age&quot;)
 </code></pre>
 
 <p>parse sql result: <code>select max(age) as max from user</code></p></li>
@@ -303,7 +305,8 @@ User := db.Table(&quot;user&quot;)
 
 <h4>where nested (嵌套where)</h4>
 
-<pre><code class="language-go">User.Where(&quot;id&quot;, &quot;&gt;&quot;, 1).Where(func() {
+<pre><code class="language-go">res,err := 
+	User.Where(&quot;id&quot;, &quot;&gt;&quot;, 1).Where(func() {
 		User.Where(&quot;name&quot;, &quot;fizz&quot;).OrWhere(func() {
 			User.Where(&quot;name&quot;, &quot;fizz2&quot;).Where(func() {
 				User.Where(&quot;name&quot;, &quot;fizz3&quot;).OrWhere(&quot;website&quot;, &quot;like&quot;, &quot;fizzday%&quot;)
@@ -351,13 +354,13 @@ result:<br />
 
 <h4>Native string</h4>
 
-<pre><code class="language-go">db.Execute(&quot;update user set job='it2' where id=3&quot;)
-db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
+<pre><code class="language-go">res,err := db.Execute(&quot;update user set job='it2' where id=3&quot;)
+res,err := db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 </code></pre>
 
 <h4>Call chaining</h4>
 
-<pre><code class="language-go">db.Table(&quot;user&quot;).
+<pre><code class="language-go">res,err := db.Table(&quot;user&quot;).
 	Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).
     Where(&quot;id&quot;, 1).
     OrWhere(&quot;age&quot;,&quot;&gt;&quot;,30).
@@ -371,19 +374,28 @@ db.Execute(&quot;update user set job='it2' where id=?&quot;, 3)
 <ul>
 <li><p>insert</p>
 
-<pre><code class="language-go">User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
-User.Data([]map[string]interface{}{ {&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;} }).Insert()
+<pre><code class="language-go">res,err := User.Data(map[string]interface{}{&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;}).Insert()
+res,err := User.Data([]map[string]interface{}{ {&quot;age&quot;:17, &quot;job&quot;:&quot;it3&quot;},{&quot;age&quot;:17, &quot;job&quot;:&quot;it4&quot;} }).Insert()
 </code></pre>
 
 <p>parse sql result:</p>
 
 <pre><code class="language-go">insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
-</code></pre></li>
+</code></pre>
+
+<blockquote>
+<p>get RowsAffected or LastInsertId</p>
+</blockquote>
+
+<ul>
+<li>RowsAffected: User.RowsAffected<br /></li>
+<li>LastInsertId(default return is): User.LastInsertId<br /></li>
+</ul></li>
 
 <li><p>delete</p>
 
-<pre><code class="language-go">User.Where(&quot;id&quot;, 5).Delete()
+<pre><code class="language-go">res,err := User.Where(&quot;id&quot;, 5).Delete()
 </code></pre>
 
 <p>parse sql result: <code>delete from user where id=5</code></p></li>
@@ -402,7 +414,7 @@ if (res == 0) {
 	db.Rollback()
 }</p>
 
-<p>res2 := db.Table(&ldquo;user&rdquo;).Data(map[string]interface{}{&ldquo;age&rdquo;:18}).Insert()
+<p>res2,err := db.Table(&ldquo;user&rdquo;).Data(map[string]interface{}{&ldquo;age&rdquo;:18}).Insert()
 if (res2 == 0) {
 	db.Rollback()
 }</p>
