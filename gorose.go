@@ -3,6 +3,7 @@ package gorose
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/gohouse/gorose/drivers"
 )
 
@@ -73,7 +74,7 @@ type Connection struct {
 
 // Parse input config
 func (conn *Connection) parseConfig(args interface{}) error {
-	if confReal, ok := args.(map[string]string); ok {	// direct connection
+	if confReal, ok := args.(map[string]string); ok { // direct connection
 		Connect.CurrentConfig = confReal
 	} else if confReal, ok := args.(map[string]interface{}); ok {
 		// store the full connection
@@ -230,6 +231,15 @@ func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, er
 func (conn *Connection) Execute(args ...interface{}) (int64, error) {
 	var database Database
 	return database.Execute(args...)
+}
+
+// ExecuteInsert str
+func (conn *Connection) ExecuteInsert(args ...interface{}) (int64, int64, error) {
+	var database Database
+	_, err := database.Execute(args...)
+	lastInsertID := int64(database.LastInsertId)
+	affectedRows := int64(database.RowsAffected)
+	return lastInsertID, affectedRows, err
 }
 
 // JsonEncode : parse json
