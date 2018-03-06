@@ -19,11 +19,11 @@
 
 Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravle's eloquent. It will be friendly for php developers and python or ruby developers.  
 Currently provides five major database drivers:   
-- **mysql** : <https://github.com/denisenkom/go-mssqldb>  
+- **mysql** : <https://github.com/go-sql-driver/mysql>  
 - **sqlite3** : <https://github.com/mattn/go-sqlite3>  
 - **postgres** : <https://github.com/lib/pq>  
 - **oracle** : <https://github.com/mattn/go-oci8>  
-- **mssql** : <https://github.com/go-sql-driver/mysql>  
+- **mssql** : <https://github.com/denisenkom/go-mssqldb>  
 
 ### Quick Preview
 

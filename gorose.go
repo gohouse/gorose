@@ -232,6 +232,12 @@ func (conn *Connection) Execute(args ...interface{}) (int64, error) {
 	return database.Execute(args...)
 }
 
+// GetInstance , get the database object
+func (conn *Connection) GetInstance() Database {
+	var database Database
+	return database
+}
+
 // JsonEncode : parse json
 func (dba *Connection) JsonEncode(arg interface{}) string {
 	var database Database
