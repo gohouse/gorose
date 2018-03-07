@@ -18,7 +18,8 @@ func main() {
 
 	user, err := db.Table("users a").
 		Join("area b", "a.id", "=", "b.uid").
-		Where("a.id", ">", 1).Get()
+		Where("a.id", ">", 1).
+		Get()
 
 	if err != nil {
 		fmt.Println(err)
