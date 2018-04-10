@@ -51,6 +51,4 @@ func main() {
 	}
 	fmt.Println(sum)
 
-	fmt.Println(db.LastSql())
-
 }

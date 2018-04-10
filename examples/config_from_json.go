@@ -68,6 +68,5 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(db.LastSql())
 	fmt.Println(res["id"])
 }

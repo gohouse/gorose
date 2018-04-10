@@ -55,12 +55,15 @@ func main() {
 
     // connection initalize, use default config connector
     //  if give the second param, will connect the given connector
-    db,err := gorose.Open(dbConfig)
-    // db,err := gorose.Open(dbConfig, "sqlite_dev")
-    if err!=nil{
-        fmt.Println(err)
-        return
-    }
+	connection, err := gorose.Open(DbConfig)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// close DB
+	defer connection.Close()
+	
+	db := connection.GetInstance()
     res,err := db.Table("users").First()
     if err!=nil{
     	fmt.Println(err)
@@ -332,8 +335,8 @@ gorose.GetDB()
 
 ## get sql logs or last sql
 ```go
-sqllogs := db.SqlLogs()
-lastsql := db.LastSql()
+sqllogs := db.SqlLogs
+lastsql := db.LastSql
 ```
 
 ## json return

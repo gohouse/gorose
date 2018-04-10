@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -16,25 +16,23 @@ func main() {
 	// close DB
 	//defer db.Close()
 	//var Users = db.Table("users")
-	user, err := db.Query("select * from users")
+	user, err := connection.Query("select * from users")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	//user := GetNewsList(db)
-	fmt.Println(db.SqlLogs())
 	fmt.Println(user)
 
-	User := db.GetInstance()
+	db := connection.GetInstance()
 
-	lid,err := User.Execute("insert into users(name,age) values('fizz3', 19)")
+	lid,err := db.Execute("insert into users(name,age) values('fizz3', 19)")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	fmt.Println(lid)
-	fmt.Println(db.LastSql())
-	fmt.Println(User.LastInsertId)
-	fmt.Println(User.RowsAffected)
+	fmt.Println(db.LastSql)
+	fmt.Println(db.LastInsertId)
+	fmt.Println(db.RowsAffected)
 }

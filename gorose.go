@@ -10,7 +10,7 @@ var (
 	// DB is origin DB
 	DB *sql.DB
 	// Tx is transaction DB
-	Tx *sql.Tx
+	//Tx *sql.Tx
 	// Connect is the Connection Object
 	Connect Connection
 	//conn.SetMaxOpenConns int = 0
@@ -61,10 +61,10 @@ type Connection struct {
 	Default string
 	// current config on use
 	CurrentConfig map[string]string
-	// all sql logs
-	SqlLog []string
-	// if in transaction, the code auto change
-	Trans bool
+	//// all sql logs
+	//SqlLog []string
+	//// if in transaction, the code auto change
+	//Trans bool
 	// max open connections
 	SetMaxOpenConns int
 	// max freedom connections leave
@@ -166,7 +166,7 @@ func (conn *Connection) boot() error {
 
 // Close database
 func (conn *Connection) Close() error {
-	Connect.SqlLog = []string{}
+	//Connect.SqlLog = []string{}
 	return DB.Close()
 }
 
@@ -177,85 +177,81 @@ func (conn *Connection) Ping() error {
 
 // Table is set table from database
 func (conn *Connection) Table(table string) *Database {
-	//conn.table = table
-	var database Database
-	return database.Table(table)
+	return conn.GetInstance().Table(table)
 }
 
-// Begin transaction begin
-func (conn *Connection) Begin() {
-	Tx, _ = DB.Begin()
-	Connect.Trans = true
-}
-
-// Commit is transaction commit
-func (conn *Connection) Commit() {
-	Tx.Commit()
-	Connect.Trans = false
-}
-
-// Rollback is transaction rollback
-func (conn *Connection) Rollback() {
-	Tx.Rollback()
-	Connect.Trans = false
-}
-
-// Transaction is simple transaction
-func (conn *Connection) Transaction(closure func() error) bool {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		conn.Rollback()
-	//		panic(err)
-	//	}
-	//}()
-
-	conn.Begin()
-	err := closure()
-	if err != nil {
-		conn.Rollback()
-		return false
-	}
-	conn.Commit()
-
-	return true
-}
+//// Begin transaction begin
+//func (conn *Connection) Begin() {
+//	Tx, _ = DB.Begin()
+//	Connect.Trans = true
+//}
+//
+//// Commit is transaction commit
+//func (conn *Connection) Commit() {
+//	Tx.Commit()
+//	Connect.Trans = false
+//}
+//
+//// Rollback is transaction rollback
+//func (conn *Connection) Rollback() {
+//	Tx.Rollback()
+//	Connect.Trans = false
+//}
+//
+//// Transaction is simple transaction
+//func (conn *Connection) Transaction(closure func() error) bool {
+//	//defer func() {
+//	//	if err := recover(); err != nil {
+//	//		conn.Rollback()
+//	//		panic(err)
+//	//	}
+//	//}()
+//
+//	conn.Begin()
+//	err := closure()
+//	if err != nil {
+//		conn.Rollback()
+//		return false
+//	}
+//	conn.Commit()
+//
+//	return true
+//}
 
 // Query str
 func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
-	var database Database
-	return database.Query(args...)
+	return conn.GetInstance().Query(args...)
 }
 
 // Execute str
 func (conn *Connection) Execute(args ...interface{}) (int64, error) {
-	var database Database
-	return database.Execute(args...)
+	return conn.GetInstance().Execute(args...)
 }
 
 // GetInstance , get the database object
-func (conn *Connection) GetInstance() Database {
-	var database Database
-	return database
+func (conn *Connection) GetInstance() *Database {
+	//var database *Database
+	//return database
+	return &Database{}
 }
 
 // JsonEncode : parse json
-func (dba *Connection) JsonEncode(arg interface{}) string {
-	var database Database
-	return database.JsonEncode(arg)
+func (conn *Connection) JsonEncode(arg interface{}) string {
+	return conn.GetInstance().JsonEncode(arg)
 }
 
-// LastSql is get last query sql
-func (conn *Connection) LastSql() string {
-	if len(Connect.SqlLog) > 0 {
-		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
-	}
-	return ""
-}
-
-// SqlLogs is all sql query logs in this request
-func (conn *Connection) SqlLogs() []string {
-	return Connect.SqlLog
-}
+//// LastSql is get last query sql
+//func (conn *Connection) LastSql() string {
+//	if len(Connect.SqlLog) > 0 {
+//		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
+//	}
+//	return ""
+//}
+//
+//// SqlLogs is all sql query logs in this request
+//func (conn *Connection) SqlLogs() []string {
+//	return Connect.SqlLog
+//}
 
 // GetDB is get origin *sql.DB
 func GetDB() *sql.DB {

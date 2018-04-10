@@ -9,23 +9,25 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
 
 	//var data datas
 	data2 := map[string]interface{}{
 		"age":  17,
 		"job":  "it3",
-		"name": "fizz5",
+		"name": "fizz4",
 	}
 	where := map[string]interface{}{
 		"id": 17,
 	}
+
+	db := connection.GetInstance()
 
 	trans := db.Transaction(func() error {
 

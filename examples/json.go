@@ -24,7 +24,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(db.LastSql())
+
 	fmt.Println(db.JsonEncode(res2))
 	// or
 	fmt.Println(utils.JsonEncode(res2))

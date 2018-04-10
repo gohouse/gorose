@@ -8,13 +8,15 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
+
+	db := connection.GetInstance()
 
 	user, err := db.Query("select * from users where id>? limit ?", 1, 2)
 	if err != nil {
@@ -22,7 +24,7 @@ func main() {
 		return
 	}
 
-	fmt.Println(db.LastSql())
+	fmt.Println(db.LastSql)
 	fmt.Println(user)
 
 	// return json

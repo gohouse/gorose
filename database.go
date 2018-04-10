@@ -12,6 +12,7 @@ import (
 var (
 	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
 	//Dbstruct Database
+	tx *sql.Tx
 )
 
 //type MapData map[string]interface{}
@@ -46,8 +47,9 @@ type Database struct {
 	data     interface{}     // data
 	RowsAffected int		// insert affected rows
 	LastInsertId int		// insert last insert id
-	//trans    bool
-	//sqlLogs  []string
+	trans    bool
+	SqlLogs  []string
+	LastSql  string
 }
 
 // Fields : select fields
@@ -697,18 +699,18 @@ func (dba *Database) Delete() (int, error) {
 	return int(res), nil
 }
 
-//func (dba *Database) Begin() {
-//	Tx, _ = DB.Begin()
-//	dba.trans = true
-//}
-//func (dba *Database) Commit() {
-//	Tx.Commit()
-//	dba.trans = false
-//}
-//func (dba *Database) Rollback() {
-//	Tx.Rollback()
-//	dba.trans = false
-//}
+func (dba *Database) Begin() {
+	tx, _ = DB.Begin()
+	dba.trans = true
+}
+func (dba *Database) Commit() {
+	tx.Commit()
+	dba.trans = false
+}
+func (dba *Database) Rollback() {
+	tx.Rollback()
+	dba.trans = false
+}
 
 // Reset : reset union select
 func (dba *Database) Reset() {
@@ -758,8 +760,9 @@ func (dba *Database) Query(args ...interface{}) ([]map[string]interface{}, error
 			}
 		}
 	}
-	// 记录sqllog
-	Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
+	// 记录sql log
+	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
+	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
 	stmt, err := DB.Prepare(sqlstring)
 	if err != nil {
@@ -822,15 +825,17 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 		}
 	}
 	// 记录sqllog
-	Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
+	//Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
+	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
+	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
 		return 0, errors.New("this method does not allow select operations, use Query")
 	}
 
-	if Connect.Trans == true {
-		stmt, err := Tx.Prepare(sqlstring)
+	if dba.trans == true {
+		stmt, err := tx.Prepare(sqlstring)
 		if err != nil {
 			return 0, err
 		}
@@ -854,24 +859,24 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 //	return Connect.SqlLog
 //}
 //
-///**
-// * simple transaction
-// */
-//func (dba *Database) Transaction(closure func() (error)) bool {
-//	//defer func() {
-//	//	if err := recover(); err != nil {
-//	//		dba.Rollback()
-//	//		panic(err)
-//	//	}
-//	//}()
-//
-//	dba.Begin()
-//	err := closure()
-//	if err != nil {
-//		dba.Rollback()
-//		return false
-//	}
-//	dba.Commit()
-//
-//	return true
-//}
+/**
+ * simple transaction
+ */
+func (dba *Database) Transaction(closure func() (error)) bool {
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		dba.Rollback()
+	//		panic(err)
+	//	}
+	//}()
+
+	dba.Begin()
+	err := closure()
+	if err != nil {
+		dba.Rollback()
+		return false
+	}
+	dba.Commit()
+
+	return true
+}

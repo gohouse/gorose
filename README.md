@@ -95,13 +95,15 @@ var DbConfig = map[string]interface{}{
 }
 
 func main() {
-	db, err := gorose.Open(DbConfig)
+	connection, err := gorose.Open(DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
+	
+	db := connection.GetInstance()
 
 	res,err := db.Table("users").First()
 	if err != nil {

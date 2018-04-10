@@ -26,7 +26,6 @@ func main() {
 		return
 	}
 
-	fmt.Println(db.LastSql())
 	fmt.Println(user)
 
 	// return json

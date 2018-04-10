@@ -56,12 +56,16 @@ func main() {
 
     // 初始化数据库链接, 默认会链接配置中 default 指定的值 
     // 也可以在第二个参数中指定对应的数据库链接, 见下边注释的那一行链接示例
-    db,err := gorose.Open(dbConfig)
-    // db,err := gorose.Open(dbConfig, "sqlite_dev")
-    if err!=nil{
-        fmt.Println(err)
-        return
-    }
+	connection, err := gorose.Open(DbConfig)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// close DB
+	defer connection.Close()
+	
+	db := connection.GetInstance()
+	
     res,err := db.Table("users").First()
     if err!=nil{
     	fmt.Println(err)
@@ -85,7 +89,7 @@ gorose.Open(map[string]string{
 直接指定配置文件中对应的数据即可
 ```go
 "SetMaxOpenConns": 0,        // (连接池)最大打开的连接数，默认值为0表示不限制
-"SetMaxIdleConns": 1,        // (连接池)闲置的连接数, 默认1
+"SetMaxIdleConns": -1,        // (连接池)闲置的连接数, 默认-1
 ```
 
 ## 用法示例
@@ -358,8 +362,8 @@ DB := gorose.GetDB()
 ### 获取所有sql记录, 或者获取最后一条sql语句
 
 ```go
-sqllogs := db.SqlLogs()
-lastsql := db.LastSql()
+sqllogs := db.SqlLogs
+lastsql := db.LastSql
 ```
 
 ## json返回

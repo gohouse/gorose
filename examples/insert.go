@@ -28,7 +28,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(db.LastSql())
+
 	fmt.Printf("RowsAffected: %d \n", User.RowsAffected)
 	fmt.Printf("LastInsertId: %d", User.LastInsertId)
 }

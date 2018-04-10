@@ -27,6 +27,4 @@ func main() {
 	res3, _ := db.Query("select id from users where id=?", 1)
 
 	fmt.Println(res3)
-	fmt.Println(db.SqlLogs())
-	fmt.Println(db.LastSql())
 }
