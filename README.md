@@ -127,6 +127,10 @@ MIT
 
 ### release notes
 
+> 0.9.0  
+
+- new seperate db instance
+
 > 0.8.2  
 
 - improve config format, new config format support file config like json/toml etc.
