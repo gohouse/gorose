@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
@@ -63,12 +64,20 @@ func ParseStr(data interface{}) string {
 		return strconv.Itoa(data.(int))
 	case int64:
 		return strconv.FormatInt(data.(int64), 10)
+	case int32:
+		return strconv.FormatInt(int64(data.(int32)), 10)
+	case uint32:
+		return strconv.FormatUint(uint64(data.(uint32)), 10)
+	case uint64:
+		return strconv.FormatUint(data.(uint64), 10)
 	case float32:
 		return strconv.FormatFloat(float64(data.(float32)), 'f', -1, 32)
 	case float64:
 		return strconv.FormatFloat(data.(float64), 'f', -1, 64)
 	case string:
 		return data.(string)
+	case time.Time:
+		return data.(time.Time).Format("2006-01-02 15:04:05")
 	default:
 		return ""
 	}
