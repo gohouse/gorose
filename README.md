@@ -127,6 +127,10 @@ MIT
 
 ### release notes
 
+> 0.9.1  
+
+- replace the insert result lastInsertId with rowsAffected as default
+
 > 0.9.0  
 
 - new seperate db instance

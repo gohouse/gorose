@@ -270,8 +270,8 @@ insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
 > get RowsAffected or LastInsertId  
-    - RowsAffected: User.RowsAffected  
-    - LastInsertId(default return is): User.LastInsertId    
+    - LastInsertId: User.LastInsertId    
+    - RowsAffected(default, or you can use the method like): User.RowsAffected  
 
 - delete  
 ```go

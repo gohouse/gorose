@@ -290,8 +290,8 @@ insert into user (age, job) values (17, 'it3')
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
 > 获取影响行数和插入id  
-    - 获取影响行数: User.RowsAffected  
-    - 获取最后插入id(默认返回, 也可以通过此方法获取): User.LastInsertId  
+    - 获取最后插入id: User.LastInsertId  
+    - 获取影响行数(默认返回, 也可以通过此方法获取): User.RowsAffected  
 
 - delete   
  

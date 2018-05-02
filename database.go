@@ -642,12 +642,14 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 
 	switch operType {
 	case "insert":
+		// get last insert id
+		lastInsertId, err := result.LastInsertId()
+		if err==nil{
+			dba.LastInsertId = int(lastInsertId)
+		}
 		// get rows affected
 		rowsAffected, err = result.RowsAffected()
 		dba.RowsAffected = int(rowsAffected)
-		// get last insert id
-		rowsAffected, err = result.LastInsertId()
-		dba.LastInsertId = int(rowsAffected)
 	case "update":
 		rowsAffected, err = result.RowsAffected()
 	case "delete":
