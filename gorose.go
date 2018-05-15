@@ -256,5 +256,3 @@ func (conn *Connection) JsonEncode(arg interface{}) string {
 func GetDB() *sql.DB {
 	return DB
 }
-
-		println(err)
