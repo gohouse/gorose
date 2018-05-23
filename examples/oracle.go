@@ -8,13 +8,15 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "oracle_dev")
+	connection, err := gorose.Open(config.DbConfig, "oracle_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
+
+	db := connection.GetInstance()
 
 	//res := db.Table("users").First()
 	//fmt.Println(res)
@@ -25,6 +27,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println(db.LastSql)
 	fmt.Println(db.JsonEncode(res2))
 
 }
