@@ -73,7 +73,7 @@ type Connection struct {
 
 // Parse input config
 func (conn *Connection) parseConfig(args interface{}) error {
-	if confReal, ok := args.(map[string]string); ok {	// direct connection
+	if confReal, ok := args.(map[string]string); ok { // direct connection
 		Connect.CurrentConfig = confReal
 	} else if confReal, ok := args.(map[string]interface{}); ok {
 		// store the full connection
@@ -151,12 +151,11 @@ func (conn *Connection) boot() error {
 
 	// 开始驱动
 	DB, err = sql.Open(driver, dsn)
-	DB.SetMaxOpenConns(conn.SetMaxOpenConns)
-	DB.SetMaxIdleConns(conn.SetMaxIdleConns)
-
 	if err != nil {
 		return err
 	}
+	DB.SetMaxOpenConns(conn.SetMaxOpenConns)
+	DB.SetMaxIdleConns(conn.SetMaxIdleConns)
 
 	// 检查是否可以ping通
 	err2 := DB.Ping()
