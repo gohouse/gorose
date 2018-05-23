@@ -113,7 +113,6 @@ func main() {
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 }
-
 ```
 For more usage, please read the Documentation.
 
