@@ -193,7 +193,7 @@ db.Query(&quot;select * from user where name = ?&quot;, &quot;fizz&quot;)
     Where(&quot;id&quot;,&quot;&gt;&quot;,1).  // simple where
     Where(&quot;head = 3 or rate is not null&quot;).  // where string
     Where(map[string]interface{}{&quot;name&quot;:&quot;fizzday&quot;, &quot;age&quot;:18}).  // where object
-    Where([]interface{}{ {&quot;website&quot;, &quot;like&quot;, &quot;%fizz%&quot;}, {&quot;job&quot;, &quot;it&quot;} }).    // multi where
+    Where([][]interface{}{ {&quot;website&quot;, &quot;like&quot;, &quot;%fizz%&quot;}, {&quot;job&quot;, &quot;it&quot;} }).    // multi where
     Where(&quot;head = 3 or rate is not null&quot;).  // where string
     OrWhere(&quot;cash&quot;, &quot;1000000&quot;). // or where ...
     OrWhere(&quot;score&quot;, &quot;between&quot;, []string{50, 80}).  // between
