@@ -470,46 +470,47 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 // parseParams : 将where条件中的参数转换为where条件字符串
 func (dba *Database) parseParams(args []interface{}) (string, error) {
 	paramsLength := len(args)
+	argsReal := args
 
 	// 存储当前所有数据的数组
 	var paramsToArr []string
 
 	switch paramsLength {
 	case 3: // 常规3个参数:  {"id",">",1}
-		if !utils.InArray(args[1], regex) {
+		if !utils.InArray(argsReal[1], regex) {
 			return "", errors.New("where parameter is wrong")
 		}
 
-		paramsToArr = append(paramsToArr, args[0].(string))
-		paramsToArr = append(paramsToArr, args[1].(string))
+		paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
-		switch args[1] {
+		switch argsReal[1] {
 		case "like":
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(args[2])))
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
 		case "not like":
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(args[2])))
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
 		case "in":
-			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
+			paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
 		case "not in":
-			paramsToArr = append(paramsToArr, "("+utils.Implode(args[2], ",")+")")
+			paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
 		case "between":
-			tmpB := args[2].([]string)
+			tmpB := argsReal[2].([]string)
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
 		case "not between":
-			tmpB := args[2].([]string)
+			tmpB := argsReal[2].([]string)
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
 		default:
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[2]))
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[2]))
 		}
 	case 2:
 		//if !utils.TypeCheck(args[0], "string") {
 		//	panic("where条件参数有误!")
 		//}
-		paramsToArr = append(paramsToArr, args[0].(string))
+		fmt.Println(argsReal)
+		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, "=")
-		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(args[1]))
+		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[1]))
 	}
-
 	return strings.Join(paramsToArr, " "), nil
 }
 
@@ -593,13 +594,13 @@ func (dba *Database) parseWhere() (string, error) {
 					whereMoreLength := len(arr)
 					switch whereMoreLength {
 					case 3:
-						res, err := dba.parseParams(params)
+						res, err := dba.parseParams(arr)
 						if err != nil {
 							return res, err
 						}
 						whereMore = append(whereMore, res)
 					case 2:
-						res, err := dba.parseParams(params)
+						res, err := dba.parseParams(arr)
 						if err != nil {
 							return res, err
 						}
