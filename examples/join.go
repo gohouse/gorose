@@ -8,16 +8,18 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
+
+	db := connection.GetInstance()
 
 	user, err := db.Table("users a").
-		Join("area b", "a.id", "=", "b.uid").
+		LeftJoin("area b", "a.id", "=", "b.uid").
 		Where("a.id", ">", 1).
 		Get()
 
@@ -26,6 +28,7 @@ func main() {
 		return
 	}
 
+	fmt.Println(db.LastSql)
 	fmt.Println(user)
 
 	// return json
