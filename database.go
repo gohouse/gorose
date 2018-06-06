@@ -862,9 +862,8 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 //	return Connect.SqlLog
 //}
 //
-/**
- * simple transaction
- */
+
+// Transaction : is a simple usage of trans
 func (dba *Database) Transaction(closure func() (error)) bool {
 	//defer func() {
 	//	if err := recover(); err != nil {
