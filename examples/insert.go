@@ -8,27 +8,28 @@ import (
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// close DB
-	defer db.Close()
+	defer connection.Close()
+
+	db := connection.GetInstance()
 
 	data := map[string]interface{}{
 		"age":  17,
 		"job":  "it2",
 		"name": "fizz4",
 	}
-	User := db.Table("users")
-	res, err := User.Data(data).Insert()
+	res, err := db.Table("users").Data(data).Insert()
 	fmt.Println(res)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("RowsAffected: %d \n", User.RowsAffected)
-	fmt.Printf("LastInsertId: %d", User.LastInsertId)
+	fmt.Printf("RowsAffected: %d \n", db.RowsAffected)
+	fmt.Printf("LastInsertId: %d", db.LastInsertId)
 }
