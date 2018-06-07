@@ -144,18 +144,70 @@ func Empty(arg interface{}) bool {
 	}
 }
 
+type ApiReturn struct {
+	Data interface{}
+	Code int
+	Msg  interface{}
+	Ext  interface{}
+}
+func SuccessReturn(args ...interface{}) *ApiReturn {
+	data := &ApiReturn{
+		Msg: "success",
+	}
+
+	argsLength := len(args)
+	switch argsLength {
+	case 0:
+		data.Data = "success"
+		data.Code = http.StatusOK
+	case 1:
+		// 正确的返回数据
+		data.Data = args[0]
+		data.Code = http.StatusOK
+	case 2:
+		switch args[1].(type) {
+		case int:
+			data.Data = args[0]
+			data.Code = args[1].(int)
+		case string:
+			data.Data = args[0]
+			code, _ := strconv.Atoi(args[1].(string))
+			data.Code = code
+		default:
+			panic("调用返回的状态值应该为int类型")
+		}
+	case 3:
+		switch args[1].(type) {
+		case int:
+			data.Data = args[0]
+			data.Code = args[1].(int)
+		case string:
+			data.Data = args[0]
+			code, _ := strconv.Atoi(args[1].(string))
+			data.Code = code
+		default:
+			panic("调用返回的状态值应该为int类型")
+		}
+		data.Ext = args[2]
+	default:
+		panic("调用返回的参数有wu")
+	}
+
+	return data
+}
+
 // SuccessReturn : 接口成功返回
-// args: 传入的值,可接收1~3个值,第一个值是返回的数据,第二个值是状态码,第三个值是附加额外数据.
+// args: 传入的值,可接收1~3个值,第一个值是返回的数据,第二个值是状态码(默认200),第三个值是附加额外数据.
 // 		这里第二个值默认缺省为200(成功), 第三个值默认缺省为空
 // example: SuccessReturn([]map[string]interface{{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}}, 200, map[string]int{"page":1,"total":93,"limit":10})
 // return: {"data":[{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}], "status":200, "ext":{"page":1,"total":93,"limit":10}}
-func SuccessReturn(args ...interface{}) interface{} {
+func SuccessReturn2(args ...interface{}) interface{} {
 	argsLength := len(args)
 
 	//var w http.ResponseWriter
 	var data = make(map[string]interface{})
 
-	data["msg"] = "success"
+	//data["msg"] = "success"
 
 	if argsLength > 0 {
 		data["data"] = args[0]
@@ -175,6 +227,9 @@ func SuccessReturn(args ...interface{}) interface{} {
 		case int:
 			//w.WriteHeader(args[1].(int))
 			data["status"] = args[1].(int)
+			if (args[1].(int) < 300) {
+				data["msg"] = "success"
+			}
 		case string:
 			//w.WriteHeader(http.StatusOK)
 			data["status"] = http.StatusOK
@@ -186,6 +241,9 @@ func SuccessReturn(args ...interface{}) interface{} {
 		case int:
 			//w.WriteHeader(args[1].(int))
 			data["status"] = args[1].(int)
+			if (args[1].(int) < 300) {
+				data["msg"] = "success"
+			}
 		case string:
 			//w.WriteHeader(http.StatusOK)
 			data["status"] = http.StatusOK
@@ -201,14 +259,63 @@ func SuccessReturn(args ...interface{}) interface{} {
 }
 
 // FailReturn : 接口失败返回
-func FailReturn(args ...interface{}) interface{} {
+// 可接收1~3个值,第一个值是返回的数据,第二个值是状态码(默认204),第三个值是附加额外数据.
+func FailReturn(args ...interface{}) *ApiReturn {
+	data := &ApiReturn{
+		Msg: "fail",
+	}
+
+	argsLength := len(args)
+	switch argsLength {
+	case 0:
+		data.Data = "fail"
+		data.Code = http.StatusNoContent
+	case 1:
+		// 正确的返回数据
+		data.Data = args[0]
+		data.Msg = args[0]
+		data.Code = http.StatusNoContent
+	case 2:
+		data.Msg = args[0]
+		data.Data = args[0].(string)
+		switch args[1].(type) {
+		case int:
+			data.Code = args[1].(int)
+		case string:
+			code, _ := strconv.Atoi(args[1].(string))
+			data.Code = code
+		default:
+			panic("调用返回的状态值应该为int类型")
+		}
+	case 3:
+		data.Msg = args[0]
+		data.Data = args[0]
+		switch args[1].(type) {
+		case int:
+			data.Code = args[1].(int)
+		case string:
+			code, _ := strconv.Atoi(args[1].(string))
+			data.Code = code
+		default:
+			panic("调用返回的状态值应该为int类型")
+		}
+		data.Ext = args[2]
+	default:
+		panic("调用返回的参数有wu")
+	}
+
+	return data
+}
+func FailReturn2(args ...interface{}) interface{} {
 	var data []interface{}
 	argsLength := len(args)
+	// 记录错误消息,没有内容时, 默认为fail
 	if argsLength == 0 {
 		data = append(data, "fail")
 	} else {
 		data = append(data, args[0])
 	}
+	// 记录状态码
 	switch argsLength {
 	case 0:
 		data = append(data, http.StatusNoContent)
