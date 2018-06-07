@@ -238,3 +238,18 @@ func FailReturn(args ...interface{}) interface{} {
 
 	return SuccessReturn(data...)
 }
+
+func ArrayReverse(arr []map[string]interface{}) ([]map[string]interface{}, error) {
+	lenArr := len(arr)
+	if lenArr == 0 {
+		return arr,nil
+	}
+
+	var newArr []map[string]interface{}
+
+	for i := lenArr - 1; i >= 0; i-- {
+		newArr = append(newArr, arr[i])
+	}
+
+	return newArr, nil
+}
