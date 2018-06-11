@@ -30,6 +30,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("RowsAffected: %d \n", db.RowsAffected)
+	fmt.Printf("RowsAffected: %d \n", res)
 	fmt.Printf("LastInsertId: %d", db.LastInsertId)
 }
