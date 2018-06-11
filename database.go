@@ -426,7 +426,7 @@ func (dba *Database) buildData() (string, string, string) {
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
 
-	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
+	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, "")
 }
 
 // buildUnion : build union select
