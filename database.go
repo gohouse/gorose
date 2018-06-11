@@ -385,13 +385,15 @@ func (dba *Database) buildData() (string, string, string) {
 	switch data.(type) {
 	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
 		datas := data.([]map[string]interface{})
+		for key, _ := range datas[0] {
+			if utils.InArray(key, dataFields) == false {
+				dataFields = append(dataFields, key)
+			}
+		}
 		for _, item := range datas {
 			var dataValuesSub []string
-			for key, val := range item {
-				if utils.InArray(key, dataFields) == false {
-					dataFields = append(dataFields, key)
-				}
-				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			for _, key := range dataFields {
+				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
