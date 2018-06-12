@@ -131,23 +131,12 @@ func (conn *Connection) parseConfig(args interface{}) error {
 
 // Boot sql driver
 func (conn *Connection) boot() error {
-	dbObj := Connect.CurrentConfig
+	//dbObj := Connect.CurrentConfig
 	var driver, dsn string
 	var err error
 
 	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
-	switch dbObj["driver"] {
-	case "mysql":
-		driver, dsn = drivers.MySQL(dbObj)
-	case "sqlite3":
-		driver, dsn = drivers.Sqlite3(dbObj)
-	case "postgres":
-		driver, dsn = drivers.Postgres(dbObj)
-	case "oracle":
-		driver, dsn = drivers.Oracle(dbObj)
-	case "mssql":
-		driver, dsn = drivers.MsSQL(dbObj)
-	}
+	driver,dsn = drivers.GetDsnByDriverName(Connect.CurrentConfig)
 
 	// 开始驱动
 	DB, err = sql.Open(driver, dsn)

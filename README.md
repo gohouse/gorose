@@ -116,10 +116,6 @@ func main() {
 ```
 For more usage, please read the Documentation.
 
-### License
-
-MIT
-
 ### Contribution
 
 - [Issues](https://github.com/gohouse/gorose/issues)
@@ -157,3 +153,7 @@ MIT
 - adjust dir for open source standard  
 - add glide version control  
 - translate for english and chinese docment  
+
+### License
+
+MIT
