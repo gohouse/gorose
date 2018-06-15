@@ -630,7 +630,9 @@ func (dba *Database) parseWhere() (string, error) {
 		}
 	}
 
-	return strings.TrimLeft(strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and"), "or"), nil
+	return strings.TrimLeft(strings.TrimLeft(
+			strings.Trim(strings.Join(where, " "), " "),
+			"and"), "or"), nil
 }
 
 // parseExecute : parse execute condition
