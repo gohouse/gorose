@@ -116,14 +116,18 @@ func main() {
 ```
 For more usage, please read the Documentation.
 
-### License
-
-MIT
-
 ### Contribution
 
 - [Issues](https://github.com/gohouse/gorose/issues)
 - [Pull requests](https://github.com/gohouse/gorose/pulls)
+
+### Contributors
+
+- `fizzday` : Initiator(发起人)  
+- `wuyumin` : pursuing the open source standard(推行开源标准规划)  
+- `holdno`  : official website builder(官方网站搭建)  
+- `LazyNeo` : bug fix and improve source code(bug修复和改进源码)  
+- `dmhome`  : improve source code(改进源码)  
 
 ### release notes
 
@@ -149,3 +153,7 @@ MIT
 - adjust dir for open source standard  
 - add glide version control  
 - translate for english and chinese docment  
+
+### License
+
+MIT

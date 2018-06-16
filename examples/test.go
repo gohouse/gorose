@@ -34,5 +34,4 @@ func main() {
 	fmt.Println(lid)
 	fmt.Println(db.LastSql)
 	fmt.Println(db.LastInsertId)
-	fmt.Println(db.RowsAffected)
 }

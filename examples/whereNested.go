@@ -18,18 +18,15 @@ func main() {
 
 	db := connection.GetInstance()
 
-	data := map[string]interface{}{
-		"age":  17,
-		"job":  "it2",
-		"name": "fizz4",
-	}
-	res, err := db.Table("users").Data(data).Insert()
-	fmt.Println(res)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	User := db.Table("users")
 
-	fmt.Printf("RowsAffected: %d \n", res)
-	fmt.Printf("LastInsertId: %d", db.LastInsertId)
+	res,_ := User.Where("id", ">", 1).Where(func() {
+		User.OrWhere("name", "fizz").OrWhere(func() {
+			User.Where("name", "fizz2").Where(func() {
+				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+			})
+		})
+	}).Where("job", "it").First()
+	fmt.Println(db.LastSql)
+	fmt.Println(res)
 }

@@ -29,27 +29,26 @@ var (
 
 // Database is data mapper struct
 type Database struct {
-	table    string          // table
-	fields   string          // fields
-	where    [][]interface{} // where
-	order    string          // order
-	limit    int             // limit
-	offset   int             // offset
-	join     [][]interface{} // join
-	distinct bool            // distinct
-	count    string          // count
-	sum      string          // sum
-	avg      string          // avg
-	max      string          // max
-	min      string          // min
-	group    string          // group
-	having   string          // having
-	data     interface{}     // data
-	RowsAffected int		// insert affected rows
-	LastInsertId int		// insert last insert id
-	trans    bool
-	SqlLogs  []string
-	LastSql  string
+	table        string          // table
+	fields       string          // fields
+	where        [][]interface{} // where
+	order        string          // order
+	limit        int             // limit
+	offset       int             // offset
+	join         [][]interface{} // join
+	distinct     bool            // distinct
+	count        string          // count
+	sum          string          // sum
+	avg          string          // avg
+	max          string          // max
+	min          string          // min
+	group        string          // group
+	having       string          // having
+	data         interface{}     // data
+	LastInsertId int64           // insert last insert id
+	trans        bool
+	SqlLogs      []string
+	LastSql      string
 }
 
 // Fields : select fields
@@ -228,7 +227,7 @@ func (dba *Database) Value(arg string) (interface{}, error) {
 // Count : select count rows
 func (dba *Database) Count(args ...interface{}) (int, error) {
 	fields := "*"
-	if len(args) >0 {
+	if len(args) > 0 {
 		fields = utils.ParseStr(args[0])
 	}
 	res, err := dba.buildUnion("count", fields)
@@ -631,33 +630,30 @@ func (dba *Database) parseWhere() (string, error) {
 		}
 	}
 
-	return strings.TrimLeft(strings.Trim(strings.Join(where, " "), " "), "and"), nil
+	return strings.TrimLeft(strings.TrimLeft(
+			strings.Trim(strings.Join(where, " "), " "),
+			"and"), "or"), nil
 }
 
 // parseExecute : parse execute condition
 func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interface{}) (int64, error) {
 	var rowsAffected int64
 	var err error
+	defer stmt.Close()
 	result, errs := stmt.Exec(vals...)
 	if errs != nil {
 		return 0, errs
 	}
 
-	switch operType {
-	case "insert":
+	if operType == "insert" {
 		// get last insert id
 		lastInsertId, err := result.LastInsertId()
-		if err==nil{
-			dba.LastInsertId = int(lastInsertId)
+		if err == nil {
+			dba.LastInsertId = lastInsertId
 		}
-		// get rows affected
-		rowsAffected, err = result.RowsAffected()
-		dba.RowsAffected = int(rowsAffected)
-	case "update":
-		rowsAffected, err = result.RowsAffected()
-	case "delete":
-		rowsAffected, err = result.RowsAffected()
 	}
+	// get rows affected
+	rowsAffected, err = result.RowsAffected()
 
 	return rowsAffected, err
 }
@@ -829,8 +825,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 			}
 		}
 	}
-	// 记录sqllog
-	//Connect.SqlLog = append(Connect.SqlLog, fmt.Sprintf(sqlstring, vals...))
+	// 记录sqlLog
 	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
 	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
@@ -839,31 +834,19 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 		return 0, errors.New("this method does not allow select operations, use Query")
 	}
 
+	var stmt *sql.Stmt
+	var err error
 	if dba.trans == true {
-		stmt, err := tx.Prepare(sqlstring)
-		if err != nil {
-			return 0, err
-		}
-		return dba.parseExecute(stmt, operType, vals)
+		stmt, err = tx.Prepare(sqlstring)
+	} else {
+		stmt, err = DB.Prepare(sqlstring)
 	}
 
-	stmt, err := DB.Prepare(sqlstring)
 	if err != nil {
 		return 0, err
 	}
 	return dba.parseExecute(stmt, operType, vals)
 }
-
-//func (dba *Database) LastSql() string {
-//	if len(Connect.SqlLog) > 0 {
-//		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
-//	}
-//	return ""
-//}
-//func (dba *Database) SqlLogs() []string {
-//	return Connect.SqlLog
-//}
-//
 
 // Transaction : is a simple usage of trans
 func (dba *Database) Transaction(closure func() (error)) bool {
