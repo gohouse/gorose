@@ -507,7 +507,7 @@ func (dba *Database) parseParams(args []interface{}) (string, error) {
 		//if !utils.TypeCheck(args[0], "string") {
 		//	panic("where条件参数有误!")
 		//}
-		fmt.Println(argsReal)
+		//fmt.Println(argsReal)
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[1]))
@@ -551,8 +551,12 @@ func (dba *Database) parseJoin() (string, error) {
 	return strings.Join(returnJoinArr, " "), nil
 }
 
+var beforeParseWhereData [][]interface{}
 // parseWhere : parse where condition
 func (dba *Database) parseWhere() (string, error) {
+	if len(beforeParseWhereData)==0 {
+		beforeParseWhereData = dba.where
+	}
 	// 取出所有where
 	wheres := dba.where
 	// where解析后存放每一项的容器
@@ -629,6 +633,9 @@ func (dba *Database) parseWhere() (string, error) {
 			}
 		}
 	}
+
+	// 还原初始where, 以便后边调用
+	dba.where = beforeParseWhereData
 
 	return strings.TrimLeft(strings.TrimLeft(
 			strings.Trim(strings.Join(where, " "), " "),
