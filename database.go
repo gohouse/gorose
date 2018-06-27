@@ -27,6 +27,8 @@ var (
 //	return instance
 //}
 
+var beforeParseWhereData [][]interface{}
+
 // Database is data mapper struct
 type Database struct {
 	table        string          // table
@@ -315,6 +317,7 @@ func (dba *Database) buildQuery() (string, error) {
 	}
 	join := parseJoin
 	// where
+	beforeParseWhereData = dba.where
 	parseWhere, err := dba.parseWhere()
 	if err != nil {
 		return "", err
@@ -350,6 +353,8 @@ func (dba *Database) buildExecut(operType string) (string, error) {
 	if operType != "delete" {
 		update, insertkey, insertval = dba.buildData()
 	}
+
+	beforeParseWhereData = dba.where
 	res, err := dba.parseWhere()
 	if err != nil {
 		return res, err
@@ -551,12 +556,8 @@ func (dba *Database) parseJoin() (string, error) {
 	return strings.Join(returnJoinArr, " "), nil
 }
 
-var beforeParseWhereData [][]interface{}
 // parseWhere : parse where condition
 func (dba *Database) parseWhere() (string, error) {
-	if len(beforeParseWhereData)==0 {
-		beforeParseWhereData = dba.where
-	}
 	// 取出所有where
 	wheres := dba.where
 	// where解析后存放每一项的容器

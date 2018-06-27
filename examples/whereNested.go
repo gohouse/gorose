@@ -27,11 +27,11 @@ func main() {
 				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
 			})
 		})
-	}).Where("job", "it")
+	})
 	res,_ := User.First()
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
-	res2,_ := User.First()
+	res2,_ := User.Where("job", "it").First()
 	fmt.Println(db.LastSql)
 	fmt.Println(res2)
 }
