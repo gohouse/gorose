@@ -709,7 +709,7 @@ func (dba *Database) Delete() (int, error) {
 }
 
 func (dba *Database) Begin() {
-	tx, _ = DB.Begin()
+	tx, _ = Connect.DB.Begin()
 	dba.trans = true
 }
 func (dba *Database) Commit() {
@@ -773,7 +773,7 @@ func (dba *Database) Query(args ...interface{}) ([]map[string]interface{}, error
 	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
 	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
-	stmt, err := DB.Prepare(sqlstring)
+	stmt, err := Connect.DB.Prepare(sqlstring)
 	if err != nil {
 		return tableData, err
 	}
@@ -847,7 +847,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 	if dba.trans == true {
 		stmt, err = tx.Prepare(sqlstring)
 	} else {
-		stmt, err = DB.Prepare(sqlstring)
+		stmt, err = Connect.DB.Prepare(sqlstring)
 	}
 
 	if err != nil {

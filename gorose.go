@@ -7,18 +7,14 @@ import (
 )
 
 var (
-	// DB is origin DB
-	DB *sql.DB
-	// Tx is transaction DB
-	//Tx *sql.Tx
 	// Connect is the Connection Object
 	Connect Connection
-	//conn.SetMaxOpenConns int = 0
-	//conn.SetMaxIdleConns int = -1
 )
 
 // Connection is the database pre handle
 type Connection struct {
+	// DB is origin DB
+	DB *sql.DB
 	// all config sets
 	DbConfig map[string]interface{}
 	// default database
@@ -95,6 +91,16 @@ func (conn *Connection) parseConfig(args interface{}) error {
 			switch connectionsInterface.(type) {
 			case map[string]map[string]string:
 				connections = connectionsInterface.(map[string]map[string]string)
+			case map[string]interface{}:
+				connectionsTmp := connectionsInterface.(map[string]interface{})
+				if connectionsTmpReal, ok := connectionsTmp[Connect.Default]; ok {
+					switch connectionsTmpReal.(type) {
+					case map[string]string:
+						connections = map[string]map[string]string{Connect.Default: connectionsTmpReal.(map[string]string)}
+					default:
+						return errors.New("the database connections format error !")
+					}
+				}
 			default:
 				return errors.New("the database connections format error !")
 			}
@@ -139,15 +145,15 @@ func (conn *Connection) boot() error {
 	driver,dsn = drivers.GetDsnByDriverName(Connect.CurrentConfig)
 
 	// 开始驱动
-	DB, err = sql.Open(driver, dsn)
+	conn.DB, err = sql.Open(driver, dsn)
 	if err != nil {
 		return err
 	}
-	DB.SetMaxOpenConns(conn.SetMaxOpenConns)
-	DB.SetMaxIdleConns(conn.SetMaxIdleConns)
+	conn.DB.SetMaxOpenConns(conn.SetMaxOpenConns)
+	conn.DB.SetMaxIdleConns(conn.SetMaxIdleConns)
 
 	// 检查是否可以ping通
-	err2 := DB.Ping()
+	err2 := conn.DB.Ping()
 
 	return err2
 }
@@ -155,12 +161,12 @@ func (conn *Connection) boot() error {
 // Close database
 func (conn *Connection) Close() error {
 	//Connect.SqlLog = []string{}
-	return DB.Close()
+	return conn.DB.Close()
 }
 
 // Ping db
 func (conn *Connection) Ping() error {
-	return DB.Ping()
+	return conn.DB.Ping()
 }
 
 // Table is set table from database
@@ -242,6 +248,6 @@ func (conn *Connection) JsonEncode(arg interface{}) string {
 //}
 
 // GetDB is get origin *sql.DB
-func GetDB() *sql.DB {
-	return DB
+func (conn *Connection) GetDB() *sql.DB {
+	return conn.DB
 }
