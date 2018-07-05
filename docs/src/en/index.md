@@ -260,24 +260,30 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 
 #### more execute usage
 - insert  
+
 ```go
 res,err := User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
 res,err := User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
-parse sql result: 
+
+parse sql result:  
+
 ```go
-insert into user (age, job) values (17, 'it3')
+insert into user (age, job) values (17, 'it3')  
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
+
 > get RowsAffected or LastInsertId  
     - LastInsertId: User.LastInsertId    
     - RowsAffected(default, or you can use the method like): User.RowsAffected  
 
+
 - delete  
+
 ```go
 res,err := User.Where("id", 5).Delete()
 ```
-parse sql result: `delete from user where id=5`
+parse sql result: `delete from user where id=5`  
 
 ## transaction
 - standard using

@@ -638,9 +638,11 @@ func (dba *Database) parseWhere() (string, error) {
 	// 还原初始where, 以便后边调用
 	dba.where = beforeParseWhereData
 
-	return strings.TrimLeft(strings.TrimLeft(
+	return strings.TrimLeft(
+		strings.TrimLeft(strings.TrimLeft(
 			strings.Trim(strings.Join(where, " "), " "),
-			"and"), "or"), nil
+			"and"), "or"),
+			" "), nil
 }
 
 // parseExecute : parse execute condition

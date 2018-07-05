@@ -26,14 +26,14 @@ func main() {
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 
-	//var db2 = connection.GetInstance()
-	//res2, err := db2.Table("users").Limit(2).Get()
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//fmt.Println(res2)
-	//fmt.Println(db.JsonEncode(res2))
+	var db2 = connection.GetInstance()
+	res2, err := db2.Table("users").Limit(2).Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(res2)
+	fmt.Println(db.JsonEncode(res2))
 
 	//============== result ======================
 
