@@ -387,6 +387,8 @@ func (dba *Database) buildData() (string, string, string) {
 	data := dba.data
 
 	switch data.(type) {
+	case string:
+		dataObj = append(dataObj, data.(string))
 	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
 		datas := data.([]map[string]interface{})
 		for key, _ := range datas[0] {
@@ -708,6 +710,52 @@ func (dba *Database) Delete() (int, error) {
 		return 0, err
 	}
 	return int(res), nil
+}
+
+// Increment : auto Increment +1 default
+// we can define step (such as 2, 3, 6 ...) if give the second params
+// we can use this method as decrement with the third param as "-"
+func (dba *Database) Increment(args ...interface{}) (int, error) {
+	argLen := len(args)
+	var field string
+	var value string = "1"
+	var mode string = "+"
+	switch argLen {
+	case 1:
+		field = args[0].(string)
+	case 2:
+		field = args[0].(string)
+		switch args[1].(type) {
+		case int:
+			value = utils.ParseStr(args[1])
+		case string:
+			value = args[1].(string)
+		default:
+			return 0, errors.New("第二个参数类型错误")
+		}
+	case 3:
+		field = args[0].(string)
+		switch args[1].(type) {
+		case int:
+			value = utils.ParseStr(args[1])
+		case string:
+			value = args[1].(string)
+		default:
+			return 0, errors.New("第二个参数类型错误")
+		}
+		mode = args[2].(string)
+	default:
+		return 0, errors.New("参数数量只允许1个,2个或3个")
+	}
+	dba.Data(field+"="+field+mode+value)
+	return dba.Update()
+}
+
+// Decrement : auto Decrement -1 default
+// we can define step (such as 2, 3, 6 ...) if give the second params
+func (dba *Database) Decrement(args ...interface{}) (int, error) {
+	args = append(args, "-")
+	return dba.Increment(args...)
 }
 
 func (dba *Database) Begin() {

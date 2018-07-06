@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
@@ -59,6 +60,16 @@ func InArray(needle interface{}, hystack interface{}) bool {
 
 // ParseStr 转换为string
 func ParseStr(data interface{}) string {
+	switch data.(type) {
+	case time.Time:
+		return data.(time.Time).Format("2006-01-02 15:04:05")
+	default:
+		return fmt.Sprint(data)
+	}
+}
+
+// ParseStr 转换为string
+func ParseStr_bak(data interface{}) string {
 	switch data.(type) {
 	case int:
 		return strconv.Itoa(data.(int))
@@ -156,8 +167,8 @@ type ApiReturn struct {
 // 		这里第二个值默认缺省为200(成功), 第三个值默认缺省为空
 // example: SuccessReturn([]map[string]interface{{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}}, 200, map[string]int{"page":1,"total":93,"limit":10})
 // return: {"data":[{"id":1,"name":"fizz"},{"id":2,"name":"fizz2"}], "status":200, "ext":{"page":1,"total":93,"limit":10}}
-func SuccessReturn(args ...interface{}) *ApiReturn {
-	data := &ApiReturn{
+func SuccessReturn(args ...interface{}) ApiReturn {
+	data := ApiReturn{
 		Msg: "success",
 	}
 
@@ -207,8 +218,8 @@ func SuccessReturn(args ...interface{}) *ApiReturn {
 
 // FailReturn : 接口失败返回
 // 可接收1~3个值,第一个值是返回的数据,第二个值是状态码(默认204),第三个值是附加额外数据.
-func FailReturn(args ...interface{}) *ApiReturn {
-	data := &ApiReturn{
+func FailReturn(args ...interface{}) ApiReturn {
+	data := ApiReturn{
 		Msg: "fail",
 	}
 

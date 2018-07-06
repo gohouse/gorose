@@ -18,11 +18,12 @@ func main() {
 
 	db := connection.GetInstance()
 	fmt.Println(db)
-	res, err := db.Table("users").Where("id", ">", 2).First()
+	res, err := db.Table("users").Where("id", "<", 1).First()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println(len(res))
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 
