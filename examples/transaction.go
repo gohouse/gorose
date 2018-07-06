@@ -29,7 +29,7 @@ func main() {
 
 	db := connection.GetInstance()
 
-	trans := db.Transaction(func() error {
+	trans,err := db.Transaction(func() error {
 
 		res2, err2 := db.Table("users").Data(data2).Insert()
 		if err2 != nil {
@@ -52,5 +52,5 @@ func main() {
 		return nil
 	})
 
-	fmt.Println(trans)
+	fmt.Println(trans, err)
 }

@@ -465,7 +465,7 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 		return nil, err
 	}
 
-	dba.Reset()
+	dba.Reset("union")
 
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
 	return result[0][union], nil
@@ -667,6 +667,11 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 	// get rows affected
 	rowsAffected, err = result.RowsAffected()
 
+	// 如果是事务, 则重置所有参数
+	if dba.trans == true {
+		dba.Reset("transaction")
+	}
+
 	return rowsAffected, err
 }
 
@@ -754,7 +759,16 @@ func (dba *Database) Increment(args ...interface{}) (int, error) {
 // Decrement : auto Decrement -1 default
 // we can define step (such as 2, 3, 6 ...) if give the second params
 func (dba *Database) Decrement(args ...interface{}) (int, error) {
-	args = append(args, "-")
+	arglen := len(args)
+	switch arglen {
+	case 1:
+		args = append(args, 1)
+		args = append(args, "-")
+	case 2:
+		args = append(args, "-")
+	default:
+		return 0, errors.New("Decrement参数个数有误")
+	}
 	return dba.Increment(args...)
 }
 
@@ -772,27 +786,27 @@ func (dba *Database) Rollback() {
 }
 
 // Reset : reset union select
-func (dba *Database) Reset() {
-	//this = new(Database)
-	//dba.table = ""
-	//dba.fields = ""
-	//dba.where = [][]interface{}{}
-	//dba.order = ""
-	//dba.limit = 0
-	//dba.offset = 0
-	//dba.join = [][]interface{}{}
-	//dba.distinct = false
+func (dba *Database) Reset(source string) {
+	if source=="transaction" {
+		//this = new(Database)
+		dba.table = ""
+		dba.fields = ""
+		dba.where = [][]interface{}{}
+		dba.order = ""
+		dba.limit = 0
+		dba.offset = 0
+		dba.join = [][]interface{}{}
+		dba.distinct = false
+		dba.group = ""
+		dba.having = ""
+		var tmp interface{}
+		dba.data = tmp
+	}
 	dba.count = ""
 	dba.sum = ""
 	dba.avg = ""
 	dba.max = ""
 	dba.min = ""
-	//dba.group = ""
-	//dba.having = ""
-	//dba.trans = false
-	//
-	//var tmp interface{}
-	//dba.data = tmp
 }
 
 // JsonEncode : parse json
@@ -907,7 +921,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 }
 
 // Transaction : is a simple usage of trans
-func (dba *Database) Transaction(closure func() (error)) bool {
+func (dba *Database) Transaction(closure func() (error)) (bool,error) {
 	//defer func() {
 	//	if err := recover(); err != nil {
 	//		dba.Rollback()
@@ -919,9 +933,9 @@ func (dba *Database) Transaction(closure func() (error)) bool {
 	err := closure()
 	if err != nil {
 		dba.Rollback()
-		return false
+		return false,err
 	}
 	dba.Commit()
 
-	return true
+	return true,nil
 }
