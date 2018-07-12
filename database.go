@@ -546,6 +546,8 @@ func (dba *Database) parseJoin() (string, error) {
 		switch argsLength {
 		case 1:
 			w = args[0].(string)
+		case 2:
+			w = args[0].(string) + " ON " + args[1].(string)
 		case 4:
 			w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 		default:
@@ -644,7 +646,7 @@ func (dba *Database) parseWhere() (string, error) {
 		strings.TrimLeft(strings.TrimLeft(
 			strings.Trim(strings.Join(where, " "), " "),
 			"and"), "or"),
-			" "), nil
+		" "), nil
 }
 
 // parseExecute : parse execute condition
@@ -733,6 +735,12 @@ func (dba *Database) Increment(args ...interface{}) (int, error) {
 		switch args[1].(type) {
 		case int:
 			value = utils.ParseStr(args[1])
+		case int64:
+			value = utils.ParseStr(args[1])
+		case float32:
+			value = utils.ParseStr(args[1])
+		case float64:
+			value = utils.ParseStr(args[1])
 		case string:
 			value = args[1].(string)
 		default:
@@ -743,6 +751,12 @@ func (dba *Database) Increment(args ...interface{}) (int, error) {
 		switch args[1].(type) {
 		case int:
 			value = utils.ParseStr(args[1])
+		case int64:
+			value = utils.ParseStr(args[1])
+		case float32:
+			value = utils.ParseStr(args[1])
+		case float64:
+			value = utils.ParseStr(args[1])
 		case string:
 			value = args[1].(string)
 		default:
@@ -752,7 +766,7 @@ func (dba *Database) Increment(args ...interface{}) (int, error) {
 	default:
 		return 0, errors.New("参数数量只允许1个,2个或3个")
 	}
-	dba.Data(field+"="+field+mode+value)
+	dba.Data(field + "=" + field + mode + value)
 	return dba.Update()
 }
 
@@ -787,7 +801,7 @@ func (dba *Database) Rollback() {
 
 // Reset : reset union select
 func (dba *Database) Reset(source string) {
-	if source=="transaction" {
+	if source == "transaction" {
 		//this = new(Database)
 		dba.table = ""
 		dba.fields = ""
@@ -921,7 +935,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 }
 
 // Transaction : is a simple usage of trans
-func (dba *Database) Transaction(closure func() (error)) (bool,error) {
+func (dba *Database) Transaction(closure func() (error)) (bool, error) {
 	//defer func() {
 	//	if err := recover(); err != nil {
 	//		dba.Rollback()
@@ -933,9 +947,9 @@ func (dba *Database) Transaction(closure func() (error)) (bool,error) {
 	err := closure()
 	if err != nil {
 		dba.Rollback()
-		return false,err
+		return false, err
 	}
 	dba.Commit()
 
-	return true,nil
+	return true, nil
 }
