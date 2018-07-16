@@ -8,6 +8,10 @@ import (
 	"strings"
 	"time"
 	"fmt"
+	"regexp"
+	"math/rand"
+	"errors"
+	"net/url"
 )
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
@@ -189,7 +193,7 @@ func SuccessReturn(args ...interface{}) ApiReturn {
 		case string:
 			data.Data = args[0]
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code>0, code, http.StatusOK).(int)
+			data.Code = If(code > 0, code, http.StatusOK).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("SuccessReturn 调用返回的状态值应该为int类型")
@@ -202,7 +206,7 @@ func SuccessReturn(args ...interface{}) ApiReturn {
 		case string:
 			data.Data = args[0]
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code>0, code, http.StatusOK).(int)
+			data.Code = If(code > 0, code, http.StatusOK).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("SuccessReturn 调用返回的状态值应该为int类型")
@@ -241,7 +245,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code>0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusNoContent).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
@@ -254,7 +258,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code>0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusNoContent).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
@@ -270,7 +274,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 func ArrayReverse(arr []map[string]interface{}) ([]map[string]interface{}, error) {
 	lenArr := len(arr)
 	if lenArr == 0 {
-		return arr,nil
+		return arr, nil
 	}
 
 	var newArr []map[string]interface{}
@@ -280,4 +284,88 @@ func ArrayReverse(arr []map[string]interface{}) ([]map[string]interface{}, error
 	}
 
 	return newArr, nil
+}
+func Ip2long(ipstr string) (ip uint32) {
+	r := `^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})`
+	reg, err := regexp.Compile(r)
+	if err != nil {
+		return
+	}
+	ips := reg.FindStringSubmatch(ipstr)
+	if ips == nil {
+		return
+	}
+
+	ip1, _ := strconv.Atoi(ips[1])
+	ip2, _ := strconv.Atoi(ips[2])
+	ip3, _ := strconv.Atoi(ips[3])
+	ip4, _ := strconv.Atoi(ips[4])
+
+	if ip1 > 255 || ip2 > 255 || ip3 > 255 || ip4 > 255 {
+		return
+	}
+
+	ip += uint32(ip1 * 0x1000000)
+	ip += uint32(ip2 * 0x10000)
+	ip += uint32(ip3 * 0x100)
+	ip += uint32(ip4)
+
+	return
+}
+func Long2ip(ip uint32) string {
+	return fmt.Sprintf("%d.%d.%d.%d", ip>>24, ip<<8>>24, ip<<16>>24, ip<<24>>24)
+}
+func GetIp() string {
+	ipArr := [15][2]int{
+		{607649792, 608174079},
+		{975044608, 977272831},
+		{999751680, 999784447},
+		{1019346944, 1019478015},
+		{1038614528, 1039007743},
+		{1783627776, 1784676351},
+		{1947009024, 1947074559},
+		{1987051520, 1988034559},
+		{2035023872, 2035154943},
+		{2078801920, 2079064063},
+		{-1950089216, -1948778497},
+		{-1425539072, -1425014785},
+		{-1236271104, -1235419137},
+		{-770113536, -768606209},
+		{-569376768, -564133889},
+	}
+	randKey := rand.Intn(14)
+	ip := Long2ip(uint32(rand.Intn(ipArr[randKey][1]-ipArr[randKey][0]) + ipArr[randKey][0]));
+	return ip
+}
+
+func UrlQueryStrToMap(urlstr string) (map[string]interface{}, error) {
+	formData := make(map[string]interface{})
+	if len(urlstr) < 5 {
+		return formData, errors.New("url有误")
+	}
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		return formData, err
+	}
+
+	// 组装map
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return formData, err
+	}
+
+	if len(m) > 0 {
+		for k, v := range m {
+			if len(v) > 0 {
+				formData[k] = v[0]
+			} else {
+				formData[k] = ""
+			}
+		}
+	}
+
+	return formData, nil
+}
+func GetUrl()  {
+
 }

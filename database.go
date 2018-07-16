@@ -399,7 +399,11 @@ func (dba *Database) buildData() (string, string, string) {
 		for _, item := range datas {
 			var dataValuesSub []string
 			for _, key := range dataFields {
-				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+				if item[key] == nil {
+					dataValuesSub = append(dataValuesSub, "null")
+				} else {
+					dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+				}
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
@@ -409,7 +413,11 @@ func (dba *Database) buildData() (string, string, string) {
 		switch data.(type) {
 		case map[string]interface{}:
 			for key, val := range data.(map[string]interface{}) {
-				datas[key] = utils.ParseStr(val)
+				if val == nil {
+					datas[key] = "null"
+				} else {
+					datas[key] = utils.ParseStr(val)
+				}
 			}
 		case map[string]int:
 			for key, val := range data.(map[string]int) {
@@ -426,9 +434,19 @@ func (dba *Database) buildData() (string, string, string) {
 		for key, val := range datas {
 			// insert
 			dataFields = append(dataFields, key)
-			dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			if val == "null" {
+				dataValuesSub = append(dataValuesSub, "null")
+			} else {
+				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			}
 			// update
-			dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			if val == "null" {
+				dataObj = append(dataObj, key+"=null")
+			} else {
+				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			}
 		}
 		// insert
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
