@@ -131,6 +131,10 @@ For more usage, please read the Documentation.
 
 ### release notes
 
+> 0.9.2  
+
+- new connection pack for supporting multi connection
+
 > 0.9.1  
 
 - replace the insert result lastInsertId with rowsAffected as default
