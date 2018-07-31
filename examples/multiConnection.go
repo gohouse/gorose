@@ -7,7 +7,7 @@ import (
 	"github.com/gohouse/gorose"
 )
 
-var conn = make(map[string]*gorose.Connection)
+var conn = make(map[string]gorose.Connection)
 
 func init()  {
 	// 链接第一个
