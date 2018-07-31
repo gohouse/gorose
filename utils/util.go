@@ -366,6 +366,34 @@ func UrlQueryStrToMap(urlstr string) (map[string]interface{}, error) {
 
 	return formData, nil
 }
-func GetUrl()  {
 
+func ArrayKeys(arr map[string]interface{}) []string {
+	var tmp []string
+	if len(arr)>0 {
+		for k,_ := range arr {
+			tmp = append(tmp,k)
+		}
+	}
+	return tmp
+}
+
+func ArrayValues(arr map[string]interface{}) []interface{} {
+	var tmp []interface{}
+	if len(arr)>0 {
+		for _,v := range arr {
+			tmp = append(tmp,v)
+		}
+	}
+	return tmp
+}
+
+func StartWith(originStr string, sepStr string) bool {
+	if originStr!="" && sepStr!="" {
+		length := len(sepStr)
+		if strings.Trim(originStr, " ")[:length]==sepStr {
+			return true
+		}
+	}
+
+	return false
 }

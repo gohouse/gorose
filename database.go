@@ -31,6 +31,7 @@ var beforeParseWhereData [][]interface{}
 
 // Database is data mapper struct
 type Database struct {
+	connection   *Connection
 	table        string          // table
 	fields       string          // fields
 	where        [][]interface{} // where
@@ -309,7 +310,7 @@ func (dba *Database) buildQuery() (string, error) {
 	// fields
 	fields := utils.If(dba.fields == "", "*", dba.fields).(string)
 	// table
-	table := Connect.CurrentConfig["prefix"] + dba.table
+	table := dba.connection.CurrentConfig["prefix"] + dba.table
 	// join
 	parseJoin, err := dba.parseJoin()
 	if err != nil {
@@ -361,7 +362,7 @@ func (dba *Database) buildExecut(operType string) (string, error) {
 	}
 	where := utils.If(res == "", "", " WHERE "+res).(string)
 
-	tableName := Connect.CurrentConfig["prefix"] + dba.table
+	tableName := dba.connection.CurrentConfig["prefix"] + dba.table
 	switch operType {
 	case "insert":
 		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", tableName, insertkey, insertval)
@@ -486,7 +487,12 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 	dba.Reset("union")
 
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
-	return result[0][union], nil
+	if len(result) > 0 {
+		return result[0][union], nil
+	}
+
+	var tmp int64 = 0
+	return tmp, nil
 }
 
 /**
@@ -805,7 +811,7 @@ func (dba *Database) Decrement(args ...interface{}) (int, error) {
 }
 
 func (dba *Database) Begin() {
-	tx, _ = Connect.DB.Begin()
+	tx, _ = dba.connection.DB.Begin()
 	dba.trans = true
 }
 func (dba *Database) Commit() {
@@ -869,7 +875,7 @@ func (dba *Database) Query(args ...interface{}) ([]map[string]interface{}, error
 	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
 	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
-	stmt, err := Connect.DB.Prepare(sqlstring)
+	stmt, err := dba.connection.DB.Prepare(sqlstring)
 	if err != nil {
 		return tableData, err
 	}
@@ -943,7 +949,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 	if dba.trans == true {
 		stmt, err = tx.Prepare(sqlstring)
 	} else {
-		stmt, err = Connect.DB.Prepare(sqlstring)
+		stmt, err = dba.connection.DB.Prepare(sqlstring)
 	}
 
 	if err != nil {

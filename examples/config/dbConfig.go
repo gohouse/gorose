@@ -25,6 +25,17 @@ var DbConfig = map[string]interface{}{
 			"prefix":   "",                // 表前缀
 			"driver":   "mysql",           // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
 		},
+		"mysql_dev2": { // 定义名为 mysql_dev 的数据库配置
+			"host":     "192.168.200.248", // 数据库地址
+			"username": "gcore",           // 数据库用户名
+			"password": "gcore",           // 数据库密码
+			"port":     "3306",            // 端口
+			"database": "wcc_test",            // 链接的数据库名字
+			"charset":  "utf8",            // 字符集
+			"protocol": "tcp",             // 链接协议
+			"prefix":   "",                // 表前缀
+			"driver":   "mysql",           // 数据库驱动(mysql,sqlite,postgres,oracle,mssql)
+		},
 		"mssql_dev": {
 			"host":     "192.168.200.248",
 			"username": "gcore",

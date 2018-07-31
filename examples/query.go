@@ -18,7 +18,7 @@ func main() {
 
 	db := connection.GetInstance()
 
-	user, err := db.Query("select * from users where id>? limit ?", 1, 2)
+	user, err := db.Query("select count(*) as count from users where id>? limit ?", 1, 2)
 	if err != nil {
 		fmt.Println(err)
 		return

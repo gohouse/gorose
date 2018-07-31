@@ -4,11 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gohouse/gorose/drivers"
-)
-
-var (
-	// Connect is the Connection Object
-	Connect Connection
+	"kuaixinwen/utils"
 )
 
 // Connection is the database pre handle
@@ -31,57 +27,53 @@ type Connection struct {
 	SetMaxIdleConns int
 }
 
-func init() {
-	Connect.SetMaxOpenConns = 0
-	Connect.SetMaxIdleConns = -1
-}
-
 // Open instance of sql.DB.Oper
 // if args has 1 param , it will be derect connection or with default config set
 // if args has 2 params , the second param will be the default dirver key
-func Open(args ...interface{}) (Connection, error) {
+func Open(args ...interface{}) (*Connection, error) {
+	var conn = &Connection{}
 	//fmt.Println(args)
-	//return Connect, errors.New("dsf")
+	//return conn, errors.New("dsf")
 	if len(args) == 1 {
 		// continue
 	} else if len(args) == 2 {
 		if confReal, ok := args[1].(string); ok {
-			Connect.Default = confReal
+			conn.Default = confReal
 		} else {
 			// 指定默认数据库只能为字符串!
-			return Connect, errors.New("only str allowed of default database name")
+			return conn, errors.New("only str allowed of default database name")
 		}
 	} else {
 		// Open方法只接收1个或2个参数!
-		return Connect, errors.New("1 or 2 params need in Open() method")
+		return conn, errors.New("1 or 2 params need in Open() method")
 	}
 	// 解析config
-	err := Connect.parseConfig(args[0])
+	err := conn.parseConfig(args[0])
 	if err != nil {
-		return Connect, err
+		return conn, err
 	}
 
 	// 驱动数据库
-	errs := Connect.boot()
+	errs := conn.boot()
 
-	return Connect, errs
+	return conn, errs
 }
 
 // Parse input config
 func (conn *Connection) parseConfig(args interface{}) error {
 	if confReal, ok := args.(map[string]string); ok { // direct connection
-		Connect.CurrentConfig = confReal
+		conn.CurrentConfig = confReal
 	} else if confReal, ok := args.(map[string]interface{}); ok {
 		// store the full connection
-		Connect.DbConfig = confReal
+		conn.DbConfig = confReal
 		// if set the Default conf, store it
 		if defaultDb, ok := confReal["Default"]; ok {
 			// judge if seted
-			if Connect.Default == "" {
-				Connect.Default = defaultDb.(string)
+			if conn.Default == "" {
+				conn.Default = defaultDb.(string)
 			}
 		}
-		if Connect.Default == "" {
+		if conn.Default == "" {
 			// 配置文件默认数据库链接未设置
 			return errors.New("the default database is missing in config!")
 		}
@@ -93,10 +85,10 @@ func (conn *Connection) parseConfig(args interface{}) error {
 				connections = connectionsInterface.(map[string]map[string]string)
 			case map[string]interface{}:
 				connectionsTmp := connectionsInterface.(map[string]interface{})
-				if connectionsTmpReal, ok := connectionsTmp[Connect.Default]; ok {
+				if connectionsTmpReal, ok := connectionsTmp[conn.Default]; ok {
 					switch connectionsTmpReal.(type) {
 					case map[string]string:
-						connections = map[string]map[string]string{Connect.Default: connectionsTmpReal.(map[string]string)}
+						connections = map[string]map[string]string{conn.Default: connectionsTmpReal.(map[string]string)}
 					default:
 						return errors.New("the database connections format error !")
 					}
@@ -107,26 +99,23 @@ func (conn *Connection) parseConfig(args interface{}) error {
 		} else {
 			return errors.New("the database connections missing !")
 		}
-		if defaultDbConnection, ok := connections[Connect.Default]; ok {
-			Connect.CurrentConfig = defaultDbConnection
+		if defaultDbConnection, ok := connections[conn.Default]; ok {
+			conn.CurrentConfig = defaultDbConnection
 		} else {
 			// 指定的数据库链接不存在!
 			return errors.New("the database for using is missing!")
 		}
 		// 设置连接池信息
 		if mo, ok := confReal["SetMaxOpenConns"]; ok {
-			if moInt, ok := mo.(int); ok {
+			moInt := utils.ParseInt(mo)
+			if moInt>0 {
 				conn.SetMaxOpenConns = moInt
-			} else {
-				// 连接池信息配置的值只能是数字
-				return errors.New("the value of connection pool config need int")
 			}
 		}
 		if mi, ok := confReal["SetMaxIdleConns"]; ok {
-			if miInt, ok := mi.(int); ok {
+			miInt := utils.ParseInt(mi)
+			if miInt>0 {
 				conn.SetMaxIdleConns = miInt
-			} else {
-				return errors.New("the value of connection pool config need int")
 			}
 		}
 	} else {
@@ -137,20 +126,24 @@ func (conn *Connection) parseConfig(args interface{}) error {
 
 // Boot sql driver
 func (conn *Connection) boot() error {
-	//dbObj := Connect.CurrentConfig
+	//dbObj := conn.CurrentConfig
 	var driver, dsn string
 	var err error
 
 	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
-	driver,dsn = drivers.GetDsnByDriverName(Connect.CurrentConfig)
+	driver,dsn = drivers.GetDsnByDriverName(conn.CurrentConfig)
 
 	// 开始驱动
 	conn.DB, err = sql.Open(driver, dsn)
 	if err != nil {
 		return err
 	}
-	conn.DB.SetMaxOpenConns(conn.SetMaxOpenConns)
-	conn.DB.SetMaxIdleConns(conn.SetMaxIdleConns)
+	if conn.SetMaxOpenConns>0 {
+		conn.DB.SetMaxOpenConns(conn.SetMaxOpenConns)
+	}
+	if conn.SetMaxIdleConns>0 {
+		conn.DB.SetMaxIdleConns(conn.SetMaxIdleConns)
+	}
 
 	// 检查是否可以ping通
 	err2 := conn.DB.Ping()
@@ -160,7 +153,7 @@ func (conn *Connection) boot() error {
 
 // Close database
 func (conn *Connection) Close() error {
-	//Connect.SqlLog = []string{}
+	//conn.SqlLog = []string{}
 	return conn.DB.Close()
 }
 
@@ -177,19 +170,19 @@ func (conn *Connection) Table(table string) *Database {
 //// Begin transaction begin
 //func (conn *Connection) Begin() {
 //	Tx, _ = DB.Begin()
-//	Connect.Trans = true
+//	conn.Trans = true
 //}
 //
 //// Commit is transaction commit
 //func (conn *Connection) Commit() {
 //	Tx.Commit()
-//	Connect.Trans = false
+//	conn.Trans = false
 //}
 //
 //// Rollback is transaction rollback
 //func (conn *Connection) Rollback() {
 //	Tx.Rollback()
-//	Connect.Trans = false
+//	conn.Trans = false
 //}
 //
 //// Transaction is simple transaction
@@ -226,7 +219,7 @@ func (conn *Connection) Execute(args ...interface{}) (int64, error) {
 func (conn *Connection) GetInstance() *Database {
 	//var database *Database
 	//return database
-	return &Database{}
+	return &Database{connection:conn}
 }
 
 // JsonEncode : parse json
@@ -236,15 +229,15 @@ func (conn *Connection) JsonEncode(arg interface{}) string {
 
 //// LastSql is get last query sql
 //func (conn *Connection) LastSql() string {
-//	if len(Connect.SqlLog) > 0 {
-//		return Connect.SqlLog[len(Connect.SqlLog)-1:][0]
+//	if len(conn.SqlLog) > 0 {
+//		return conn.SqlLog[len(conn.SqlLog)-1:][0]
 //	}
 //	return ""
 //}
 //
 //// SqlLogs is all sql query logs in this request
 //func (conn *Connection) SqlLogs() []string {
-//	return Connect.SqlLog
+//	return conn.SqlLog
 //}
 
 // GetDB is get origin *sql.DB

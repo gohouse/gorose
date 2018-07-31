@@ -11,7 +11,7 @@ import (
 // go test -v
 // go test -test.bench=.
 
-var connection gorose.Connection
+var connection *gorose.Connection
 var err error
 
 func init() {
@@ -121,10 +121,10 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	}
 
 	// update
-	res2, err := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", res).Update()
+	res2, err := db.Table("users").Data(map[string]interface{}{"name": "fizz6", "age": 19}).Where("id", db.LastInsertId).Update()
 	if err != nil {
 		db.Rollback()
-		test.Error("FAIL: test failed.")
+		test.Error("FAIL: test failed.",db.LastSql)
 		return
 	}
 
@@ -132,11 +132,11 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 		test.Log("PASS: Update=", res2)
 	} else {
 		db.Rollback()
-		test.Error("FAIL: Update failed.")
+		test.Error("FAIL: test failed.",db.LastSql)
 	}
 
 	// delete
-	res3, err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", res).Delete()
+	res3, err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Where("id", db.LastInsertId).Delete()
 	if err != nil {
 		db.Rollback()
 		test.Error("FAIL: test failed.")
