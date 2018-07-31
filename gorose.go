@@ -30,8 +30,8 @@ type Connection struct {
 // Open instance of sql.DB.Oper
 // if args has 1 param , it will be derect connection or with default config set
 // if args has 2 params , the second param will be the default dirver key
-func Open(args ...interface{}) (*Connection, error) {
-	var conn = &Connection{}
+func Open(args ...interface{}) (Connection, error) {
+	var conn = Connection{}
 	//fmt.Println(args)
 	//return conn, errors.New("dsf")
 	if len(args) == 1 {

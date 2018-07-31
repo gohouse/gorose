@@ -11,7 +11,7 @@ import (
 // go test -v
 // go test -test.bench=.
 
-var connection *gorose.Connection
+var connection gorose.Connection
 var err error
 
 func init() {
