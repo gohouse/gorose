@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gohouse/gorose/drivers"
-	"kuaixinwen/utils"
+	"github.com/gohouse/gorose/utils"
 )
 
 // Connection is the database pre handle
