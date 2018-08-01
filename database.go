@@ -288,6 +288,25 @@ func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 	}
 }
 
+// Loop : select more data to piceses block from begin
+func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
+	dba.limit = limit
+	for {
+		// 查询当前区块的数据
+		sqls, _ := dba.buildQuery()
+		data, _ := dba.Query(sqls)
+		if len(data) == 0 {
+			break
+		}
+
+		callback(data)
+
+		if len(data) < limit {
+			break
+		}
+	}
+}
+
 // buildQuery : build query string
 func (dba *Database) buildQuery() (string, error) {
 	// 聚合
