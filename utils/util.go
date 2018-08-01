@@ -71,6 +71,20 @@ func ParseStr(data interface{}) string {
 		return fmt.Sprint(data)
 	}
 }
+func ParseInt(data interface{}) int{
+	dataType := GetType(data)
+	var res int
+	switch dataType {
+	case "string":
+		res,_ = strconv.Atoi(data.(string))
+	case "int":
+		res = data.(int)
+	default:
+		panic("只能转换字符串类型")
+	}
+
+	return res
+}
 
 // ParseStr 转换为string
 func ParseStr_bak(data interface{}) string {
