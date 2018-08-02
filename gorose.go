@@ -55,7 +55,7 @@ func Open(args ...interface{}) (Connection, error) {
 
 	// 驱动数据库
 	errs := conn.boot()
-
+//fmt.Println(conn)
 	return conn, errs
 }
 
@@ -166,44 +166,6 @@ func (conn *Connection) Ping() error {
 func (conn *Connection) Table(table string) *Database {
 	return conn.GetInstance().Table(table)
 }
-
-//// Begin transaction begin
-//func (conn *Connection) Begin() {
-//	Tx, _ = DB.Begin()
-//	conn.Trans = true
-//}
-//
-//// Commit is transaction commit
-//func (conn *Connection) Commit() {
-//	Tx.Commit()
-//	conn.Trans = false
-//}
-//
-//// Rollback is transaction rollback
-//func (conn *Connection) Rollback() {
-//	Tx.Rollback()
-//	conn.Trans = false
-//}
-//
-//// Transaction is simple transaction
-//func (conn *Connection) Transaction(closure func() error) bool {
-//	//defer func() {
-//	//	if err := recover(); err != nil {
-//	//		conn.Rollback()
-//	//		panic(err)
-//	//	}
-//	//}()
-//
-//	conn.Begin()
-//	err := closure()
-//	if err != nil {
-//		conn.Rollback()
-//		return false
-//	}
-//	conn.Commit()
-//
-//	return true
-//}
 
 // Query str
 func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {

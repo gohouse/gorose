@@ -165,7 +165,7 @@ func (dba *Database) First(args ...interface{}) (map[string]interface{}, error) 
 	//func (dba *Database) First() interface{} {
 	dba.limit = 1
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (dba *Database) First(args ...interface{}) (map[string]interface{}, error) 
 func (dba *Database) Get() ([]map[string]interface{}, error) {
 	//func (dba *Database) Get() interface{} {
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 		dba.offset = offset + step*limit
 
 		// 查询当前区块的数据
-		sqls, _ := dba.buildQuery()
+		sqls, _ := dba.BuildQuery()
 		data, _ := dba.Query(sqls)
 
 		if len(data) == 0 {
@@ -293,7 +293,7 @@ func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
 	dba.limit = limit
 	for {
 		// 查询当前区块的数据
-		sqls, _ := dba.buildQuery()
+		sqls, _ := dba.BuildQuery()
 		data, _ := dba.Query(sqls)
 		if len(data) == 0 {
 			break
@@ -307,8 +307,8 @@ func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
 	}
 }
 
-// buildQuery : build query string
-func (dba *Database) buildQuery() (string, error) {
+// BuildQuery : build query string
+func (dba *Database) BuildQuery() (string, error) {
 	// 聚合
 	unionArr := []string{
 		dba.count,
@@ -364,8 +364,8 @@ func (dba *Database) buildQuery() (string, error) {
 	return sqlstr, nil
 }
 
-// buildExecut : build execute query string
-func (dba *Database) buildExecut(operType string) (string, error) {
+// BuildExecut : build execute query string
+func (dba *Database) BuildExecut(operType string) (string, error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
@@ -492,7 +492,7 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 	}
 
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -722,7 +722,7 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 
 // Insert : insert data
 func (dba *Database) Insert() (int, error) {
-	sqlstr, err := dba.buildExecut("insert")
+	sqlstr, err := dba.BuildExecut("insert")
 	if err != nil {
 		return 0, err
 	}
@@ -736,7 +736,7 @@ func (dba *Database) Insert() (int, error) {
 
 // Update : update data
 func (dba *Database) Update() (int, error) {
-	sqlstr, err := dba.buildExecut("update")
+	sqlstr, err := dba.BuildExecut("update")
 	if err != nil {
 		return 0, err
 	}
@@ -750,7 +750,7 @@ func (dba *Database) Update() (int, error) {
 
 // Delete : delete data
 func (dba *Database) Delete() (int, error) {
-	sqlstr, err := dba.buildExecut("delete")
+	sqlstr, err := dba.BuildExecut("delete")
 	if err != nil {
 		return 0, err
 	}
