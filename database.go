@@ -307,6 +307,16 @@ func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
 	}
 }
 
+// BuildSql : build sql string , but not execute sql really
+// operType : select/insert/update/delete
+func (dba *Database) BuildSql(operType string) (string,error) {
+	if operType=="select"{
+		return dba.BuildQuery()
+	} else {
+		return dba.BuildExecut(operType)
+	}
+}
+
 // BuildQuery : build query string
 func (dba *Database) BuildQuery() (string, error) {
 	// 聚合
