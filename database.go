@@ -33,7 +33,7 @@ var beforeParseWhereData [][]interface{}
 type Database struct {
 	connection   *Connection
 	table        string          // table
-	fields       string          // fields
+	fields       []string          // fields
 	where        [][]interface{} // where
 	order        string          // order
 	limit        int             // limit
@@ -55,8 +55,25 @@ type Database struct {
 }
 
 // Fields : select fields
-func (dba *Database) Fields(fields string) *Database {
+func (dba *Database) Fields(fields ...string) *Database {
 	dba.fields = fields
+	return dba
+}
+
+// AddFields : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddFields method:
+func (dba *Database) AddFields(fields ...string) *Database {
+	dba.fields = append(dba.fields, fields...)
+	return dba
+}
+
+// Select : equals Fields()
+func (dba *Database) Select(fields ...string) *Database {
+	return dba.Fields(fields...)
+}
+
+// AddSelect : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddSelect method:
+func (dba *Database) AddSelect(fields ...string) *Database {
+	dba.fields = append(dba.fields, fields...)
 	return dba
 }
 
@@ -78,6 +95,11 @@ func (dba *Database) Group(group string) *Database {
 	return dba
 }
 
+// GroupBy : equals Group()
+func (dba *Database) GroupBy(group string) *Database {
+	return dba.Group(group)
+}
+
 // Having : select having
 func (dba *Database) Having(having string) *Database {
 	dba.having = having
@@ -90,6 +112,11 @@ func (dba *Database) Order(order string) *Database {
 	return dba
 }
 
+// OrderBy : equal order
+func (dba *Database) OrderBy(order string) *Database {
+	return dba.Order(order)
+}
+
 // Limit : select limit
 func (dba *Database) Limit(limit int) *Database {
 	dba.limit = limit
@@ -100,6 +127,16 @@ func (dba *Database) Limit(limit int) *Database {
 func (dba *Database) Offset(offset int) *Database {
 	dba.offset = offset
 	return dba
+}
+
+// Take : select limit
+func (dba *Database) Take(limit int) *Database {
+	return dba.Limit(limit)
+}
+
+// Skip : select offset
+func (dba *Database) Skip(offset int) *Database {
+	return dba.Offset(offset)
 }
 
 // Page : select page
@@ -128,8 +165,76 @@ func (dba *Database) OrWhere(args ...interface{}) *Database {
 	return dba
 }
 
+// WhereNull : like where , where filed is null,
+func (dba *Database) WhereNull(arg string) *Database {
+	return dba.Where("arg", " is ", "null")
+}
+
+// WhereNotNull : like where , where filed is not null,
+func (dba *Database) WhereNotNull(arg string) *Database {
+	return dba.Where("arg", " is not ", "null")
+}
+
+// OrWhereNull : like WhereNull , the relation is or,
+func (dba *Database) OrWhereNull(arg string) *Database {
+	return dba.OrWhere("arg", " is ", "null")
+}
+
+// OrWhereNotNull : like WhereNotNull , the relation is or,
+func (dba *Database) OrWhereNotNull(arg string) *Database {
+	return dba.OrWhere("arg", " is not ", "null")
+}
+
+// WhereIn : a given column's value is contained within the given array
+func (dba *Database) WhereIn(field string, arr []interface{}) *Database {
+	return dba.Where(field, " in ", arr)
+}
+
+// WhereNotIn : the given column's value is not contained in the given array
+func (dba *Database) WhereNotIn(field string, arr []interface{}) *Database {
+	return dba.Where(field, " not in ", arr)
+}
+
+// OrWhereIn : as WhereIn, the relation is or
+func (dba *Database) OrWhereIn(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " in ", arr)
+}
+
+// OrWhereNotIn : as WhereNotIn, the relation is or
+func (dba *Database) OrWhereNotIn(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not in ", arr)
+}
+
+// WhereBetween : a column's value is between two values:
+func (dba *Database) WhereBetween(field string, arr []interface{}) *Database {
+	return dba.Where(field, " between ", arr)
+}
+
+// WhereNotBetween : a column's value lies outside of two values:
+func (dba *Database) WhereNotBetween(field string, arr []interface{}) *Database {
+	return dba.Where(field, " not between ", arr)
+}
+
+// OrWhereBetween : like WhereNull , the relation is or,
+func (dba *Database) OrWhereBetween(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not between ", arr)
+}
+
+// OrWhereNotBetween : like WhereNotNull , the relation is or,
+func (dba *Database) OrWhereNotBetween(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not in ", arr)
+}
+
 // Join : select join query
 func (dba *Database) Join(args ...interface{}) *Database {
+	//dba.parseJoin(args, "INNER")
+	dba.join = append(dba.join, []interface{}{"INNER", args})
+
+	return dba
+}
+
+// InnerJoin : equals join
+func (dba *Database) InnerJoin(args ...interface{}) *Database {
 	//dba.parseJoin(args, "INNER")
 	dba.join = append(dba.join, []interface{}{"INNER", args})
 
@@ -152,6 +257,22 @@ func (dba *Database) RightJoin(args ...interface{}) *Database {
 	return dba
 }
 
+// CrossJoin : like join , the relation is cross
+func (dba *Database) CrossJoin(args ...interface{}) *Database {
+	//dba.parseJoin(args, "RIGHT")
+	dba.join = append(dba.join, []interface{}{"CROSS", args})
+
+	return dba
+}
+
+// UnionJoin : like join , the relation is union
+func (dba *Database) UnionJoin(args ...interface{}) *Database {
+	//dba.parseJoin(args, "RIGHT")
+	dba.join = append(dba.join, []interface{}{"UNION", args})
+
+	return dba
+}
+
 // Distinct : select distinct
 func (dba *Database) Distinct() *Database {
 	dba.distinct = true
@@ -159,7 +280,7 @@ func (dba *Database) Distinct() *Database {
 	return dba
 }
 
-// First : select one row
+// First : Retrieving A Single Row / Column From A Table
 func (dba *Database) First(args ...interface{}) (map[string]interface{}, error) {
 	//var result map[string]interface{}
 	//func (dba *Database) First() interface{} {
@@ -215,7 +336,34 @@ func (dba *Database) Get() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-// Value : select one field's value
+// Pluck : Retrieving A List Of Column Values
+func (dba *Database) Pluck(args ...string) (interface{}, error) {
+	res,err := dba.Get()
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	switch len(args) {
+	case 1:
+		var pluckTmp []interface{}
+		for _,item:=range res {
+			pluckTmp = append(pluckTmp, item[args[0]])
+		}
+		return pluckTmp,nil
+	case 2:
+		var pluckTmp = make(map[interface{}]interface{})
+		for _,item:=range res {
+			pluckTmp[item[args[1]]] = item[args[0]]
+		}
+		return pluckTmp,nil
+	default:
+		return nil,errors.New("params error")
+	}
+}
+
+// Value : If you don't even need an entire row, you may extract a single value from a record using the  value method. This method will return the value of the column directly:
 func (dba *Database) Value(arg string) (interface{}, error) {
 	res, err := dba.First()
 	if err != nil {
@@ -337,7 +485,7 @@ func (dba *Database) BuildQuery() (string, error) {
 	// distinct
 	distinct := utils.If(dba.distinct, "distinct ", "")
 	// fields
-	fields := utils.If(dba.fields == "", "*", dba.fields).(string)
+	fields := utils.If(len(dba.fields) == 0, "*", strings.Join(dba.fields,",")).(string)
 	// table
 	table := dba.connection.CurrentConfig["prefix"] + dba.table
 	// join
@@ -730,7 +878,7 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 	return rowsAffected, err
 }
 
-// Insert : insert data
+// Insert : insert data and get affected rows
 func (dba *Database) Insert() (int, error) {
 	sqlstr, err := dba.BuildExecut("insert")
 	if err != nil {
@@ -742,6 +890,15 @@ func (dba *Database) Insert() (int, error) {
 		return 0, err
 	}
 	return int(res), nil
+}
+
+// insertGetId : insert data and get id
+func (dba *Database) InsertGetId() (int, error) {
+	_, err := dba.Insert()
+	if err != nil {
+		return 0, err
+	}
+	return int(dba.LastInsertId), nil
 }
 
 // Update : update data
@@ -857,7 +1014,7 @@ func (dba *Database) Reset(source string) {
 	if source == "transaction" {
 		//this = new(Database)
 		dba.table = ""
-		dba.fields = ""
+		dba.fields = []string{}
 		dba.where = [][]interface{}{}
 		dba.order = ""
 		dba.limit = 0
