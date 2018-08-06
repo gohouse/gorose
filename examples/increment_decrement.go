@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose/examples/config"
 	"github.com/gohouse/gorose"
+	"fmt"
 )
 
 func main() {
+
 	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
 	if err != nil {
 		fmt.Println(err)
@@ -18,18 +19,20 @@ func main() {
 
 	db := connection.GetInstance()
 
-	user, err := db.Query("select count(*) as count from users where id>? limit ?", 1, 2)
+	res, err := db.Table("users").Where("id", ">", 1).First()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	fmt.Println(db.LastSql)
-	fmt.Println(user)
+	fmt.Println(res)
 
-	// return json
-	//res2 := user.Limit(2).Get()
-	//fmt.Println(db.LastSql())
-	//fmt.Println(user)
 
+	db.Table("users").Where("id", 47).Decrement("age",2)
+
+	fmt.Println(db.LastSql)
+
+	res3, _ := db.Table("users").Where("id", ">", 1).First()
+	fmt.Println(res3)
 }

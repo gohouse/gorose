@@ -423,12 +423,12 @@ insert into user (age, job) values (17, 'it3') (17, 'it4')
 <pre><code class="language-go">db.Begin()
 
 res,err := db.Table(&quot;user&quot;).Where(&quot;id&quot;, 1).Data(map[string]interface{}{&quot;age&quot;:18}).Update()
-if err != nil || res == 0 {
+if (res == 0 || err!=nil) {
 	db.Rollback()
 }
 
 res2,err := db.Table(&quot;user&quot;).Data(map[string]interface{}{&quot;age&quot;:18}).Insert()
-if err != nil || res2 == 0 {
+if (res2 == 0 || err!=nil) {
 	db.Rollback()
 }
 
@@ -439,33 +439,33 @@ db.Commit()
 <li>简单用法, 用闭包实现, 自动开始,回滚和提交 事务<br /></li>
 </ul>
 
-<pre><code class="language-go">trans := db.Transaction(func() (error) {
+<pre><code class="language-go">trans,err := db.Transaction(func() (error) (bool,error) {
 	
     res1,err := db.Execute(&quot;update area set job='sadf' where id=14&quot;)
     if err!=nil {
-    	return err
+    	return false,err
     }
     if res1==0 {
-    	return errors.New(&quot;update failed&quot;)
+    	return false,errors.New(&quot;update failed&quot;)
     }
     
     res2,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Insert()
     if err!=nil {
-        return err
+        return false,err
     }
     if res2==0 {
-    	return errors.New(&quot;Insert failed&quot;)
+    	return false,errors.New(&quot;Insert failed&quot;)
     }
         
     res3,err := db.Table(&quot;area&quot;).Data(map[string]interface{}{&quot;names&quot;: &quot;fizz3&quot;, &quot;age&quot;: 3}).Where(&quot;id&quot;,10).Update()
     if err!=nil {
-        return err
+        return false,err
     }
     if res3==0 {
-    	return errors.New(&quot;Update failed&quot;)
+    	return false,errors.New(&quot;Update failed&quot;)
     }
     
-    return nil
+    return true,nil
 })
 </code></pre>
 

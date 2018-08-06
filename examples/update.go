@@ -13,6 +13,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
 	// close DB
 	defer connection.Close()
 
@@ -20,13 +21,14 @@ func main() {
 
 	data := map[string]interface{}{
 		"age":  17,
-		"job":  "it3",
+		"job":  "it33",
 		"name": "fizz5",
 	}
 	where := map[string]interface{}{
-		"id": 17,
+		"id": 75,
 	}
 
+	fmt.Println(db.Table("users").Data(data).Where(where).BuildExecut("update"))
 	res, err := db.Table("users").Data(data).Where(where).Update()
 	if err != nil {
 		fmt.Println(err)

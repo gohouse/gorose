@@ -308,12 +308,12 @@ User.Where("id", 5).Delete()
 db.Begin()
 
 res,err := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-if err != nil || res == 0 {
+if (res == 0 || err!=nil) {
 	db.Rollback()
 }
 
 res2,err := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if err != nil || res2 == 0 {
+if (res2 == 0 || err!=nil) {
 	db.Rollback()
 }
 
@@ -323,33 +323,33 @@ db.Commit()
 - 简单用法, 用闭包实现, 自动开始,回滚和提交 事务  
 
 ```go
-trans := db.Transaction(func() (error) {
+trans,err := db.Transaction(func() (error) (bool,error) {
 	
     res1,err := db.Execute("update area set job='sadf' where id=14")
     if err!=nil {
-    	return err
+    	return false,err
     }
     if res1==0 {
-    	return errors.New("update failed")
+    	return false,errors.New("update failed")
     }
     
     res2,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
     if err!=nil {
-        return err
+        return false,err
     }
     if res2==0 {
-    	return errors.New("Insert failed")
+    	return false,errors.New("Insert failed")
     }
         
     res3,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
     if err!=nil {
-        return err
+        return false,err
     }
     if res3==0 {
-    	return errors.New("Update failed")
+    	return false,errors.New("Update failed")
     }
     
-    return nil
+    return true,nil
 })
 ```
 

@@ -260,37 +260,43 @@ parse sql result: `update user set age=17, job='ite3' where (id=1) or (age>30)`
 
 #### more execute usage
 - insert  
+
 ```go
 res,err := User.Data(map[string]interface{}{"age":17, "job":"it3"}).Insert()
 res,err := User.Data([]map[string]interface{}{ {"age":17, "job":"it3"},{"age":17, "job":"it4"} }).Insert()
 ```
-parse sql result: 
+
+parse sql result:  
+
 ```go
-insert into user (age, job) values (17, 'it3')
+insert into user (age, job) values (17, 'it3')  
 insert into user (age, job) values (17, 'it3') (17, 'it4')
 ```
+
 > get RowsAffected or LastInsertId  
     - LastInsertId: User.LastInsertId    
     - RowsAffected(default, or you can use the method like): User.RowsAffected  
 
+
 - delete  
+
 ```go
 res,err := User.Where("id", 5).Delete()
 ```
-parse sql result: `delete from user where id=5`
+parse sql result: `delete from user where id=5`  
 
 ## transaction
 - standard using
 ```go
 db.Begin()
 
-res := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
-if (res == 0) {
+res,err := db.Table("user").Where("id", 1).Data(map[string]interface{}{"age":18}).Update()
+if (res == 0 || err!=nil) {
 	db.Rollback()
 }
 
 res2,err := db.Table("user").Data(map[string]interface{}{"age":18}).Insert()
-if (res2 == 0) {
+if (res2 == 0 || err!=nil) {
 	db.Rollback()
 }
 
@@ -298,33 +304,33 @@ db.Commit()
 ```
 - simple using
 ```go
-trans := db.Transaction(func() (error) {
+trans,err := db.Transaction(func() (error) (bool,error) {
 	
     res1,err := db.Execute("update area set job='sadf' where id=14")
     if err!=nil {
-    	return err
+    	return false,err
     }
     if res1==0 {
-    	return errors.New("update failed")
+    	return false,errors.New("update failed")
     }
     
     res2,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Insert()
     if err!=nil {
-        return err
+        return false,err
     }
     if res2==0 {
-    	return errors.New("Insert failed")
+    	return false,errors.New("Insert failed")
     }
         
     res3,err := db.Table("area").Data(map[string]interface{}{"names": "fizz3", "age": 3}).Where("id",10).Update()
     if err!=nil {
-        return err
+        return false,err
     }
     if res3==0 {
-    	return errors.New("Update failed")
+    	return false,errors.New("Update failed")
     }
     
-    return nil
+    return true,nil
 })
 ```
 

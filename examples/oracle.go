@@ -4,7 +4,7 @@ import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	"github.com/gohouse/gorose"
-	_ "github.com/mattn/go-oci8"
+	//_ "github.com/mattn/go-oci8"
 )
 
 func main() {

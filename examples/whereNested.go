@@ -20,13 +20,20 @@ func main() {
 
 	User := db.Table("users")
 
-	res,_ := User.Where("id", ">", 1).Where(func() {
+	User.Where("name", ">", 1)
+	User.Where(func() {
 		User.OrWhere("name", "fizz").OrWhere(func() {
 			User.Where("name", "fizz2").Where(func() {
-				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+				User.Where("name", "fizz53").OrWhere("website", "like", "fizzday%")
 			})
 		})
-	}).Where("job", "it").First()
+	})
+
+	res,_ := User.First()
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
+
+	res2,_ := User.Where("job", "it").First()
+	fmt.Println(db.LastSql)
+	fmt.Println(res2)
 }

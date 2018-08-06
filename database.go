@@ -27,10 +27,13 @@ var (
 //	return instance
 //}
 
+var beforeParseWhereData [][]interface{}
+
 // Database is data mapper struct
 type Database struct {
+	connection   *Connection
 	table        string          // table
-	fields       string          // fields
+	fields       []string          // fields
 	where        [][]interface{} // where
 	order        string          // order
 	limit        int             // limit
@@ -52,8 +55,25 @@ type Database struct {
 }
 
 // Fields : select fields
-func (dba *Database) Fields(fields string) *Database {
+func (dba *Database) Fields(fields ...string) *Database {
 	dba.fields = fields
+	return dba
+}
+
+// AddFields : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddFields method:
+func (dba *Database) AddFields(fields ...string) *Database {
+	dba.fields = append(dba.fields, fields...)
+	return dba
+}
+
+// Select : equals Fields()
+func (dba *Database) Select(fields ...string) *Database {
+	return dba.Fields(fields...)
+}
+
+// AddSelect : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddSelect method:
+func (dba *Database) AddSelect(fields ...string) *Database {
+	dba.fields = append(dba.fields, fields...)
 	return dba
 }
 
@@ -75,6 +95,11 @@ func (dba *Database) Group(group string) *Database {
 	return dba
 }
 
+// GroupBy : equals Group()
+func (dba *Database) GroupBy(group string) *Database {
+	return dba.Group(group)
+}
+
 // Having : select having
 func (dba *Database) Having(having string) *Database {
 	dba.having = having
@@ -87,6 +112,11 @@ func (dba *Database) Order(order string) *Database {
 	return dba
 }
 
+// OrderBy : equal order
+func (dba *Database) OrderBy(order string) *Database {
+	return dba.Order(order)
+}
+
 // Limit : select limit
 func (dba *Database) Limit(limit int) *Database {
 	dba.limit = limit
@@ -97,6 +127,16 @@ func (dba *Database) Limit(limit int) *Database {
 func (dba *Database) Offset(offset int) *Database {
 	dba.offset = offset
 	return dba
+}
+
+// Take : select limit
+func (dba *Database) Take(limit int) *Database {
+	return dba.Limit(limit)
+}
+
+// Skip : select offset
+func (dba *Database) Skip(offset int) *Database {
+	return dba.Offset(offset)
 }
 
 // Page : select page
@@ -125,8 +165,76 @@ func (dba *Database) OrWhere(args ...interface{}) *Database {
 	return dba
 }
 
+// WhereNull : like where , where filed is null,
+func (dba *Database) WhereNull(arg string) *Database {
+	return dba.Where("arg", " is ", "null")
+}
+
+// WhereNotNull : like where , where filed is not null,
+func (dba *Database) WhereNotNull(arg string) *Database {
+	return dba.Where("arg", " is not ", "null")
+}
+
+// OrWhereNull : like WhereNull , the relation is or,
+func (dba *Database) OrWhereNull(arg string) *Database {
+	return dba.OrWhere("arg", " is ", "null")
+}
+
+// OrWhereNotNull : like WhereNotNull , the relation is or,
+func (dba *Database) OrWhereNotNull(arg string) *Database {
+	return dba.OrWhere("arg", " is not ", "null")
+}
+
+// WhereIn : a given column's value is contained within the given array
+func (dba *Database) WhereIn(field string, arr []interface{}) *Database {
+	return dba.Where(field, " in ", arr)
+}
+
+// WhereNotIn : the given column's value is not contained in the given array
+func (dba *Database) WhereNotIn(field string, arr []interface{}) *Database {
+	return dba.Where(field, " not in ", arr)
+}
+
+// OrWhereIn : as WhereIn, the relation is or
+func (dba *Database) OrWhereIn(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " in ", arr)
+}
+
+// OrWhereNotIn : as WhereNotIn, the relation is or
+func (dba *Database) OrWhereNotIn(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not in ", arr)
+}
+
+// WhereBetween : a column's value is between two values:
+func (dba *Database) WhereBetween(field string, arr []interface{}) *Database {
+	return dba.Where(field, " between ", arr)
+}
+
+// WhereNotBetween : a column's value lies outside of two values:
+func (dba *Database) WhereNotBetween(field string, arr []interface{}) *Database {
+	return dba.Where(field, " not between ", arr)
+}
+
+// OrWhereBetween : like WhereNull , the relation is or,
+func (dba *Database) OrWhereBetween(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not between ", arr)
+}
+
+// OrWhereNotBetween : like WhereNotNull , the relation is or,
+func (dba *Database) OrWhereNotBetween(field string, arr []interface{}) *Database {
+	return dba.OrWhere(field, " not in ", arr)
+}
+
 // Join : select join query
 func (dba *Database) Join(args ...interface{}) *Database {
+	//dba.parseJoin(args, "INNER")
+	dba.join = append(dba.join, []interface{}{"INNER", args})
+
+	return dba
+}
+
+// InnerJoin : equals join
+func (dba *Database) InnerJoin(args ...interface{}) *Database {
 	//dba.parseJoin(args, "INNER")
 	dba.join = append(dba.join, []interface{}{"INNER", args})
 
@@ -149,6 +257,22 @@ func (dba *Database) RightJoin(args ...interface{}) *Database {
 	return dba
 }
 
+// CrossJoin : like join , the relation is cross
+func (dba *Database) CrossJoin(args ...interface{}) *Database {
+	//dba.parseJoin(args, "RIGHT")
+	dba.join = append(dba.join, []interface{}{"CROSS", args})
+
+	return dba
+}
+
+// UnionJoin : like join , the relation is union
+func (dba *Database) UnionJoin(args ...interface{}) *Database {
+	//dba.parseJoin(args, "RIGHT")
+	dba.join = append(dba.join, []interface{}{"UNION", args})
+
+	return dba
+}
+
 // Distinct : select distinct
 func (dba *Database) Distinct() *Database {
 	dba.distinct = true
@@ -156,13 +280,13 @@ func (dba *Database) Distinct() *Database {
 	return dba
 }
 
-// First : select one row
+// First : Retrieving A Single Row / Column From A Table
 func (dba *Database) First(args ...interface{}) (map[string]interface{}, error) {
 	//var result map[string]interface{}
 	//func (dba *Database) First() interface{} {
 	dba.limit = 1
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +311,7 @@ func (dba *Database) First(args ...interface{}) (map[string]interface{}, error) 
 func (dba *Database) Get() ([]map[string]interface{}, error) {
 	//func (dba *Database) Get() interface{} {
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +336,34 @@ func (dba *Database) Get() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-// Value : select one field's value
+// Pluck : Retrieving A List Of Column Values
+func (dba *Database) Pluck(args ...string) (interface{}, error) {
+	res,err := dba.Get()
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	switch len(args) {
+	case 1:
+		var pluckTmp []interface{}
+		for _,item:=range res {
+			pluckTmp = append(pluckTmp, item[args[0]])
+		}
+		return pluckTmp,nil
+	case 2:
+		var pluckTmp = make(map[interface{}]interface{})
+		for _,item:=range res {
+			pluckTmp[item[args[1]]] = item[args[0]]
+		}
+		return pluckTmp,nil
+	default:
+		return nil,errors.New("params error")
+	}
+}
+
+// Value : If you don't even need an entire row, you may extract a single value from a record using the  value method. This method will return the value of the column directly:
 func (dba *Database) Value(arg string) (interface{}, error) {
 	res, err := dba.First()
 	if err != nil {
@@ -266,7 +417,7 @@ func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 		dba.offset = offset + step*limit
 
 		// 查询当前区块的数据
-		sqls, _ := dba.buildQuery()
+		sqls, _ := dba.BuildQuery()
 		data, _ := dba.Query(sqls)
 
 		if len(data) == 0 {
@@ -285,8 +436,37 @@ func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 	}
 }
 
-// buildQuery : build query string
-func (dba *Database) buildQuery() (string, error) {
+// Loop : select more data to piceses block from begin
+func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
+	dba.limit = limit
+	for {
+		// 查询当前区块的数据
+		sqls, _ := dba.BuildQuery()
+		data, _ := dba.Query(sqls)
+		if len(data) == 0 {
+			break
+		}
+
+		callback(data)
+
+		if len(data) < limit {
+			break
+		}
+	}
+}
+
+// BuildSql : build sql string , but not execute sql really
+// operType : select/insert/update/delete
+func (dba *Database) BuildSql(operType string) (string,error) {
+	if operType=="select"{
+		return dba.BuildQuery()
+	} else {
+		return dba.BuildExecut(operType)
+	}
+}
+
+// BuildQuery : build query string
+func (dba *Database) BuildQuery() (string, error) {
 	// 聚合
 	unionArr := []string{
 		dba.count,
@@ -305,9 +485,9 @@ func (dba *Database) buildQuery() (string, error) {
 	// distinct
 	distinct := utils.If(dba.distinct, "distinct ", "")
 	// fields
-	fields := utils.If(dba.fields == "", "*", dba.fields).(string)
+	fields := utils.If(len(dba.fields) == 0, "*", strings.Join(dba.fields,",")).(string)
 	// table
-	table := Connect.CurrentConfig["prefix"] + dba.table
+	table := dba.connection.CurrentConfig["prefix"] + dba.table
 	// join
 	parseJoin, err := dba.parseJoin()
 	if err != nil {
@@ -315,6 +495,7 @@ func (dba *Database) buildQuery() (string, error) {
 	}
 	join := parseJoin
 	// where
+	beforeParseWhereData = dba.where
 	parseWhere, err := dba.parseWhere()
 	if err != nil {
 		return "", err
@@ -341,8 +522,8 @@ func (dba *Database) buildQuery() (string, error) {
 	return sqlstr, nil
 }
 
-// buildExecut : build execute query string
-func (dba *Database) buildExecut(operType string) (string, error) {
+// BuildExecut : build execute query string
+func (dba *Database) BuildExecut(operType string) (string, error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
@@ -350,13 +531,15 @@ func (dba *Database) buildExecut(operType string) (string, error) {
 	if operType != "delete" {
 		update, insertkey, insertval = dba.buildData()
 	}
+
+	beforeParseWhereData = dba.where
 	res, err := dba.parseWhere()
 	if err != nil {
 		return res, err
 	}
 	where := utils.If(res == "", "", " WHERE "+res).(string)
 
-	tableName := Connect.CurrentConfig["prefix"] + dba.table
+	tableName := dba.connection.CurrentConfig["prefix"] + dba.table
 	switch operType {
 	case "insert":
 		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", tableName, insertkey, insertval)
@@ -382,6 +565,8 @@ func (dba *Database) buildData() (string, string, string) {
 	data := dba.data
 
 	switch data.(type) {
+	case string:
+		dataObj = append(dataObj, data.(string))
 	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
 		datas := data.([]map[string]interface{})
 		for key, _ := range datas[0] {
@@ -392,7 +577,11 @@ func (dba *Database) buildData() (string, string, string) {
 		for _, item := range datas {
 			var dataValuesSub []string
 			for _, key := range dataFields {
-				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+				if item[key] == nil {
+					dataValuesSub = append(dataValuesSub, "null")
+				} else {
+					dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+				}
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
@@ -402,7 +591,11 @@ func (dba *Database) buildData() (string, string, string) {
 		switch data.(type) {
 		case map[string]interface{}:
 			for key, val := range data.(map[string]interface{}) {
-				datas[key] = utils.ParseStr(val)
+				if val == nil {
+					datas[key] = "null"
+				} else {
+					datas[key] = utils.ParseStr(val)
+				}
 			}
 		case map[string]int:
 			for key, val := range data.(map[string]int) {
@@ -419,9 +612,19 @@ func (dba *Database) buildData() (string, string, string) {
 		for key, val := range datas {
 			// insert
 			dataFields = append(dataFields, key)
-			dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			if val == "null" {
+				dataValuesSub = append(dataValuesSub, "null")
+			} else {
+				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			}
 			// update
-			dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			if val == "null" {
+				dataObj = append(dataObj, key+"=null")
+			} else {
+				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			}
 		}
 		// insert
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
@@ -447,7 +650,7 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 	}
 
 	// 构建sql
-	sqls, err := dba.buildQuery()
+	sqls, err := dba.BuildQuery()
 	if err != nil {
 		return nil, err
 	}
@@ -458,10 +661,15 @@ func (dba *Database) buildUnion(union, field string) (interface{}, error) {
 		return nil, err
 	}
 
-	dba.Reset()
+	dba.Reset("union")
 
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
-	return result[0][union], nil
+	if len(result) > 0 {
+		return result[0][union], nil
+	}
+
+	var tmp int64 = 0
+	return tmp, nil
 }
 
 /**
@@ -507,7 +715,7 @@ func (dba *Database) parseParams(args []interface{}) (string, error) {
 		//if !utils.TypeCheck(args[0], "string") {
 		//	panic("where条件参数有误!")
 		//}
-		fmt.Println(argsReal)
+		//fmt.Println(argsReal)
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[1]))
@@ -539,6 +747,8 @@ func (dba *Database) parseJoin() (string, error) {
 		switch argsLength {
 		case 1:
 			w = args[0].(string)
+		case 2:
+			w = args[0].(string) + " ON " + args[1].(string)
 		case 4:
 			w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 		default:
@@ -630,9 +840,14 @@ func (dba *Database) parseWhere() (string, error) {
 		}
 	}
 
-	return strings.TrimLeft(strings.TrimLeft(
+	// 还原初始where, 以便后边调用
+	dba.where = beforeParseWhereData
+
+	return strings.TrimLeft(
+		strings.TrimLeft(strings.TrimLeft(
 			strings.Trim(strings.Join(where, " "), " "),
-			"and"), "or"), nil
+			"and"), "or"),
+		" "), nil
 }
 
 // parseExecute : parse execute condition
@@ -655,12 +870,17 @@ func (dba *Database) parseExecute(stmt *sql.Stmt, operType string, vals []interf
 	// get rows affected
 	rowsAffected, err = result.RowsAffected()
 
+	// 如果是事务, 则重置所有参数
+	if dba.trans == true {
+		dba.Reset("transaction")
+	}
+
 	return rowsAffected, err
 }
 
-// Insert : insert data
+// Insert : insert data and get affected rows
 func (dba *Database) Insert() (int, error) {
-	sqlstr, err := dba.buildExecut("insert")
+	sqlstr, err := dba.BuildExecut("insert")
 	if err != nil {
 		return 0, err
 	}
@@ -672,9 +892,18 @@ func (dba *Database) Insert() (int, error) {
 	return int(res), nil
 }
 
+// insertGetId : insert data and get id
+func (dba *Database) InsertGetId() (int, error) {
+	_, err := dba.Insert()
+	if err != nil {
+		return 0, err
+	}
+	return int(dba.LastInsertId), nil
+}
+
 // Update : update data
 func (dba *Database) Update() (int, error) {
-	sqlstr, err := dba.buildExecut("update")
+	sqlstr, err := dba.BuildExecut("update")
 	if err != nil {
 		return 0, err
 	}
@@ -688,7 +917,7 @@ func (dba *Database) Update() (int, error) {
 
 // Delete : delete data
 func (dba *Database) Delete() (int, error) {
-	sqlstr, err := dba.buildExecut("delete")
+	sqlstr, err := dba.BuildExecut("delete")
 	if err != nil {
 		return 0, err
 	}
@@ -700,8 +929,75 @@ func (dba *Database) Delete() (int, error) {
 	return int(res), nil
 }
 
+// Increment : auto Increment +1 default
+// we can define step (such as 2, 3, 6 ...) if give the second params
+// we can use this method as decrement with the third param as "-"
+func (dba *Database) Increment(args ...interface{}) (int, error) {
+	argLen := len(args)
+	var field string
+	var value string = "1"
+	var mode string = "+"
+	switch argLen {
+	case 1:
+		field = args[0].(string)
+	case 2:
+		field = args[0].(string)
+		switch args[1].(type) {
+		case int:
+			value = utils.ParseStr(args[1])
+		case int64:
+			value = utils.ParseStr(args[1])
+		case float32:
+			value = utils.ParseStr(args[1])
+		case float64:
+			value = utils.ParseStr(args[1])
+		case string:
+			value = args[1].(string)
+		default:
+			return 0, errors.New("第二个参数类型错误")
+		}
+	case 3:
+		field = args[0].(string)
+		switch args[1].(type) {
+		case int:
+			value = utils.ParseStr(args[1])
+		case int64:
+			value = utils.ParseStr(args[1])
+		case float32:
+			value = utils.ParseStr(args[1])
+		case float64:
+			value = utils.ParseStr(args[1])
+		case string:
+			value = args[1].(string)
+		default:
+			return 0, errors.New("第二个参数类型错误")
+		}
+		mode = args[2].(string)
+	default:
+		return 0, errors.New("参数数量只允许1个,2个或3个")
+	}
+	dba.Data(field + "=" + field + mode + value)
+	return dba.Update()
+}
+
+// Decrement : auto Decrement -1 default
+// we can define step (such as 2, 3, 6 ...) if give the second params
+func (dba *Database) Decrement(args ...interface{}) (int, error) {
+	arglen := len(args)
+	switch arglen {
+	case 1:
+		args = append(args, 1)
+		args = append(args, "-")
+	case 2:
+		args = append(args, "-")
+	default:
+		return 0, errors.New("Decrement参数个数有误")
+	}
+	return dba.Increment(args...)
+}
+
 func (dba *Database) Begin() {
-	tx, _ = DB.Begin()
+	tx, _ = dba.connection.DB.Begin()
 	dba.trans = true
 }
 func (dba *Database) Commit() {
@@ -714,27 +1010,27 @@ func (dba *Database) Rollback() {
 }
 
 // Reset : reset union select
-func (dba *Database) Reset() {
-	//this = new(Database)
-	//dba.table = ""
-	//dba.fields = ""
-	//dba.where = [][]interface{}{}
-	//dba.order = ""
-	//dba.limit = 0
-	//dba.offset = 0
-	//dba.join = [][]interface{}{}
-	//dba.distinct = false
+func (dba *Database) Reset(source string) {
+	if source == "transaction" {
+		//this = new(Database)
+		dba.table = ""
+		dba.fields = []string{}
+		dba.where = [][]interface{}{}
+		dba.order = ""
+		dba.limit = 0
+		dba.offset = 0
+		dba.join = [][]interface{}{}
+		dba.distinct = false
+		dba.group = ""
+		dba.having = ""
+		var tmp interface{}
+		dba.data = tmp
+	}
 	dba.count = ""
 	dba.sum = ""
 	dba.avg = ""
 	dba.max = ""
 	dba.min = ""
-	//dba.group = ""
-	//dba.having = ""
-	//dba.trans = false
-	//
-	//var tmp interface{}
-	//dba.data = tmp
 }
 
 // JsonEncode : parse json
@@ -765,7 +1061,7 @@ func (dba *Database) Query(args ...interface{}) ([]map[string]interface{}, error
 	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
 	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
-	stmt, err := DB.Prepare(sqlstring)
+	stmt, err := dba.connection.DB.Prepare(sqlstring)
 	if err != nil {
 		return tableData, err
 	}
@@ -839,7 +1135,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 	if dba.trans == true {
 		stmt, err = tx.Prepare(sqlstring)
 	} else {
-		stmt, err = DB.Prepare(sqlstring)
+		stmt, err = dba.connection.DB.Prepare(sqlstring)
 	}
 
 	if err != nil {
@@ -849,7 +1145,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 }
 
 // Transaction : is a simple usage of trans
-func (dba *Database) Transaction(closure func() (error)) bool {
+func (dba *Database) Transaction(closure func() (error)) (bool, error) {
 	//defer func() {
 	//	if err := recover(); err != nil {
 	//		dba.Rollback()
@@ -861,9 +1157,9 @@ func (dba *Database) Transaction(closure func() (error)) bool {
 	err := closure()
 	if err != nil {
 		dba.Rollback()
-		return false
+		return false, err
 	}
 	dba.Commit()
 
-	return true
+	return true, nil
 }
