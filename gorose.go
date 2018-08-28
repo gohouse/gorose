@@ -184,6 +184,11 @@ func (conn *Connection) GetInstance() *Database {
 	return &Database{connection:conn}
 }
 
+// NewDB , get the database object
+func (conn *Connection) NewDB() *Database {
+	return &Database{connection:conn}
+}
+
 // JsonEncode : parse json
 func (conn *Connection) JsonEncode(arg interface{}) string {
 	return conn.GetInstance().JsonEncode(arg)

@@ -33,7 +33,7 @@ var beforeParseWhereData [][]interface{}
 type Database struct {
 	connection   *Connection
 	table        string          // table
-	fields       []string          // fields
+	fields       []string        // fields
 	where        [][]interface{} // where
 	order        string          // order
 	limit        int             // limit
@@ -167,62 +167,62 @@ func (dba *Database) OrWhere(args ...interface{}) *Database {
 
 // WhereNull : like where , where filed is null,
 func (dba *Database) WhereNull(arg string) *Database {
-	return dba.Where("arg", " is ", "null")
+	return dba.Where("arg", "is", "null")
 }
 
 // WhereNotNull : like where , where filed is not null,
 func (dba *Database) WhereNotNull(arg string) *Database {
-	return dba.Where("arg", " is not ", "null")
+	return dba.Where("arg", "is not", "null")
 }
 
 // OrWhereNull : like WhereNull , the relation is or,
 func (dba *Database) OrWhereNull(arg string) *Database {
-	return dba.OrWhere("arg", " is ", "null")
+	return dba.OrWhere("arg", "is", "null")
 }
 
 // OrWhereNotNull : like WhereNotNull , the relation is or,
 func (dba *Database) OrWhereNotNull(arg string) *Database {
-	return dba.OrWhere("arg", " is not ", "null")
+	return dba.OrWhere("arg", "is not", "null")
 }
 
 // WhereIn : a given column's value is contained within the given array
 func (dba *Database) WhereIn(field string, arr []interface{}) *Database {
-	return dba.Where(field, " in ", arr)
+	return dba.Where(field, "in", arr)
 }
 
 // WhereNotIn : the given column's value is not contained in the given array
 func (dba *Database) WhereNotIn(field string, arr []interface{}) *Database {
-	return dba.Where(field, " not in ", arr)
+	return dba.Where(field, "not in", arr)
 }
 
 // OrWhereIn : as WhereIn, the relation is or
 func (dba *Database) OrWhereIn(field string, arr []interface{}) *Database {
-	return dba.OrWhere(field, " in ", arr)
+	return dba.OrWhere(field, "in", arr)
 }
 
 // OrWhereNotIn : as WhereNotIn, the relation is or
 func (dba *Database) OrWhereNotIn(field string, arr []interface{}) *Database {
-	return dba.OrWhere(field, " not in ", arr)
+	return dba.OrWhere(field, "not in", arr)
 }
 
 // WhereBetween : a column's value is between two values:
 func (dba *Database) WhereBetween(field string, arr []interface{}) *Database {
-	return dba.Where(field, " between ", arr)
+	return dba.Where(field, "between", arr)
 }
 
 // WhereNotBetween : a column's value lies outside of two values:
 func (dba *Database) WhereNotBetween(field string, arr []interface{}) *Database {
-	return dba.Where(field, " not between ", arr)
+	return dba.Where(field, "not between", arr)
 }
 
 // OrWhereBetween : like WhereNull , the relation is or,
 func (dba *Database) OrWhereBetween(field string, arr []interface{}) *Database {
-	return dba.OrWhere(field, " not between ", arr)
+	return dba.OrWhere(field, "not between", arr)
 }
 
 // OrWhereNotBetween : like WhereNotNull , the relation is or,
 func (dba *Database) OrWhereNotBetween(field string, arr []interface{}) *Database {
-	return dba.OrWhere(field, " not in ", arr)
+	return dba.OrWhere(field, "not in", arr)
 }
 
 // Join : select join query
@@ -338,7 +338,7 @@ func (dba *Database) Get() ([]map[string]interface{}, error) {
 
 // Pluck : Retrieving A List Of Column Values
 func (dba *Database) Pluck(args ...string) (interface{}, error) {
-	res,err := dba.Get()
+	res, err := dba.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -348,18 +348,18 @@ func (dba *Database) Pluck(args ...string) (interface{}, error) {
 	switch len(args) {
 	case 1:
 		var pluckTmp []interface{}
-		for _,item:=range res {
+		for _, item := range res {
 			pluckTmp = append(pluckTmp, item[args[0]])
 		}
-		return pluckTmp,nil
+		return pluckTmp, nil
 	case 2:
 		var pluckTmp = make(map[interface{}]interface{})
-		for _,item:=range res {
+		for _, item := range res {
 			pluckTmp[item[args[1]]] = item[args[0]]
 		}
-		return pluckTmp,nil
+		return pluckTmp, nil
 	default:
-		return nil,errors.New("params error")
+		return nil, errors.New("params error")
 	}
 }
 
@@ -457,8 +457,8 @@ func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
 
 // BuildSql : build sql string , but not execute sql really
 // operType : select/insert/update/delete
-func (dba *Database) BuildSql(operType string) (string,error) {
-	if operType=="select"{
+func (dba *Database) BuildSql(operType string) (string, error) {
+	if operType == "select" {
 		return dba.BuildQuery()
 	} else {
 		return dba.BuildExecut(operType)
@@ -485,7 +485,7 @@ func (dba *Database) BuildQuery() (string, error) {
 	// distinct
 	distinct := utils.If(dba.distinct, "distinct ", "")
 	// fields
-	fields := utils.If(len(dba.fields) == 0, "*", strings.Join(dba.fields,",")).(string)
+	fields := utils.If(len(dba.fields) == 0, "*", strings.Join(dba.fields, ",")).(string)
 	// table
 	table := dba.connection.CurrentConfig["prefix"] + dba.table
 	// join
@@ -694,20 +694,24 @@ func (dba *Database) parseParams(args []interface{}) (string, error) {
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
 		switch argsReal[1] {
-		case "like":
+		case "like", "not like":
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
-		case "not like":
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
-		case "in":
-			paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
-		case "not in":
-			paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
-		case "between":
+			//case "not like":
+			//	paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
+		case "in", "not in":
+			var tmp []string
+			for _, item := range argsReal[2].([]interface{}) {
+				tmp = append(tmp, utils.AddSingleQuotes(utils.ParseStr(item)))
+			}
+			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
+			//case "not in":
+			//	paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
+		case "between", "not between":
 			tmpB := argsReal[2].([]string)
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
-		case "not between":
-			tmpB := argsReal[2].([]string)
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
+			//case "not between":
+			//	tmpB := argsReal[2].([]string)
+			//	paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
 		default:
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[2]))
 		}
