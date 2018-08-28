@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	fmt.Println(db)
 	res, err := db.Table("users").Where([][]interface{}{{"id", ">", 2}}).First()
 	if err != nil {

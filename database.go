@@ -20,7 +20,7 @@ var (
 
 //var instance *Database
 //var once sync.Once
-//func GetInstance() *Database {
+//func NewDB() *Database {
 //	once.Do(func() {
 //		instance = &Database{}
 //	})

@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	data := map[string]interface{}{
 		"age":  17,

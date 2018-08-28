@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	res, err := db.Table("users").Where("id", ">", 1).First()
 	if err != nil {

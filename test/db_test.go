@@ -25,7 +25,7 @@ func init() {
 	//defer db.Close()
 }
 func TestDatabase_Query(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Query("select * from users limit ?", 1)
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -34,7 +34,7 @@ func TestDatabase_Query(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: id=?",res))
 }
 func TestDatabase_Execute(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Execute("insert into users set age=?", 18)
 	if err != nil {
 		test.Error("FAIL: test failed.", err)
@@ -48,7 +48,7 @@ func TestDatabase_Execute(test *testing.T) {
 	}
 }
 func TestDatabase_Value(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Value("name")
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -57,7 +57,7 @@ func TestDatabase_Value(test *testing.T) {
 	test.Log("PASS: name =", res)
 }
 func TestDatabase_First(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").First()
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -71,7 +71,7 @@ func TestDatabase_First(test *testing.T) {
 	}
 }
 func TestDatabase_Get(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Fields("id,sum(age) as sum").Where("id", ">", 0).OrWhere("age", ">", 0).
 		Group("id").Having("sum>1").Order("id asc").Limit(1).Offset(0).Get()
 	if err != nil {
@@ -87,7 +87,7 @@ func TestDatabase_Get(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: id=?",res))
 }
 func TestDatabase_Join(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users a").
 		Join("area b", "a.id", "=", "b.uid").Get()
 	if err != nil {
@@ -103,7 +103,7 @@ func TestDatabase_Join(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: id=?",res))
 }
 func TestDatabase_InsertUpdateDelete(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	db.Begin()
 	// insert
 	res, err := db.Table("users").Data(map[string]interface{}{"name": "fizz5", "age": 19}).Insert()
@@ -152,7 +152,7 @@ func TestDatabase_InsertUpdateDelete(test *testing.T) {
 	db.Commit()
 }
 func TestDatabase_Count(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Where("id", ">", 100).Count()
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -166,7 +166,7 @@ func TestDatabase_Count(test *testing.T) {
 	}
 }
 func TestDatabase_Sum(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Where("id", ">", 2).Sum("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -180,7 +180,7 @@ func TestDatabase_Sum(test *testing.T) {
 	}
 }
 func TestDatabase_Avg(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Where("id", ">", 2).Avg("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -194,7 +194,7 @@ func TestDatabase_Avg(test *testing.T) {
 	}
 }
 func TestDatabase_Max(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Where("id", ">", 2).Max("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -208,7 +208,7 @@ func TestDatabase_Max(test *testing.T) {
 	}
 }
 func TestDatabase_Min(test *testing.T) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	res, err := db.Table("users").Where("id", ">", 2).Min("age")
 	if err != nil {
 		test.Error("FAIL: test failed.")
@@ -222,7 +222,7 @@ func TestDatabase_Min(test *testing.T) {
 	}
 }
 func BenchmarkDatabase_First(bmtest *testing.B) {
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	for cnt := 0; cnt < bmtest.N; cnt++ {
 		//db.Table("users").Where("id",">",2).First()	// 316623 ns
 		db.Table("users").Fields("id").First() // 279397

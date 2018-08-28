@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	fmt.Println(db)
 	res, err := db.Table("users").Where("id", "<", 1).First()
 	if err != nil {
@@ -28,7 +28,7 @@ func main() {
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 
-	var db2 = connection.GetInstance()
+	var db2 = connection.NewDB()
 	res2, err := db2.Table("users").Limit(2).Get()
 	if err != nil {
 		fmt.Println(err)

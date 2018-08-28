@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	user, err := db.Table("users a").
 		LeftJoin("area b", "a.id", "=", "b.uid").

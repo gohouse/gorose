@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 	fmt.Println(db)
 	res, err := db.Table("users").Where("id", ">", 2).First()
 	if err != nil {
@@ -34,7 +34,7 @@ func main() {
 	// close DB
 	defer connection2.Close()
 
-	db2 := connection.GetInstance()
+	db2 := connection.NewDB()
 	fmt.Println(db2)
 	res2, err2 := db2.Table("fd_logs").Where("id", ">", 2).First()
 	if err2 != nil {

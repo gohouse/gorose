@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	//res := db.Table("users").First()
 	//fmt.Println(res)

@@ -33,7 +33,7 @@ func main() {
 	conn2 := conn["mysql_dev2"]
 	// 第一个
 	defer conn1.Close()
-	db := conn1.GetInstance()
+	db := conn1.NewDB()
 	res, err := db.Table("users").Fields("id,name").First()
 	if err != nil {
 		fmt.Println(err)

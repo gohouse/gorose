@@ -164,17 +164,17 @@ func (conn *Connection) Ping() error {
 
 // Table is set table from database
 func (conn *Connection) Table(table string) *Database {
-	return conn.GetInstance().Table(table)
+	return conn.NewDB().Table(table)
 }
 
 // Query str
 func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
-	return conn.GetInstance().Query(args...)
+	return conn.NewDB().Query(args...)
 }
 
 // Execute str
 func (conn *Connection) Execute(args ...interface{}) (int64, error) {
-	return conn.GetInstance().Execute(args...)
+	return conn.NewDB().Execute(args...)
 }
 
 // GetInstance , get the database object
@@ -191,7 +191,7 @@ func (conn *Connection) NewDB() *Database {
 
 // JsonEncode : parse json
 func (conn *Connection) JsonEncode(arg interface{}) string {
-	return conn.GetInstance().JsonEncode(arg)
+	return conn.NewDB().JsonEncode(arg)
 }
 
 //// LastSql is get last query sql

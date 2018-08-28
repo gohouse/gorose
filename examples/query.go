@@ -16,7 +16,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	user, err := db.Query("select count(*) as count from users where id>? limit ?", 1, 2)
 	if err != nil {

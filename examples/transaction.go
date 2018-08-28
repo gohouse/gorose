@@ -27,7 +27,7 @@ func main() {
 		"id": 17,
 	}
 
-	db := connection.GetInstance()
+	db := connection.NewDB()
 
 	trans,err := db.Transaction(func() error {
 
