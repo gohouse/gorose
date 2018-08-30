@@ -11,8 +11,7 @@ import (
 
 var (
 	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
-	//Dbstruct Database
-	tx *sql.Tx
+
 )
 
 //type MapData map[string]interface{}
@@ -52,6 +51,8 @@ type Database struct {
 	trans        bool
 	SqlLogs      []string
 	LastSql      string
+	//Dbstruct Database
+	tx *sql.Tx
 }
 
 // Fields : select fields
@@ -1001,15 +1002,15 @@ func (dba *Database) Decrement(args ...interface{}) (int, error) {
 }
 
 func (dba *Database) Begin() {
-	tx, _ = dba.connection.DB.Begin()
+	dba.tx, _ = dba.connection.DB.Begin()
 	dba.trans = true
 }
 func (dba *Database) Commit() {
-	tx.Commit()
+	dba.tx.Commit()
 	dba.trans = false
 }
 func (dba *Database) Rollback() {
-	tx.Rollback()
+	dba.tx.Rollback()
 	dba.trans = false
 }
 
@@ -1137,7 +1138,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 	var stmt *sql.Stmt
 	var err error
 	if dba.trans == true {
-		stmt, err = tx.Prepare(sqlstring)
+		stmt, err = dba.tx.Prepare(sqlstring)
 	} else {
 		stmt, err = dba.connection.DB.Prepare(sqlstring)
 	}
