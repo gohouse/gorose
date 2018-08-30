@@ -11,7 +11,6 @@ import (
 
 var (
 	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
-
 )
 
 //type MapData map[string]interface{}
@@ -51,8 +50,7 @@ type Database struct {
 	trans        bool
 	SqlLogs      []string
 	LastSql      string
-	//Dbstruct Database
-	tx *sql.Tx
+	tx           *sql.Tx //Dbstruct Database
 }
 
 // Fields : select fields
