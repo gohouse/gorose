@@ -927,7 +927,7 @@ func (dba *Database) Delete() (int, error) {
 
 	res, errs := dba.Execute(sqlstr)
 	if errs != nil {
-		return 0, err
+		return 0, errs
 	}
 	return int(res), nil
 }
