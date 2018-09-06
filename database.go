@@ -25,32 +25,31 @@ var (
 //	return instance
 //}
 
-var beforeParseWhereData [][]interface{}
-
 // Database is data mapper struct
 type Database struct {
-	connection   *Connection
-	table        string          // table
-	fields       []string        // fields
-	where        [][]interface{} // where
-	order        string          // order
-	limit        int             // limit
-	offset       int             // offset
-	join         [][]interface{} // join
-	distinct     bool            // distinct
-	count        string          // count
-	sum          string          // sum
-	avg          string          // avg
-	max          string          // max
-	min          string          // min
-	group        string          // group
-	having       string          // having
-	data         interface{}     // data
-	LastInsertId int64           // insert last insert id
-	trans        bool
-	SqlLogs      []string
-	LastSql      string
-	tx           *sql.Tx //Dbstruct Database
+	connection           *Connection
+	table                string          // table
+	fields               []string        // fields
+	where                [][]interface{} // where
+	order                string          // order
+	limit                int             // limit
+	offset               int             // offset
+	join                 [][]interface{} // join
+	distinct             bool            // distinct
+	count                string          // count
+	sum                  string          // sum
+	avg                  string          // avg
+	max                  string          // max
+	min                  string          // min
+	group                string          // group
+	having               string          // having
+	data                 interface{}     // data
+	trans                bool
+	LastInsertId         int64           // insert last insert id
+	SqlLogs              []string
+	LastSql              string
+	tx                   *sql.Tx //Dbstruct Database
+	beforeParseWhereData [][]interface{}
 }
 
 // Fields : select fields
@@ -494,7 +493,7 @@ func (dba *Database) BuildQuery() (string, error) {
 	}
 	join := parseJoin
 	// where
-	beforeParseWhereData = dba.where
+	dba.beforeParseWhereData = dba.where
 	parseWhere, err := dba.parseWhere()
 	if err != nil {
 		return "", err
@@ -531,7 +530,7 @@ func (dba *Database) BuildExecut(operType string) (string, error) {
 		update, insertkey, insertval = dba.buildData()
 	}
 
-	beforeParseWhereData = dba.where
+	dba.beforeParseWhereData = dba.where
 	res, err := dba.parseWhere()
 	if err != nil {
 		return res, err
@@ -844,7 +843,7 @@ func (dba *Database) parseWhere() (string, error) {
 	}
 
 	// 还原初始where, 以便后边调用
-	dba.where = beforeParseWhereData
+	dba.where = dba.beforeParseWhereData
 
 	return strings.TrimLeft(
 		strings.TrimLeft(strings.TrimLeft(
@@ -927,7 +926,7 @@ func (dba *Database) Delete() (int, error) {
 
 	res, errs := dba.Execute(sqlstr)
 	if errs != nil {
-		return 0, err
+		return 0, errs
 	}
 	return int(res), nil
 }
@@ -1165,4 +1164,9 @@ func (dba *Database) Transaction(closure func() (error)) (bool, error) {
 	dba.Commit()
 
 	return true, nil
+}
+
+func (dba *Database) Connect(conn string) Connection {
+	c, _ := Open(dba.connection.DbConfig, conn)
+	return c
 }
