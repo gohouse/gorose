@@ -1035,6 +1035,11 @@ func (dba *Database) Reset(source string) {
 	dba.min = ""
 }
 
+// ResetWhere : in transaction, when you need update several tables in difference condition
+func (dba *Database) ResetWhere() {
+	dba.where = [][]interface{}{}
+}
+
 // JsonEncode : parse json
 func (dba *Database) JsonEncode(data interface{}) string {
 	res, _ := utils.JsonEncode(data)
