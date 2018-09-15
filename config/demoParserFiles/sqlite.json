@@ -1,0 +1,7 @@
+{
+  "Driver": "sqlite",
+  "EnableQueryLog": false,
+  "SetMaxOpenConns": 0,
+  "SetMaxIdleConns": 0,
+  "Dsn": "~/path/to/foo.db"
+}

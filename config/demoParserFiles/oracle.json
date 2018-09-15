@@ -1,0 +1,7 @@
+{
+  "Driver": "oracle",
+  "EnableQueryLog": false,
+  "SetMaxOpenConns": 0,
+  "SetMaxIdleConns": 0,
+  "Dsn": "username/password@database"
+}

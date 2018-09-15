@@ -3,211 +3,112 @@ package gorose
 import (
 	"database/sql"
 	"errors"
-	"github.com/gohouse/gorose/drivers"
-	"github.com/gohouse/gorose/utils"
+	"fizzday.com/gohouse/gorose/config"
+	"fizzday.com/gohouse/gorose/helper"
+	"fizzday.com/gohouse/gorose/parser"
 )
 
-// Connection is the database pre handle
 type Connection struct {
-	// DB is origin DB
-	DB *sql.DB
-	// all config sets
-	DbConfig map[string]interface{}
-	// default database
-	Default string
-	// current config on use
-	CurrentConfig map[string]string
-	//// all sql logs
-	//SqlLog []string
-	//// if in transaction, the code auto change
-	//Trans bool
-	// max open connections
-	SetMaxOpenConns int
-	// max freedom connections leave
-	SetMaxIdleConns int
+	dbConfig *config.DbConfig
+	db       *sql.DB
 }
 
-// Open instance of sql.DB.Oper
-// if args has 1 param , it will be derect connection or with default config set
-// if args has 2 params , the second param will be the default dirver key
-func Open(args ...interface{}) (Connection, error) {
-	var conn = Connection{}
-	//fmt.Println(args)
-	//return conn, errors.New("dsf")
-	if len(args) == 1 {
-		// continue
-	} else if len(args) == 2 {
-		if confReal, ok := args[1].(string); ok {
-			conn.Default = confReal
-		} else {
-			// 指定默认数据库只能为字符串!
-			return conn, errors.New("only str allowed of default database name")
-		}
-	} else {
-		// Open方法只接收1个或2个参数!
-		return conn, errors.New("1 or 2 params need in Open() method")
-	}
-	// 解析config
-	err := conn.parseConfig(args[0])
-	if err != nil {
-		return conn, err
-	}
-
-	// 驱动数据库
-	errs := conn.boot()
-//fmt.Println(conn)
-	return conn, errs
-}
-
-// Parse input config
-func (conn *Connection) parseConfig(args interface{}) error {
-	if confReal, ok := args.(map[string]string); ok { // direct connection
-		conn.CurrentConfig = confReal
-	} else if confReal, ok := args.(map[string]interface{}); ok {
-		// store the full connection
-		conn.DbConfig = confReal
-		// if set the Default conf, store it
-		if defaultDb, ok := confReal["Default"]; ok {
-			// judge if seted
-			if conn.Default == "" {
-				conn.Default = defaultDb.(string)
-			}
-		}
-		if conn.Default == "" {
-			// 配置文件默认数据库链接未设置
-			return errors.New("the default database is missing in config!")
-		}
-		// 获取指定的默认数据库链接信息
-		var connections map[string]map[string]string
-		if connectionsInterface, ok := confReal["Connections"]; ok {
-			switch connectionsInterface.(type) {
-			case map[string]map[string]string:
-				connections = connectionsInterface.(map[string]map[string]string)
-			case map[string]interface{}:
-				connectionsTmp := connectionsInterface.(map[string]interface{})
-				if connectionsTmpReal, ok := connectionsTmp[conn.Default]; ok {
-					switch connectionsTmpReal.(type) {
-					case map[string]string:
-						connections = map[string]map[string]string{conn.Default: connectionsTmpReal.(map[string]string)}
-					default:
-						return errors.New("the database connections format error !")
-					}
-				}
-			default:
-				return errors.New("the database connections format error !")
-			}
-		} else {
-			return errors.New("the database connections missing !")
-		}
-		if defaultDbConnection, ok := connections[conn.Default]; ok {
-			conn.CurrentConfig = defaultDbConnection
-		} else {
-			// 指定的数据库链接不存在!
-			return errors.New("the database for using is missing!")
-		}
-		// 设置连接池信息
-		if mo, ok := confReal["SetMaxOpenConns"]; ok {
-			moInt := utils.ParseInt(mo)
-			if moInt>0 {
-				conn.SetMaxOpenConns = moInt
-			}
-		}
-		if mi, ok := confReal["SetMaxIdleConns"]; ok {
-			miInt := utils.ParseInt(mi)
-			if miInt>0 {
-				conn.SetMaxIdleConns = miInt
-			}
-		}
-	} else {
-		return errors.New("format error in database config!")
-	}
-	return nil
-}
-
-// Boot sql driver
-func (conn *Connection) boot() error {
-	//dbObj := conn.CurrentConfig
-	var driver, dsn string
+// Open 链接数据库入口, 传入配置
+// args 接收一个或2个参数, 一个参数时:struct配置文件(config.DbConfig{})
+//		两个参数时: 第一个是驱动或文件类型, 第二个是dsn或文件路径
+func Open(args ...interface{}) (*Connection, error) {
+	var c = &Connection{}
 	var err error
 
-	//DB, err = sql.Open("mysql", "root:@tcp(localhost:3306)/test?charset=utf8")
-	driver,dsn = drivers.GetDsnByDriverName(conn.CurrentConfig)
+	// 解析配置获取参数并保存
+	c.dbConfig, err = c.parseOpenArgs(args...)
 
-	// 开始驱动
-	conn.DB, err = sql.Open(driver, dsn)
 	if err != nil {
-		return err
+		return c, err
 	}
-	if conn.SetMaxOpenConns>0 {
-		conn.DB.SetMaxOpenConns(conn.SetMaxOpenConns)
+
+	// 驱动数据库获取链接并保存
+	c.db, err = c.bootDb(c.dbConfig)
+	return c, err
+}
+
+func (c *Connection) Query(arg string, params ...interface{}) []map[string]interface{} {
+	return []map[string]interface{}{{"sql": arg}}
+}
+
+func (c *Connection) Execute(arg string, params ...interface{}) int64 {
+	return 0
+}
+
+func (c *Connection) NewDB() *Database {
+	return &Database{connection: c}
+}
+
+func (c *Connection) Table(arg interface{}) *Database {
+	return c.NewDB().Table(arg)
+}
+
+// parseOpenArgs 解析入口参数
+func (c *Connection) parseOpenArgs(args ...interface{}) (dbConf *config.DbConfig, err error) {
+	var fileOrDriverType, dsnOrFile string
+	switch len(args) {
+	case 1: // 传入的配置struct ( config.DbConfig )
+		switch args[0].(type) {
+		case config.DbConfig, *config.DbConfig:
+			dbConf = args[0].(*config.DbConfig)
+			return
+		default:
+			return dbConf, errors.New("参数格式错误: 一个参数时,需要传入config.DbConfig类型数据")
+		}
+	case 2: // 第一个是驱动或文件类型, 第二个是dsn或文件路径
+		var ok bool
+		var ok2 bool
+		fileOrDriverType, ok = args[0].(string)
+		dsnOrFile, ok2 = args[1].(string)
+		if !ok || !ok2 {
+			return dbConf, errors.New("参数格式错误: 两个参数时,需要传入string类型数据")
+		}
+	default:
+		return dbConf, errors.New("参数数量有误: 只接收一个或两个参数")
 	}
-	if conn.SetMaxIdleConns>0 {
-		conn.DB.SetMaxIdleConns(conn.SetMaxIdleConns)
+
+	// 解析配置
+	var typeName string
+	// 如果是在配置内
+	if typeName, err = config.Getter(fileOrDriverType); err == nil {
+		switch typeName {
+		case "driver":
+			dbConf.Driver = fileOrDriverType
+			dbConf.Dsn = dsnOrFile
+
+		case "file":
+			// 配置文件, 读取配置文件
+			if !helper.FileExists(dsnOrFile) {
+				return dbConf, errors.New("配置文件不存在")
+			}
+			// 调用`parser`目录解析器 解析文件
+			dbConf, err = parser.NewFileParser(fileOrDriverType, dsnOrFile)
+		}
+	}
+	return
+}
+
+// boot sql driver
+func (c *Connection) bootDb(dbConf *config.DbConfig) (db *sql.DB, err error) {
+	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8")
+	// 开始驱动
+	db, err = sql.Open(dbConf.Driver, dbConf.Dsn)
+	if err != nil {
+		return
+	}
+	if dbConf.SetMaxOpenConns > 0 {
+		db.SetMaxOpenConns(dbConf.SetMaxOpenConns)
+	}
+	if dbConf.SetMaxIdleConns > 0 {
+		db.SetMaxIdleConns(dbConf.SetMaxIdleConns)
 	}
 
 	// 检查是否可以ping通
-	err2 := conn.DB.Ping()
-
-	return err2
-}
-
-// Close database
-func (conn *Connection) Close() error {
-	//conn.SqlLog = []string{}
-	return conn.DB.Close()
-}
-
-// Ping db
-func (conn *Connection) Ping() error {
-	return conn.DB.Ping()
-}
-
-// Table is set table from database
-func (conn *Connection) Table(table string) *Database {
-	return conn.NewDB().Table(table)
-}
-
-// Query str
-func (conn *Connection) Query(args ...interface{}) ([]map[string]interface{}, error) {
-	return conn.NewDB().Query(args...)
-}
-
-// Execute str
-func (conn *Connection) Execute(args ...interface{}) (int64, error) {
-	return conn.NewDB().Execute(args...)
-}
-
-// GetInstance , get the database object
-func (conn *Connection) GetInstance() *Database {
-	//var database *Database
-	//return database
-	return &Database{connection:conn}
-}
-
-// NewDB , get the database object
-func (conn *Connection) NewDB() *Database {
-	return &Database{connection:conn}
-}
-
-// JsonEncode : parse json
-func (conn *Connection) JsonEncode(arg interface{}) string {
-	return conn.NewDB().JsonEncode(arg)
-}
-
-//// LastSql is get last query sql
-//func (conn *Connection) LastSql() string {
-//	if len(conn.SqlLog) > 0 {
-//		return conn.SqlLog[len(conn.SqlLog)-1:][0]
-//	}
-//	return ""
-//}
-//
-//// SqlLogs is all sql query logs in this request
-//func (conn *Connection) SqlLogs() []string {
-//	return conn.SqlLog
-//}
-
-// GetDB is get origin *sql.DB
-func (conn *Connection) GetDB() *sql.DB {
-	return conn.DB
+	err = db.Ping()
+	return
 }
