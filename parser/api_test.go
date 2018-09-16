@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"fizzday.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/config"
 	"testing"
 )
 

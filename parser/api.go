@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"fizzday.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/config"
 )
 // 注册解析器
 var fileParsers = map[string]IParser{}

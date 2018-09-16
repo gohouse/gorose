@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fizzday.com/gohouse/gorose"
-	"fizzday.com/gohouse/gorose/config"
-	_ "fizzday.com/gohouse/gorose/driver/mysql"
+	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/config"
+	_ "github.com/gohouse/gorose/driver/mysql"
 	"fmt"
 )
 

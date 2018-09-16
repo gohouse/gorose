@@ -3,7 +3,7 @@ package gorose
 import (
 	"database/sql"
 	"errors"
-	"fizzday.com/gohouse/gorose/helper"
+	"github.com/gohouse/gorose/helper"
 	"fmt"
 	"reflect"
 	"strings"

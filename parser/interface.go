@@ -1,6 +1,6 @@
 package parser
 
-import "fizzday.com/gohouse/gorose/config"
+import "github.com/gohouse/gorose/config"
 
 type IParser interface {
 	Parse(d string) (conf *config.DbConfig, err error)

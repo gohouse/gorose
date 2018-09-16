@@ -1,6 +1,6 @@
 package builder
 
-import "fizzday.com/gohouse/gorose/config"
+import "github.com/gohouse/gorose/config"
 
 type MysqlBuilder struct {
 }

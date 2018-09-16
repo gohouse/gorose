@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fizzday.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/config"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
 )

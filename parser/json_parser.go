@@ -2,7 +2,7 @@ package parser
 
 import (
 	"encoding/json"
-	"fizzday.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/config"
 	"io/ioutil"
 )
 

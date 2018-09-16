@@ -3,9 +3,9 @@ package gorose
 import (
 	"database/sql"
 	"errors"
-	"fizzday.com/gohouse/gorose/config"
-	"fizzday.com/gohouse/gorose/helper"
-	"fizzday.com/gohouse/gorose/parser"
+	"github.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/helper"
+	"github.com/gohouse/gorose/parser"
 )
 
 type Connection struct {
