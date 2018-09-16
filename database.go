@@ -254,8 +254,8 @@ func (dba *Database) ParseTable() (string, error) {
 	switch dba.STable.(type) {
 	case string: // 直接传入的是表名
 		dba.TableType = TABLE_STRING
-		dba.TableName = dba.STable.(string)
-		return dba.TableName, nil
+		tableName = dba.STable.(string)
+		return tableName, nil
 
 	default: // 传入的是struct
 		// make sure dst is an appropriate type
@@ -269,6 +269,8 @@ func (dba *Database) ParseTable() (string, error) {
 			dba.TableType = TABLE_STRUCT
 			tableName = sliceVal.Type().Name()
 			dba.TableStruct = sliceVal
+			// 默认只查一条
+			dba.SLimit = 1
 		case reflect.Slice: // []struct
 			eltType := sliceVal.Type().Elem()
 			if eltType.Kind() != reflect.Struct {
@@ -290,5 +292,6 @@ func (dba *Database) ParseTable() (string, error) {
 			dba.SFields = helper.GetTagName(dba.TableStruct.Interface())
 		}
 	}
+	dba.TableName = tableName
 	return tableName, nil
 }
