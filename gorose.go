@@ -9,8 +9,8 @@ import (
 )
 
 type Connection struct {
-	dbConfig *config.DbConfig
-	db       *sql.DB
+	DbConfig *config.DbConfig
+	Db       *sql.DB
 }
 
 // Open 链接数据库入口, 传入配置
@@ -21,19 +21,19 @@ func Open(args ...interface{}) (*Connection, error) {
 	var err error
 
 	// 解析配置获取参数并保存
-	c.dbConfig, err = c.parseOpenArgs(args...)
+	c.DbConfig, err = c.parseOpenArgs(args...)
 
 	if err != nil {
 		return c, err
 	}
 
 	// 驱动数据库获取链接并保存
-	c.db, err = c.bootDb(c.dbConfig)
+	c.Db, err = c.bootDb(c.DbConfig)
 	return c, err
 }
 
-func (c *Connection) Query(arg string, params ...interface{}) []map[string]interface{} {
-	return []map[string]interface{}{{"sql": arg}}
+func (dba *Connection) Query(arg string, params ...interface{}) (result []map[string]interface{}, errs error) {
+	return dba.NewDB().Query(arg, params...)
 }
 
 func (c *Connection) Execute(arg string, params ...interface{}) int64 {
@@ -41,7 +41,7 @@ func (c *Connection) Execute(arg string, params ...interface{}) int64 {
 }
 
 func (c *Connection) NewDB() *Database {
-	return &Database{connection: c}
+	return &Database{Connection: c}
 }
 
 func (c *Connection) Table(arg interface{}) *Database {

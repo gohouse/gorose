@@ -93,3 +93,7 @@ func SetStructFieldByJsonName(ptr interface{}, fields map[string]interface{}) {
 
 	return
 }
+
+//func BuildSql(dba *gorose.Database, operType ...string) (string, error) {
+//	return gorose.BuildSql(dba, operType...)
+//}

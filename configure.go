@@ -1,6 +1,7 @@
 package gorose
 
-type TableType int
+import . "github.com/gohouse/gorose/api"
+
 const (
 	TABLE_STRING       TableType = iota // 非结构体 表名字符串	("users")
 	TABLE_STRUCT                        // 结构体 一条数据		(struct)

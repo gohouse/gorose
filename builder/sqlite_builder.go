@@ -1,6 +1,9 @@
 package builder
 
-import "github.com/gohouse/gorose/config"
+import (
+	"github.com/gohouse/gorose/api"
+	"github.com/gohouse/gorose/config"
+)
 
 type SqliteBuilder struct {
 }
@@ -13,10 +16,10 @@ func init()  {
 	Register(config.SQLITE, builder)
 }
 
-func (sql SqliteBuilder) BuildQuery() (string, error) {
+func (b SqliteBuilder) BuildQuery(api api.OrmApi) (sql string, err error) {
 	return "SqliteBuilder BuildQuery", nil
 }
 
-func (sql SqliteBuilder) BuildExecute() (string, error) {
+func (b SqliteBuilder) BuildExecute(api api.OrmApi, operType string) (string, error) {
 	return "SqliteBuilder BuildExecute", nil
 }

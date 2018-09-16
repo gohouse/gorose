@@ -2,30 +2,31 @@ package builder
 
 import (
 	"errors"
+	"github.com/gohouse/gorose/api"
 	"github.com/gohouse/gorose/config"
 )
 
 // 注册解析器
 var builders = map[string]IBuilder{}
-
-func BuildQuery(d string) (string, error) {
-	//return builders[d].BuildQuery()
-	var ip IBuilder
-	var err error
-	if ip, err = Getter(d); err!=nil {
-		return "", err
+func BuildSql(api api.OrmApi,operType ...string) (string, error) {
+	// 获取驱动类型
+	driver := api.Driver
+	builder,err := Getter(driver)
+	if err!=nil{
+		return "",err
 	}
-	return ip.BuildQuery()
-}
-
-func BuildExecute(d string) (string, error) {
-	//return builders[d].BuildQuery()
-	var ip IBuilder
-	var err error
-	if ip, err = Getter(d); err!=nil {
-		return "", err
+	switch len(operType) {
+	case 0:
+		return builder.BuildQuery(api)
+	case 1:
+		if operType[0] == "select" {
+			return builder.BuildQuery(api)
+		} else {
+			return builder.BuildExecute(api, operType[0])
+		}
+	default:
+		return "", errors.New("参数有误")
 	}
-	return ip.BuildExecute()
 }
 
 // Getter 获取解析器
