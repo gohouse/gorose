@@ -3,72 +3,11 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
-	"github.com/gohouse/gorose/api"
-	"github.com/gohouse/gorose/builder"
+	"github.com/gohouse/gorose/across"
 	"github.com/gohouse/gorose/helper"
 	"reflect"
 	"strings"
 )
-
-type ITable interface {
-	TableName() string
-}
-
-//type table struct {
-//	table       interface{}
-//	tableName   string
-//	tableStruct reflect.Value
-//	tableSlice  reflect.Value
-//	tableType   api.TableType
-//}
-
-type Database struct {
-	api.OrmApi
-	Connection *Connection
-	//table      table
-	//fields     []string
-	//limit      int
-}
-
-func NewDatabase() *Database {
-	return &Database{}
-}
-
-func (dba *Database) Table(arg interface{}) *Database {
-	dba.STable = arg
-	//fmt.Println(dba.STable)
-	//os.Exit(1)
-	return dba
-}
-
-func (dba *Database) Get() (result []map[string]interface{}, err error) {
-	var sqlStr string
-	sqlStr, err = dba.BuildSql()
-	fmt.Println(sqlStr)
-	if err != nil {
-		return
-	}
-	result, err = dba.Query(sqlStr)
-
-	return
-}
-
-func (dba *Database) First() (result map[string]interface{}, err error) {
-	dba.SLimit = 1
-	var resultSlice []map[string]interface{}
-	if resultSlice, err = dba.Get(); err != nil {
-		return
-	}
-	if len(resultSlice) > 0 {
-		result = resultSlice[0]
-	}
-	return
-}
-
-func (dba *Database) Select() (err error) {
-	_, err = dba.Get()
-	return
-}
 
 //// BuildSql : build sql string , but not execute sql really
 //// operType : select/insert/update/delete
@@ -76,7 +15,7 @@ func (dba *Database) BuildSql(operType ...string) (string, error) {
 	//dba.Driver = dba.Connection.DbConfig.Driver
 	dba.ParseTable()
 	dba.Driver = "mysql"
-	return builder.BuildSql(dba.OrmApi, operType...)
+	return NewBuilder(dba.OrmApi, operType...)
 }
 
 func (dba *Database) BuildQuery() (sql string, err error) {
@@ -114,7 +53,7 @@ func (dba *Database) Query(arg string, params ...interface{}) (result []map[stri
 		}
 	}
 
-	stmt, err := dba.Connection.Db.Prepare(arg)
+	stmt, err := dba.Connection.GetQueryDb().Prepare(arg)
 	if err != nil {
 		return result, err
 	}
@@ -133,11 +72,11 @@ func (dba *Database) Query(arg string, params ...interface{}) (result []map[stri
 func (dba *Database) Scan(rows *sql.Rows) (result []map[string]interface{}, err error) {
 	// 检查实多维数组还是一维数组
 	switch dba.TableType {
-	case TABLE_STRUCT_SLICE:
+	case across.TABLE_STRUCT_SLICE:
 		err = dba.ScanAll(rows, dba.STable)
-	case TABLE_STRUCT:
+	case across.TABLE_STRUCT:
 		err = dba.ScanRow(rows, dba.STable)
-	case TABLE_STRING:
+	case across.TABLE_STRING:
 		result, err = dba.ScanMap(rows)
 	}
 	return
@@ -253,7 +192,7 @@ func (dba *Database) ParseTable() (string, error) {
 	var tableName string
 	switch dba.STable.(type) {
 	case string: // 直接传入的是表名
-		dba.TableType = TABLE_STRING
+		dba.TableType = across.TABLE_STRING
 		tableName = dba.STable.(string)
 		return tableName, nil
 
@@ -266,7 +205,7 @@ func (dba *Database) ParseTable() (string, error) {
 		sliceVal := reflect.Indirect(dstVal)
 		switch sliceVal.Kind() {
 		case reflect.Struct: // struct
-			dba.TableType = TABLE_STRUCT
+			dba.TableType = across.TABLE_STRUCT
 			tableName = sliceVal.Type().Name()
 			dba.TableStruct = sliceVal
 			// 默认只查一条
@@ -276,7 +215,7 @@ func (dba *Database) ParseTable() (string, error) {
 			if eltType.Kind() != reflect.Struct {
 				return tableName, fmt.Errorf("table只接收字符串表名和struct, 但是传入的是: %T", dba.STable)
 			}
-			dba.TableType = TABLE_STRUCT_SLICE
+			dba.TableType = across.TABLE_STRUCT_SLICE
 			tableName = eltType.Name()
 			dba.TableStruct = reflect.New(eltType)
 			dba.TableSlice = sliceVal

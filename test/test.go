@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gohouse/gorose"
-	"github.com/gohouse/gorose/config"
 	_ "github.com/gohouse/gorose/driver/mysql"
 	"fmt"
+	"github.com/gohouse/gorose/examples"
 )
 
 type users struct {
@@ -13,7 +13,7 @@ type users struct {
 	Job string `orm:"job"`
 }
 func main() {
-	connection,_ := gorose.Open("json", config.DemoParserFiles["json"])
+	connection,_ := gorose.Open("json", examples.DemoParserFiles["json"])
 
 	db := connection.NewDB()
 

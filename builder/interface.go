@@ -1,10 +1,10 @@
 package builder
 
 import (
-	"github.com/gohouse/gorose/api"
+	"github.com/gohouse/gorose/across"
 )
 
 type IBuilder interface {
-	BuildQuery(api api.OrmApi) (string, error)
-	BuildExecute(api api.OrmApi, operType string) (string, error)
+	BuildQuery(api across.OrmApi) (string, error)
+	BuildExecute(api across.OrmApi, operType string) (string, error)
 }

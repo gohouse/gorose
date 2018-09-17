@@ -2,8 +2,7 @@ package builder
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose/api"
-	"github.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/across"
 	"strings"
 )
 
@@ -15,10 +14,10 @@ func init()  {
 	var builder IBuilder = &MysqlBuilder{}
 
 	// 注册驱动
-	Register(config.MYSQL, builder)
+	Register(across.MYSQL, builder)
 }
 
-func (m MysqlBuilder) BuildQuery(api api.OrmApi) (sql string, err error) {
+func (m MysqlBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {
 	var fields, table, limit, offset string
 	// table
 	//if table, err = api.ParseTable(); err != nil {
@@ -41,6 +40,6 @@ func (m MysqlBuilder) BuildQuery(api api.OrmApi) (sql string, err error) {
 	return sqlstr, nil
 }
 
-func (m MysqlBuilder) BuildExecute(api api.OrmApi, operType string) (string, error) {
+func (m MysqlBuilder) BuildExecute(api across.OrmApi, operType string) (string, error) {
 	return "MysqlBuilder BuildExecute", nil
 }

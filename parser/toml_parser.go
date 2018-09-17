@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"github.com/gohouse/gorose/config"
 	"github.com/BurntSushi/toml"
+	"github.com/gohouse/gorose/across"
 	"io/ioutil"
 )
 
@@ -14,10 +14,10 @@ func init()  {
 	var parser IParser = &TomlConfigParser{}
 
 	// 注册驱动
-	Register(config.TOML, parser)
+	Register(across.TOML, parser)
 }
 
-func (c *TomlConfigParser) Parse(file string) (conf *config.DbConfig, err error) {
+func (c *TomlConfigParser) Parse(file string) (conf *across.DbConfigCluster, err error) {
 	var fp []byte
 	fp, err = ioutil.ReadFile(file)
 	if err != nil {

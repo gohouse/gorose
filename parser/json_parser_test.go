@@ -2,13 +2,13 @@ package parser
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/examples"
 	"testing"
 )
 
 func TestFileParser_Json(test *testing.T) {
 	//var file = "/Users/fizz/go/src/github.com/gohouse/laboratory/dp/config/mysql.json"
-	var file = config.DemoParserFiles["json"]
+	var file = examples.DemoParserFiles["json"]
 
 	var confP = &JsonConfigParser{}
 

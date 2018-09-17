@@ -2,13 +2,13 @@ package builder
 
 import (
 	"errors"
-	"github.com/gohouse/gorose/api"
-	"github.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/across"
 )
 
 // 注册解析器
 var builders = map[string]IBuilder{}
-func BuildSql(api api.OrmApi,operType ...string) (string, error) {
+// NewBuilder : build sql
+func NewBuilder(api across.OrmApi,operType ...string) (string, error) {
 	// 获取驱动类型
 	driver := api.Driver
 	builder,err := Getter(driver)
@@ -41,5 +41,5 @@ func Getter(p string) (IBuilder, error) {
 func Register(p string, ip IBuilder) {
 	builders[p] = ip
 	// 注册类型,方便Open()解析时区分
-	config.Register(p, "driver")
+	across.Register(p, "driver")
 }

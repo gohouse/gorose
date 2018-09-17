@@ -1,14 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type a struct {
 
 }
 func main() {
-
-	res := a{}
-	res2 := new(a)
-
-	fmt.Println(res, res2)
+	fmt.Print(rand.Intn(100), ",")
+	fmt.Print(rand.Intn(100))
 }

@@ -1,0 +1,8 @@
+{
+    "Driver": "mysql",
+    "EnableQueryLog": false,
+    "SetMaxOpenConns": 0,
+    "SetMaxIdleConns": 0,
+    "Prefix": "",
+    "Dsn": "gcore:gcore@tcp(192.168.200.248:3306)/test?charset=utf8"
+}

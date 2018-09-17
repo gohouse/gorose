@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"github.com/gohouse/gorose/config"
+	"github.com/gohouse/gorose/across"
 )
 // 注册解析器
 var fileParsers = map[string]IParser{}
@@ -10,11 +10,11 @@ var fileParsers = map[string]IParser{}
 // NewFileParser 对外提供配置文件解析器接口
 // fileType 文件类型
 // file 文件路径
-func NewFileParser(fileType, file string) (*config.DbConfig, error) {
+func NewFileParser(fileType, file string) (*across.DbConfigCluster, error) {
 	var ip IParser
 	var err error
 	if ip, err = Getter(fileType); err!=nil {
-		return &config.DbConfig{}, errors.New("不支持的配置类型")
+		return &across.DbConfigCluster{}, errors.New("不支持的配置类型")
 	}
 	return ip.Parse(file)
 }
@@ -31,5 +31,5 @@ func Getter(p string) (IParser, error) {
 func Register(p string, ip IParser) {
 	fileParsers[p] = ip
 	// 注册类型,方便Open()解析时区分
-	config.Register(p, "file")
+	across.Register(p, "file")
 }
