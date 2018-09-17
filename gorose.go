@@ -10,10 +10,6 @@ type ITable interface {
 	TableName() string
 }
 
-type Database struct {
-	across.OrmApi
-	Connection *Connection
-}
 // Open 链接数据库入口, 传入配置
 // args 接收一个或2个参数, 一个参数时:struct配置文件(across.DbConfigCluster{})
 //		两个参数时: 第一个是驱动或文件类型, 第二个是dsn或文件路径

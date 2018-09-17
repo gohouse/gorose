@@ -5,6 +5,6 @@ import (
 )
 
 type IBuilder interface {
-	BuildQuery(api across.OrmApi) (string, error)
-	BuildExecute(api across.OrmApi, operType string) (string, error)
+	BuildQuery(ormApi across.OrmApi) (sql string, err error)
+	BuildExecute(ormApi across.OrmApi, operType string) (sql string, err error)
 }

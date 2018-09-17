@@ -1,6 +1,13 @@
 package across
 
-import "reflect"
+import (
+	"database/sql"
+	"reflect"
+)
+
+var (
+	Regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
+)
 
 type TableType int
 
@@ -19,8 +26,28 @@ type table struct {
 }
 type OrmApi struct {
 	table
-	Driver  string
-	SFields []string
-	SLimit  int
-	SOffset int
+	Driver                string
+	Prefix                string
+	Sfields               []string
+	Swhere                [][]interface{} // where
+	Sorder                string          // order
+	Slimit                int             // limit
+	Soffset               int             // offset
+	Sjoin                 [][]interface{} // join
+	Sdistinct             bool            // distinct
+	Sunion                string          // sum/count/avg/max/min
+	//Scount                string          // count
+	//Ssum                  string          // sum
+	//Savg                  string          // avg
+	//Smax                  string          // max
+	//Smin                  string          // min
+	Sgroup                string          // group
+	Shaving               string          // having
+	Sdata                 interface{}     // data
+	Stx                   *sql.Tx         //Dbstruct Database
+	SbeforeParseWhereData [][]interface{}
+	Strans                bool
+	LastInsertId          int64 // insert last insert id
+	SqlLogs               []string
+	LastSql               string
 }
