@@ -2,13 +2,17 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
+	"github.com/gohouse/gorose"
+	"reflect"
 )
 
-type a struct {
 
-}
 func main() {
-	fmt.Print(rand.Intn(100), ",")
-	fmt.Print(rand.Intn(100))
+	var conf gorose.Configure
+	//var conf2 across.DbConfigSingle
+
+	conf.Prefix = "pre_"
+
+	fmt.Println(conf)
+	fmt.Println(reflect.TypeOf(conf.DbConfigSingle))
 }

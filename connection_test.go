@@ -39,3 +39,20 @@ func TestGorose_Query(test *testing.T) {
 
 	test.Log(fmt.Sprintf("PASS: Query: %v", res))
 }
+
+func TestGorose_Execute(test *testing.T) {
+	conn,err = InitConn()
+	if err != nil {
+		test.Error("FAIL: open failed.", err)
+		return
+	}
+	res, err := conn.Execute("update users set job='it22' where id=47")
+	if err != nil {
+		test.Error("FAIL: Execute failed.", err)
+		return
+	}
+
+	test.Log(fmt.Sprintf("PASS: Execute: %v", res))
+}
+
+

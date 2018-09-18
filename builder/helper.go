@@ -223,42 +223,20 @@ func buildData(ormApi across.OrmApi) (string, string, string) {
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
-		//case "map[string]interface {}":
 	default: // update or insert
-		datas := make(map[string]string)
-		switch data.(type) {
-		case map[string]interface{}:
-			for key, val := range data.(map[string]interface{}) {
-				if val == nil {
-					datas[key] = "null"
-				} else {
-					datas[key] = utils.ParseStr(val)
-				}
-			}
-		case map[string]int:
-			for key, val := range data.(map[string]int) {
-				datas[key] = utils.ParseStr(val)
-			}
-		case map[string]string:
-			for key, val := range data.(map[string]string) {
-				datas[key] = val
-			}
-		}
-
-		//datas := data.(map[string]interface{})
 		var dataValuesSub []string
-		for key, val := range datas {
+		for key, val := range data.(map[string]interface{}) {
 			// insert
 			dataFields = append(dataFields, key)
 			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-			if val == "null" {
+			if val == nil {
 				dataValuesSub = append(dataValuesSub, "null")
 			} else {
 				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
 			}
 			// update
 			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-			if val == "null" {
+			if val == nil {
 				dataObj = append(dataObj, key+"=null")
 			} else {
 				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))

@@ -129,7 +129,12 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 // AddSingleQuotes : 添加单引号
 func AddSingleQuotes(data interface{}) string {
 	//return "'" + strings.Trim(ParseStr(data), " ") + "'"
-	return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
+	switch data.(type) {
+	case int,int64,int32,uint32,uint64:
+		return ParseStr(data)
+	default:
+		return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
+	}
 }
 
 // Implode : 字符串转数组, 接受混合类型, 最终输出的是字符串类型

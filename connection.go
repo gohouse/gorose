@@ -21,17 +21,17 @@ func (c *Connection) Query(arg string, params ...interface{}) (result []map[stri
 	return c.NewSession().Query(arg, params...)
 }
 
-func (c *Connection) Execute(arg string, params ...interface{}) int64 {
-	return 0
+func (c *Connection) Execute(arg string, params ...interface{}) (int64, error) {
+	return c.NewSession().Execute(arg, params...)
 }
 
-func (c *Connection) NewSession() *Database {
-	dba := NewDatabase()
+func (c *Connection) NewSession() *Session {
+	dba := NewOrm()
 	dba.Connection = c
 	return dba
 }
 
-func (c *Connection) Table(arg interface{}) *Database {
+func (c *Connection) Table(arg interface{}) *Session {
 	return c.NewSession().Table(arg)
 }
 

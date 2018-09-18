@@ -7,9 +7,8 @@ import (
 type users struct {
 	Name string
 }
-func TestSession_Api(test *testing.T) {
-	var db = &Database{}
-	//var b = "users"
+func TestSession_QueryApi(test *testing.T) {
+	var db = NewOrm()
 	var b = users{"fizz"}
 	sql,err := db.Table(&b).
 		Distinct().
@@ -21,6 +20,63 @@ func TestSession_Api(test *testing.T) {
 		Limit(1).
 		Offset(2).
 		BuildSql()
+	if err != nil {
+		test.Error("FAIL: orm failed.", err)
+		return
+	}
+
+	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+}
+func TestSession_Insert(test *testing.T) {
+	var db = NewOrm()
+	//var b = "users"
+	var b = users{"fizz"}
+	sql,err := db.Table(&b).
+		Data(map[string]interface{}{"name":"fizz333"}).
+		BuildSql("insert")
+	if err != nil {
+		test.Error("FAIL: orm failed.", err)
+		return
+	}
+
+	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+}
+func TestSession_Update(test *testing.T) {
+	var db = NewOrm()
+	//var b = "users"
+	var b = users{"fizz"}
+	sql,err := db.Table(&b).
+		Data(map[string]interface{}{"name":"fizz333", "age":18}).
+		Where("a","1").
+		BuildSql("update")
+	if err != nil {
+		test.Error("FAIL: orm failed.", err)
+		return
+	}
+
+	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+}
+func TestSession_Delete(test *testing.T) {
+	var db = NewOrm()
+	//var b = "users"
+	var b = users{"fizz"}
+	sql,err := db.Table(&b).
+		Where("a",1).
+		BuildSql("delete")
+	if err != nil {
+		test.Error("FAIL: orm failed.", err)
+		return
+	}
+
+	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+}
+func TestSession_InsertMulti(test *testing.T) {
+	var db = NewOrm()
+	//var b = "users"
+	var b = users{"fizz"}
+	sql,err := db.Table(&b).
+		Data([]map[string]interface{}{{"name":"fizz333","age":10},{"name":"fizz222","age":20}}).
+		BuildSql("insert")
 	if err != nil {
 		test.Error("FAIL: orm failed.", err)
 		return

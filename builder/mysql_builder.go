@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gohouse/gorose/across"
 	"github.com/gohouse/gorose/utils"
@@ -83,11 +84,17 @@ func (m *MysqlBuilder) BuildExecute(ormApi across.OrmApi, operType string) (sql 
 	tableName := ormApi.Prefix + ormApi.TableName
 	switch operType {
 	case "insert":
-		sqlstr = fmt.Sprintf("insert into %s (%s) values %s", tableName, insertkey, insertval)
+		sqlstr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", tableName, insertkey, insertval)
 	case "update":
-		sqlstr = fmt.Sprintf("update %s set %s%s", tableName, update, where)
+		if res=="" && ormApi.Sforce==false{
+			return sqlstr, errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Update())")
+		}
+		sqlstr = fmt.Sprintf("UPDATE %s SET %s%s", tableName, update, where)
 	case "delete":
-		sqlstr = fmt.Sprintf("delete from %s%s", tableName, where)
+		if res=="" && ormApi.Sforce==false{
+			return sqlstr, errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Delete())")
+		}
+		sqlstr = fmt.Sprintf("DELETE FROM %s%s", tableName, where)
 	}
 	//fmt.Println(sqlstr)
 	//dba.Reset()

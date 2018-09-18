@@ -11,92 +11,96 @@ import (
 	"strings"
 )
 
-type Database struct {
+type ITable interface {
+	TableName() string
+}
+
+type Session struct {
 	across.OrmApi
 	Connection *Connection
 }
 
-func (dba *Database) Table(arg interface{}) *Database {
+func (dba *Session) Table(arg interface{}) *Session {
 	dba.STable = arg
 	return dba
 }
 
 // Fields : select fields
-func (dba *Database) Fields(fields ...string) *Database {
+func (dba *Session) Fields(fields ...string) *Session {
 	dba.Sfields = fields
 	return dba
 }
 
 // AddFields : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddFields method:
-func (dba *Database) AddFields(fields ...string) *Database {
+func (dba *Session) AddFields(fields ...string) *Session {
 	dba.Sfields = append(dba.Sfields, fields...)
 	return dba
 }
 
 // Data : insert or update data
-func (dba *Database) Data(data interface{}) *Database {
+func (dba *Session) Data(data interface{}) *Session {
 	dba.Sdata = data
 	return dba
 }
 
 // Group : select group by
-func (dba *Database) Group(group string) *Database {
+func (dba *Session) Group(group string) *Session {
 	dba.Sgroup = group
 	return dba
 }
 
 // GroupBy : equals Group()
-func (dba *Database) GroupBy(group string) *Database {
+func (dba *Session) GroupBy(group string) *Session {
 	return dba.Group(group)
 }
 
 // Having : select having
-func (dba *Database) Having(having string) *Database {
+func (dba *Session) Having(having string) *Session {
 	dba.Shaving = having
 	return dba
 }
 
 // Order : select order by
-func (dba *Database) Order(order string) *Database {
+func (dba *Session) Order(order string) *Session {
 	dba.Sorder = order
 	return dba
 }
 
 // OrderBy : equal order
-func (dba *Database) OrderBy(order string) *Database {
+func (dba *Session) OrderBy(order string) *Session {
 	return dba.Order(order)
 }
 
 // Limit : select limit
-func (dba *Database) Limit(limit int) *Database {
+func (dba *Session) Limit(limit int) *Session {
 	dba.Slimit = limit
 	return dba
 }
 
 // Offset : select offset
-func (dba *Database) Offset(offset int) *Database {
+func (dba *Session) Offset(offset int) *Session {
 	dba.Soffset = offset
 	return dba
 }
 
 // Take : select limit
-func (dba *Database) Take(limit int) *Database {
+func (dba *Session) Take(limit int) *Session {
 	return dba.Limit(limit)
 }
 
 // Skip : select offset
-func (dba *Database) Skip(offset int) *Database {
+func (dba *Session) Skip(offset int) *Session {
 	return dba.Offset(offset)
 }
 
 // Page : select page
-func (dba *Database) Page(page int) *Database {
+func (dba *Session) Page(page int) *Session {
 	dba.Soffset = (page - 1) * dba.Slimit
 	return dba
 }
 
 // Where : query or execute where condition, the relation is and
-func (dba *Database) Where(args ...interface{}) *Database {
+func (dba *Session) Where(args ...interface{}) *Session {
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
 
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
@@ -108,7 +112,7 @@ func (dba *Database) Where(args ...interface{}) *Database {
 }
 
 // OrWhere : like where , but the relation is or,
-func (dba *Database) OrWhere(args ...interface{}) *Database {
+func (dba *Session) OrWhere(args ...interface{}) *Session {
 	w := []interface{}{"or", args}
 	dba.Swhere = append(dba.Swhere, w)
 
@@ -116,75 +120,85 @@ func (dba *Database) OrWhere(args ...interface{}) *Database {
 }
 
 // WhereNull : like where , where filed is null,
-func (dba *Database) WhereNull(arg string) *Database {
+func (dba *Session) WhereNull(arg string) *Session {
 	return dba.Where("arg", "is", "null")
 }
 
 // WhereNotNull : like where , where filed is not null,
-func (dba *Database) WhereNotNull(arg string) *Database {
+func (dba *Session) WhereNotNull(arg string) *Session {
 	return dba.Where("arg", "is not", "null")
 }
 
 // OrWhereNull : like WhereNull , the relation is or,
-func (dba *Database) OrWhereNull(arg string) *Database {
+func (dba *Session) OrWhereNull(arg string) *Session {
 	return dba.OrWhere("arg", "is", "null")
 }
 
 // OrWhereNotNull : like WhereNotNull , the relation is or,
-func (dba *Database) OrWhereNotNull(arg string) *Database {
+func (dba *Session) OrWhereNotNull(arg string) *Session {
 	return dba.OrWhere("arg", "is not", "null")
 }
 
 // WhereIn : a given column's value is contained within the given array
-func (dba *Database) WhereIn(field string, arr []interface{}) *Database {
+func (dba *Session) WhereIn(field string, arr []interface{}) *Session {
 	return dba.Where(field, "in", arr)
 }
 
 // WhereNotIn : the given column's value is not contained in the given array
-func (dba *Database) WhereNotIn(field string, arr []interface{}) *Database {
+func (dba *Session) WhereNotIn(field string, arr []interface{}) *Session {
 	return dba.Where(field, "not in", arr)
 }
 
 // OrWhereIn : as WhereIn, the relation is or
-func (dba *Database) OrWhereIn(field string, arr []interface{}) *Database {
+func (dba *Session) OrWhereIn(field string, arr []interface{}) *Session {
 	return dba.OrWhere(field, "in", arr)
 }
 
 // OrWhereNotIn : as WhereNotIn, the relation is or
-func (dba *Database) OrWhereNotIn(field string, arr []interface{}) *Database {
+func (dba *Session) OrWhereNotIn(field string, arr []interface{}) *Session {
 	return dba.OrWhere(field, "not in", arr)
 }
 
 // WhereBetween : a column's value is between two values:
-func (dba *Database) WhereBetween(field string, arr []interface{}) *Database {
+func (dba *Session) WhereBetween(field string, arr []interface{}) *Session {
 	return dba.Where(field, "between", arr)
 }
 
 // WhereNotBetween : a column's value lies outside of two values:
-func (dba *Database) WhereNotBetween(field string, arr []interface{}) *Database {
+func (dba *Session) WhereNotBetween(field string, arr []interface{}) *Session {
 	return dba.Where(field, "not between", arr)
 }
 
 // OrWhereBetween : like WhereNull , the relation is or,
-func (dba *Database) OrWhereBetween(field string, arr []interface{}) *Database {
+func (dba *Session) OrWhereBetween(field string, arr []interface{}) *Session {
 	return dba.OrWhere(field, "not between", arr)
 }
 
 // OrWhereNotBetween : like WhereNotNull , the relation is or,
-func (dba *Database) OrWhereNotBetween(field string, arr []interface{}) *Database {
+func (dba *Session) OrWhereNotBetween(field string, arr []interface{}) *Session {
 	return dba.OrWhere(field, "not in", arr)
 }
 
 // Join : select join query
-func (dba *Database) Join(args ...interface{}) *Database {
+func (dba *Session) Join(args ...interface{}) *Session {
 	//dba.parseJoin(args, "INNER")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"INNER", args})
 
 	return dba
 }
 
+// Force : delete or update without where condition
+func (dba *Session) Force(arg ...bool) *Session {
+	if len(arg)>0{
+		dba.Sforce = arg[0]
+	} else {
+		dba.Sforce = true
+	}
+	return dba
+}
+
 // InnerJoin : equals join
-func (dba *Database) InnerJoin(args ...interface{}) *Database {
+func (dba *Session) InnerJoin(args ...interface{}) *Session {
 	//dba.parseJoin(args, "INNER")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"INNER", args})
 
@@ -192,7 +206,7 @@ func (dba *Database) InnerJoin(args ...interface{}) *Database {
 }
 
 // LeftJoin : like join , the relation is left
-func (dba *Database) LeftJoin(args ...interface{}) *Database {
+func (dba *Session) LeftJoin(args ...interface{}) *Session {
 	//dba.parseJoin(args, "LEFT")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"LEFT", args})
 
@@ -200,7 +214,7 @@ func (dba *Database) LeftJoin(args ...interface{}) *Database {
 }
 
 // RightJoin : like join , the relation is right
-func (dba *Database) RightJoin(args ...interface{}) *Database {
+func (dba *Session) RightJoin(args ...interface{}) *Session {
 	//dba.parseJoin(args, "RIGHT")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"RIGHT", args})
 
@@ -208,7 +222,7 @@ func (dba *Database) RightJoin(args ...interface{}) *Database {
 }
 
 // CrossJoin : like join , the relation is cross
-func (dba *Database) CrossJoin(args ...interface{}) *Database {
+func (dba *Session) CrossJoin(args ...interface{}) *Session {
 	//dba.parseJoin(args, "RIGHT")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"CROSS", args})
 
@@ -216,7 +230,7 @@ func (dba *Database) CrossJoin(args ...interface{}) *Database {
 }
 
 // UnionJoin : like join , the relation is union
-func (dba *Database) UnionJoin(args ...interface{}) *Database {
+func (dba *Session) UnionJoin(args ...interface{}) *Session {
 	//dba.parseJoin(args, "RIGHT")
 	dba.Sjoin = append(dba.Sjoin, []interface{}{"UNION", args})
 
@@ -224,14 +238,14 @@ func (dba *Database) UnionJoin(args ...interface{}) *Database {
 }
 
 // Distinct : select distinct
-func (dba *Database) Distinct() *Database {
+func (dba *Session) Distinct() *Session {
 	dba.Sdistinct = true
 
 	return dba
 }
 
 // Pluck : Retrieving A List Of Column Values
-func (dba *Database) Pluck(args ...string) (interface{}, error) {
+func (dba *Session) Pluck(args ...string) (interface{}, error) {
 	res, err := dba.Get()
 	if err != nil {
 		return nil, err
@@ -258,7 +272,7 @@ func (dba *Database) Pluck(args ...string) (interface{}, error) {
 }
 
 // Value : If you don't even need an entire row, you may extract a single value from a record using the  value method. This method will return the value of the column directly:
-func (dba *Database) Value(arg string) (interface{}, error) {
+func (dba *Session) Value(arg string) (interface{}, error) {
 	res, err := dba.First()
 	if err != nil {
 		return nil, err
@@ -270,7 +284,7 @@ func (dba *Database) Value(arg string) (interface{}, error) {
 }
 
 // Count : select count rows
-func (dba *Database) Count(args ...string) (int64, error) {
+func (dba *Session) Count(args ...string) (int64, error) {
 	fields := "*"
 	if len(args) > 0 {
 		fields = utils.ParseStr(args[0])
@@ -279,27 +293,27 @@ func (dba *Database) Count(args ...string) (int64, error) {
 }
 
 // Sum : select sum field
-func (dba *Database) Sum(sum string) (int64, error) {
+func (dba *Session) Sum(sum string) (int64, error) {
 	return dba.UnionAct("sum", sum)
 }
 
 // Avg : select avg field
-func (dba *Database) Avg(avg string) (int64, error) {
+func (dba *Session) Avg(avg string) (int64, error) {
 	return dba.UnionAct("avg", avg)
 }
 
 // Max : select max field
-func (dba *Database) Max(max string) (int64, error) {
+func (dba *Session) Max(max string) (int64, error) {
 	return dba.UnionAct("max", max)
 }
 
 // Min : select min field
-func (dba *Database) Min(min string) (int64, error) {
+func (dba *Session) Min(min string) (int64, error) {
 	return dba.UnionAct("min", min)
 }
 
 // Chunk : select chunk more data to piceses block
-func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
+func (dba *Session) Chunk(limit int, callback func([]map[string]interface{})) {
 	var step = 0
 	var offset = dba.Soffset
 	for {
@@ -327,7 +341,7 @@ func (dba *Database) Chunk(limit int, callback func([]map[string]interface{})) {
 }
 
 // Loop : select more data to piceses block from begin
-func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
+func (dba *Session) Loop(limit int, callback func([]map[string]interface{})) {
 	dba.Slimit = limit
 	for {
 		// 查询当前区块的数据
@@ -346,19 +360,14 @@ func (dba *Database) Loop(limit int, callback func([]map[string]interface{})) {
 }
 
 // Execute : query instance of sql.DB.Execute
-func (dba *Database) Execute(args ...interface{}) (int64, error) {
+func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, error) {
 	//defer DB.Close()
-	lenArgs := len(args)
-	var sqlstring string
+	lenParams := len(params)
 	var vals []interface{}
 
-	sqlstring = args[0].(string)
-
-	if lenArgs > 1 {
-		for k, v := range args {
-			if k > 0 {
-				vals = append(vals, v)
-			}
+	if lenParams > 0 {
+		for _, v := range params {
+			vals = append(vals, v)
 		}
 	}
 	// 记录sqlLog
@@ -367,7 +376,7 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
-		return 0, errors.New("this method does not allow select operations, use Query")
+		return 0, errors.New("Execute does not allow select operations, use Query")
 	}
 
 	var stmt *sql.Stmt
@@ -409,60 +418,38 @@ func (dba *Database) Execute(args ...interface{}) (int64, error) {
 	return rowsAffected, err
 }
 // Insert : insert data and get affected rows
-func (dba *Database) Insert() (int, error) {
-	sqlstr, err := dba.BuildSql("insert")
-	if err != nil {
-		return 0, err
-	}
-
-	res, err := dba.Execute(sqlstr)
-	if err != nil {
-		return 0, err
-	}
-	return int(res), nil
+func (dba *Session) Insert() (int64, error) {
+	return dba.ExecuteAct("insert")
 }
 
 // insertGetId : insert data and get id
-func (dba *Database) InsertGetId() (int, error) {
+func (dba *Session) InsertGetId() (int64, error) {
 	_, err := dba.Insert()
-	if err != nil {
-		return 0, err
-	}
-	return int(dba.LastInsertId), nil
+	return dba.LastInsertId, err
 }
 
 // Update : update data
-func (dba *Database) Update() (int, error) {
-	sqlstr, err := dba.BuildSql("update")
-	if err != nil {
-		return 0, err
-	}
-
-	res, errs := dba.Execute(sqlstr)
-	if errs != nil {
-		return 0, errs
-	}
-	return int(res), nil
+func (dba *Session) Update() (int64, error) {
+	return dba.ExecuteAct("update")
 }
 
 // Delete : delete data
-func (dba *Database) Delete() (int, error) {
-	sqlstr, err := dba.BuildSql("delete")
+func (dba *Session) Delete() (int64, error) {
+	return dba.ExecuteAct("delete")
+}
+
+func (dba *Session) ExecuteAct(operType string) (int64, error) {
+	sqlstr, err := dba.BuildSql(operType)
 	if err != nil {
 		return 0, err
 	}
-
-	res, errs := dba.Execute(sqlstr)
-	if errs != nil {
-		return 0, errs
-	}
-	return int(res), nil
+	return dba.Execute(sqlstr)
 }
 
 // Increment : auto Increment +1 default
 // we can define step (such as 2, 3, 6 ...) if give the second params
 // we can use this method as decrement with the third param as "-"
-func (dba *Database) Increment(args ...interface{}) (int, error) {
+func (dba *Session) Increment(args ...interface{}) (int64, error) {
 	argLen := len(args)
 	var field string
 	var value string = "1"
@@ -512,7 +499,7 @@ func (dba *Database) Increment(args ...interface{}) (int, error) {
 
 // Decrement : auto Decrement -1 default
 // we can define step (such as 2, 3, 6 ...) if give the second params
-func (dba *Database) Decrement(args ...interface{}) (int, error) {
+func (dba *Session) Decrement(args ...interface{}) (int64, error) {
 	arglen := len(args)
 	switch arglen {
 	case 1:
@@ -526,23 +513,23 @@ func (dba *Database) Decrement(args ...interface{}) (int, error) {
 	return dba.Increment(args...)
 }
 
-func (dba *Database) Begin() {
+func (dba *Session) Begin() {
 	dba.Stx, _ = dba.Connection.GetExecuteDb().Begin()
 	dba.Strans = true
 }
-func (dba *Database) Commit() {
+func (dba *Session) Commit() {
 	dba.Stx.Commit()
 	dba.Strans = false
 }
-func (dba *Database) Rollback() {
+func (dba *Session) Rollback() {
 	dba.Stx.Rollback()
 	dba.Strans = false
 }
 
 // Reset : reset union select
-func (dba *Database) Reset(source string) {
+func (dba *Session) Reset(source string) {
 	if source == "transaction" {
-		//this = new(Database)
+		//this = new(Session)
 		dba.STable = ""
 		dba.Sfields = []string{}
 		dba.Swhere = [][]interface{}{}
@@ -560,101 +547,22 @@ func (dba *Database) Reset(source string) {
 }
 
 // ResetWhere : in transaction, when you need update several tables in difference condition
-func (dba *Database) ResetWhere() {
+func (dba *Session) ResetWhere() {
 	dba.Swhere = [][]interface{}{}
 }
 
 // JsonEncode : parse json
-func (dba *Database) JsonEncode(data interface{}) string {
+func (dba *Session) JsonEncode(data interface{}) string {
 	res, _ := utils.JsonEncode(data)
 	return res
 }
 
-// buildData : build inert or update data
-func (dba *Database) buildData() (string, string, string) {
-	// insert
-	var dataFields []string
-	var dataValues []string
-	// update or delete
-	var dataObj []string
-
-	data := dba.Sdata
-
-	switch data.(type) {
-	case string:
-		dataObj = append(dataObj, data.(string))
-	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
-		datas := data.([]map[string]interface{})
-		for key, _ := range datas[0] {
-			if utils.InArray(key, dataFields) == false {
-				dataFields = append(dataFields, key)
-			}
-		}
-		for _, item := range datas {
-			var dataValuesSub []string
-			for _, key := range dataFields {
-				if item[key] == nil {
-					dataValuesSub = append(dataValuesSub, "null")
-				} else {
-					dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
-				}
-			}
-			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
-		}
-		//case "map[string]interface {}":
-	default: // update or insert
-		datas := make(map[string]string)
-		switch data.(type) {
-		case map[string]interface{}:
-			for key, val := range data.(map[string]interface{}) {
-				if val == nil {
-					datas[key] = "null"
-				} else {
-					datas[key] = utils.ParseStr(val)
-				}
-			}
-		case map[string]int:
-			for key, val := range data.(map[string]int) {
-				datas[key] = utils.ParseStr(val)
-			}
-		case map[string]string:
-			for key, val := range data.(map[string]string) {
-				datas[key] = val
-			}
-		}
-
-		//datas := data.(map[string]interface{})
-		var dataValuesSub []string
-		for key, val := range datas {
-			// insert
-			dataFields = append(dataFields, key)
-			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-			if val == "null" {
-				dataValuesSub = append(dataValuesSub, "null")
-			} else {
-				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-			}
-			// update
-			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-			if val == "null" {
-				dataObj = append(dataObj, key+"=null")
-			} else {
-				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-			}
-		}
-		// insert
-		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
-	}
-
-	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
-}
-
 // UnionAct : build union select real
-func (dba *Database) UnionAct(union, field string) (int64, error) {
+func (dba *Session) UnionAct(union, field string) (int64, error) {
 	var tmp int64 = 0
 
 	dba.Sunion = union + "(" + field + ") as " + union
-	
+
 	// 构建sql
 	sqls, err := dba.BuildSql()
 	if err != nil {
@@ -677,7 +585,7 @@ func (dba *Database) UnionAct(union, field string) (int64, error) {
 	return tmp, nil
 }
 
-func (dba *Database) Get() (result []map[string]interface{}, err error) {
+func (dba *Session) Get() (result []map[string]interface{}, err error) {
 	var sqlStr string
 	sqlStr, err = dba.BuildSql()
 	if err != nil {
@@ -688,7 +596,7 @@ func (dba *Database) Get() (result []map[string]interface{}, err error) {
 	return
 }
 
-func (dba *Database) First() (result map[string]interface{}, err error) {
+func (dba *Session) First() (result map[string]interface{}, err error) {
 	dba.Slimit = 1
 	var resultSlice []map[string]interface{}
 	if resultSlice, err = dba.Get(); err != nil {
@@ -700,13 +608,13 @@ func (dba *Database) First() (result map[string]interface{}, err error) {
 	return
 }
 
-func (dba *Database) Select() (err error) {
+func (dba *Session) Select() (err error) {
 	_, err = dba.Get()
 	return
 }
 
 // Transaction : is a simple usage of trans
-func (dba *Database) Transaction(closure func() (error)) (bool, error) {
+func (dba *Session) Transaction(closure func() (error)) (bool, error) {
 	dba.Begin()
 	err := closure()
 	if err != nil {
@@ -720,7 +628,7 @@ func (dba *Database) Transaction(closure func() (error)) (bool, error) {
 
 //// BuildSql : build sql string , but not execute sql really
 //// operType : select/insert/update/delete
-func (dba *Database) BuildSql(operType ...string) (string, error) {
+func (dba *Session) BuildSql(operType ...string) (string, error) {
 	//dba.Driver = dba.Connection.DbConfig.Driver
 	err := dba.ParseTable()
 	if err!=nil{
@@ -730,30 +638,8 @@ func (dba *Database) BuildSql(operType ...string) (string, error) {
 	return NewBuilder(dba.OrmApi, operType...)
 }
 
-//func (dba *Database) BuildQuery() (sql string, err error) {
-//	var fields, table, limit, offset string
-//	// table
-//	if table, err = dba.ParseTable(); err != nil {
-//		return
-//	}
-//	// fields
-//	fields = strings.Join(dba.Sfields, ", ")
-//	if fields == "" {
-//		fields = "*"
-//	}
-//	// limit
-//	limit = " limit 3"
-//	// offset
-//	offset = " offset 0"
-//
-//	//sqlstr := "select " + fields + " from " + table + limit + offset
-//	sqlstr := fmt.Sprintf("SELECT %s FROM %s%s%s", fields, table, limit, offset)
-//
-//	return sqlstr, nil
-//}
-
 // Query : query instance of sql.DB.Query
-func (dba *Database) Query(arg string, params ...interface{}) (result []map[string]interface{}, errs error) {
+func (dba *Session) Query(arg string, params ...interface{}) (result []map[string]interface{}, errs error) {
 	lenParams := len(params)
 	var vals []interface{}
 
@@ -781,7 +667,7 @@ func (dba *Database) Query(arg string, params ...interface{}) (result []map[stri
 
 	return dba.Scan(rows)
 }
-func (dba *Database) Scan(rows *sql.Rows) (result []map[string]interface{}, err error) {
+func (dba *Session) Scan(rows *sql.Rows) (result []map[string]interface{}, err error) {
 	// 检查实多维数组还是一维数组
 	switch dba.TableType {
 	case across.TABLE_STRUCT_SLICE:
@@ -794,7 +680,7 @@ func (dba *Database) Scan(rows *sql.Rows) (result []map[string]interface{}, err 
 	return
 }
 
-func (dba *Database) ScanMap(rows *sql.Rows) (result []map[string]interface{}, err error) {
+func (dba *Session) ScanMap(rows *sql.Rows) (result []map[string]interface{}, err error) {
 	var columns []string
 	if columns, err = rows.Columns(); err != nil {
 		return
@@ -828,7 +714,7 @@ func (dba *Database) ScanMap(rows *sql.Rows) (result []map[string]interface{}, e
 }
 
 // scan a single row of data into a struct.
-func (dba *Database) ScanRow(rows *sql.Rows, dst interface{}) error {
+func (dba *Session) ScanRow(rows *sql.Rows, dst interface{}) error {
 	// check if there is data waiting
 	if !rows.Next() {
 		if err := rows.Err(); err != nil {
@@ -852,7 +738,7 @@ func (dba *Database) ScanRow(rows *sql.Rows, dst interface{}) error {
 // It reads all rows and closes rows when finished.
 // dst should be a pointer to a slice of the appropriate type.
 // The new results will be appended to any existing data in dst.
-func (dba *Database) ScanAll(rows *sql.Rows, dst interface{}) error {
+func (dba *Session) ScanAll(rows *sql.Rows, dst interface{}) error {
 	for rows.Next() {
 		// scan it
 		err := rows.Scan(helper.StrutForScan(dba.TableStruct.Interface())...)
@@ -866,7 +752,7 @@ func (dba *Database) ScanAll(rows *sql.Rows, dst interface{}) error {
 	return rows.Err()
 }
 
-func (dba *Database) ParseTable() (error) {
+func (dba *Session) ParseTable() (error) {
 	var tableName string
 	switch dba.STable.(type) {
 	case string: // 直接传入的是表名
@@ -908,7 +794,7 @@ func (dba *Database) ParseTable() (error) {
 			dba.Sfields = helper.GetTagName(dba.TableStruct.Interface())
 		}
 	}
-	fmt.Println("表名: ", tableName)
+	//fmt.Println("表名: ", tableName)
 	dba.TableName = tableName
 	return nil
 }
