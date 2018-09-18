@@ -1,19 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gohouse/gorose"
 	_ "github.com/gohouse/gorose/driver/mysql"
-	"fmt"
 )
 
-type users struct {
+type users3 struct {
 	Name string `orm:"name"`
 	Age int `orm:"age"`
 	Job string `orm:"job"`
 }
 
+func (u *users3) TableName() string {
+	return "users"
+}
+
 // DB Config.(Recommend to use configuration file to import)
-var DbConfig = &gorose.DbConfigSingle {
+var dbConfig3 = &gorose.DbConfigSingle {
 	Driver:          "mysql", // 驱动: mysql/sqlite/oracle/mssql/postgres
 	EnableQueryLog:  false,   // 是否开启sql日志
 	SetMaxOpenConns: 0,    // (连接池)最大打开的连接数，默认值为0表示不限制
@@ -23,7 +27,7 @@ var DbConfig = &gorose.DbConfigSingle {
 }
 
 func main() {
-	connection, err := gorose.Open(DbConfig)
+	connection, err := gorose.Open(dbConfig3)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -31,11 +35,13 @@ func main() {
 
 	db := connection.NewSession()
 
-	res,err := db.Table("users").First()
-	if err != nil {
+	var user []users3
+
+	err2 := db.Table(&user).Limit(3).Select()
+	if err2 != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(db.LastSql)
-	fmt.Println(res)
+	fmt.Println(user)
 }

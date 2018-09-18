@@ -2,27 +2,16 @@ package gorose
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose/across"
 	_ "github.com/gohouse/gorose/driver/mysql"
-	"github.com/gohouse/gorose/examples"
+	"github.com/gohouse/gorose/across"
 	"testing"
 )
 var conn *Connection
 var err error
 
 func InitConn() (*Connection,error) {
-	conn,err = Open(across.JSON, examples.DemoParserFiles[across.JSON])
+	conn,err = Open("json", across.DemoParserFiles["json"])
 	return conn,err
-}
-
-func TestGorose_Open(test *testing.T) {
-	conn,err = InitConn()
-	if err != nil {
-		test.Error("FAIL: open failed.", err)
-		return
-	}
-
-	test.Log(fmt.Sprintf("PASS: open: %v", conn.Db.MasterDb))
 }
 
 func TestGorose_Query(test *testing.T) {

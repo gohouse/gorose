@@ -11,10 +11,10 @@ type TomlConfigParser struct {
 
 func init()  {
 	// 检查解析器是否实现了接口
-	var parser IParser = &TomlConfigParser{}
+	var parserTmp IParser = &TomlConfigParser{}
 
 	// 注册驱动
-	Register(across.TOML, parser)
+	Register("toml", parserTmp)
 }
 
 func (c *TomlConfigParser) Parse(file string) (conf *across.DbConfigCluster, err error) {

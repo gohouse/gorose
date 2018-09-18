@@ -12,10 +12,10 @@ type JsonConfigParser struct {
 
 func init() {
 	// 检查解析器是否实现了接口
-	var parser IParser = &JsonConfigParser{}
+	var parserTmp IParser = &JsonConfigParser{}
 
 	// 注册驱动
-	Register(across.JSON, parser)
+	Register("json", parserTmp)
 }
 
 func (c *JsonConfigParser) Parse(file string) (*across.DbConfigCluster, error) {

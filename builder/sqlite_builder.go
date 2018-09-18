@@ -12,7 +12,7 @@ func init()  {
 	var builder IBuilder = &SqliteBuilder{}
 
 	// 注册驱动
-	Register(across.SQLITE, builder)
+	Register("sqlite", builder)
 }
 
 func (b SqliteBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {

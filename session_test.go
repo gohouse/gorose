@@ -29,10 +29,9 @@ func TestSession_QueryApi(test *testing.T) {
 }
 func TestSession_Insert(test *testing.T) {
 	var db = NewOrm()
-	//var b = "users"
 	var b = users{"fizz"}
 	sql,err := db.Table(&b).
-		Data(map[string]interface{}{"name":"fizz333"}).
+		Data(map[string]interface{}{"name":"fizz333", "age":19}).
 		BuildSql("insert")
 	if err != nil {
 		test.Error("FAIL: orm failed.", err)

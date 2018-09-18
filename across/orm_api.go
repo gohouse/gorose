@@ -26,26 +26,21 @@ type table struct {
 }
 type OrmApi struct {
 	table
-	Driver    string
-	Prefix    string
-	Sforce    bool
-	Sfields   []string
-	Swhere    [][]interface{} // where
-	Sorder    string          // order
-	Slimit    int             // limit
-	Soffset   int             // offset
-	Sjoin     [][]interface{} // join
-	Sdistinct bool            // distinct
-	Sunion    string          // sum/count/avg/max/min
-	//Scount                string          // count
-	//Ssum                  string          // sum
-	//Savg                  string          // avg
-	//Smax                  string          // max
-	//Smin                  string          // min
-	Sgroup                string      // group
-	Shaving               string      // having
-	Sdata                 interface{} // data
-	Stx                   *sql.Tx     //Dbstruct Database
+	Driver                string
+	Prefix                string
+	Sforce                bool
+	Sfields               []string
+	Swhere                [][]interface{} // where
+	Sorder                string          // order
+	Slimit                int             // limit
+	Soffset               int             // offset
+	Sjoin                 [][]interface{} // join
+	Sdistinct             bool            // distinct
+	Sunion                string          // sum/count/avg/max/min
+	Sgroup                string          // group
+	Shaving               string          // having
+	Sdata                 interface{}     // data
+	Stx                   *sql.Tx         //Dbstruct Database
 	SbeforeParseWhereData [][]interface{}
 	Strans                bool
 	LastInsertId          int64 // insert last insert id

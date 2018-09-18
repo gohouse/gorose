@@ -17,7 +17,7 @@ func init() {
 	var builderTmp IBuilder = &MysqlBuilder{}
 
 	// 注册驱动
-	Register(across.MYSQL, builderTmp)
+	Register("mysql", builderTmp)
 }
 
 func (m *MysqlBuilder) BuildQuery(ormApi across.OrmApi) (sql string, err error) {
@@ -58,8 +58,7 @@ func (m *MysqlBuilder) BuildQuery(ormApi across.OrmApi) (sql string, err error) 
 
 	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
 	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
-		distinct, fields,
-		table, join, where, group, having, order, limit, offset)
+		distinct, fields, table, join, where, group, having, order, limit, offset)
 
 	return sqlstr, nil
 }

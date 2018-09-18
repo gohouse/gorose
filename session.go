@@ -3,10 +3,9 @@ package gorose
 import (
 	"database/sql"
 	"errors"
-	"github.com/gohouse/gorose/utils"
 	"fmt"
 	"github.com/gohouse/gorose/across"
-	"github.com/gohouse/gorose/helper"
+	"github.com/gohouse/gorose/utils"
 	"reflect"
 	"strings"
 )
@@ -189,7 +188,7 @@ func (dba *Session) Join(args ...interface{}) *Session {
 
 // Force : delete or update without where condition
 func (dba *Session) Force(arg ...bool) *Session {
-	if len(arg)>0{
+	if len(arg) > 0 {
 		dba.Sforce = arg[0]
 	} else {
 		dba.Sforce = true
@@ -417,6 +416,7 @@ func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, err
 
 	return rowsAffected, err
 }
+
 // Insert : insert data and get affected rows
 func (dba *Session) Insert() (int64, error) {
 	return dba.ExecuteAct("insert")
@@ -629,17 +629,24 @@ func (dba *Session) Transaction(closure func() (error)) (bool, error) {
 //// BuildSql : build sql string , but not execute sql really
 //// operType : select/insert/update/delete
 func (dba *Session) BuildSql(operType ...string) (string, error) {
-	//dba.Driver = dba.Connection.DbConfig.Driver
+	// table解析
 	err := dba.ParseTable()
-	if err!=nil{
-		return "",err
+	if err != nil {
+		return "", err
 	}
-	dba.Driver = "mysql"
+	// 表前缀
+	if dba.Connection==nil{
+		dba.Prefix = ""
+		dba.Driver = "mysql"
+	} else {
+		dba.Prefix = dba.Connection.DbConfig.Master.Prefix
+		dba.Driver = dba.Connection.DbConfig.Master.Driver
+	}
 	return NewBuilder(dba.OrmApi, operType...)
 }
 
 // Query : query instance of sql.DB.Query
-func (dba *Session) Query(arg string, params ...interface{}) (result []map[string]interface{}, errs error) {
+func (dba *Session) Query(sqlstring string, params ...interface{}) (result []map[string]interface{}, errs error) {
 	lenParams := len(params)
 	var vals []interface{}
 
@@ -650,8 +657,11 @@ func (dba *Session) Query(arg string, params ...interface{}) (result []map[strin
 			}
 		}
 	}
+	// 记录sqlLog
+	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
+	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
 
-	stmt, err := dba.Connection.GetQueryDb().Prepare(arg)
+	stmt, err := dba.Connection.GetQueryDb().Prepare(sqlstring)
 	if err != nil {
 		return result, err
 	}
@@ -724,7 +734,7 @@ func (dba *Session) ScanRow(rows *sql.Rows, dst interface{}) error {
 	}
 
 	// get a list of targets
-	var fields = helper.StrutForScan(dst)
+	var fields = utils.StrutForScan(dst)
 
 	// perform the scan
 	if err := rows.Scan(fields...); err != nil {
@@ -741,7 +751,7 @@ func (dba *Session) ScanRow(rows *sql.Rows, dst interface{}) error {
 func (dba *Session) ScanAll(rows *sql.Rows, dst interface{}) error {
 	for rows.Next() {
 		// scan it
-		err := rows.Scan(helper.StrutForScan(dba.TableStruct.Interface())...)
+		err := rows.Scan(utils.StrutForScan(dba.TableStruct.Interface())...)
 		if err != nil {
 			return err
 		}
@@ -773,6 +783,10 @@ func (dba *Session) ParseTable() (error) {
 			dba.TableStruct = sliceVal
 			// 默认只查一条
 			dba.Slimit = 1
+			// 是否设置了表名
+			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
+				tableName = tn.Call(nil)[0].String()
+			}
 		case reflect.Slice: // []struct
 			eltType := sliceVal.Type().Elem()
 			if eltType.Kind() != reflect.Struct {
@@ -782,16 +796,16 @@ func (dba *Session) ParseTable() (error) {
 			tableName = eltType.Name()
 			dba.TableStruct = reflect.New(eltType)
 			dba.TableSlice = sliceVal
+			// 是否设置了表名
+			if tn := dba.TableStruct.MethodByName("TableName"); tn.IsValid() {
+				tableName = tn.Call(nil)[0].String()
+			}
 		default:
 			return fmt.Errorf("table只接收字符串表名和struct, 但是传入的是: %T", dba.STable)
 		}
-		// 是否设置了表名
-		if i, ok := dba.STable.(ITable); ok {
-			tableName = i.TableName()
-		}
 
 		if len(dba.Sfields) == 0 {
-			dba.Sfields = helper.GetTagName(dba.TableStruct.Interface())
+			dba.Sfields = utils.GetTagName(dba.TableStruct.Interface())
 		}
 	}
 	//fmt.Println("表名: ", tableName)

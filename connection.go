@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gohouse/gorose/across"
-	"github.com/gohouse/gorose/helper"
+	"github.com/gohouse/gorose/utils"
 	"math/rand"
 )
 
@@ -13,11 +13,17 @@ type sqlDb struct {
 	MasterDb *sql.DB
 }
 type Connection struct {
-	DbConfig *across.DbConfigCluster
+	DbConfig *DbConfigCluster
 	Db       sqlDb
 }
 
-func (c *Connection) Query(arg string, params ...interface{}) (result []map[string]interface{}, errs error) {
+// Close database
+func (conn *Connection) Close() error {
+	//conn.SqlLog = []string{}
+	return conn.GetExecuteDb().Close()
+}
+
+func (c *Connection) Query(arg string, params ...interface{}) ([]map[string]interface{}, error) {
 	return c.NewSession().Query(arg, params...)
 }
 
@@ -36,23 +42,25 @@ func (c *Connection) Table(arg interface{}) *Session {
 }
 
 // parseOpenArgs 解析入口参数
-func (c *Connection) parseOpenArgs(args ...interface{}) (dbConf *across.DbConfigCluster, err error) {
+func (c *Connection) parseOpenArgs(args ...interface{}) (*DbConfigCluster, error) {
+	var dbConf = NewDbConfigCluster()
+	var err error
 	var fileOrDriverType, dsnOrFile string
 	switch len(args) {
-	case 1: // 传入的配置struct ( across.DbConfigCluster )
+	case 1: // 传入的配置struct ( DbConfigCluster )
 		switch args[0].(type) {
-		case across.DbConfigCluster, *across.DbConfigCluster:
-			dbConf = args[0].(*across.DbConfigCluster)
+		case DbConfigCluster, *DbConfigCluster:
+			dbConf = args[0].(*DbConfigCluster)
 			if dbConf.Master == nil {
 				err = errors.New("master配置参数缺失")
-				return
+				return dbConf,err
 			}
-			return
-		case across.DbConfigSingle, *across.DbConfigSingle:
-			dbConf.Master = args[0].(*across.DbConfigSingle)
-			return
+			return dbConf,err
+		case DbConfigSingle, *DbConfigSingle:
+			dbConf.Master = args[0].(*DbConfigSingle)
+			return dbConf,err
 		default:
-			return dbConf, errors.New("参数格式错误: 一个参数时,需要传入across.DbConfigCluster或across.DbConfigSingle类型数据")
+			return dbConf, errors.New("参数格式错误: 一个参数时,需要传入DbConfigCluster或DbConfigSingle类型数据")
 		}
 	case 2: // 第一个是驱动或文件类型, 第二个是dsn或文件路径
 		var ok bool
@@ -77,18 +85,18 @@ func (c *Connection) parseOpenArgs(args ...interface{}) (dbConf *across.DbConfig
 
 		case "file":
 			// 配置文件, 读取配置文件
-			if !helper.FileExists(dsnOrFile) {
+			if !utils.FileExists(dsnOrFile) {
 				return dbConf, errors.New("配置文件不存在")
 			}
 			// 调用`parser`目录解析器 解析文件
 			dbConf, err = NewFileParser(fileOrDriverType, dsnOrFile)
 		}
 	}
-	return
+	return dbConf,err
 }
 
 // boot sql driver
-func (c *Connection) bootDbs(dbConf *across.DbConfigCluster) (err error) {
+func (c *Connection) bootDbs(dbConf *DbConfigCluster) (err error) {
 	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8")
 	// 开始驱动, 分别保存不同配置的链接
 	c.Db.MasterDb, err = c.bootReal(dbConf.Master)
@@ -110,7 +118,7 @@ func (c *Connection) bootDbs(dbConf *across.DbConfigCluster) (err error) {
 }
 
 // boot sql driver
-func (c *Connection) bootReal(dbConf *across.DbConfigSingle) (db *sql.DB, err error) {
+func (c *Connection) bootReal(dbConf *DbConfigSingle) (db *sql.DB, err error) {
 	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8")
 	// 开始驱动
 	db, err = sql.Open(dbConf.Driver, dbConf.Dsn)

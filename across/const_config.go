@@ -4,22 +4,6 @@ import (
 	"errors"
 )
 
-// 数据库驱动登记
-const (
-	MYSQL    = "mysql"
-	SQLITE   = "sqlite"
-	MSSQL    = "mssql"
-	ORACLE   = "oracle"
-	POSTGRES = "postgres"
-)
-
-// 配置文件类型登记
-const (
-	JSON = "json"
-	TOML = "toml"
-	INI  = "ini"
-)
-
 // 类型分类
 //	// 数据库驱动
 //	MYSQL:    "driver", // 驱动 ...

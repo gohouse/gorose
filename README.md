@@ -6,11 +6,14 @@
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
-### Official Website | (官方网站)
+### 更新说明
+- 目录调整  
+    更加符合协作开发的目录  
+- 架构调整  
+    开放式架构, 驱动, 解析器, 构造器, 全部分离, 自由定义  
+- 支持struct
 
-[https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
-
-### Documentation
+### Documentation(暂时详细文档还没出来, 先看下边的示例)
 
 - [中文文档](https://gohouse.github.io/gorose/dist/zh-cn)
 - [English document](https://gohouse.github.io/gorose/dist/en)
@@ -20,16 +23,25 @@
 Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
 Currently provides five major database drivers:   
 - **mysql** : <https://github.com/go-sql-driver/mysql>  
-- **sqlite3** : <https://github.com/mattn/go-sqlite3>  
-- **postgres** : <https://github.com/lib/pq>  
-- **oracle** : <https://github.com/mattn/go-oci8>  
-- **mssql** : <https://github.com/denisenkom/go-mssqldb>  
+- **sqlite3** : <https://github.com/mattn/go-sqlite3> (待完善)  
+- **postgres** : <https://github.com/lib/pq> (待完善)  
+- **oracle** : <https://github.com/mattn/go-oci8> (待完善)  
+- **mssql** : <https://github.com/denisenkom/go-mssqldb> (待完善)  
 
 ### Quick Preview
 
 ```go
+type Users struct {
+	Name string
+	Age int `orm:"age"`
+}
 // select * from users where id=1 limit 1
+var user &Users
+// struct模式
+db.Table(user).Where("id",1).First()
+// 也可以使用非struct兼容模式
 db.Table("users").Where("id",1).First()
+
 // select id as uid,name,age from users where id=1 order by id desc limit 10
 db.Table("users").Where("id",1).Fields("id as uid,name,age").Order("id desc").Limit(10).Get()
 
@@ -41,22 +53,14 @@ db.Execute("update users set name='fizzday' where id=?", 1)
 ### Features
 
 - Chain Operation
-- Connection Pool
-
-### Requirement
-
-- Golang 1.6+
-- [Glide](https://glide.sh) (optional, dependencies management for golang)
+- Connection Pool  
+- struct/string compatible
 
 ### Installation
 
 - standard:  
 ```go
 go get -u github.com/gohouse/gorose
-```
-- or for [Glide](https://glide.sh):  
-```go
-glide get github.com/gohouse/gorose
 ```
 
 ### Base Usage
@@ -70,28 +74,13 @@ import (
 )
 
 // DB Config.(Recommend to use configuration file to import)
-var DbConfig = map[string]interface{}{
-	// Default database configuration
-	"Default": "mysql_dev",
-	// (Connection pool) Max open connections, default value 0 means unlimit.
-	"SetMaxOpenConns": 300,
-	// (Connection pool) Max idle connections, default value is 1.
-	"SetMaxIdleConns": 10,
-
-	// Define the database configuration character "mysql_dev".
-	"Connections":map[string]map[string]string{
-		"mysql_dev": map[string]string{
-                    "host":     "192.168.200.248",
-                    "username": "gcore",
-                    "password": "gcore",
-                    "port":     "3306",
-                    "database": "test",
-                    "charset":  "utf8",
-                    "protocol": "tcp",
-                    "prefix":   "",      // Table prefix
-                    "driver":   "mysql", // Database driver(mysql,sqlite,postgres,oracle,mssql)
-                },
-	},
+var DbConfig = gorose.DbConfigSingle {
+	Driver:          "mysql", // 驱动: mysql/sqlite/oracle/mssql/postgres
+    EnableQueryLog:  false,   // 是否开启sql日志
+    SetMaxOpenConns: 0,    // (连接池)最大打开的连接数，默认值为0表示不限制
+    SetMaxIdleConns: 0,    // (连接池)闲置的连接数, 默认-1
+    Prefix:          "", // 表前缀
+    Dsn:             "root:root@tcp(localhost:3306)/test?charset=utf8", // 数据库链接
 }
 
 func main() {
@@ -100,10 +89,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	// close DB
-	defer connection.Close()
 	
-	db := connection.NewDB()
+	db := connection.NewSession()
 
 	res,err := db.Table("users").First()
 	if err != nil {
@@ -130,6 +117,10 @@ For more usage, please read the Documentation.
 - `dmhome`  : improve source code(改进源码)  
 
 ### release notes
+
+> 1.0.0
+
+- 全新开发式自由架构,自由扩展驱动,配置文件, struct 支持,读写分离集群支持
 
 > 0.9.2  
 
