@@ -25,8 +25,8 @@ type users struct {
 }
 
 // select * from users where id=1 limit 1
-var user users
-var users []users
+var user users      // 单条数据
+var users []users   // 多条数据
 // struct模式
 db.Table(&user).Select()
 db.Table(&users).Where("id",1).Limit(10).Select()
