@@ -84,20 +84,21 @@ import (
 
 type Users struct {
 	Name string
-	Age int `orm:"age"`
+	Age  int `orm:"age"`
 }
+
 // DB Config.(Recommend to use configuration file to import)
-var dbConfig1 = &gorose.DbConfigSingle {
-	Driver:          "mysql",   // 驱动: mysql/sqlite/oracle/mssql/postgres
-	EnableQueryLog:  true,      // 是否开启sql日志
-	SetMaxOpenConns: 0,         // (连接池)最大打开的连接数，默认值为0表示不限制
-	SetMaxIdleConns: 0,         // (连接池)闲置的连接数, 默认-1
-	Prefix:          "",        // 表前缀
+var dbConfig = &gorose.DbConfigSingle{
+	Driver:          "mysql",                                           // 驱动: mysql/sqlite/oracle/mssql/postgres
+	EnableQueryLog:  true,                                              // 是否开启sql日志
+	SetMaxOpenConns: 0,                                                 // (连接池)最大打开的连接数，默认值为0表示不限制
+	SetMaxIdleConns: 0,                                                 // (连接池)闲置的连接数, 默认-1
+	Prefix:          "",                                                // 表前缀
 	Dsn:             "root:root@tcp(localhost:3306)/test?charset=utf8", // 数据库链接
 }
 
 func main() {
-	connection, err := gorose.Open(dbConfig1)
+	connection, err := gorose.Open(dbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -105,7 +106,7 @@ func main() {
 
 	db := connection.NewSession()
 	// 查询一条数据
-    var user Users
+	var user Users
 	err2 := db.Table(&user).Select()
 	if err2 != nil {
 		fmt.Println(err2)
@@ -114,7 +115,7 @@ func main() {
 	fmt.Println(db.LastSql)
 	fmt.Println(user)
 	// 查询多条数据
-    var users []Users
+	var users []Users
 	err3 := db.Table(&users).Limit(3).Select()
 	if err3 != nil {
 		fmt.Println(err3)
@@ -123,7 +124,6 @@ func main() {
 	fmt.Println(db.LastSql)
 	fmt.Println(users)
 }
-
 ```
 For more usage, please read the Documentation.
 
