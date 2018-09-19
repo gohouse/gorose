@@ -1,3 +1,6 @@
 module github.com/gohouse/gorose
 
-require github.com/BurntSushi/toml v0.3.0
+require (
+    github.com/BurntSushi/toml v0.3.0
+    github.com/robfig/config
+)
