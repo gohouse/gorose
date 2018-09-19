@@ -1,7 +1,8 @@
 {
-  "Driver": "sqlite",
-  "EnableQueryLog": false,
-  "SetMaxOpenConns": 0,
-  "SetMaxIdleConns": 0,
-  "Dsn": "~/path/to/foo.db"
+    "Driver": "sqlite",
+    "EnableQueryLog": false,
+    "SetMaxOpenConns": 0,
+    "SetMaxIdleConns": 0,
+    "Prefix": "",
+    "Dsn": "~/path/to/foo.db"
 }

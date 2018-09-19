@@ -7,10 +7,22 @@ import (
 type users struct {
 	Name string
 }
+var db1 *Session
+func InitOrm() {
+	db1 = NewOrm()
+	db1.Connection = &Connection{DbConfig:&DbConfigCluster{Master:&DbConfigSingle{
+		"mysql",
+		true,
+		0,
+		0,
+		"",
+		"",
+	}}}
+}
 func TestSession_QueryApi(test *testing.T) {
-	var db = NewOrm()
+	InitOrm()
 	var b = users{"fizz"}
-	sql,err := db.Table(&b).
+	sql,err := db1.Table(&b).
 		Distinct().
 		//Fields("id as uid","name").
 		Where("a",1).
@@ -28,9 +40,9 @@ func TestSession_QueryApi(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
 }
 func TestSession_Insert(test *testing.T) {
-	var db = NewOrm()
+	InitOrm()
 	var b = users{"fizz"}
-	sql,err := db.Table(&b).
+	sql,err := db1.Table(&b).
 		Data(map[string]interface{}{"name":"fizz333", "age":19}).
 		BuildSql("insert")
 	if err != nil {
@@ -41,10 +53,10 @@ func TestSession_Insert(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
 }
 func TestSession_Update(test *testing.T) {
-	var db = NewOrm()
+	InitOrm()
 	//var b = "users"
 	var b = users{"fizz"}
-	sql,err := db.Table(&b).
+	sql,err := db1.Table(&b).
 		Data(map[string]interface{}{"name":"fizz333", "age":18}).
 		Where("a","1").
 		BuildSql("update")
@@ -56,10 +68,10 @@ func TestSession_Update(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
 }
 func TestSession_Delete(test *testing.T) {
-	var db = NewOrm()
+	InitOrm()
 	//var b = "users"
 	var b = users{"fizz"}
-	sql,err := db.Table(&b).
+	sql,err := db1.Table(&b).
 		Where("a",1).
 		BuildSql("delete")
 	if err != nil {
@@ -70,10 +82,10 @@ func TestSession_Delete(test *testing.T) {
 	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
 }
 func TestSession_InsertMulti(test *testing.T) {
-	var db = NewOrm()
+	InitOrm()
 	//var b = "users"
 	var b = users{"fizz"}
-	sql,err := db.Table(&b).
+	sql,err := db1.Table(&b).
 		Data([]map[string]interface{}{{"name":"fizz333","age":10},{"name":"fizz222","age":20}}).
 		BuildSql("insert")
 	if err != nil {

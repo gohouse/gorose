@@ -24,5 +24,5 @@ func NewConnection() *Connection {
 }
 
 func NewOrm() *Session {
-	return &Session{}
+	return new(Session)
 }

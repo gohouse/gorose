@@ -634,14 +634,9 @@ func (dba *Session) BuildSql(operType ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// 表前缀
-	if dba.Connection==nil{
-		dba.Prefix = ""
-		dba.Driver = "mysql"
-	} else {
-		dba.Prefix = dba.Connection.DbConfig.Master.Prefix
-		dba.Driver = dba.Connection.DbConfig.Master.Driver
-	}
+	// 表前缀, 驱动
+	dba.Prefix = dba.Connection.DbConfig.Master.Prefix
+	dba.Driver = dba.Connection.DbConfig.Master.Driver
 	return NewBuilder(dba.OrmApi, operType...)
 }
 
