@@ -11,7 +11,7 @@ var conn = make(map[string]gorose.Connection)
 
 func init()  {
 	// 链接第一个
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return

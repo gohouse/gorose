@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.NewDB()
+	db := connection.NewSession()
 
 	data := map[string]interface{}{
 		"age":  17,

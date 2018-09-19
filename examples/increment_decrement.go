@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.NewDB()
+	db := connection.NewSession()
 
 	res, err := db.Table("users").Where("id", ">", 1).First()
 	if err != nil {

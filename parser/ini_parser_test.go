@@ -2,13 +2,13 @@ package parser
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose/examples"
+	"github.com/gohouse/gorose/across"
 	"testing"
 )
 
 func TestFileParser_Ini(test *testing.T) {
 	//var file = "/Users/fizz/go/src/github.com/gohouse/dp/config/mysql.ini"
-	var file = examples.DemoParserFiles["ini"]
+	var file = across.DemoParserFiles["ini"]
 
 	var confP = &IniConfigParser{}
 

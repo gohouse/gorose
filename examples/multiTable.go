@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return

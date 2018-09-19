@@ -1,6 +1,17 @@
 package main
 
-import
+import (
+	"fmt"
+)
+
+// Data tmp
+var Data []int
+
+func init() {
+	Data = append(Data, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+}
+
+func main() {
 	chunk(2, func(result []int) {
 		fmt.Println(result)
 	})

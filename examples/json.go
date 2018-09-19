@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// connect db
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
+	db, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -25,7 +25,6 @@ func main() {
 		return
 	}
 
-	fmt.Println(db.JsonEncode(res2))
 	// or
 	fmt.Println(utils.JsonEncode(res2))
 

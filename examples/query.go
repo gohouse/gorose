@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -16,9 +16,9 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.NewDB()
+	db := connection.NewSession()
 
-	user, err := db.Query("select count(*) as count from users where id>? limit ?", 1, 2)
+	user, err := db.Query("select count(*) as count from users where id>? limit ?", "a b", 2)
 	if err != nil {
 		fmt.Println(err)
 		return

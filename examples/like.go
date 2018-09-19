@@ -9,7 +9,7 @@ import (
 
 func main() {
 	fmt.Println(config.DbConfig)
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err := gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -17,7 +17,7 @@ func main() {
 	// close DB
 	defer connection.Close()
 
-	db := connection.NewDB()
+	db := connection.NewSession()
 	fmt.Println(db)
 	res, err := db.Table("users").
 		Where("name", "like", "fizz%").

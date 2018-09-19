@@ -288,26 +288,27 @@ func (dba *Session) Count(args ...string) (int64, error) {
 	if len(args) > 0 {
 		fields = utils.ParseStr(args[0])
 	}
-	return dba.UnionAct("count", fields)
+	count, err := dba.UnionAct("count", fields)
+	return count.(int64), err
 }
 
 // Sum : select sum field
-func (dba *Session) Sum(sum string) (int64, error) {
+func (dba *Session) Sum(sum string) (interface{}, error) {
 	return dba.UnionAct("sum", sum)
 }
 
 // Avg : select avg field
-func (dba *Session) Avg(avg string) (int64, error) {
+func (dba *Session) Avg(avg string) (interface{}, error) {
 	return dba.UnionAct("avg", avg)
 }
 
 // Max : select max field
-func (dba *Session) Max(max string) (int64, error) {
+func (dba *Session) Max(max string) (interface{}, error) {
 	return dba.UnionAct("max", max)
 }
 
 // Min : select min field
-func (dba *Session) Min(min string) (int64, error) {
+func (dba *Session) Min(min string) (interface{}, error) {
 	return dba.UnionAct("min", min)
 }
 
@@ -558,8 +559,8 @@ func (dba *Session) JsonEncode(data interface{}) string {
 }
 
 // UnionAct : build union select real
-func (dba *Session) UnionAct(union, field string) (int64, error) {
-	var tmp int64 = 0
+func (dba *Session) UnionAct(union, field string) (interface{}, error) {
+	var tmp interface{}
 
 	dba.Sunion = union + "(" + field + ") as " + union
 
@@ -579,7 +580,7 @@ func (dba *Session) UnionAct(union, field string) (int64, error) {
 
 	//fmt.Println(union, reflect.TypeOf(union), " ", result[0][union])
 	if len(result) > 0 {
-		tmp = result[0][union].(int64)
+		tmp = result[0][union]
 	}
 
 	return tmp, nil
@@ -645,11 +646,9 @@ func (dba *Session) Query(sqlstring string, params ...interface{}) (result []map
 	lenParams := len(params)
 	var vals []interface{}
 
-	if lenParams > 1 {
-		for k, v := range params {
-			if k > 0 {
-				vals = append(vals, v)
-			}
+	if lenParams > 0 {
+		for _, v := range params {
+			vals = append(vals, v)
 		}
 	}
 	// 记录sqlLog

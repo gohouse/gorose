@@ -8,11 +8,11 @@ import (
 	"errors"
 	"time"
 )
-var connection gorose.Connection
+var connection *gorose.Connection
 var err error
 
 func init()  {
-	connection, err = gorose.Open(config.DbConfig, "mysql_dev")
+	connection, err = gorose.Open(config.DbConfig)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -33,7 +33,7 @@ func transTest(k int)  {
 		"job":  "it31"+string(k),
 		"name": "fizz4",
 	}
-	db := connection.NewDB()
+	db := connection.NewSession()
 
 	trans,err := db.Transaction(func() error {
 		res2, err2 := db.Table("users").Data(data2).Insert()
