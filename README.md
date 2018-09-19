@@ -16,6 +16,20 @@ Currently provides five major database drivers:
 - **oracle** : <https://github.com/mattn/go-oci8> (待完善)  
 - **mssql** : <https://github.com/denisenkom/go-mssqldb> (待完善)  
 
+### 1.0.0 升级提示
+本次重构了gorose, 是不兼容升级, 全新架构, 更加完善.  
+目前新版开发已完成, 在master分支, 还处于bug反馈阶段  
+如果追求稳定性, 可以继续使用0.x版本, 目前在 0.x分支  
+本次更新, 大部分api的使用不变, 更多的是在配置格式和链接数据库的变化, 所以, 使用习惯上基本不变
+### Official Website | (官方网站)
+
+[https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
+
+### Documentation
+
+[文档](https://www.kancloud.cn/fizz/gorose)  
+[github](github.com/gohouse/gorose)
+
 ### Quick Preview(概览)
 
 ```go
