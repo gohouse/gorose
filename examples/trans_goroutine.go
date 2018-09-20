@@ -11,14 +11,8 @@ import (
 var connection *gorose.Connection
 var err error
 
-func init()  {
-	connection, err = gorose.Open(config.DbConfig)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-}
 func main() {
+	connection = config.GetConnection()
 	defer connection.Close()
 
 	for k := 0; k < 5; k++ {

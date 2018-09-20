@@ -3,16 +3,11 @@ package main
 import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
-	"github.com/gohouse/gorose"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "postgres_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 

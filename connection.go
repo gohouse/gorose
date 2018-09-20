@@ -139,8 +139,11 @@ func (c *Connection) bootReal(dbConf *DbConfigSingle) (db *sql.DB, err error) {
 
 func (c *Connection) GetQueryDb() (db *sql.DB) {
 	lenSlave := len(c.Db.SlaveDbs)
+
 	if lenSlave == 0 {
 		db = c.GetExecuteDb()
+	} else if lenSlave == 1 {
+		db = c.Db.SlaveDbs[0]
 	} else {
 		db = c.Db.SlaveDbs[rand.Intn(lenSlave-1)]
 	}

@@ -103,7 +103,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
+    // 新建会话
 	db := connection.NewSession()
 	// 查询一条数据
 	var user Users
@@ -114,9 +114,11 @@ func main() {
 	}
 	fmt.Println(db.LastSql)
 	fmt.Println(user)
+	
 	// 查询多条数据
 	var users []Users
-	err3 := db.Table(&users).Limit(3).Select()
+	// 直接使用connection会自动新建会话,只是没有了db复用
+	err3 := connection.Table(&users).Limit(3).Select()
 	if err3 != nil {
 		fmt.Println(err3)
 		return

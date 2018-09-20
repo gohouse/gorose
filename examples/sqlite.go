@@ -1,18 +1,13 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "sqlite_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
