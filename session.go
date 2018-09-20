@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-type ITable interface {
-	TableName() string
-}
-
 type Session struct {
 	across.OrmApi
 	Connection *Connection

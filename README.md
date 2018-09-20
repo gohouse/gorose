@@ -21,14 +21,12 @@ Currently provides five major database drivers:
 目前新版开发已完成, 在master分支, 还处于bug反馈阶段  
 如果追求稳定性, 可以继续使用0.x版本, 目前在 0.x分支  
 本次更新, 大部分api的使用不变, 更多的是在配置格式和链接数据库的变化, 所以, 使用习惯上基本不变
-### Official Website | (官方网站)
-
-[https://gohouse.github.io/gorose](https://gohouse.github.io/gorose)
 
 ### Documentation
 
 [文档](https://www.kancloud.cn/fizz/gorose)  
-[github](https://github.com/gohouse/gorose)
+[github](https://github.com/gohouse/gorose)  
+[0.x版本文档](https://gohouse.github.io/gorose/dist/zh-cn/index.html)
 
 ### Quick Preview(概览)
 
