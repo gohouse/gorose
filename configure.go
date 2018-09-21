@@ -63,7 +63,7 @@ func NewFileParser(fileOrDriverType, dsnOrFile string) (*DbConfigCluster, error)
 	var c *across.DbConfigCluster
 
 	c,err = parser.NewFileParser(fileOrDriverType, dsnOrFile)
-
+	// 看我移形换位大法
 	dbConf = dbConf.StructFrom(c)
 
 	return dbConf,err

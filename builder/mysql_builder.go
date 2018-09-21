@@ -55,8 +55,7 @@ func (m *MysqlBuilder) BuildQuery(ormApi across.OrmApi) (sql string, err error) 
 	limit := utils.If(ormApi.Slimit == 0, "", " LIMIT "+strconv.Itoa(ormApi.Slimit))
 	// offset
 	offset := utils.If(ormApi.Soffset == 0, "", " OFFSET "+strconv.Itoa(ormApi.Soffset))
-
-	//sqlstr := "select " + fields + " from " + table + " " + where + " " + order + " " + limit + " " + offset
+	//sqlstr := "select " + distinct + fields + " from " + table + where + group + having + order + limit + offset
 	sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
 		distinct, fields, table, join, where, group, having, order, limit, offset)
 

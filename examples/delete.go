@@ -11,10 +11,13 @@ func main() {
 	// close DB
 	defer db.Close()
 
-	where := map[string]interface{}{
-		"id": 17,
-	}
-	res, err := db.Table("users").Where(where).Delete()
+	//where := map[string]interface{}{
+	//	"id": 17,
+	//}
+	res, err := db.Table("users").
+		//Force().
+		//Where(where).
+		Delete()
 	if err != nil {
 		fmt.Println(err)
 		return
