@@ -8,11 +8,11 @@ type IniConfigParser struct {
 }
 
 func init()  {
-	// 检查解析器是否实现了接口
-	var parserTmp IParser = &IniConfigParser{}
-
-	// 注册驱动
-	Register("ini", parserTmp)
+	//// 检查解析器是否实现了接口
+	//var parserTmp IParser = &IniConfigParser{}
+	//
+	//// 注册驱动
+	//Register("ini", parserTmp)
 }
 
 func (c *IniConfigParser) Parse(file string) (conf *across.DbConfigCluster, err error) {

@@ -367,8 +367,10 @@ func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, err
 		}
 	}
 	// 记录sqlLog
-	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
-	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
+	if dba.Connection.DbConfig.Master.EnableQueryLog {
+		dba.LastSql = fmt.Sprintf(sqlstring, vals...)
+		dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
+	}
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
@@ -648,8 +650,10 @@ func (dba *Session) Query(sqlstring string, params ...interface{}) (result []map
 		}
 	}
 	// 记录sqlLog
-	dba.LastSql = fmt.Sprintf(sqlstring, vals...)
-	dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
+	if dba.Connection.DbConfig.Master.EnableQueryLog {
+		dba.LastSql = fmt.Sprintf(sqlstring, vals...)
+		dba.SqlLogs = append(dba.SqlLogs, dba.LastSql)
+	}
 
 	stmt, err := dba.Connection.GetQueryDb().Prepare(sqlstring)
 	if err != nil {

@@ -2,8 +2,8 @@ package parser
 
 import (
 	"encoding/json"
-	"github.com/gohouse/gorose/across"
 	"io/ioutil"
+	"reflect"
 	"strings"
 )
 
@@ -18,23 +18,31 @@ func init() {
 	Register("json", parserTmp)
 }
 
-func (c *JsonConfigParser) Parse(file string) (*across.DbConfigCluster, error) {
-	var conf = &across.DbConfigCluster{}
-	var err error
+func (c *JsonConfigParser) Parse(file string, dbConfCluster interface{}) (err error) {
 	var fp []byte
 	fp, err = ioutil.ReadFile(file)
 	if err != nil {
-		return conf,err
+		return err
 	}
 	// 是否是主从格式
 	strFp := string(fp)
 	if strings.Contains(strFp, "Slave") &&
 		strings.Contains(strFp, "Master") {
-		err = json.Unmarshal([]byte(fp), &conf)
+		err = json.Unmarshal(fp, &dbConfCluster)
 	} else {
-		err = json.Unmarshal([]byte(fp), &conf.Master)
+		//err = json.Unmarshal([]byte(fp), &conf.Master)
+		err = jsonDecoder(fp, dbConfCluster)
 	}
-	//fmt.Println(conf.Master)
 
-	return conf,err
+	return err
+}
+
+func jsonDecoder(str []byte, dbConfCluster interface{}) (err error) {
+	srcElem := reflect.Indirect(reflect.ValueOf(dbConfCluster))
+	fieldType := srcElem.FieldByName("Master").Type().Elem()
+	fieldElem := reflect.New(fieldType)
+	tmp := fieldElem.Interface()
+	err = json.Unmarshal(str, &tmp)
+	srcElem.FieldByName("Master").Set(fieldElem)
+	return
 }

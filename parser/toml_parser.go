@@ -2,14 +2,15 @@ package parser
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/gohouse/gorose/across"
 	"io/ioutil"
+	"reflect"
+	"strings"
 )
 
 type TomlConfigParser struct {
 }
 
-func init()  {
+func init() {
 	// 检查解析器是否实现了接口
 	var parserTmp IParser = &TomlConfigParser{}
 
@@ -17,13 +18,32 @@ func init()  {
 	Register("toml", parserTmp)
 }
 
-func (c *TomlConfigParser) Parse(file string) (conf *across.DbConfigCluster, err error) {
+func (c *TomlConfigParser) Parse(file string, dbConfCluster interface{}) (err error) {
 	var fp []byte
 	fp, err = ioutil.ReadFile(file)
 	if err != nil {
 		return
 	}
 
-	err = toml.Unmarshal([]byte(fp), &conf)
+	// 是否是主从格式
+	strFp := string(fp)
+	if strings.Contains(strFp, "Slave") &&
+		strings.Contains(strFp, "Master") {
+		err = toml.Unmarshal(fp, &dbConfCluster)
+	} else {
+		//err = json.Unmarshal([]byte(fp), &conf.Master)
+		err = tomlDecoder(fp, &dbConfCluster)
+	}
+
+	return err
+}
+
+func tomlDecoder(str []byte, dbConfCluster interface{}) (err error) {
+	srcElem := reflect.Indirect(reflect.ValueOf(dbConfCluster))
+	fieldType := srcElem.FieldByName("Master").Type().Elem()
+	fieldElem := reflect.New(fieldType)
+	tmp := fieldElem.Interface()
+	err = toml.Unmarshal(str, &tmp)
+	srcElem.FieldByName("Master").Set(fieldElem)
 	return
 }

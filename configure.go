@@ -60,11 +60,11 @@ func NewBuilder(ormApi across.OrmApi,operType ...string) (string, error) {
 func NewFileParser(fileOrDriverType, dsnOrFile string) (*DbConfigCluster, error) {
 	var dbConf *DbConfigCluster
 	var err error
-	var c *across.DbConfigCluster
+	//var c *across.DbConfigCluster
 
-	c,err = parser.NewFileParser(fileOrDriverType, dsnOrFile)
-	// 看我移形换位大法
-	dbConf = dbConf.StructFrom(c)
+	err = parser.NewFileParser(fileOrDriverType, dsnOrFile, &dbConf)
+	//// 看我移形换位大法
+	//dbConf = dbConf.StructFrom(c)
 
 	return dbConf,err
 }
