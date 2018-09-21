@@ -7,8 +7,8 @@ import (
 )
 
 func TestFileParser_Toml(test *testing.T) {
-	//var file = "/Users/fizz/go/src/github.com/gohouse/gorose/examples/demoParserFiles/mysql_cluster.toml"
-	var file = across.DemoParserFiles["toml"]
+	var file = "/Users/fizz/go/src/github.com/gohouse/gorose/examples/demoParserFiles/mysql_cluster.toml"
+	//var file = across.DemoParserFiles["toml"]
 
 	var confP = &TomlConfigParser{}
 

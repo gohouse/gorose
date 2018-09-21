@@ -12,12 +12,13 @@ func TestFileParser_Ini(test *testing.T) {
 
 	var confP = &IniConfigParser{}
 
-	pr, err := confP.Parse(file)
+	var v across.DbConfigCluster
+	err := confP.Parse(file, &v)
 
 	if err != nil {
 		test.Error("FAIL: ini parser failed.", err)
 		return
 	}
 
-	test.Log(fmt.Sprintf("PASS: ini parser %v", pr))
+	test.Log(fmt.Sprintf("PASS: ini parser %v", v))
 }

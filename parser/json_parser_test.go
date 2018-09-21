@@ -7,8 +7,8 @@ import (
 )
 
 func TestFileParser_Json(test *testing.T) {
-	var file = "/Users/fizz/go/src/github.com/gohouse/gorose/examples/demoParserFiles/mysql.json"
-	//var file = across.DemoParserFiles["json"]
+	//var file = "/Users/fizz/go/src/github.com/gohouse/gorose/examples/demoParserFiles/mysql.json"
+	var file = across.DemoParserFiles["json"]
 
 	var confP = &JsonConfigParser{}
 

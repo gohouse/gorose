@@ -29,10 +29,10 @@ func (c *TomlConfigParser) Parse(file string, dbConfCluster interface{}) (err er
 	strFp := string(fp)
 	if strings.Contains(strFp, "Slave") &&
 		strings.Contains(strFp, "Master") {
-		err = toml.Unmarshal(fp, &dbConfCluster)
+		err = toml.Unmarshal(fp, dbConfCluster)
 	} else {
 		//err = json.Unmarshal([]byte(fp), &conf.Master)
-		err = tomlDecoder(fp, &dbConfCluster)
+		err = tomlDecoder(fp, dbConfCluster)
 	}
 
 	return err
@@ -41,9 +41,9 @@ func (c *TomlConfigParser) Parse(file string, dbConfCluster interface{}) (err er
 func tomlDecoder(str []byte, dbConfCluster interface{}) (err error) {
 	srcElem := reflect.Indirect(reflect.ValueOf(dbConfCluster))
 	fieldType := srcElem.FieldByName("Master").Type().Elem()
-	fieldElem := reflect.New(fieldType)
-	tmp := fieldElem.Interface()
-	err = toml.Unmarshal(str, &tmp)
-	srcElem.FieldByName("Master").Set(fieldElem)
+	fieldPtr := reflect.New(fieldType)
+	//tmp := fieldPtr.Interface()
+	err = toml.Unmarshal(str, fieldPtr.Interface())
+	srcElem.FieldByName("Master").Set(fieldPtr)
 	return
 }
