@@ -121,7 +121,6 @@ func main() {
 		fmt.Println(err3)
 		return
 	}
-	fmt.Println(db.LastSql)
 	fmt.Println(users)
 }
 ```
