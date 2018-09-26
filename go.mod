@@ -1,4 +1,4 @@
-module github.com/gohouse/gorose
+module github.com/objcoding/gorose
 
 require (
 	cloud.google.com/go v0.28.0 // indirect
