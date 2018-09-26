@@ -14,7 +14,10 @@ func main() {
 	db := connection.NewSession()
 
 	//user, err := db.Query("select * from users where id in (?)", "47,55")
-	user, err := db.Table("users").WhereIn("id",[]interface{}{47,55}).Get()
+	//tmp := "47,55"
+	//tmpArr := strings.Split(tmp, ",")
+	//user, err := db.Table("users").WhereIn("id",[]int{47,55}).Get()
+	user, err := db.Table("users").WhereBetween("id",[]interface{}{"47",55}).Get()
 	if err != nil {
 		fmt.Println(err)
 		return

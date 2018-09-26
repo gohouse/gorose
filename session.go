@@ -135,42 +135,42 @@ func (dba *Session) OrWhereNotNull(arg string) *Session {
 }
 
 // WhereIn : a given column's value is contained within the given array
-func (dba *Session) WhereIn(field string, arr []interface{}) *Session {
+func (dba *Session) WhereIn(field string, arr interface{}) *Session {
 	return dba.Where(field, "in", arr)
 }
 
 // WhereNotIn : the given column's value is not contained in the given array
-func (dba *Session) WhereNotIn(field string, arr []interface{}) *Session {
+func (dba *Session) WhereNotIn(field string, arr interface{}) *Session {
 	return dba.Where(field, "not in", arr)
 }
 
 // OrWhereIn : as WhereIn, the relation is or
-func (dba *Session) OrWhereIn(field string, arr []interface{}) *Session {
+func (dba *Session) OrWhereIn(field string, arr interface{}) *Session {
 	return dba.OrWhere(field, "in", arr)
 }
 
 // OrWhereNotIn : as WhereNotIn, the relation is or
-func (dba *Session) OrWhereNotIn(field string, arr []interface{}) *Session {
+func (dba *Session) OrWhereNotIn(field string, arr interface{}) *Session {
 	return dba.OrWhere(field, "not in", arr)
 }
 
 // WhereBetween : a column's value is between two values:
-func (dba *Session) WhereBetween(field string, arr []interface{}) *Session {
+func (dba *Session) WhereBetween(field string, arr interface{}) *Session {
 	return dba.Where(field, "between", arr)
 }
 
 // WhereNotBetween : a column's value lies outside of two values:
-func (dba *Session) WhereNotBetween(field string, arr []interface{}) *Session {
+func (dba *Session) WhereNotBetween(field string, arr interface{}) *Session {
 	return dba.Where(field, "not between", arr)
 }
 
 // OrWhereBetween : like WhereNull , the relation is or,
-func (dba *Session) OrWhereBetween(field string, arr []interface{}) *Session {
+func (dba *Session) OrWhereBetween(field string, arr interface{}) *Session {
 	return dba.OrWhere(field, "not between", arr)
 }
 
 // OrWhereNotBetween : like WhereNotNull , the relation is or,
-func (dba *Session) OrWhereNotBetween(field string, arr []interface{}) *Session {
+func (dba *Session) OrWhereNotBetween(field string, arr interface{}) *Session {
 	return dba.OrWhere(field, "not in", arr)
 }
 

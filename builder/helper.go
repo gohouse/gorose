@@ -164,14 +164,43 @@ func parseParams(args []interface{}) (string, error) {
 			//	paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
 		case "in", "not in":
 			var tmp []string
-			for _, item := range argsReal[2].([]interface{}) {
-				tmp = append(tmp, utils.AddSingleQuotes(item))
+			switch argsReal[2].(type) {
+			case []string:
+				for _, item := range argsReal[2].([]string) {
+					tmp = append(tmp, utils.AddSingleQuotes(item))
+				}
+			case []int:
+				for _, item := range argsReal[2].([]int) {
+					tmp = append(tmp, utils.AddSingleQuotes(item))
+				}
+			case []interface{}:
+				for _, item := range argsReal[2].([]interface{}) {
+					tmp = append(tmp, utils.AddSingleQuotes(item))
+				}
 			}
+			//for _, item := range argsReal[2].([]interface{}) {
+			//	tmp = append(tmp, utils.AddSingleQuotes(item))
+			//}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 			//case "not in":
 			//	paramsToArr = append(paramsToArr, "("+utils.Implode(argsReal[2], ",")+")")
 		case "between", "not between":
-			tmpB := argsReal[2].([]string)
+			var tmpB []interface{}
+			switch argsReal[2].(type) {
+			case []string:
+				tmp := argsReal[2].([]string)
+				tmpB = append(tmpB, tmp[0])
+				tmpB = append(tmpB, tmp[1])
+			case []int:
+				tmp := argsReal[2].([]int)
+				tmpB = append(tmpB, tmp[0])
+				tmpB = append(tmpB, tmp[1])
+			case []interface{}:
+				tmp := argsReal[2].([]interface{})
+				tmpB = append(tmpB, tmp[0])
+				tmpB = append(tmpB, tmp[1])
+			}
+			//tmpB := argsReal[2].([]string)
 			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(tmpB[0])+" and "+utils.AddSingleQuotes(tmpB[1]))
 			//case "not between":
 			//	tmpB := argsReal[2].([]string)
