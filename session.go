@@ -678,7 +678,8 @@ func (dba *Session) Scan(rows *sql.Rows) (result []map[string]interface{}, err e
 		err = dba.ScanAll(rows, dba.STable)
 	case across.TABLE_STRUCT:
 		err = dba.ScanRow(rows, dba.STable)
-	case across.TABLE_STRING:
+	//case across.TABLE_STRING:
+	default:
 		result, err = dba.ScanMap(rows)
 	}
 	return

@@ -159,13 +159,13 @@ func parseParams(args []interface{}) (string, error) {
 
 		switch argsReal[1] {
 		case "like", "not like":
-			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
+			paramsToArr = append(paramsToArr, utils.AddSingleQuotes(argsReal[2]))
 			//case "not like":
 			//	paramsToArr = append(paramsToArr, utils.AddSingleQuotes(utils.ParseStr(argsReal[2])))
 		case "in", "not in":
 			var tmp []string
 			for _, item := range argsReal[2].([]interface{}) {
-				tmp = append(tmp, utils.AddSingleQuotes(utils.ParseStr(item)))
+				tmp = append(tmp, utils.AddSingleQuotes(item))
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 			//case "not in":

@@ -13,7 +13,8 @@ func main() {
 
 	db := connection.NewSession()
 
-	user, err := db.Query("select count(*) as count from users where id>? limit ?", "a b", 2)
+	//user, err := db.Query("select * from users where id in (?)", "47,55")
+	user, err := db.Table("users").WhereIn("id",[]interface{}{47,55}).Get()
 	if err != nil {
 		fmt.Println(err)
 		return
