@@ -147,6 +147,10 @@ For more usage, please read the Documentation.
  
 ### release notes
 
+> v1.0.2
+
+- 在 1.0.0 的基础上修复了 go mod 引用的 bug
+
 > 1.0.0
 
 - 全新开发式自由架构,自由扩展驱动,配置文件, struct支持, 读写分离集群支持
