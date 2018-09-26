@@ -1,5 +1,11 @@
 package gorose
 
+const (
+	VERSION_TEXT = "golang orm of gorose's version : "
+	VERSION_NO   = "1.0.3"
+	VERSION      = VERSION_TEXT + VERSION_NO
+)
+
 // Open 链接数据库入口, 传入配置
 // args 接收一个或2个参数, 一个参数时:struct配置文件(across.DbConfigCluster{})
 //		两个参数时: 第一个是驱动或文件类型, 第二个是dsn或文件路径

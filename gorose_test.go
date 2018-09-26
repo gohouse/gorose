@@ -42,3 +42,7 @@ func TestGorose_Open_Json(test *testing.T) {
 
 	test.Log(fmt.Sprintf("PASS: open: %v", conn.Db.MasterDb))
 }
+
+func TestGorose_Version(test *testing.T) {
+	test.Log(fmt.Sprintf("PASS: %v", VERSION))
+}
