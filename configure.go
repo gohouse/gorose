@@ -4,7 +4,6 @@ import (
 	"github.com/gohouse/gorose/across"
 	"github.com/gohouse/gorose/builder"
 	"github.com/gohouse/gorose/parser"
-	"unsafe"
 )
 
 // 单一数据库配置
@@ -29,29 +28,30 @@ func NewDbConfigCluster() *DbConfigCluster {
 	return &DbConfigCluster{}
 }
 
-// 来自于 struct 和 bytes 的互转大法
-func (s *DbConfigCluster) structToBytes(structTmp *across.DbConfigCluster) []byte {
-	type sliceMock struct {
-		addr uintptr
-		len  int
-		cap  int
-	}
-	Len := unsafe.Sizeof(*structTmp)
-	bytesTmp := &sliceMock{
-		addr: uintptr(unsafe.Pointer(structTmp)),
-		cap:  int(Len),
-		len:  int(Len),
-	}
-	return *(*[]byte)(unsafe.Pointer(bytesTmp))
-}
-// 来自于 struct 和 bytes 的互转大法
-func (s *DbConfigCluster) bytesToStruct(b []byte) *DbConfigCluster {
-	return *(**DbConfigCluster)(unsafe.Pointer(&b))
-}
-// struct 赋值自 另一个 struct
-func (s *DbConfigCluster) StructFrom(from *across.DbConfigCluster) *DbConfigCluster {
-	return s.bytesToStruct(s.structToBytes(from))
-}
+//// 来自于 struct 和 bytes 的互转大法
+//func (s *DbConfigCluster) structToBytes(structTmp *across.DbConfigCluster) []byte {
+//	type sliceMock struct {
+//		addr uintptr
+//		len  int
+//		cap  int
+//	}
+//	Len := unsafe.Sizeof(*structTmp)
+//	bytesTmp := &sliceMock{
+//		addr: uintptr(unsafe.Pointer(structTmp)),
+//		cap:  int(Len),
+//		len:  int(Len),
+//	}
+//	return *(*[]byte)(unsafe.Pointer(bytesTmp))
+//}
+//// 来自于 struct 和 bytes 的互转大法
+//func (s *DbConfigCluster) bytesToStruct(b []byte) *DbConfigCluster {
+//	return *(**DbConfigCluster)(unsafe.Pointer(&b))
+//}
+//// struct 赋值自 另一个 struct
+//func (s *DbConfigCluster) StructFrom(from *across.DbConfigCluster) *DbConfigCluster {
+//	return s.bytesToStruct(s.structToBytes(from))
+//}
+
 // NewBuilder : sql构造器
 func NewBuilder(ormApi across.OrmApi,operType ...string) (string, error) {
 	return builder.NewBuilder(ormApi, operType...)
