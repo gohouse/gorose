@@ -1,4 +1,4 @@
-# Gorose ORM
+# GoRose ORM
 
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
@@ -8,9 +8,9 @@
 
 ### [中文-readme](https://github.com/gohouse/gorose/blob/master/README_zh-cn.md) | [english-readme](https://github.com/gohouse/gorose/blob/master/README.md)
 
-### What is Gorose?
+### What is GoRose?
 
-Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
+GoRose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
 Currently provides five major database drivers:   
 - **mysql** : <https://github.com/go-sql-driver/mysql>  
 - **sqlite3** : <https://github.com/mattn/go-sqlite3> (待完善)  
