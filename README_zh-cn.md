@@ -13,24 +13,24 @@
 Gorose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
 Currently provides five major database drivers:   
 - **mysql** : <https://github.com/go-sql-driver/mysql>  
-- **sqlite3** : <https://github.com/mattn/go-sqlite3> (improving...)  
-- **postgres** : <https://github.com/lib/pq> (improving...)  
-- **oracle** : <https://github.com/mattn/go-oci8> (improving...)  
-- **mssql** : <https://github.com/denisenkom/go-mssqldb> (improving...)  
+- **sqlite3** : <https://github.com/mattn/go-sqlite3> (待完善)  
+- **postgres** : <https://github.com/lib/pq> (待完善)  
+- **oracle** : <https://github.com/mattn/go-oci8> (待完善)  
+- **mssql** : <https://github.com/denisenkom/go-mssqldb> (待完善)  
 
-### 1.0.0 update notes
-- struct support  
-- seperation of write & read cluster  
-- New architecture  
+### 1.0.0 升级提示
+本次重构了gorose, 是不兼容升级, 全新架构, 更加完善.  
+目前新版开发已完成, 在master分支, 还处于bug反馈阶段  
+如果追求稳定性, 可以继续使用0.x版本, 目前在 0.x分支  
+本次更新, 大部分api的使用不变, 更多的是在配置格式和链接数据库的变化, 所以, 使用习惯上基本不变
 
-
-### Documentation
+### Documentation(文档)
 
 [latest document](https://www.kancloud.cn/fizz/gorose) | [最新中文文档](https://www.kancloud.cn/fizz/gorose)  
 [0.x version english document](https://gohouse.github.io/gorose/dist/en/index.html) | [0.x版本中文文档](https://gohouse.github.io/gorose/dist/zh-cn/index.html)
 [github](https://github.com/gohouse/gorose)  
 
-### Quick Preview
+### Quick Preview(概览)
 
 ```go
 type users struct {
@@ -39,12 +39,12 @@ type users struct {
 }
 
 // select * from users where id=1 limit 1
-var user users      // a row data
-var users []users   // several rows
-// use struct
+var user users      // 单条数据
+var users []users   // 多条数据
+// struct模式
 db.Table(&user).Select()
 db.Table(&users).Where("id",1).Limit(10).Select()
-// use string instead struct
+// 也可以使用非struct兼容模式
 db.Table("users").Where("id",1).First()
 
 // select id as uid,name,age from users where id=1 order by id desc limit 10
@@ -55,15 +55,15 @@ db.Query("select * from user limit 10")
 db.Execute("update users set name='fizzday' where id=?", 1)
 ```
 
-### Features
+### Features(特点)
 
-- Chain Operation
-- Connection Pool
-- struct/string compatible
-- read/write separation cluster
-- process a lot of data into slices  
-- transaction easily  
-- friendly for extended (extend more builders or config parsers)  
+- Chain Operation (链式操作)  
+- Connection Pool (连接池)  
+- struct/string compatible (兼容支持struct和string)  
+- read/write separation cluster (读写分离集群)  
+- 大量数据分片处理  
+- 一键事务  
+- 扩展开发更友好(非侵入式 自由添加配置解析器, 驱动解析器)  
 
 ### Installation
 
@@ -89,12 +89,12 @@ type Users struct {
 
 // DB Config.(Recommend to use configuration file to import)
 var dbConfig = &gorose.DbConfigSingle{
-    Driver:          "mysql", // driver: mysql/sqlite/oracle/mssql/postgres
-    EnableQueryLog:  true,    // if enable sql logs
-    SetMaxOpenConns: 0,       // connection pool of max Open connections, default zero
-    SetMaxIdleConns: 0,       // connection pool of max sleep connections
-    Prefix:          "",      // prefix of table
-    Dsn:             "root:root@tcp(localhost:3306)/test?charset=utf8", // db dsn
+    Driver:          "mysql", // 驱动: mysql/sqlite/oracle/mssql/postgres
+    EnableQueryLog:  true,    // 是否开启sql日志
+    SetMaxOpenConns: 0,       // (连接池)最大打开的连接数，默认值为0表示不限制
+    SetMaxIdleConns: 0,       // (连接池)闲置的连接数
+    Prefix:          "",      // 表前缀
+    Dsn:             "root:root@tcp(localhost:3306)/test?charset=utf8", // 数据库链接
 }
 
 func main() {
@@ -103,21 +103,21 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	// start a new session
-	session := connection.NewSession()
-	// get a row of data
+	// 新建会话
+	db := connection.NewSession()
+	// 查询一条数据
 	var user Users
-	err2 := session.Table(&user).Select()
+	err2 := db.Table(&user).Select()
 	if err2 != nil {
 		fmt.Println(err2)
 		return
 	}
-	fmt.Println(session.LastSql)
+	fmt.Println(db.LastSql)
 	fmt.Println(user)
 	
-	// get several rows of data
+	// 查询多条数据
 	var users []Users
-	// use connection derictly instead of NewSession()
+	// 直接使用connection会自动新建会话,只是没有了db复用
 	err3 := connection.Table(&users).Limit(3).Select()
 	if err3 != nil {
 		fmt.Println(err3)
@@ -135,25 +135,31 @@ For more usage, please read the Documentation.
 
 ### Contributors
 
-- `fizzday` : Initiator  
-- `wuyumin` : pursuing the open source standard  
-- `holdno`  : official website builder  
-- `LazyNeo` : bug fix and improve source code  
-- `dmhome`  : improve source code 
+- `fizzday` : Initiator(发起人)  
+- `wuyumin` : pursuing the open source standard(推行开源标准规划)  
+- `holdno`  : official website builder(官方网站搭建)  
+- `LazyNeo` : bug fix and improve source code(bug修复和改进源码)  
+- `dmhome`  : improve source code(改进源码) 
+
+### 更新说明
+- 目录调整: 更加符合协作开发的目录  
+- 架构调整: 开放式架构, 驱动, 解析器, 构造器, 全部分离, 自由定义  
+- 支持struct  
+- 读写分离集群支持  
  
 ### release notes
 
 > v1.0.3
 
-- add version get by const: gorose.VERSION
+- 添加了版本获取: gorose.VERSION
 
 > v1.0.2
 
-- improve go mod's bug
+- 在 1.0.0 的基础上修复了 go mod 引用的 bug
 
 > 1.0.0
 
-- New architecture, struct support, seperation of write & read cluster  
+- 全新开发式自由架构,自由扩展驱动,配置文件, struct支持, 读写分离集群支持
 
 > 0.9.2  
 
