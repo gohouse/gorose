@@ -27,7 +27,7 @@ Currently provides five major database drivers:
 ### Documentation
 
 [latest document](https://www.kancloud.cn/fizz/gorose) | [最新中文文档](https://www.kancloud.cn/fizz/gorose)  
-[0.x version english document](https://gohouse.github.io/gorose/dist/en/index.html) | [0.x版本中文文档](https://gohouse.github.io/gorose/dist/zh-cn/index.html)
+[0.x version english document](https://gohouse.github.io/gorose/dist/en/index.html) | [0.x版本中文文档](https://gohouse.github.io/gorose/dist/zh-cn/index.html)  
 [github](https://github.com/gohouse/gorose)  
 
 ### Quick Preview
