@@ -16,9 +16,9 @@ func init()  {
 }
 
 func (b SqliteBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {
-	return "SqliteBuilder BuildQuery", nil
+	return builders["mysql"].BuildQuery(api)
 }
 
 func (b SqliteBuilder) BuildExecute(api across.OrmApi, operType string) (string, error) {
-	return "SqliteBuilder BuildExecute", nil
+	return builders["mysql"].BuildExecute(api, operType)
 }
