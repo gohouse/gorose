@@ -10,6 +10,7 @@ import (
 type DbConfigSingle struct {
 	Driver          string // 驱动: mysql/sqlite/oracle/mssql/postgres
 	EnableQueryLog  bool   // 是否开启sql日志
+	EnableLogFile   string // sql日志文件,如果为空则不记录
 	SetMaxOpenConns int    // (连接池)最大打开的连接数，默认值为0表示不限制
 	SetMaxIdleConns int    // (连接池)闲置的连接数
 	Prefix          string // 表前缀
@@ -53,9 +54,10 @@ func NewDbConfigCluster() *DbConfigCluster {
 //}
 
 // NewBuilder : sql构造器
-func NewBuilder(ormApi across.OrmApi,operType ...string) (string, error) {
+func NewBuilder(ormApi across.OrmApi, operType ...string) (string, error) {
 	return builder.NewBuilder(ormApi, operType...)
 }
+
 // NewFileParser : 配置解析器
 func NewFileParser(fileOrDriverType, dsnOrFile string) (*DbConfigCluster, error) {
 	var dbConf *DbConfigCluster
@@ -66,6 +68,5 @@ func NewFileParser(fileOrDriverType, dsnOrFile string) (*DbConfigCluster, error)
 	//// 看我移形换位大法
 	//dbConf = dbConf.StructFrom(c)
 
-	return dbConf,err
+	return dbConf, err
 }
-

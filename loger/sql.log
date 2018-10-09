@@ -1,0 +1,11 @@
+[Datetime: 2018-10-09 15:28:22][Runtime: 4.855µs][Sql: select ...]
+[Datetime: 2018-10-09 15:28:31][Runtime: 4.845µs][Sql: select ...]
+[Datetime: 2018-10-09 15:28:32][Runtime: 3.627µs][Sql: select ...]
+[Datetime: 2018-10-09 15:28:33][Runtime: 3.295µs][Sql: select ...]
+[Datetime: 2018-10-09 15:28:34][Runtime: 3.212µs][Sql: select ...]
+{"Datetime":"2018-10-09 15:35:07","Runtime":"3.41µs","Sql":"select ..."}"[Datetime: 2018-10-09 16:26:05][Runtime: 4.777µs][Sql: select ...]\n"[Datetime: 2018-10-09 16:26:44][Runtime: 4.443µs][Sql: select ...]
+[Datetime: 2018-10-09 16:26:51][Runtime: 3.244µs][Sql: select ...]
+    
+[Datetime: 2018-10-09 16:26:55][Runtime: 3.285µs][Sql: select ...]
+[Datetime: 2018-10-09 16:26:57][Runtime: 5.61µs][Sql: select ...]
+[Datetime: 2018-10-09 16:26:58][Runtime: 3.131µs][Sql: select ...]
