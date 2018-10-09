@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gohouse/gorose"
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -8,6 +9,7 @@ import (
 
 func main() {
 	connection := config.GetConnection()
+	connection.Logger = gorose.NewLogger()
 
 	// close DB
 	defer connection.Close()
@@ -30,5 +32,7 @@ func main() {
 	}
 
 	fmt.Println(res)
+
+	connection.Table("users").First()
 
 }
