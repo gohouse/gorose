@@ -15,6 +15,7 @@ type sqlDb struct {
 type Connection struct {
 	DbConfig *DbConfigCluster
 	Db       sqlDb
+	Logger   LoggerHandler // 持久化sql日志,如果为空则不持久化
 }
 
 // Close database

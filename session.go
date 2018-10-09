@@ -8,6 +8,7 @@ import (
 	"github.com/gohouse/gorose/utils"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type Session struct {
@@ -357,6 +358,7 @@ func (dba *Session) Loop(limit int, callback func([]map[string]interface{})) {
 
 // Execute : query instance of sql.DB.Execute
 func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, error) {
+	t_start := time.Now()
 	//defer DB.Close()
 	lenParams := len(params)
 	var vals []interface{}
@@ -411,6 +413,11 @@ func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, err
 	// 如果是事务, 则重置所有参数
 	if dba.Strans == true {
 		dba.Reset("transaction")
+	}
+
+	// 持久化日志
+	if dba.Connection.Logger != nil {
+		dba.Connection.Logger.Write(dba.LastSql, time.Since(t_start).String(), time.Now().Format("2006-01-02 15:04:05"))
 	}
 
 	return rowsAffected, err
@@ -641,6 +648,7 @@ func (dba *Session) BuildSql(operType ...string) (string, error) {
 
 // Query : query instance of sql.DB.Query
 func (dba *Session) Query(sqlstring string, params ...interface{}) (result []map[string]interface{}, errs error) {
+	t_start := time.Now()
 	lenParams := len(params)
 	var vals []interface{}
 
@@ -669,7 +677,15 @@ func (dba *Session) Query(sqlstring string, params ...interface{}) (result []map
 	// make sure we always close rows
 	defer rows.Close()
 
-	return dba.Scan(rows)
+	res,err2 := dba.Scan(rows)
+
+	// 持久化日志
+	if dba.Connection.Logger != nil {
+		//fmt.Println(dba.Connection.Logger)
+		dba.Connection.Logger.Write(dba.LastSql, time.Since(t_start).String(), time.Now().Format("2006-01-02 15:04:05"))
+	}
+
+	return res,err2
 }
 func (dba *Session) Scan(rows *sql.Rows) (result []map[string]interface{}, err error) {
 	// 检查实多维数组还是一维数组
