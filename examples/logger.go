@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/gohouse/gorose"
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
 	connection := config.GetConnection()
-	connection.Logger = gorose.NewDefaultLogger()
+	connection.Use(gorose.BootLogger())
 
 	// close DB
 	defer connection.Close()

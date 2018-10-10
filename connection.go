@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gohouse/gorose/across"
+	"github.com/gohouse/gorose/cors"
 	"github.com/gohouse/gorose/utils"
 	"math/rand"
 )
@@ -15,7 +16,17 @@ type sqlDb struct {
 type Connection struct {
 	DbConfig *DbConfigCluster
 	Db       sqlDb
-	Logger   LoggerHandler // 持久化sql日志,如果为空则不持久化
+	Logger   cors.LoggerHandler // 持久化sql日志,如果为空则不持久化
+}
+
+// Use : cors
+func (conn *Connection) Use(options ...func(*Connection)) *Connection {
+	//srv := &Booter{}
+	for _, option := range options {
+		option(conn)
+	}
+
+	return conn
 }
 
 // Close database
