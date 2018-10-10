@@ -9,7 +9,7 @@ import (
 
 func main() {
 	connection := config.GetConnection()
-	connection.Logger = gorose.NewLogger()
+	connection.Logger = gorose.NewDefaultLogger()
 
 	// close DB
 	defer connection.Close()

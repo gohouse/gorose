@@ -23,7 +23,7 @@ func (w *Logger) Write(sql string, runtime string, datetime string) {
 	f.Write(buf)
 }
 
-func NewLogger() *Logger {
+func NewDefaultLogger() *Logger {
 	return &Logger{}
 }
 
