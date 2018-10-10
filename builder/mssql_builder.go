@@ -10,7 +10,7 @@ func init()  {
 	var builder IBuilder = &MssqlBuilder{}
 
 	// 注册驱动
-	Register("sqlite", builder)
+	Register("mssql", builder)
 }
 
 func (b MssqlBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {

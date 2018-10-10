@@ -10,7 +10,7 @@ func init()  {
 	var builder IBuilder = &OracleBuilder{}
 
 	// 注册驱动
-	Register("sqlite", builder)
+	Register("oracle", builder)
 }
 
 func (b OracleBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {

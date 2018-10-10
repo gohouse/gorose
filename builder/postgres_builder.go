@@ -10,7 +10,7 @@ func init()  {
 	var builder IBuilder = &PostgresBuilder{}
 
 	// 注册驱动
-	Register("sqlite", builder)
+	Register("postgres", builder)
 }
 
 func (b PostgresBuilder) BuildQuery(api across.OrmApi) (sql string, err error) {

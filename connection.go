@@ -21,7 +21,6 @@ type Connection struct {
 
 // Use : cors
 func (conn *Connection) Use(options ...func(*Connection)) *Connection {
-	//srv := &Booter{}
 	for _, option := range options {
 		option(conn)
 	}
