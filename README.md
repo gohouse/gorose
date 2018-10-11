@@ -143,6 +143,10 @@ For more usage, please read the Documentation.
  
 ### release notes
 
+> v1.0.4
+
+- add middleware support, add logger cors
+
 > v1.0.3
 
 - add version get by const: gorose.VERSION
