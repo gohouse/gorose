@@ -13,10 +13,10 @@
 GoRose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
 Currently provides five major database drivers:   
 - **mysql** : <https://github.com/go-sql-driver/mysql>  
-- **sqlite3** : <https://github.com/mattn/go-sqlite3> (improving...)  
-- **postgres** : <https://github.com/lib/pq> (improving...)  
-- **oracle** : <https://github.com/mattn/go-oci8> (improving...)  
-- **mssql** : <https://github.com/denisenkom/go-mssqldb> (improving...)  
+- **sqlite3** : <https://github.com/mattn/go-sqlite3>  
+- **postgres** : <https://github.com/lib/pq>  
+- **oracle** : <https://github.com/mattn/go-oci8>  
+- **mssql** : <https://github.com/denisenkom/go-mssqldb>  
 
 ### 1.0.0 update notes
 - struct support  
