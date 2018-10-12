@@ -1,10 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gohouse/gorose"
 	_ "github.com/gohouse/gorose/driver/mysql"
-	"fmt"
-	"reflect"
 )
 
 type users2 struct {
@@ -37,12 +36,9 @@ func main() {
 	db := connection.NewSession()
 
 	var user users2
-	dstVal := reflect.ValueOf(user)
-	if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-		tableName := tn.Call(nil)[0].String()
-		fmt.Println(tableName)
-	}
-	_,err2 := db.Table(&user).First()
+	//sql,err2 := db.Table(&user).Limit(2).BuildSql()
+	//fmt.Println(sql)
+	err2 := db.Table(&user).Where("id", 55).Select()
 	if err2 != nil {
 		fmt.Println(err)
 		return
