@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/gohouse/gorose"
 	_ "github.com/gohouse/gorose/driver/mysql"
@@ -9,7 +10,8 @@ import (
 type users2 struct {
 	Name string `orm:"name"`
 	Age int `orm:"age"`
-	Job string `orm:"job"`
+	Job sql.NullString `orm:"job"`
+	CreatedAt sql.NullString `orm:"created_at"`
 }
 
 func (u *users2) TableName() string {
@@ -32,13 +34,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
 	db := connection.NewSession()
-
 	var user users2
-	//sql,err2 := db.Table(&user).Limit(2).BuildSql()
-	//fmt.Println(sql)
-	err2 := db.Table(&user).Where("id", 55).Select()
+	err2 := db.Table(&user).Limit(2).Select()
 	if err2 != nil {
 		fmt.Println(err)
 		return
