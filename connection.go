@@ -7,6 +7,7 @@ import (
 	"github.com/gohouse/gorose/cors"
 	"github.com/gohouse/gorose/utils"
 	"math/rand"
+	"time"
 )
 
 type sqlDb struct {
@@ -156,6 +157,7 @@ func (c *Connection) GetQueryDb() (db *sql.DB) {
 	} else if lenSlave == 1 {
 		db = c.Db.SlaveDbs[0]
 	} else {
+		rand.Seed(time.Now().UnixNano())
 		db = c.Db.SlaveDbs[rand.Intn(lenSlave-1)]
 	}
 	return
