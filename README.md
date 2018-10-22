@@ -126,6 +126,7 @@ func main() {
 	fmt.Println(users)
 }
 ```
+
 For more usage, please read the Documentation.
 
 ### Contribution
