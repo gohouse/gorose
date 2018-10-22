@@ -2,7 +2,7 @@ package gorose
 
 const (
 	VERSION_TEXT = "golang orm of gorose's version : "
-	VERSION_NO   = "1.0.3"
+	VERSION_NO   = "1.0.4"
 	VERSION      = VERSION_TEXT + VERSION_NO
 )
 

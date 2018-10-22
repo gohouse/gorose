@@ -9,7 +9,7 @@ import (
 
 func main() {
 	connection := config.GetConnection()
-	connection.Use(gorose.BootLogger())
+	connection.Use(gorose.NewLogger())
 
 	// close DB
 	defer connection.Close()
