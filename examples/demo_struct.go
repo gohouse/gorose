@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gohouse/gorose"
 	_ "github.com/gohouse/gorose/driver/mysql"
@@ -10,7 +11,7 @@ import (
 type users2 struct {
 	Name string `orm:"name"`
 	Age int `orm:"age"`
-	Job sql.NullString `orm:"job"`
+	Job interface{} `orm:"job"`
 	CreatedAt sql.NullString `orm:"created_at"`
 }
 
@@ -43,4 +44,7 @@ func main() {
 	}
 	fmt.Println(db.LastSql)
 	fmt.Println(user)
+	fmt.Println(fmt.Sprintf("%s",user.Job))
+	js,er := json.Marshal(user)
+	fmt.Println(string(js),er)
 }
