@@ -18,7 +18,7 @@ func (w *Logger) Write(sql string, runtime string, datetime string) {
 
 	defer f.Close()
 
-	content := fmt.Sprintf("[Datetime: %v][Runtime: %v][Sql: %v]\n",
+	content := fmt.Sprintf("[%v] %v %v\n",
 		datetime, runtime, sql)
 	//fmt.Println(content)
 

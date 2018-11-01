@@ -44,7 +44,7 @@ var users []users   // several rows
 // use struct
 db.Table(&user).Select()
 db.Table(&users).Where("id",1).Limit(10).Select()
-// use string instead struct
+// use string instead of struct
 db.Table("users").Where("id",1).First()
 
 // select id as uid,name,age from users where id=1 order by id desc limit 10
