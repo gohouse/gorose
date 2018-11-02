@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/gohouse/gorose"
@@ -11,8 +10,8 @@ import (
 type users2 struct {
 	Name string `orm:"name"`
 	Age int `orm:"age"`
-	Job interface{} `orm:"job"`
-	CreatedAt sql.NullString `orm:"created_at"`
+	Job *string `orm:"job"`
+	CreatedAt *string `orm:"created_at"`
 }
 
 func (u *users2) TableName() string {
@@ -37,14 +36,14 @@ func main() {
 	}
 	db := connection.NewSession()
 	var user users2
-	err2 := db.Table(&user).Limit(2).Select()
+	err2 := db.Table(&user).Where("id", 10000).Limit(2).Select()
+	fmt.Println(user)
 	if err2 != nil {
 		fmt.Println(err)
 		return
 	}
 	fmt.Println(db.LastSql)
-	fmt.Println(user)
-	fmt.Println(fmt.Sprintf("%s",user.Job))
+	fmt.Println(fmt.Sprintf("%s",user))
 	js,er := json.Marshal(user)
 	fmt.Println(string(js),er)
 }

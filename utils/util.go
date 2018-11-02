@@ -18,6 +18,8 @@ import (
 	"bytes"
 )
 
+const DATETIME_FORMAT = "2006-01-02 15:04:05"
+
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
 // GetType : (能不用则不用,由于涉及到使用reflect包,性能堪忧)
 func GetType(params interface{}) string {
@@ -75,12 +77,12 @@ func ParseStr(data interface{}) string {
 		return fmt.Sprint(data)
 	}
 }
-func ParseInt(data interface{}) int{
+func ParseInt(data interface{}) int {
 	dataType := GetType(data)
 	var res int
 	switch dataType {
 	case "string":
-		res,_ = strconv.Atoi(data.(string))
+		res, _ = strconv.Atoi(data.(string))
 	case "int":
 		res = data.(int)
 	default:
@@ -132,7 +134,7 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 func AddSingleQuotes(data interface{}) string {
 	//return "'" + strings.Trim(ParseStr(data), " ") + "'"
 	switch data.(type) {
-	case int,int64,int32,uint32,uint64:
+	case int, int64, int32, uint32, uint64:
 		return ParseStr(data)
 	default:
 		return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
@@ -392,9 +394,9 @@ func UrlQueryStrToMap(urlstr string) (map[string]interface{}, error) {
 
 func ArrayKeys(arr map[string]interface{}) []string {
 	var tmp []string
-	if len(arr)>0 {
-		for k,_ := range arr {
-			tmp = append(tmp,k)
+	if len(arr) > 0 {
+		for k, _ := range arr {
+			tmp = append(tmp, k)
 		}
 	}
 	return tmp
@@ -402,18 +404,18 @@ func ArrayKeys(arr map[string]interface{}) []string {
 
 func ArrayValues(arr map[string]interface{}) []interface{} {
 	var tmp []interface{}
-	if len(arr)>0 {
-		for _,v := range arr {
-			tmp = append(tmp,v)
+	if len(arr) > 0 {
+		for _, v := range arr {
+			tmp = append(tmp, v)
 		}
 	}
 	return tmp
 }
 
 func StartWith(originStr string, sepStr string) bool {
-	if originStr!="" && sepStr!="" {
+	if originStr != "" && sepStr != "" {
 		length := len(sepStr)
-		if strings.Trim(originStr, " ")[:length]==sepStr {
+		if strings.Trim(originStr, " ")[:length] == sepStr {
 			return true
 		}
 	}
@@ -422,7 +424,7 @@ func StartWith(originStr string, sepStr string) bool {
 }
 
 //阻塞式的执行外部shell命令的函数,等待执行完毕并返回标准输出
-func ExecShell(s string) (string, error){
+func ExecShell(s string) (string, error) {
 	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
 	cmd := exec.Command("/bin/bash", "-c", s)
 
@@ -435,7 +437,6 @@ func ExecShell(s string) (string, error){
 
 	return out.String(), err
 }
-
 
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
@@ -470,7 +471,7 @@ func GetTagName(structName interface{}) []string {
 		// tag 名字
 		tagName := t.Field(i).Tag.Get("orm")
 		// tag为-时, 不解析
-		if tagName=="-" || tagName=="" {
+		if tagName == "-" || tagName == "" {
 			// 字段名字
 			tagName = t.Field(i).Name
 		}
@@ -487,4 +488,15 @@ func StrutForScan(u interface{}) []interface{} {
 		v[i] = valueField.Addr().Interface()
 	}
 	return v
+}
+
+func  GetRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	myBytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, myBytes[r.Intn(len(myBytes))])
+	}
+	return string(result)
 }
