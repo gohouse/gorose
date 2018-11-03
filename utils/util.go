@@ -18,6 +18,7 @@ import (
 	"bytes"
 )
 
+const DATE = "2006-01-02"
 const DATETIME_FORMAT = "2006-01-02 15:04:05"
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
@@ -499,4 +500,73 @@ func  GetRandomString(l int) string {
 		result = append(result, myBytes[r.Intn(len(myBytes))])
 	}
 	return string(result)
+}
+
+type DateTime struct {
+	LastMonthStart string
+	LastMonthEnd   string
+	ThisMonthStart string
+	TodayStart     string
+	YesterdayStart string
+	ThisWeekStart  string
+	LastWeekStart  string
+	LastWeekEnd    string
+	Now            string
+}
+
+func GetDate() DateTime {
+	const DATE_FORMAT = "2006-01-02"
+	const DATETIME_FORMAT = "2006-01-02 15:04:05"
+	// 现在
+	now := time.Now()
+	// 年月日
+	year, month, day := now.Date()
+	// 今天开始
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
+	// 本月开始
+	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	// 昨天开始
+	yeaterday := today.AddDate(0, 0, -1)
+	// 周计算
+	weekDay := now.Weekday()
+	//fmt.Println(weekDay)
+	// 本周开始
+	thisWeekStart := today.AddDate(0, 0, -int(weekDay)+1)
+	// 上周开始
+	lastWeekStart := thisWeekStart.AddDate(0, 0, -7)
+	// 上周结束
+	//lastWeekEnd := thisWeekStart.AddDate(0, 0, -1)
+	lastWeekEnd := thisWeekStart.Add(-1 * time.Second)
+	//fmt.Println(lastWeekEnd)
+	//time.Weekday
+	return DateTime{
+		LastMonthStart: thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT),
+		LastMonthEnd:   thisMonth.AddDate(0, 0, -1).Format(DATE_FORMAT),
+		ThisMonthStart: thisMonth.Format(DATE_FORMAT),
+		TodayStart:     today.Format(DATE_FORMAT + " 00:00:00"),
+		YesterdayStart: yeaterday.Format(DATE_FORMAT + " 00:00:00"),
+		ThisWeekStart:  thisWeekStart.Format(DATE_FORMAT + " 00:00:00"),
+		LastWeekStart:  lastWeekStart.Format(DATE_FORMAT + " 00:00:00"),
+		LastWeekEnd:    lastWeekEnd.Format(DATETIME_FORMAT),
+		Now:            now.Format(DATETIME_FORMAT),
+	}
+}
+
+type DayDatetime struct {
+	DateStart string
+	DateEnd   string
+}
+
+func GetDateStartAndEndByDateTime(datetime string) DayDatetime {
+	var day DayDatetime
+	var datetime_format = "2006-01-02 15:04:05"
+	// ===============
+	res2, _ := time.Parse(datetime_format, datetime)
+	y, m, d := res2.Date()
+	dayStart := time.Date(y, m, d, 0, 0, 0, 0, time.Local)
+	dayEnd := time.Date(y, m, d, 23, 59, 59, 999, time.Local)
+	day.DateStart = dayStart.Format(datetime_format)
+	day.DateEnd = dayEnd.Format(datetime_format)
+
+	return day
 }
