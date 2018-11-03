@@ -620,16 +620,16 @@ func (dba *Session) Select() (err error) {
 }
 
 // Transaction : is a simple usage of trans
-func (dba *Session) Transaction(closure func() (error)) (bool, error) {
+func (dba *Session) Transaction(closure func() (error)) error {
 	dba.Begin()
 	err := closure()
 	if err != nil {
 		dba.Rollback()
-		return false, err
+		return err
 	}
 	dba.Commit()
 
-	return true, nil
+	return nil
 }
 
 //// BuildSql : build sql string , but not execute sql really

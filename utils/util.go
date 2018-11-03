@@ -257,12 +257,12 @@ func FailReturn(args ...interface{}) ApiReturn {
 	switch argsLength {
 	case 0:
 		data.Data = "fail"
-		data.Code = http.StatusNoContent
+		data.Code = http.StatusBadRequest
 	case 1:
 		// 正确的返回数据
 		data.Data = args[0]
 		data.Msg = args[0]
-		data.Code = http.StatusNoContent
+		data.Code = http.StatusBadRequest
 	case 2:
 		data.Msg = args[0]
 		data.Data = args[0].(string)
@@ -271,7 +271,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code > 0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusBadRequest).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
@@ -284,7 +284,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code > 0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusBadRequest).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
