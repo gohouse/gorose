@@ -491,7 +491,7 @@ func StrutForScan(u interface{}) []interface{} {
 	return v
 }
 
-func  GetRandomString(l int) string {
+func GetRandomString(l int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	myBytes := []byte(str)
 	result := []byte{}
@@ -512,6 +512,7 @@ type DateTime struct {
 	LastWeekStart  string
 	LastWeekEnd    string
 	Now            string
+	TomorrowStart  string
 }
 
 func GetDate() DateTime {
@@ -527,6 +528,8 @@ func GetDate() DateTime {
 	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
 	// 昨天开始
 	yeaterday := today.AddDate(0, 0, -1)
+	// 明天开始
+	tomorrow := today.AddDate(0, 0, +1)
 	// 周计算
 	weekDay := now.Weekday()
 	//fmt.Println(weekDay)
@@ -537,7 +540,7 @@ func GetDate() DateTime {
 	// 上周结束
 	//lastWeekEnd := thisWeekStart.AddDate(0, 0, -1)
 	lastWeekEnd := thisWeekStart.Add(-1 * time.Second)
-	//fmt.Println(lastWeekEnd)
+
 	//time.Weekday
 	return DateTime{
 		LastMonthStart: thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT),
@@ -549,6 +552,7 @@ func GetDate() DateTime {
 		LastWeekStart:  lastWeekStart.Format(DATE_FORMAT + " 00:00:00"),
 		LastWeekEnd:    lastWeekEnd.Format(DATETIME_FORMAT),
 		Now:            now.Format(DATETIME_FORMAT),
+		TomorrowStart:  tomorrow.Format(DATE_FORMAT + " 00:00:00"),
 	}
 }
 
