@@ -1,11 +1,18 @@
 # GoRose ORM
-
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
 [![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
+```
+  _______   ______   .______        ______        _______. _______ 
+ /  _____| /  __  \  |   _  \      /  __  \      /       ||   ____|
+|  |  __  |  |  |  | |  |_)  |    |  |  |  |    |   (----`|  |__   
+|  | |_ | |  |  |  | |      /     |  |  |  |     \   \    |   __|  
+|  |__| | |  `--'  | |  |\  \----.|  `--'  | .----)   |   |  |____ 
+ \______|  \______/  | _| `._____| \______/  |_______/    |_______|
+```
 ### [中文-readme](https://github.com/gohouse/gorose/blob/master/README_zh-cn.md) | [english-readme](https://github.com/gohouse/gorose/blob/master/README.md)
 
 ### What is GoRose?

@@ -18,7 +18,7 @@ import (
 	"bytes"
 )
 
-const DATE = "2006-01-02"
+const DATE_FORMAT = "2006-01-02"
 const DATETIME_FORMAT = "2006-01-02 15:04:05"
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
@@ -190,6 +190,10 @@ type ApiReturn struct {
 	Code int
 	Msg  interface{}
 	Ext  interface{}
+}
+
+func (ApiReturn) Error() string {
+	panic("implement me")
 }
 
 // SuccessReturn : 接口成功返回
