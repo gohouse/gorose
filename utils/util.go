@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"reflect"
@@ -504,6 +505,30 @@ func GetRandomString(l int) string {
 		result = append(result, myBytes[r.Intn(len(myBytes))])
 	}
 	return string(result)
+}
+
+func GetRandomNum(l int) int {
+	//str := "123456789"
+	//str := "0123456789"
+	//myBytes := []byte(str)
+	var result []int
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	var first = true
+	for i := 0; i < l; i++ {
+		if first {
+			result = append(result, (r.Intn(9)+1)*int(math.Pow10(l-i-1)))
+			first = false
+		} else {
+			result = append(result, (r.Intn(10))*int(math.Pow10(l-i-1)))
+		}
+
+	}
+	var tmp int
+	for _,item := range result{
+		tmp += item
+	}
+	return tmp
 }
 
 type DateTime struct {

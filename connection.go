@@ -82,6 +82,13 @@ func (c *Connection) parseOpenArgs(args ...interface{}) (*DbConfigCluster, error
 		if !ok || !ok2 {
 			return dbConf, errors.New("参数格式错误: 两个参数时,需要传入string类型数据")
 		}
+		// 是否是文件类型的数据库,如sqlite3
+		if fileOrDriverType == "sqlite3" {
+			dbConf.Master = &DbConfigSingle{
+				Driver:fileOrDriverType,
+				Dsn:dsnOrFile,
+			}
+		}
 	default:
 		return dbConf, errors.New("参数数量有误: 只接收一个或两个参数")
 	}

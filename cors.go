@@ -18,5 +18,5 @@ func NewLogger() func(*Connection) {
 }
 
 func NewTableToStruct(c *Connection) *converter.Table2Struct {
-	return converter.NewTable2Struct().Db(c.GetExecuteDb())
+	return converter.NewTable2Struct().DB(c.GetExecuteDb())
 }
