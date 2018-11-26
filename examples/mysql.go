@@ -13,12 +13,12 @@ func main() {
 
 	db := connection.NewSession()
 	fmt.Println(db)
-	res, err := db.Table("users").Where("id", "<", 1).First()
+	res, err := db.Table("users").Where("aid",  1545).Count()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(len(res))
+	//fmt.Println(len(res))
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 

@@ -781,6 +781,8 @@ func (dba *Session) ParseTable() (error) {
 		tableName = dba.STable.(string)
 
 	default: // 传入的是struct
+		// 清空字段值,避免手动传入字段污染struct字段
+		dba.Sfields = []string{}
 		// make sure dst is an appropriate type
 		dstVal := reflect.ValueOf(dba.STable)
 		if dstVal.Kind() != reflect.Ptr || dstVal.IsNil() {
