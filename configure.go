@@ -25,7 +25,7 @@ type DbConfigCluster struct {
 }
 
 func NewDbConfigCluster() *DbConfigCluster {
-	return &DbConfigCluster{}
+	return &DbConfigCluster{Master:&DbConfigSingle{}}
 }
 
 //// 来自于 struct 和 bytes 的互转大法

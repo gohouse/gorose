@@ -286,6 +286,9 @@ func (dba *Session) Count(args ...string) (int64, error) {
 		fields = utils.ParseStr(args[0])
 	}
 	count, err := dba.UnionAct("count", fields)
+	if count == nil {
+		count = int64(0)
+	}
 	return count.(int64), err
 }
 
@@ -376,7 +379,7 @@ func (dba *Session) Execute(sqlstring string, params ...interface{}) (int64, err
 
 	var operType string = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
-		return 0, errors.New("Execute does not allow select operations, use Query")
+		return 0, errors.New("Execute does not allow select operations, please use Query")
 	}
 
 	var stmt *sql.Stmt
