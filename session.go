@@ -725,8 +725,6 @@ func (dba *Session) ScanMap(rows *sql.Rows) (result []map[string]interface{}, er
 			val := values[i]
 			if b, ok := val.([]byte); ok {
 				v = string(b)
-			} else if val == nil {
-				v = "NULL"
 			} else {
 				v = val
 			}
