@@ -1,0 +1,8 @@
+{
+    "Driver": "postgres",
+    "EnableQueryLog": false,
+    "SetMaxOpenConns": 0,
+    "SetMaxIdleConns": 0,
+    "Prefix": "",
+    "Dsn": "host=localhost port=5432 user=username password=password dbname=databases sslmode=disable"
+}

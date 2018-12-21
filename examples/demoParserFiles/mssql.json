@@ -1,0 +1,7 @@
+{
+    "Driver": "mssql",
+    "EnableQueryLog": false,
+    "SetMaxOpenConns": 0,
+    "SetMaxIdleConns": 0,
+    "Dsn": "server=localhost;port=1433;database=databases;user id=username;password=password"
+}

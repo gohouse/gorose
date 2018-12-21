@@ -1,34 +1,28 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
-	fmt.Println(config.DbConfig)
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 	fmt.Println(db)
-	res, err := db.Table("users").Where("id", "<", 1).First()
+	res, err := db.Table("users").Where("aid",  1545).Count()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(len(res))
+	//fmt.Println(len(res))
 	fmt.Println(db.LastSql)
 	fmt.Println(res)
 
-	var db2 = connection.GetInstance()
+	var db2 = connection.NewSession()
 	res2, err := db2.Table("users").Limit(2).Get()
 	if err != nil {
 		fmt.Println(err)

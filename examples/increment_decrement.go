@@ -1,23 +1,17 @@
 package main
 
 import (
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gohouse/gorose/examples/config"
-	"github.com/gohouse/gorose"
-	"fmt"
 )
 
 func main() {
-
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 
 	res, err := db.Table("users").Where("id", ">", 1).First()
 	if err != nil {
