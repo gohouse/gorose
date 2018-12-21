@@ -4,28 +4,21 @@ import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
 	"github.com/gohouse/gorose/utils"
 )
 
 func main() {
-	// connect db
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
-	defer db.Close()
+	defer connection.Close()
 
 	// return json
-	res2, err := db.Table("users").Limit(2).Get()
+	res2, err := connection.Table("users").Limit(2).Get()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(db.JsonEncode(res2))
 	// or
 	fmt.Println(utils.JsonEncode(res2))
 

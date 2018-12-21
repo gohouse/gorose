@@ -2,7 +2,10 @@ package utils
 
 import (
 	"encoding/json"
+	"log"
+	"math"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -12,7 +15,12 @@ import (
 	"math/rand"
 	"errors"
 	"net/url"
+	"os/exec"
+	"bytes"
 )
+
+const DATE_FORMAT = "2006-01-02"
+const DATETIME_FORMAT = "2006-01-02 15:04:05"
 
 // GetType : 获取数据类型字符串 (string, int, float64, []int, []string, map[string]int ...)
 // GetType : (能不用则不用,由于涉及到使用reflect包,性能堪忧)
@@ -71,12 +79,12 @@ func ParseStr(data interface{}) string {
 		return fmt.Sprint(data)
 	}
 }
-func ParseInt(data interface{}) int{
+func ParseInt(data interface{}) int {
 	dataType := GetType(data)
 	var res int
 	switch dataType {
 	case "string":
-		res,_ = strconv.Atoi(data.(string))
+		res, _ = strconv.Atoi(data.(string))
 	case "int":
 		res = data.(int)
 	default:
@@ -127,7 +135,12 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 // AddSingleQuotes : 添加单引号
 func AddSingleQuotes(data interface{}) string {
 	//return "'" + strings.Trim(ParseStr(data), " ") + "'"
-	return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
+	switch data.(type) {
+	case int, int64, int32, uint32, uint64:
+		return ParseStr(data)
+	default:
+		return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
+	}
 }
 
 // Implode : 字符串转数组, 接受混合类型, 最终输出的是字符串类型
@@ -178,6 +191,10 @@ type ApiReturn struct {
 	Code int
 	Msg  interface{}
 	Ext  interface{}
+}
+
+func (ApiReturn) Error() string {
+	panic("implement me")
 }
 
 // SuccessReturn : 接口成功返回
@@ -245,12 +262,12 @@ func FailReturn(args ...interface{}) ApiReturn {
 	switch argsLength {
 	case 0:
 		data.Data = "fail"
-		data.Code = http.StatusNoContent
+		data.Code = http.StatusBadRequest
 	case 1:
 		// 正确的返回数据
 		data.Data = args[0]
 		data.Msg = args[0]
-		data.Code = http.StatusNoContent
+		data.Code = http.StatusBadRequest
 	case 2:
 		data.Msg = args[0]
 		data.Data = args[0].(string)
@@ -259,7 +276,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code > 0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusBadRequest).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
@@ -272,7 +289,7 @@ func FailReturn(args ...interface{}) ApiReturn {
 			data.Code = args[1].(int)
 		case string:
 			code, _ := strconv.Atoi(args[1].(string))
-			data.Code = If(code > 0, code, http.StatusNoContent).(int)
+			data.Code = If(code > 0, code, http.StatusBadRequest).(int)
 		default:
 			//panic("调用返回的状态值应该为int类型")
 			return FailReturn("FailReturn 调用返回的状态值应该为int类型");
@@ -383,9 +400,9 @@ func UrlQueryStrToMap(urlstr string) (map[string]interface{}, error) {
 
 func ArrayKeys(arr map[string]interface{}) []string {
 	var tmp []string
-	if len(arr)>0 {
-		for k,_ := range arr {
-			tmp = append(tmp,k)
+	if len(arr) > 0 {
+		for k, _ := range arr {
+			tmp = append(tmp, k)
 		}
 	}
 	return tmp
@@ -393,21 +410,196 @@ func ArrayKeys(arr map[string]interface{}) []string {
 
 func ArrayValues(arr map[string]interface{}) []interface{} {
 	var tmp []interface{}
-	if len(arr)>0 {
-		for _,v := range arr {
-			tmp = append(tmp,v)
+	if len(arr) > 0 {
+		for _, v := range arr {
+			tmp = append(tmp, v)
 		}
 	}
 	return tmp
 }
 
 func StartWith(originStr string, sepStr string) bool {
-	if originStr!="" && sepStr!="" {
+	if originStr != "" && sepStr != "" {
 		length := len(sepStr)
-		if strings.Trim(originStr, " ")[:length]==sepStr {
+		if strings.Trim(originStr, " ")[:length] == sepStr {
 			return true
 		}
 	}
 
 	return false
+}
+
+//阻塞式的执行外部shell命令的函数,等待执行完毕并返回标准输出
+func ExecShell(s string) (string, error) {
+	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
+	cmd := exec.Command("/bin/bash", "-c", s)
+
+	//读取io.Writer类型的cmd.Stdout，再通过bytes.Buffer(缓冲byte类型的缓冲器)将byte类型转化为string类型(out.String():这是bytes类型提供的接口)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	//Run执行c包含的命令，并阻塞直到完成。  这里stdout被取出，cmd.Wait()无法正确获取stdin,stdout,stderr，则阻塞在那了
+	err := cmd.Run()
+
+	return out.String(), err
+}
+
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
+// GetTagName 获取结构体中Tag的值，如果没有tag则返回字段值
+func GetTagName(structName interface{}) []string {
+	// 获取type
+	t := reflect.TypeOf(structName)
+	// 如果是反射Ptr类型, 就获取他的 element type
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	// 判断是否是struct
+	if t.Kind() != reflect.Struct {
+		log.Println("Check type error not Struct")
+		return nil
+	}
+	// 获取字段数量
+	fieldNum := t.NumField()
+	result := make([]string, 0, fieldNum)
+	for i := 0; i < fieldNum; i++ {
+		//fieldName := t.Field(i).Name
+		// tag 名字
+		tagName := t.Field(i).Tag.Get("orm")
+		// tag为-时, 不解析
+		if tagName == "-" || tagName == "" {
+			// 字段名字
+			tagName = t.Field(i).Name
+		}
+		result = append(result, tagName)
+	}
+	return result
+}
+
+func StrutForScan(u interface{}) []interface{} {
+	val := reflect.ValueOf(u).Elem()
+	v := make([]interface{}, val.NumField())
+	for i := 0; i < val.NumField(); i++ {
+		valueField := val.Field(i)
+		v[i] = valueField.Addr().Interface()
+	}
+	return v
+}
+
+func GetRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	myBytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, myBytes[r.Intn(len(myBytes))])
+	}
+	return string(result)
+}
+
+func GetRandomNum(l int) int {
+	//str := "123456789"
+	//str := "0123456789"
+	//myBytes := []byte(str)
+	var result []int
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	var first = true
+	for i := 0; i < l; i++ {
+		if first {
+			result = append(result, (r.Intn(9)+1)*int(math.Pow10(l-i-1)))
+			first = false
+		} else {
+			result = append(result, (r.Intn(10))*int(math.Pow10(l-i-1)))
+		}
+
+	}
+	var tmp int
+	for _,item := range result{
+		tmp += item
+	}
+	return tmp
+}
+
+type DateTime struct {
+	LastMonthStart string
+	LastMonthEnd   string
+	ThisMonthStart string
+	TodayStart     string
+	YesterdayStart string
+	ThisWeekStart  string
+	LastWeekStart  string
+	LastWeekEnd    string
+	Now            string
+	TomorrowStart  string
+}
+
+func GetDate() DateTime {
+	const DATE_FORMAT = "2006-01-02"
+	const DATETIME_FORMAT = "2006-01-02 15:04:05"
+	// 现在
+	now := time.Now()
+	// 年月日
+	year, month, day := now.Date()
+	// 今天开始
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
+	// 本月开始
+	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	// 昨天开始
+	yeaterday := today.AddDate(0, 0, -1)
+	// 明天开始
+	tomorrow := today.AddDate(0, 0, +1)
+	// 周计算
+	weekDay := now.Weekday()
+	//fmt.Println(weekDay)
+	// 本周开始
+	thisWeekStart := today.AddDate(0, 0, -int(weekDay)+1)
+	// 上周开始
+	lastWeekStart := thisWeekStart.AddDate(0, 0, -7)
+	// 上周结束
+	//lastWeekEnd := thisWeekStart.AddDate(0, 0, -1)
+	lastWeekEnd := thisWeekStart.Add(-1 * time.Second)
+
+	//time.Weekday
+	return DateTime{
+		LastMonthStart: thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT),
+		LastMonthEnd:   thisMonth.AddDate(0, 0, -1).Format(DATE_FORMAT),
+		ThisMonthStart: thisMonth.Format(DATE_FORMAT),
+		TodayStart:     today.Format(DATE_FORMAT + " 00:00:00"),
+		YesterdayStart: yeaterday.Format(DATE_FORMAT + " 00:00:00"),
+		ThisWeekStart:  thisWeekStart.Format(DATE_FORMAT + " 00:00:00"),
+		LastWeekStart:  lastWeekStart.Format(DATE_FORMAT + " 00:00:00"),
+		LastWeekEnd:    lastWeekEnd.Format(DATETIME_FORMAT),
+		Now:            now.Format(DATETIME_FORMAT),
+		TomorrowStart:  tomorrow.Format(DATE_FORMAT + " 00:00:00"),
+	}
+}
+
+type DayDatetime struct {
+	DateStart string
+	DateEnd   string
+}
+
+func GetDateStartAndEndByDateTime(datetime string) DayDatetime {
+	var day DayDatetime
+	var datetime_format = "2006-01-02 15:04:05"
+	// ===============
+	res2, _ := time.Parse(datetime_format, datetime)
+	y, m, d := res2.Date()
+	dayStart := time.Date(y, m, d, 0, 0, 0, 0, time.Local)
+	dayEnd := time.Date(y, m, d, 23, 59, 59, 999, time.Local)
+	day.DateStart = dayStart.Format(datetime_format)
+	day.DateEnd = dayEnd.Format(datetime_format)
+
+	return day
 }

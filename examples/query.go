@@ -1,24 +1,23 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 
-	user, err := db.Query("select count(*) as count from users where id>? limit ?", 1, 2)
+	//user, err := db.Query("select * from users where id in (?)", "47,55")
+	//tmp := "47,55"
+	//tmpArr := strings.Split(tmp, ",")
+	//user, err := db.Table("users").WhereIn("id",[]int{47,55}).Get()
+	user, err := db.Table("users").WhereBetween("id",[]interface{}{"47",55}).Get()
 	if err != nil {
 		fmt.Println(err)
 		return

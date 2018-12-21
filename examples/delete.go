@@ -1,25 +1,23 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
-	db, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	db := config.GetConnection()
 	// close DB
 	defer db.Close()
 
-	where := map[string]interface{}{
-		"id": 17,
-	}
-	res, err := db.Table("users").Where(where).Delete()
+	//where := map[string]interface{}{
+	//	"id": 17,
+	//}
+	res, err := db.Table("users").
+		//Force().
+		//Where(where).
+		Delete()
 	if err != nil {
 		fmt.Println(err)
 		return

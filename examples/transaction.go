@@ -1,19 +1,14 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
@@ -27,7 +22,7 @@ func main() {
 		"id": 17,
 	}
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 
 	trans,err := db.Transaction(func() error {
 

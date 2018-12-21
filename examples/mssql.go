@@ -4,19 +4,14 @@ import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/gohouse/gorose"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mssql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 
 	res, err := db.Table("users").Where("id", ">", 2).First()
 	if err != nil {

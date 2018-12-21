@@ -4,6 +4,6 @@ Thumbs.db
 
 /.idea/
 
-#/vendor/
-#glide.lock
+/vendor/
+glide.lock
 

@@ -1,0 +1,6 @@
+Driver = "mysql"
+EnableQueryLog = false
+SetMaxOpenConns = 0
+SetMaxIdleConns = 0
+Prefix = ""
+Dsn = "username:password@tcp(localhost:5555)/dbname?charset=utf8"

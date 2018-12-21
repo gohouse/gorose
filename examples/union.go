@@ -1,22 +1,17 @@
 package main
 
 import (
-	"github.com/gohouse/gorose/examples/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/examples/config"
 )
 
 func main() {
-	connection, err := gorose.Open(config.DbConfig, "mysql_dev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	connection := config.GetConnection()
 	// close DB
 	defer connection.Close()
 
-	db := connection.GetInstance()
+	db := connection.NewSession()
 
 	res, err := db.Table("users").Count()
 	if err != nil {
@@ -25,7 +20,7 @@ func main() {
 	}
 	fmt.Println(res)
 
-	max, err := db.Table("users").Max("money")
+	max, err := db.Table("users").Max("age")
 	if err != nil {
 		fmt.Println(err)
 		return
