@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"reflect"
 	"strings"
@@ -40,7 +39,7 @@ func (c *JsonConfigParser) Parse(file string, dbConfCluster interface{}) (err er
 
 func jsonDecoder(str []byte, dbConfCluster interface{}) (err error) {
 	srcElem := reflect.Indirect(reflect.ValueOf(dbConfCluster))
-	fmt.Println(srcElem)
+	//fmt.Println(srcElem)
 	fieldType := srcElem.FieldByName("Master").Type().Elem()
 	fieldElem := reflect.New(fieldType)
 	err = json.Unmarshal(str, fieldElem.Interface())

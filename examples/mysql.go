@@ -12,18 +12,8 @@ func main() {
 	defer connection.Close()
 
 	db := connection.NewSession()
-	fmt.Println(db)
-	res, err := db.Table("users").Where("aid",  1545).Count()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	//fmt.Println(len(res))
-	fmt.Println(db.LastSql)
-	fmt.Println(res)
-
 	var db2 = connection.NewSession()
-	res2, err := db2.Table("users").Limit(2).Get()
+	res2, err := db2.Table("users").Fields("id").Limit(2).Get()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -31,11 +21,11 @@ func main() {
 	fmt.Println(res2)
 	fmt.Println(db.JsonEncode(res2))
 
-	//============== result ======================
-
-	//SELECT * FROM users WHERE  id > '2' LIMIT 1
-	//map[id:3 name:gorose age:18 website:go-rose.com job:go orm]
-	//SELECT * FROM users LIMIT 2
-	//[map[id:1 name:fizz age:18 website:fizzday.net job:it] map[id:2 name:fizzday age:18 website:fizzday.net job:engineer]]
-
+	var db3 = connection.NewSession()
+	res3,err := db3.Table("users").Fields("id,age,job").
+		//Where("id", "in", []interface{}{1,55}).
+		Where([][]interface{}{{"id", "in", []interface{}{1, 55}}}).
+		Get()
+	fmt.Println(db3.LastSql)
+	fmt.Println(db.JsonEncode(res3))
 }

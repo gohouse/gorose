@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"log"
 	"math"
@@ -496,21 +497,37 @@ func StrutForScan(u interface{}) []interface{} {
 	return v
 }
 
-func GetRandomString(l int) string {
-	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+func GetRandomAlarm(l int) string {
+	if l<=0 {
+		return ""
+	}
+	str := "abcdefghijkmnpqrstuvwxyz"
 	myBytes := []byte(str)
+	myBytesLen := len(myBytes)
 	result := []byte{}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < l; i++ {
-		result = append(result, myBytes[r.Intn(len(myBytes))])
+		result = append(result, myBytes[r.Intn(myBytesLen)])
+	}
+	return string(result)
+}
+
+func GetRandomString(l int) string {
+	if l<=0 {
+		return ""
+	}
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	myBytes := []byte(str)
+	myBytesLen := len(myBytes)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, myBytes[r.Intn(myBytesLen)])
 	}
 	return string(result)
 }
 
 func GetRandomNum(l int) int {
-	//str := "123456789"
-	//str := "0123456789"
-	//myBytes := []byte(str)
 	var result []int
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -529,6 +546,25 @@ func GetRandomNum(l int) int {
 		tmp += item
 	}
 	return tmp
+}
+
+func GetOrderNO() string {
+	rand.Seed(time.Now().UnixNano()) //利用当前时间的UNIX时间戳初始化rand包
+	var suffix string
+	for i := 0; i < 6; i++ {
+		x := rand.Intn(10)
+		suffix += strconv.Itoa(x)
+	}
+
+	return fmt.Sprintf("%v%v",time.Now().UnixNano(),suffix)
+}
+
+func Md5(str interface{}) string {
+	data := []byte(fmt.Sprintf("%v", str))
+	has := md5.Sum(data)
+	md5str := fmt.Sprintf("%x", has) //将[]byte转成16进制
+
+	return md5str
 }
 
 type DateTime struct {
