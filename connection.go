@@ -99,8 +99,12 @@ func (c *Connection) parseOpenArgs(args ...interface{}) (*DbConfigCluster, error
 	if typeName, err = across.Getter(fileOrDriverType); err == nil {
 		switch typeName {
 		case "driver":
-			dbConf.Master.Driver = fileOrDriverType
-			dbConf.Master.Dsn = dsnOrFile
+			//dbConf.Master.Driver = fileOrDriverType
+			//dbConf.Master.Dsn = dsnOrFile
+			dbConf.Master = &DbConfigSingle{
+				Driver:fileOrDriverType,
+				Dsn:dsnOrFile,
+			}
 
 		case "file":
 			// 配置文件, 读取配置文件
