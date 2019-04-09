@@ -148,6 +148,13 @@ For more usage, please read the Documentation.
 - `holdno`  : official website builder  
 - `LazyNeo` : bug fix and improve source code  
 - `dmhome`  : improve source code 
+
+### version plan
+- struct support in insert, update  
+
+- move transaction to connection  
+
+- auto add or edit
  
 ### release notes
 
