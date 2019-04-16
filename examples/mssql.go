@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
-	_ "github.com/denisenkom/go-mssqldb"
+	//_ "github.com/denisenkom/go-mssqldb"
 )
 
 func main() {
