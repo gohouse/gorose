@@ -24,6 +24,7 @@ Currently provides five major database drivers:
 - **postgres** : <https://github.com/lib/pq>  
 - **oracle** : <https://github.com/mattn/go-oci8>  
 - **mssql** : <https://github.com/denisenkom/go-mssqldb>  
+- **clickhouse** : <https://github.com/kshvakov/clickhouse>  
 
 ### 1.0.0 update notes
 - struct support  
@@ -154,7 +155,11 @@ For more usage, please read the Documentation.
 
 - move transaction to connection  
 
-- auto add or edit
+- auto add or edit  
+
+- wherenested improve  
+
+- binary support (use origin values bind)  
  
 ### release notes
 

@@ -6,4 +6,5 @@ Thumbs.db
 
 /vendor/
 glide.lock
-
+go.sum
+*.sqlite

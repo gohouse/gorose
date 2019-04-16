@@ -5,6 +5,7 @@ require (
 	github.com/BurntSushi/toml v0.3.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20180901172138-1eb28afdf9b6
 	github.com/go-sql-driver/mysql v1.4.0
+	github.com/gohouse/converter v0.0.3
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.9.0
