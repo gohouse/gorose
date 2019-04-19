@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gohouse/gorose/examples/config"
 	"fmt"
-	_ "github.com/lib/pq"
+	//_ "github.com/lib/pq"
 )
 
 func main() {

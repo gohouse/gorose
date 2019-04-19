@@ -9,30 +9,31 @@ import (
 
 func main() {
 	connection := config.GetConnection()
-	connection.Use(gorose.NewLogger())
+	connection.Use(gorose.NewLogger("/tmp/gorose_log"))
 
 	// close DB
 	defer connection.Close()
 
 	db := connection.NewSession()
 
-	data := map[string]interface{}{
-		"age":  17,
-		"job":  "it33",
-		"name": "fizz5",
-	}
-	where := map[string]interface{}{
-		"id": 75,
-	}
+	//data := map[string]interface{}{
+	//	"age":  17,
+	//	"job":  "it33",
+	//	"name": "fizz5",
+	//}
+	//where := map[string]interface{}{
+	//	"id": 75,
+	//}
+	//
+	//res, err := db.Table("users").Data(data).Where(where).Update()
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//
+	//fmt.Println(res)
 
-	res, err := db.Table("users").Data(data).Where(where).Update()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(res)
-
-	connection.Table("users").First()
+	res,err := db.Table("oc_zone").First()
+	fmt.Println(res,err)
 
 }
