@@ -1,4 +1,5 @@
 # 2.0版本规划
+发表建议地址: https://github.com/gohouse/gorose/issues/73
 
 ## 开发计划
 按照 laravel 的数据库操作 query builder 的标准开发, 同时可酌情添加 eloquent 的部分设计思想和 api
