@@ -12,4 +12,4 @@
 比如返回结果: map, struct, 自定义数据类型等.  
 
 ## 模块大致结构图
-
+![gorose_2.0](https://github.com/gohouse/gorose/blob/2.0-dev/version_plan_and_design/gorose_2.0_modules.png?raw=true)
