@@ -1,37 +1,16 @@
-# gorose
+# gorose 2.0版本规划
+发表建议地址: https://github.com/gohouse/gorose/issues/73
 
-#### 介绍
-gorose
+## 开发计划
+按照 laravel 的数据库操作 query builder 的标准开发, 同时可酌情添加 eloquent 的部分设计思想和 api
 
-#### 软件架构
-软件架构说明
+## 产品规划
+采用模块分离的方式, 每个模块以 接口 的方式相互调用, 做到模块相互独立, 后期可以自由方便的拓展.  
+比如驱动, 不同驱动的sql构建
 
+## 设计目标
+每个模块要做到可以自由横向扩展, 以实现个性化需求.  
+比如返回结果: map, struct, 自定义数据类型等.  
 
-#### 安装教程
-
-1. xxxx
-2. xxxx
-3. xxxx
-
-#### 使用说明
-
-1. xxxx
-2. xxxx
-3. xxxx
-
-#### 参与贡献
-
-1. Fork 本仓库
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## 模块大致结构图
+![gorose_2.0](https://github.com/gohouse/gorose/blob/2.0-dev/version_plan_and_design/gorose_2.0_modules.png?raw=true)
