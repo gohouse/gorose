@@ -140,7 +140,11 @@ func AddSingleQuotes(data interface{}) string {
 	case int, int64, int32, uint32, uint64:
 		return ParseStr(data)
 	default:
-		return "'" + strings.Replace(ParseStr(data), "'", `\'`, -1) + "'"
+		ret := ParseStr(data)
+		ret = strings.Replace(ret, `\`, `\\`, -1)
+		ret = strings.Replace(ret, `"`, `\"`, -1)
+		ret = strings.Replace(ret, `'`, `\'`, -1)
+		return "'" + ret + "'"
 	}
 }
 
