@@ -11,10 +11,10 @@ import (
 type MapRow map[string]interface{}
 type MapRows []MapRow
 
-type objectType int
+type ObjectType int
 
 const (
-	OBJECT_STRUCT       objectType = iota // 结构体 一条数据	(struct)
+	OBJECT_STRUCT       ObjectType = iota // 结构体 一条数据	(struct)
 	OBJECT_STRUCT_SLICE                   // 结构体 多条数据	([]struct)
 	OBJECT_MAP                            // map 一条数据		(map[string]interface{})
 	OBJECT_MAP_SLICE                      // map 多条数据		([]map[string]interface{})
@@ -22,22 +22,22 @@ const (
 )
 
 type bind struct {
-	// object是指传入的对象 [slice]map,[slice]struct
+	// Object是指传入的对象 [slice]map,[slice]struct
 	// 传入的原始对象
-	objectOrigin          interface{}
-	objectOriginTableName []string
+	ObjectOrigin          interface{}
+	ObjectOriginTableName []string
 	// 解析出来的对象名字, 或者指定的method(TableName)获取到的名字
-	objectName string
+	ObjectName string
 	// 一条结果的反射对象
-	objectResult reflect.Value
+	ObjectResult reflect.Value
 	// 多条
-	objectResultSlice reflect.Value
+	ObjectResultSlice reflect.Value
 	// 传入结构体解析出来的字段
-	objectFields []string
+	ObjectFields []string
 	// 传入的对象类型判定
-	objectType objectType
+	ObjectType ObjectType
 	// 出入传入得是非slice对象, 则只需要取一条, 取多了也是浪费
-	objectLimit int
+	ObjectLimit int
 }
 
 type Session struct {
@@ -78,7 +78,7 @@ func (s *Session) Close() {
 // Table : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Table(bind interface{}) ISession {
-	s.objectOrigin = bind
+	s.ObjectOrigin = bind
 
 	return s
 }
@@ -215,15 +215,15 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (int64, error) 
 func (s *Session) scan(rows *sql.Rows) (err error) {
 	//fmt.Printf("%#v\n",s.table)
 	// 检查实多维数组还是一维数组
-	switch s.objectType {
+	switch s.ObjectType {
 	case OBJECT_STRUCT:
-		err = s.scanRow(rows, s.objectOrigin)
+		err = s.scanRow(rows, s.ObjectOrigin)
 	case OBJECT_STRUCT_SLICE:
-		err = s.scanAll(rows, s.objectResultSlice)
+		err = s.scanAll(rows, s.ObjectResultSlice)
 	case OBJECT_MAP:
-		err = s.scanMap(rows, s.objectResult)
+		err = s.scanMap(rows, s.ObjectResult)
 	case OBJECT_MAP_SLICE:
-		err = s.scanMapAll(rows, s.objectResultSlice)
+		err = s.scanMapAll(rows, s.ObjectResultSlice)
 	default:
 		err = errors.New("bind value error")
 	}
@@ -260,11 +260,11 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 				v = val
 			}
 			//entry[col] = v
-			s.objectResult.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+			s.ObjectResult.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
 		}
 		//result = append(result, entry)
-		if s.objectType == OBJECT_MAP_SLICE {
-			s.objectResultSlice.Set(reflect.Append(s.objectResultSlice, s.objectResult))
+		if s.ObjectType == OBJECT_MAP_SLICE {
+			s.ObjectResultSlice.Set(reflect.Append(s.ObjectResultSlice, s.ObjectResult))
 		}
 	}
 	return
@@ -285,7 +285,7 @@ func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
 
 	// perform the scan
 	if err := rows.Scan(fields...); err != nil {
-		//if err := rows.Scan(strutForScan(s.objectResult.Interface())...); err != nil {
+		//if err := rows.Scan(strutForScan(s.ObjectResult.Interface())...); err != nil {
 		return err
 	}
 
@@ -299,93 +299,93 @@ func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
 func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	for rows.Next() {
 		// scan it
-		err := rows.Scan(strutForScan(s.objectResult.Interface())...)
+		err := rows.Scan(strutForScan(s.ObjectResult.Interface())...)
 		if err != nil {
 			return err
 		}
 		// add to the result slice
-		s.objectResultSlice.Set(reflect.Append(s.objectResultSlice, s.objectResult.Elem()))
+		s.ObjectResultSlice.Set(reflect.Append(s.ObjectResultSlice, s.ObjectResult.Elem()))
 	}
 
 	return rows.Err()
 }
 
 func (s *Session) parseTable() (err error) {
-	if s.objectOrigin == nil {
+	if s.ObjectOrigin == nil {
 		return nil
 	}
-	var objectName string
-	switch s.objectOrigin.(type) {
+	var ObjectName string
+	switch s.ObjectOrigin.(type) {
 	case string: // 直接传入的是表名
-		s.objectType = OBJECT_STRING
-		objectName = s.objectOrigin.(string)
+		s.ObjectType = OBJECT_STRING
+		ObjectName = s.ObjectOrigin.(string)
 
 	// 传入的是struct
 	default:
 		// 清空字段值,避免手动传入字段污染struct字段
-		s.objectFields = []string{}
+		s.ObjectFields = []string{}
 		// make sure dst is an appropriate type
-		dstVal := reflect.ValueOf(s.objectOrigin)
+		dstVal := reflect.ValueOf(s.ObjectOrigin)
 
 		sliceVal := reflect.Indirect(dstVal)
 
 		switch sliceVal.Kind() {
 		case reflect.Struct: // struct
-			s.objectType = OBJECT_STRUCT
-			objectName = sliceVal.Type().Name()
-			s.objectResult = sliceVal
+			s.ObjectType = OBJECT_STRUCT
+			ObjectName = sliceVal.Type().Name()
+			s.ObjectResult = sliceVal
 			// 默认只查一条
-			s.objectLimit = 1
+			s.ObjectLimit = 1
 			// 是否设置了表名
-			if tn := dstVal.MethodByName("objectName"); tn.IsValid() {
-				objectName = tn.Call(nil)[0].String()
+			if tn := dstVal.MethodByName("ObjectName"); tn.IsValid() {
+				ObjectName = tn.Call(nil)[0].String()
 			}
 			// 解析出字段
 			s.parseFields()
 		case reflect.Map: // map
 			//fmt.Println("map")
-			s.objectType = OBJECT_MAP
+			s.ObjectType = OBJECT_MAP
 			// 默认只查一条
-			s.objectLimit = 1
+			s.ObjectLimit = 1
 			//
-			s.objectResult = sliceVal
+			s.ObjectResult = sliceVal
 
 		case reflect.Slice: // []struct
 			eltType := sliceVal.Type().Elem()
 
 			switch eltType.Kind() {
 			case reflect.Map:
-				s.objectType = OBJECT_MAP_SLICE
-				//objectName = eltType.Name()
-				s.objectResult = reflect.MakeMap(eltType)
-				s.objectResultSlice = sliceVal
+				s.ObjectType = OBJECT_MAP_SLICE
+				//ObjectName = eltType.Name()
+				s.ObjectResult = reflect.MakeMap(eltType)
+				s.ObjectResultSlice = sliceVal
 
 			case reflect.Struct:
-				s.objectType = OBJECT_STRUCT_SLICE
-				objectName = eltType.Name()
-				s.objectResult = reflect.New(eltType)
-				s.objectResultSlice = sliceVal
+				s.ObjectType = OBJECT_STRUCT_SLICE
+				ObjectName = eltType.Name()
+				s.ObjectResult = reflect.New(eltType)
+				s.ObjectResultSlice = sliceVal
 				// 是否设置了表名
-				if tn := s.objectResult.MethodByName("objectName"); tn.IsValid() {
-					objectName = tn.Call(nil)[0].String()
+				if tn := s.ObjectResult.MethodByName("ObjectName"); tn.IsValid() {
+					ObjectName = tn.Call(nil)[0].String()
 				}
 				// 解析出字段
 				s.parseFields()
 			default:
-				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.objectOrigin)
+				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.ObjectOrigin)
 			}
 		default:
-			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.objectOrigin)
+			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.ObjectOrigin)
 		}
 	}
 
-	s.objectName = objectName
+	s.ObjectName = ObjectName
 
 	return
 }
 
 func (s *Session) parseFields() {
-	if len(s.objectFields) == 0 {
-		s.objectFields = getTagName(s.objectResult.Interface())
+	if len(s.ObjectFields) == 0 {
+		s.ObjectFields = getTagName(s.ObjectResult.Interface())
 	}
 }
