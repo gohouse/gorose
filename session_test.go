@@ -77,20 +77,19 @@ func TestSession_Query_map(t *testing.T) {
 	var s = NewSession(initDB())
 	var err error
 
-	//var user = make([]map[string]interface{},0)
-	var user = make(bbb, 0)
-	err = s.Table(&user).Query("select * from users limit ?", 2)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	t.Log("多条map绑定:", user)
-
 	var user2 = make(aaa)
 	err = s.Table(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("一条map绑定:", user2)
+
+	var user bbb
+	err = s.Table(&user).Query("select * from users limit ?", 2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("多条map绑定:", user)
 }
 
 func TestSession_Transaction(t *testing.T) {
