@@ -5,9 +5,9 @@ import (
 )
 
 type cluster struct {
-	master     []*sql.DB
+	master     []map[string]*sql.DB
 	masterSize int
-	slave      []*sql.DB
+	slave      []map[string]*sql.DB
 	slaveSize  int
 }
 type Engin struct {
@@ -49,20 +49,28 @@ func (c *Engin) GetPrefix() string {
 
 // GetQueryDB : get a slave db for using query operation
 // GetQueryDB : 获取一个从库用来做查询操作
-func (c *Engin) GetQueryDB() *sql.DB {
+func (c *Engin) GetQueryDB() (db *sql.DB, driver string) {
 	if c.dbs.slaveSize == 0 {
 		return c.GetExecuteDB()
 	}
-	return c.dbs.slave[getRandomInt(c.dbs.slaveSize)]
+	var randint = getRandomInt(c.dbs.slaveSize)
+	for driver, db = range c.dbs.slave[randint] {
+		return
+	}
+	return
 }
 
 // GetExecuteDB : get a master db for using execute operation
 // GetExecuteDB : 获取一个主库用来做查询之外的操作
-func (c *Engin) GetExecuteDB() *sql.DB {
+func (c *Engin) GetExecuteDB() (db *sql.DB, driver string) {
 	if c.dbs.masterSize == 0 {
-		return nil
+		return
 	}
-	return c.dbs.master[getRandomInt(c.dbs.masterSize)]
+	var randint = getRandomInt(c.dbs.masterSize)
+	for driver, db = range c.dbs.master[randint] {
+		return
+	}
+	return
 }
 
 func (c *Engin) bootSingle(conf *Config) error {
@@ -82,7 +90,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.slave = append(c.dbs.slave, db)
+			c.dbs.slave = append(c.dbs.slave, map[string]*sql.DB{item.Driver: db})
 			c.dbs.slaveSize++
 		}
 	}
@@ -95,7 +103,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.master = append(c.dbs.master, db)
+			c.dbs.master = append(c.dbs.master, map[string]*sql.DB{item.Driver: db})
 			c.dbs.masterSize++
 		}
 	}

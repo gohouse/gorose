@@ -10,9 +10,9 @@ func TestEngin(t *testing.T) {
 	e.EnableQueryLog()
 	e.Prefix("pre_")
 
-	db := e.GetQueryDB()
+	db,dr := e.GetQueryDB()
 
 	err := db.Ping()
 
-	fmt.Println(err)
+	fmt.Println(err,dr)
 }

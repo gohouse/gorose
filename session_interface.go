@@ -9,4 +9,7 @@ type ISession interface {
 	Transaction(closer ...func(session ISession) error) (err error)
 	Query(sqlstring string, args ...interface{}) error
 	Execute(sqlstring string, args ...interface{}) (int64, error)
+	GetDriver() string
+	LastInsertId() int64
+	LastInsertSql() string
 }
