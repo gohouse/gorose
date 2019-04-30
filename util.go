@@ -80,10 +80,18 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	return falseVal
 }
 
-// AddSingleQuotes : 添加单引号
+// addSingleQuotes : 添加单引号
 func addSingleQuotes(data interface{}) string {
-	//return "'" + strings.Trim(ParseStr(data), " ") + "'"
-	return "'" + strings.Replace(parseStr(data), "'", `\'`, -1) + "'"
+	switch data.(type) {
+	case int, int64, int32, uint32, uint64:
+		return parseStr(data)
+	default:
+		ret := parseStr(data)
+		ret = strings.Replace(ret, `\`, `\\`, -1)
+		ret = strings.Replace(ret, `"`, `\"`, -1)
+		ret = strings.Replace(ret, `'`, `\'`, -1)
+		return "'" + ret + "'"
+	}
 }
 
 // InArray :给定元素值 是否在 指定的数组中
