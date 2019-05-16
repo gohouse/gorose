@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/gohouse/t"
 	"reflect"
 	"strings"
 )
@@ -47,9 +48,10 @@ func (s *Session) GetDriver() string {
 	return s.masterDriver
 }
 
-// Table : the mirror of Bind()
-func (s *Session) Table(tab interface{}) ISession {
-	return s.Bind(tab)
+// Table : the IOrm entrance
+func (s *Session) Table(tab interface{}) IOrm {
+	s.Bind(tab)
+	return NewOrm(s.Binder)
 }
 
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
@@ -228,7 +230,7 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 				v = val
 			}
 			//entry[col] = v
-			s.BindResult.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+			s.BindResult.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
 		}
 		//result = append(result, entry)
 		if s.BindType == OBJECT_MAP_SLICE {

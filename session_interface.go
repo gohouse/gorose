@@ -2,7 +2,8 @@ package gorose
 
 type ISession interface {
 	Close()
-	Table(bind interface{}) ISession
+	Table(bind interface{}) IOrm
+	Bind(bind interface{}) ISession
 	Begin() (err error)
 	Rollback() (err error)
 	Commit() (err error)

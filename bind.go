@@ -1,8 +1,11 @@
 package gorose
 
-import "reflect"
+import (
+	"github.com/gohouse/t"
+	"reflect"
+)
 
-type MapRow map[string]interface{}
+type MapRow map[string]t.T
 type MapRows []MapRow
 
 type BindType int

@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -120,4 +121,11 @@ func inArray(needle interface{}, hystack interface{}) bool {
 	}
 
 	return false
+}
+
+func withLockContext(fn func())  {
+	var mu sync.Mutex
+	mu.Lock()
+	defer mu.Unlock()
+	fn()
 }

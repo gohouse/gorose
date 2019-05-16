@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like", "in", "not in", "between", "not between"}
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
+		"in", "not in", "between", "not between"}
 )
 
 type OrmArgs struct {

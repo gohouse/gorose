@@ -45,14 +45,14 @@ func TestSession_Query_struct(t *testing.T) {
 	defer s.Close()
 
 	var user []Users
-	err = s.Table(&user).Query("select * from users limit ?", 2)
+	err = s.Bind(&user).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("多条struct绑定:", user)
 
 	var user2 Users
-	err = s.Table(&user2).Query("select * from users limit ?", 2)
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -78,18 +78,20 @@ func TestSession_Query_map(t *testing.T) {
 	var err error
 
 	var user2 = make(aaa)
-	err = s.Table(&user2).Query("select * from users limit ?", 2)
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("一条map绑定:", user2)
+	t.Log("一条map绑定的uid为:", user2["uid"].Int())
 
 	var user bbb
-	err = s.Table(&user).Query("select * from users limit ?", 2)
+	err = s.Bind(&user).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("多条map绑定:", user)
+	t.Log("多条map绑定:", user[0]["age"].Int())
 }
 
 func TestSession_Transaction(t *testing.T) {

@@ -18,10 +18,11 @@ func NewBuilderDriver() *BuilderDriver {
 }
 
 func (b *BuilderDriver) Register(driver string, val IBuilder)  {
-	//builders[driver] = val
-	b.builders[driver] = val
+	withLockContext(func() {
+		b.builders[driver] = val
+	})
 }
 
-func (b *BuilderDriver) Getter(driver string) IBuilder {
+func (b *BuilderDriver) Getter(driver string) (ib IBuilder) {
 	return b.builders[driver]
 }
