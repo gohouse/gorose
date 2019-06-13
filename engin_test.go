@@ -7,12 +7,12 @@ import (
 
 func TestEngin(t *testing.T) {
 	e := initDB()
-	e.EnableQueryLog()
+	e.EnableSqlLog()
 	e.Prefix("pre_")
 
-	db,dr := e.GetQueryDB()
+	db := e.GetQueryDB()
 
-	err := db.Ping()
+	err := db.db.Ping()
 
-	fmt.Println(err,dr)
+	fmt.Println(err, db.driver)
 }

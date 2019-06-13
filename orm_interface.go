@@ -3,6 +3,7 @@ package gorose
 type IOrm interface {
 	Hello()
 	BuildSql(operType ...string) (string, []interface{}, error)
+	Table(tab interface{}) Orm
 	//// distinct 方法允许你强制查询返回不重复的结果集：
 	//Distinct()
 	//// groupBy, orderBy, having
@@ -50,6 +51,7 @@ type IOrmQuery interface {
 }
 
 type IOrmExecute interface {
+	IOrm
 	// insert,insertGetId
 	Insert()
 	InsertGetId()

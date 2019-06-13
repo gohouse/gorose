@@ -11,12 +11,11 @@ import (
 
 type Session struct {
 	IEngin
-	*Binder
-	slaveDB      *sql.DB
-	masterDB     *sql.DB
-	tx           *sql.Tx
-	masterDriver string
-	slaveDriver  string
+	IOrm
+	IBuilder
+	IBinder
+	master     dbObject
+	slave      dbObject
 	lastInsertId int64
 	sqlLogs      []string
 	lastSql      string
@@ -29,54 +28,60 @@ func NewSession(e IEngin) ISession {
 	var s = new(Session)
 	s.IEngin = e
 
-	s.masterDB,s.masterDriver = s.IEngin.GetExecuteDB()
-	s.slaveDB,s.slaveDriver = s.IEngin.GetQueryDB()
+	s.master = s.IEngin.GetExecuteDB()
+	s.slave = s.IEngin.GetQueryDB()
 
-	s.Binder = new(Binder)
+	s.IBinder = NewBinder()
 
 	return s
 }
 
 // Close : 关闭 Session
 func (s *Session) Close() {
-	s.masterDB.Close()
-	s.slaveDB.Close()
+	s = nil
 }
 
-// GetDriver 获取驱动
-func (s *Session) GetDriver() string {
-	return s.masterDriver
+// GetBinder 获取绑定对象
+func (s *Session) GetBinder() *Binder {
+	return s.GetBinder()
 }
 
-// Table : the IOrm entrance
-func (s *Session) Table(tab interface{}) IOrm {
-	s.Bind(tab)
-	return NewOrm(s.Binder)
+// GetMasterDriver 获取驱动
+func (s *Session) GetMasterDriver() string {
+	return s.master.driver
+}
+// GetSlaveDriver 获取驱动
+func (s *Session) GetSlaveDriver() string {
+	return s.slave.driver
 }
 
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
-	s.BindOrigin = tab
+	s.SetBindOrigin(tab)
+	
 	_ = s.parseTable()
+
+	//fmt.Println(s.GetBindType().String())
+	//os.Exit(2)
 
 	return s
 }
 
 func (s *Session) Begin() (err error) {
-	s.tx, err = s.masterDB.Begin()
+	s.master.tx, err = s.master.db.Begin()
 	return
 }
 
 func (s *Session) Rollback() (err error) {
-	err = s.tx.Rollback()
-	s.tx = nil
+	err = s.master.tx.Rollback()
+	s.master.tx = nil
 	return
 }
 
 func (s *Session) Commit() (err error) {
-	err = s.tx.Commit()
-	s.tx = nil
+	err = s.master.tx.Commit()
+	s.master.tx = nil
 	return
 }
 
@@ -97,13 +102,13 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 }
 
 func (s *Session) Query(sqlstring string, args ...interface{}) error {
-	s.lastSql = fmt.Sprintf(sqlstring, args...)
 	// 记录sqlLog
-	if s.IfEnableQueryLog() {
+	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+	if s.IfEnableSqlLog() {
 		s.sqlLogs = append(s.sqlLogs, s.lastSql)
 	}
 
-	stmt, err := s.slaveDB.Prepare(sqlstring)
+	stmt, err := s.slave.db.Prepare(sqlstring)
 	if err != nil {
 		return err
 	}
@@ -125,7 +130,7 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 
 	s.lastSql = fmt.Sprintf(sqlstring, args...)
 	// 记录sqlLog
-	if s.IfEnableQueryLog() {
+	if s.IfEnableSqlLog() {
 		s.sqlLogs = append(s.sqlLogs, s.lastSql)
 	}
 
@@ -135,10 +140,10 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 	}
 
 	var stmt *sql.Stmt
-	if s.tx == nil {
-		stmt, err = s.masterDB.Prepare(sqlstring)
+	if s.master.tx == nil {
+		stmt, err = s.master.db.Prepare(sqlstring)
 	} else {
-		stmt, err = s.tx.Prepare(sqlstring)
+		stmt, err = s.master.tx.Prepare(sqlstring)
 	}
 
 	if err != nil {
@@ -185,24 +190,24 @@ func (s *Session) LastInsertSql() string {
 func (s *Session) scan(rows *sql.Rows) (err error) {
 	//fmt.Printf("%#v\n",s.table)
 	// 检查实多维数组还是一维数组
-	switch s.BindType {
+	switch s.GetBindType() {
 	case OBJECT_STRUCT:
-		err = s.scanRow(rows, s.BindOrigin)
+		err = s.scanRow(rows, s.GetBindOrigin())
 	case OBJECT_STRUCT_SLICE:
-		err = s.scanAll(rows, s.BindResultSlice)
-	case OBJECT_MAP:
-		err = s.scanMap(rows, s.BindResult)
-	case OBJECT_MAP_SLICE:
-		err = s.scanMapAll(rows, s.BindResultSlice)
+		err = s.scanAll(rows, s.GetBindResultSlice())
+	//case OBJECT_MAP, OBJECT_MAP_T:
+	//	err = s.scanMap(rows, s.GetBindResult())
+	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
+		err = s.scanMapAll(rows, s.GetBindResultSlice())
 	default:
 		err = errors.New("Bind value error")
 	}
 	return
 }
 
-func (s *Session) scanMap(rows *sql.Rows, dst interface{}) (err error) {
-	return s.scanMapAll(rows, dst)
-}
+//func (s *Session) scanMap(rows *sql.Rows, dst interface{}) (err error) {
+//	return s.scanMapAll(rows, dst)
+//}
 
 func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 	//var result = make([]map[string]interface{}, 0)
@@ -219,7 +224,7 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 		for i := 0; i < count; i++ {
 			scanArgs[i] = &values[i]
 		}
-		rows.Scan(scanArgs...)
+		_ = rows.Scan(scanArgs...)
 		//entry := make(map[string]interface{})
 		for i, col := range columns {
 			var v interface{}
@@ -230,11 +235,16 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 				v = val
 			}
 			//entry[col] = v
-			s.BindResult.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+			switch s.GetBindType() {
+			case OBJECT_MAP_T,OBJECT_MAP_SLICE_T:
+				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+			default:
+				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+			}
 		}
 		//result = append(result, entry)
-		if s.BindType == OBJECT_MAP_SLICE {
-			s.BindResultSlice.Set(reflect.Append(s.BindResultSlice, s.BindResult))
+		if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+			s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult()))
 		}
 	}
 	return
@@ -269,93 +279,101 @@ func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
 func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	for rows.Next() {
 		// scan it
-		err := rows.Scan(strutForScan(s.BindResult.Interface())...)
+		err := rows.Scan(strutForScan(s.GetBindResult().Interface())...)
 		if err != nil {
 			return err
 		}
 		// add to the result slice
-		s.BindResultSlice.Set(reflect.Append(s.BindResultSlice, s.BindResult.Elem()))
+		s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult().Elem()))
 	}
 
 	return rows.Err()
 }
 
 func (s *Session) parseTable() (err error) {
-	if s.BindOrigin == nil {
+	if s.GetBindOrigin() == nil {
 		return nil
 	}
 	var BindName string
-	switch s.BindOrigin.(type) {
+	switch s.GetBindOrigin().(type) {
 	case string: // 直接传入的是表名
-		s.BindType = OBJECT_STRING
-		BindName = s.BindOrigin.(string)
+		s.SetBindType(OBJECT_STRING)
+		BindName = s.GetBindOrigin().(string)
 
-	// 传入的是struct
+	// 传入的是struct或切片
 	default:
 		// 清空字段值,避免手动传入字段污染struct字段
-		s.BindFields = []string{}
+		s.SetBindFields([]string{})
 		// make sure dst is an appropriate type
-		dstVal := reflect.ValueOf(s.BindOrigin)
-
+		dstVal := reflect.ValueOf(s.GetBindOrigin())
 		sliceVal := reflect.Indirect(dstVal)
 
 		switch sliceVal.Kind() {
 		case reflect.Struct: // struct
-			s.BindType = OBJECT_STRUCT
+			s.SetBindType(OBJECT_STRUCT)
 			BindName = sliceVal.Type().Name()
-			s.BindResult = sliceVal
+			s.SetBindResult(sliceVal)
 			// 默认只查一条
-			s.BindLimit = 1
+			s.SetBindLimit(1)
 			// 是否设置了表名
-			if tn := dstVal.MethodByName("BindName"); tn.IsValid() {
+			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 				BindName = tn.Call(nil)[0].String()
 			}
 			// 解析出字段
 			s.parseFields()
 		case reflect.Map: // map
-			//fmt.Println("map")
-			s.BindType = OBJECT_MAP
+			s.SetBindType(OBJECT_MAP)
 			// 默认只查一条
-			s.BindLimit = 1
+			s.SetBindLimit(1)
 			//
-			s.BindResult = sliceVal
+			s.SetBindResult(sliceVal)
+			//TODO 检查map的值类型, 是否是t.T
+			//fmt.Println(sliceVal.Type().Elem())
+			//fmt.Println(sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem())
+			//os.Exit(2)
+			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
+				s.SetBindType(OBJECT_MAP_T)
+			}
 
-		case reflect.Slice: // []struct
+		case reflect.Slice: // []struct,[]map
 			eltType := sliceVal.Type().Elem()
 
 			switch eltType.Kind() {
 			case reflect.Map:
-				s.BindType = OBJECT_MAP_SLICE
-				//BindName = eltType.Name()
-				s.BindResult = reflect.MakeMap(eltType)
-				s.BindResultSlice = sliceVal
+				s.SetBindType(OBJECT_MAP_SLICE)
+				s.SetBindResult(reflect.MakeMap(eltType))
+				s.SetBindResultSlice(sliceVal)
+				//TODO 检查map的值类型, 是否是t.T
+				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
+					s.SetBindType(OBJECT_MAP_SLICE_T)
+				}
 
 			case reflect.Struct:
-				s.BindType = OBJECT_STRUCT_SLICE
+				s.SetBindType(OBJECT_STRUCT_SLICE)
 				BindName = eltType.Name()
-				s.BindResult = reflect.New(eltType)
-				s.BindResultSlice = sliceVal
+				s.SetBindResult(reflect.New(eltType))
+				s.SetBindResultSlice(sliceVal)
 				// 是否设置了表名
-				if tn := s.BindResult.MethodByName("BindName"); tn.IsValid() {
+				if tn := s.GetBindResult().MethodByName("TableName"); tn.IsValid() {
 					BindName = tn.Call(nil)[0].String()
 				}
 				// 解析出字段
 				s.parseFields()
 			default:
-				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.BindOrigin)
+				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
 			}
 		default:
-			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.BindOrigin)
+			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
 		}
 	}
 
-	s.BindName = BindName
+	s.SetBindName(BindName)
 
 	return
 }
 
 func (s *Session) parseFields() {
-	if len(s.BindFields) == 0 {
-		s.BindFields = getTagName(s.BindResult.Interface())
+	if len(s.GetBindFields()) == 0 {
+		s.SetBindFields(getTagName(s.GetBindResult().Interface()))
 	}
 }

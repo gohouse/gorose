@@ -27,19 +27,33 @@ type OrmArgs struct {
 
 type Orm struct {
 	ISession
-	*Binder
+	IBinder
 	*OrmArgs
 }
 
-func NewOrm(b *Binder) IOrm {
+func NewOrm(s ISession, b IBinder) IOrm {
 	var o = new(Orm)
-	o.Binder = b
+	o.ISession = s
+	o.IBinder = b
 
 	return o
 }
 
+//func NewOrm(b IBinder) IOrm {
+//	var o = new(Orm)
+//	o.IBinder = b
+//
+//	return o
+//}
+
 func (dba Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
+}
+
+// Fields : select fields
+func (dba Orm) Table(tab interface{}) Orm {
+	dba.Bind(tab)
+	return dba
 }
 
 // Fields : select fields
@@ -62,12 +76,6 @@ func (dba Orm) Select(fields ...string) Orm {
 // AddSelect : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddSelect method:
 func (dba Orm) AddSelect(fields ...string) Orm {
 	dba.fields = append(dba.fields, fields...)
-	return dba
-}
-
-// Table : select table
-func (dba Orm) Table(table string) Orm {
-	dba.ISession.Table(table)
 	return dba
 }
 
@@ -159,7 +167,7 @@ func (dba Orm) Get() (error) {
 	}
 
 	// 执行查询
-	return dba.ISession.Query(sqlStr, args...)
+	return dba.Query(sqlStr, args...)
 }
 
 // Insert : insert data and get affected rows
@@ -170,7 +178,7 @@ func (dba Orm) Insert() (int64, error) {
 		return 0,err
 	}
 
-	return dba.ISession.Execute(sqlStr, args...)
+	return dba.Execute(sqlStr, args...)
 }
 
 // insertGetId : insert data and get id
@@ -190,7 +198,7 @@ func (dba Orm) Update() (int64, error) {
 		return 0,err
 	}
 
-	return dba.ISession.Execute(sqlStr, args...)
+	return dba.Execute(sqlStr, args...)
 }
 
 // Delete : delete data
@@ -201,7 +209,7 @@ func (dba Orm) Delete() (int64, error) {
 		return 0,err
 	}
 
-	return dba.ISession.Execute(sqlStr, args...)
+	return dba.Execute(sqlStr, args...)
 }
 
 // Increment : auto Increment +1 default
@@ -275,8 +283,8 @@ func (dba Orm) Decrement(args ...interface{}) (int64, error) {
 // operType(select, insert, update, delete)
 func (dba Orm) BuildSql(operType ...string) (string, []interface{}, error) {
 	if len(operType)==0 || (len(operType)>0 && strings.ToLower(operType[0])=="select") {
-		return NewBuilder(dba.ISession.GetDriver()).BuildQuery(dba)
+		return NewBuilder(dba.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		return NewBuilder(dba.ISession.GetDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 	}
 }

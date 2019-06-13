@@ -4,15 +4,20 @@ import (
 	"database/sql"
 )
 
+type dbObject struct {
+	driver string
+	db *sql.DB
+	tx *sql.Tx
+}
 type cluster struct {
-	master     []map[string]*sql.DB
+	master     []dbObject
 	masterSize int
-	slave      []map[string]*sql.DB
+	slave      []dbObject
 	slaveSize  int
 }
 type Engin struct {
 	config         *ConfigCluster
-	enableQueryLog bool
+	enableSqlLog bool
 	prefix         string
 	dbs            *cluster
 }
@@ -25,52 +30,49 @@ func NewEngin() *Engin {
 	return new(Engin)
 }
 
-// EnableQueryLog : wither record sql logs, if no args input, the arg value default true
-// EnableQueryLog : 是否启用sql日志记录, 如果不传递参数, 则参数值默认为true
-func (c *Engin) EnableQueryLog(arg ...bool) {
+// EnableSqlLog : wither record sql logs, if no args input, the arg value default true
+// EnableSqlLog : 是否启用sql日志记录, 如果不传递参数, 则参数值默认为true
+func (c *Engin) EnableSqlLog(arg ...bool) {
 	if len(arg) == 0 {
-		c.enableQueryLog = true
+		c.enableSqlLog = true
 	} else {
-		c.enableQueryLog = arg[0]
+		c.enableSqlLog = arg[0]
 	}
 }
 
-func (c *Engin) IfEnableQueryLog() bool {
-	return c.enableQueryLog
+// IfEnableSqlLog 是否启用sql日志
+func (c *Engin) IfEnableSqlLog() bool {
+	return c.enableSqlLog
 }
 
+// Prefix 设置前缀
 func (c *Engin) Prefix(pre string) {
 	c.prefix = pre
 }
 
+// GetPrefix 获取前缀
 func (c *Engin) GetPrefix() string {
 	return c.prefix
 }
 
 // GetQueryDB : get a slave db for using query operation
 // GetQueryDB : 获取一个从库用来做查询操作
-func (c *Engin) GetQueryDB() (db *sql.DB, driver string) {
+func (c *Engin) GetQueryDB() dbObject {
 	if c.dbs.slaveSize == 0 {
 		return c.GetExecuteDB()
 	}
 	var randint = getRandomInt(c.dbs.slaveSize)
-	for driver, db = range c.dbs.slave[randint] {
-		return
-	}
-	return
+	return c.dbs.slave[randint]
 }
 
 // GetExecuteDB : get a master db for using execute operation
 // GetExecuteDB : 获取一个主库用来做查询之外的操作
-func (c *Engin) GetExecuteDB() (db *sql.DB, driver string) {
+func (c *Engin) GetExecuteDB() dbObject {
 	if c.dbs.masterSize == 0 {
-		return
+		return dbObject{}
 	}
 	var randint = getRandomInt(c.dbs.masterSize)
-	for driver, db = range c.dbs.master[randint] {
-		return
-	}
-	return
+	return c.dbs.master[randint]
 }
 
 func (c *Engin) bootSingle(conf *Config) error {
@@ -90,7 +92,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.slave = append(c.dbs.slave, map[string]*sql.DB{item.Driver: db})
+			c.dbs.slave = append(c.dbs.slave, dbObject{driver:item.Driver, db:db})
 			c.dbs.slaveSize++
 		}
 	}
@@ -103,7 +105,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.master = append(c.dbs.master, map[string]*sql.DB{item.Driver: db})
+			c.dbs.master = append(c.dbs.master, dbObject{driver:item.Driver, db:db})
 			c.dbs.masterSize++
 		}
 	}
@@ -133,6 +135,11 @@ func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
 	return
 }
 
+// NewSession 获取session实例
+// 这是一个语法糖, 为了方便使用(engin.NewSession())添加的
+// 添加后会让engin和session耦合, 如果不想耦合, 就删掉此方法
+// 删掉这个方法后,可以使用 gorose.NewSession(gorose.IEngin)
+// 通过 gorose.IEngin 依赖注入的方式, 达到解耦的目的
 func (c *Engin) NewSession() ISession {
 	return NewSession(c)
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func Open(conf ...interface{}) (e IEngin, err error) {
+func Open(conf ...interface{}) (e *Engin, err error) {
 	// 驱动engin
 	conn := NewEngin()
 	if len(conf) == 0 {

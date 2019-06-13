@@ -77,31 +77,33 @@ func TestSession_Query_map(t *testing.T) {
 	var s = NewSession(initDB())
 	var err error
 
-	var user2 = make(aaa)
+	var user2 = aaa{}
 	err = s.Bind(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("一条map绑定:", user2)
-	t.Log("一条map绑定的uid为:", user2["uid"].Int())
+	t.Log("一条map绑定的uid为:", user2["uid"])
+	t.Log(s.LastInsertSql())
 
-	var user bbb
+	var user = bbb{}
 	err = s.Bind(&user).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("多条map绑定:", user)
 	t.Log("多条map绑定:", user[0]["age"].Int())
+	t.Log(s.LastInsertSql())
 }
 
 func TestSession_Transaction(t *testing.T) {
 	var s = NewSession(initDB())
 	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
-	err := s.Transaction(func1, func2)
+	err := s.Transaction(trans1, trans2)
 	t.Log(err)
 }
 
-func func1(s ISession) error {
+func trans1(s ISession) error {
 	var err error
 	var aff int64
 	aff, err = s.Execute("update users set name='?',age=? where uid=?",
@@ -124,7 +126,7 @@ func func1(s ISession) error {
 
 	return nil
 }
-func func2(s ISession) error {
+func trans2(s ISession) error {
 	var err error
 	var aff int64
 	aff, err = s.Execute("update users set name='?',age=? where uid=?",

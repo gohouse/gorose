@@ -2,7 +2,7 @@ package gorose
 
 type ISession interface {
 	Close()
-	Table(bind interface{}) IOrm
+	//Table(bind interface{}) IOrm
 	Bind(bind interface{}) ISession
 	Begin() (err error)
 	Rollback() (err error)
@@ -10,7 +10,9 @@ type ISession interface {
 	Transaction(closer ...func(session ISession) error) (err error)
 	Query(sqlstring string, args ...interface{}) error
 	Execute(sqlstring string, args ...interface{}) (int64, error)
-	GetDriver() string
+	GetMasterDriver() string
+	GetSlaveDriver() string
+	GetBinder() *Binder
 	LastInsertId() int64
 	LastInsertSql() string
 }
