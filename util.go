@@ -28,6 +28,17 @@ func strutForScan(u interface{}) []interface{} {
 	return v
 }
 
+func StructToMap(obj interface{}) map[string]interface{} {
+	t := reflect.TypeOf(obj)
+	v := reflect.ValueOf(obj)
+
+	var data = make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		data[t.Field(i).Name] = v.Field(i).Interface()
+	}
+	return data
+}
+
 // getTagName 获取结构体中Tag的值，如果没有tag则返回字段值
 func getTagName(structName interface{}) []string {
 	// 获取type
