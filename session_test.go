@@ -2,6 +2,7 @@ package gorose
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -13,6 +14,14 @@ type Users struct {
 
 func (u *Users) TableName() string {
 	return "users"
+}
+
+func TestSession_Query(t *testing.T) {
+	var s = NewSession(initDB())
+	var user []Users
+	err := s.Bind(&user).Query("select * from users where name=?", "goroom")
+	fmt.Println(user, err)
+	fmt.Println(s.LastInsertSql())
 }
 
 func TestSession_Execute(t *testing.T) {

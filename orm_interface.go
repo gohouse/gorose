@@ -37,6 +37,8 @@ type IOrm interface {
 	//SharedLock()
 	//// 此外你还可以使用 lockForUpdate 方法。“for update”锁避免选择行被其它共享锁修改或删除：
 	//LockForUpdate()
+	GetRegex() []string
+	GetDriver() string
 }
 
 type IOrmQuery interface {

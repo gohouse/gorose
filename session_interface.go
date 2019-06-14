@@ -15,5 +15,5 @@ type ISession interface {
 	//GetBinder() *Binder
 	LastInsertId() int64
 	LastInsertSql() string
-	GetTableName() string
+	GetTableName() (string, error)
 }

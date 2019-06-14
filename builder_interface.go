@@ -1,6 +1,6 @@
 package gorose
 
 type IBuilder interface {
-	BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error)
-	BuildExecute(o IOrm,operType string) (sqlStr string, args []interface{}, err error)
+	BuildQuery(orm IOrm) (sqlStr string, args []interface{}, err error)
+	BuildExecute(orm IOrm, operType string) (sqlStr string, args []interface{}, err error)
 }

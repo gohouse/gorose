@@ -1,22 +1,19 @@
 package gorose
 
-//import "sync"
-//
-//type OrmApi struct {
-//	table    string
-//	fields   []string
-//	where    [][]interface{}
-//	order    string
-//	limit    int
-//	offset   int
-//	join     [][]interface{}
-//	distinct bool
-//	union    string
-//	group    string
-//	having   string
-//	data     interface{}
-//}
-
+type OrmApi struct {
+	table    string
+	fields   []string
+	where    [][]interface{}
+	order    string
+	limit    int
+	offset   int
+	join     [][]interface{}
+	distinct bool
+	union    string
+	group    string
+	having   string
+	data     interface{}
+}
 
 func (o *Orm) GetTable() string {
 	return o.table
@@ -24,6 +21,10 @@ func (o *Orm) GetTable() string {
 
 func (o *Orm) GetFields() []string {
 	return o.fields
+}
+
+func (o *Orm) SetWhere(arg [][]interface{}) {
+	o.where = arg
 }
 
 func (o *Orm) GetWhere() [][]interface{} {

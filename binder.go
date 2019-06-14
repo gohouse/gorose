@@ -68,7 +68,7 @@ func NewBinder(o ...interface{}) IBinder {
 	return binder
 }
 
-func (s *Binder) BindParser(prefix string) error {
+func (s *Binder) BindParse(prefix string) error {
 	if s.GetBindOrigin() == nil {
 		return nil
 	}
@@ -106,11 +106,12 @@ func (s *Binder) BindParser(prefix string) error {
 			//
 			s.SetBindResult(sliceVal)
 			//TODO 检查map的值类型, 是否是t.T
-			//fmt.Println(sliceVal.Type().Elem())
-			//fmt.Println(sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem())
-			//os.Exit(2)
 			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 				s.SetBindType(OBJECT_MAP_T)
+			}
+			// 是否设置了表名
+			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
+				BindName = tn.Call(nil)[0].String()
 			}
 
 		case reflect.Slice: // []struct,[]map
@@ -124,6 +125,10 @@ func (s *Binder) BindParser(prefix string) error {
 				//TODO 检查map的值类型, 是否是t.T
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 					s.SetBindType(OBJECT_MAP_SLICE_T)
+				}
+				// 是否设置了表名
+				if tn := s.GetBindResult().MethodByName("TableName"); tn.IsValid() {
+					BindName = tn.Call(nil)[0].String()
 				}
 
 			case reflect.Struct:

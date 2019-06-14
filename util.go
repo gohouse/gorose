@@ -106,6 +106,19 @@ func addSingleQuotes(data interface{}) string {
 	}
 }
 
+func addQuotes(data interface{}, sep string) string {
+	switch data.(type) {
+	case int, int64, int32, uint32, uint64:
+		return parseStr(data)
+	default:
+		ret := parseStr(data)
+		ret = strings.Replace(ret, `\`, `\\`, -1)
+		ret = strings.Replace(ret, `"`, `\"`, -1)
+		ret = strings.Replace(ret, `'`, `\'`, -1)
+		return fmt.Sprintf("%s%s%s",sep,ret,sep)
+	}
+}
+
 // InArray :给定元素值 是否在 指定的数组中
 func inArray(needle interface{}, hystack interface{}) bool {
 	switch key := needle.(type) {

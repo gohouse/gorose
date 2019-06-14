@@ -7,39 +7,40 @@ import (
 	"strings"
 )
 
-type OrmApi struct {
-	table    string
-	fields   []string
-	where    [][]interface{}
-	order    string
-	limit    int
-	offset   int
-	join     [][]interface{}
-	distinct bool
-	union    string
-	group    string
-	having   string
-	data     interface{}
-}
+var (
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
+		"in", "not in", "between", "not between"}
+)
+
 type Orm struct {
 	ISession
 	*OrmApi
+	regex []string
+	driver string
 }
 
 var _ IOrm = &Orm{}
 
 func NewOrm(s ISession) *Orm {
-	return &Orm{s, NewOrmApi()}
+	return &Orm{ISession:s, OrmApi:&OrmApi{}, regex:regex,}
 }
 
 func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
 }
 
+func (dba *Orm) GetRegex() []string {
+	return dba.regex
+}
+
+func (dba *Orm) GetDriver() string {
+	return dba.driver
+}
+
 // Fields : select fields
 func (dba *Orm) Table(tab interface{}) IOrm {
 	dba.Bind(tab)
-	//dba.dba = dba.IBinder.GetBindName())
+	//dba.table = dba.ISession.GetTableName()
 	return dba
 }
 
@@ -51,22 +52,20 @@ func (dba *Orm) Fields(fields ...string) IOrm {
 
 // AddFields : If you already have a query builder instance and you wish to add a column to its existing select clause, you may use the AddFields method:
 func (dba *Orm) AddFields(fields ...string) IOrm {
-	_fields := dba.GetFields()
-	_fields = append(_fields, fields...)
-	dba.SetFields(_fields)
+	dba.fields = append(dba.fields, fields...)
 	return dba
 }
 
 // Distinct : select distinct
 func (dba *Orm) Distinct() IOrm {
-	dba.true = true
+	dba.distinct = true
 
 	return dba
 }
 
 // Data : insert or update data
 func (dba *Orm) Data(data interface{}) IOrm {
-	dba.SetData(data)
+	dba.data = data
 	return dba
 }
 
@@ -251,10 +250,15 @@ func (dba *Orm) Decrement(args ...interface{}) (int64, error) {
 
 // BuildSql
 // operType(select, insert, update, delete)
-func (dba *Orm) BuildSql(operType ...string) (string, []interface{}, error) {
+func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err error) {
+	// 解析table
+	dba.table, err = dba.ISession.GetTableName()
+	if err!=nil {
+		return
+	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		return NewBuilder(dba.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba,strings.ToLower(operType[0]))
 	}
 }

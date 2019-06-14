@@ -5,7 +5,7 @@ type IOrmApi interface {
 	GetTable() string
 	//SetFields(arg []string)
 	GetFields() []string
-	//SetWhere(arg [][]interface{})
+	SetWhere(arg [][]interface{})
 	GetWhere() [][]interface{}
 	//SetOrder(arg string)
 	GetOrder() string

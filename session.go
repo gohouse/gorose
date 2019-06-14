@@ -59,14 +59,13 @@ func (s *Session) GetSlaveDriver() string {
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
 	s.IBinder.SetBindOrigin(tab)
-	_ = s.IBinder.BindParser(s.IEngin.GetPrefix())
-
 	return s
 }
 
 // GetTableName 获取解析后的名字, 提供给orm使用
-func (s *Session) GetTableName() string {
-	return s.IBinder.GetBindName()
+func (s *Session) GetTableName() (string, error) {
+	err := s.IBinder.BindParse(s.IEngin.GetPrefix())
+	return s.IBinder.GetBindName(), err
 }
 
 func (s *Session) Begin() (err error) {
@@ -103,6 +102,10 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 }
 
 func (s *Session) Query(sqlstring string, args ...interface{}) error {
+	err := s.IBinder.BindParse(s.IEngin.GetPrefix())
+	if err != nil {
+		return err
+	}
 	// 记录sqlLog
 	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
 	if s.IfEnableSqlLog() {
@@ -127,8 +130,10 @@ func (s *Session) Query(sqlstring string, args ...interface{}) error {
 }
 
 func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected int64, err error) {
-	//t_start := time.Now()
-
+	err = s.IBinder.BindParse(s.IEngin.GetPrefix())
+	if err != nil {
+		return
+	}
 	s.lastSql = fmt.Sprintf(sqlstring, args...)
 	// 记录sqlLog
 	if s.IfEnableSqlLog() {
@@ -189,7 +194,6 @@ func (s *Session) LastInsertSql() string {
 }
 
 func (s *Session) scan(rows *sql.Rows) (err error) {
-	//fmt.Printf("%#v\n",s.table)
 	// 检查实多维数组还是一维数组
 	switch s.GetBindType() {
 	case OBJECT_STRUCT:
