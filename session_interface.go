@@ -12,7 +12,8 @@ type ISession interface {
 	Execute(sqlstring string, args ...interface{}) (int64, error)
 	GetMasterDriver() string
 	GetSlaveDriver() string
-	GetBinder() *Binder
+	//GetBinder() *Binder
 	LastInsertId() int64
 	LastInsertSql() string
+	GetTableName() string
 }

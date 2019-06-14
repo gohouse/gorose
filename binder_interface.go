@@ -17,4 +17,5 @@ type IBinder interface {
 	GetBindType() BindType
 	SetBindLimit(arg int)
 	GetBindLimit() int
+	BindParser(prefix string) error
 }

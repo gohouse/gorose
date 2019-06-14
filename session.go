@@ -11,7 +11,7 @@ import (
 
 type Session struct {
 	IEngin
-	IOrm
+	//IOrm
 	IBuilder
 	IBinder
 	master     dbObject
@@ -41,10 +41,10 @@ func (s *Session) Close() {
 	s = nil
 }
 
-// GetBinder 获取绑定对象
-func (s *Session) GetBinder() *Binder {
-	return s.GetBinder()
-}
+//// GetBinder 获取绑定对象
+//func (s *Session) GetBinder() *Binder {
+//	return s.GetBinder()
+//}
 
 // GetMasterDriver 获取驱动
 func (s *Session) GetMasterDriver() string {
@@ -58,14 +58,15 @@ func (s *Session) GetSlaveDriver() string {
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
-	s.SetBindOrigin(tab)
-	
-	_ = s.parseTable()
-
-	//fmt.Println(s.GetBindType().String())
-	//os.Exit(2)
+	s.IBinder.SetBindOrigin(tab)
+	_ = s.IBinder.BindParser(s.IEngin.GetPrefix())
 
 	return s
+}
+
+// GetTableName 获取解析后的名字, 提供给orm使用
+func (s *Session) GetTableName() string {
+	return s.IBinder.GetBindName()
 }
 
 func (s *Session) Begin() (err error) {
@@ -288,92 +289,4 @@ func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	}
 
 	return rows.Err()
-}
-
-func (s *Session) parseTable() (err error) {
-	if s.GetBindOrigin() == nil {
-		return nil
-	}
-	var BindName string
-	switch s.GetBindOrigin().(type) {
-	case string: // 直接传入的是表名
-		s.SetBindType(OBJECT_STRING)
-		BindName = s.GetBindOrigin().(string)
-
-	// 传入的是struct或切片
-	default:
-		// 清空字段值,避免手动传入字段污染struct字段
-		s.SetBindFields([]string{})
-		// make sure dst is an appropriate type
-		dstVal := reflect.ValueOf(s.GetBindOrigin())
-		sliceVal := reflect.Indirect(dstVal)
-
-		switch sliceVal.Kind() {
-		case reflect.Struct: // struct
-			s.SetBindType(OBJECT_STRUCT)
-			BindName = sliceVal.Type().Name()
-			s.SetBindResult(sliceVal)
-			// 默认只查一条
-			s.SetBindLimit(1)
-			// 是否设置了表名
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
-			}
-			// 解析出字段
-			s.parseFields()
-		case reflect.Map: // map
-			s.SetBindType(OBJECT_MAP)
-			// 默认只查一条
-			s.SetBindLimit(1)
-			//
-			s.SetBindResult(sliceVal)
-			//TODO 检查map的值类型, 是否是t.T
-			//fmt.Println(sliceVal.Type().Elem())
-			//fmt.Println(sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem())
-			//os.Exit(2)
-			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
-				s.SetBindType(OBJECT_MAP_T)
-			}
-
-		case reflect.Slice: // []struct,[]map
-			eltType := sliceVal.Type().Elem()
-
-			switch eltType.Kind() {
-			case reflect.Map:
-				s.SetBindType(OBJECT_MAP_SLICE)
-				s.SetBindResult(reflect.MakeMap(eltType))
-				s.SetBindResultSlice(sliceVal)
-				//TODO 检查map的值类型, 是否是t.T
-				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
-					s.SetBindType(OBJECT_MAP_SLICE_T)
-				}
-
-			case reflect.Struct:
-				s.SetBindType(OBJECT_STRUCT_SLICE)
-				BindName = eltType.Name()
-				s.SetBindResult(reflect.New(eltType))
-				s.SetBindResultSlice(sliceVal)
-				// 是否设置了表名
-				if tn := s.GetBindResult().MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
-				}
-				// 解析出字段
-				s.parseFields()
-			default:
-				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
-			}
-		default:
-			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
-		}
-	}
-
-	s.SetBindName(BindName)
-
-	return
-}
-
-func (s *Session) parseFields() {
-	if len(s.GetBindFields()) == 0 {
-		s.SetBindFields(getTagName(s.GetBindResult().Interface()))
-	}
 }

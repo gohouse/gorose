@@ -1,7 +1,11 @@
 package gorose
 
+var (
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
+		"in", "not in", "between", "not between"}
+)
+
 type Builder struct {
-	//driver string
 }
 
 func NewBuilder(driver string) IBuilder {
