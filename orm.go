@@ -15,14 +15,14 @@ var (
 type Orm struct {
 	ISession
 	*OrmApi
-	regex []string
+	regex  []string
 	driver string
 }
 
 var _ IOrm = &Orm{}
 
 func NewOrm(s ISession) *Orm {
-	return &Orm{ISession:s, OrmApi:&OrmApi{}, regex:regex,}
+	return &Orm{ISession: s, OrmApi: &OrmApi{}, regex: regex}
 }
 
 func (dba *Orm) Hello() {
@@ -150,7 +150,7 @@ func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
 }
 
 // Get : select more rows , relation limit set
-func (dba *Orm) Get() (error) {
+func (dba *Orm) Get() error {
 	// 构建sql
 	sqlStr, args, err := dba.BuildSql()
 	if err != nil {
@@ -181,26 +181,32 @@ func (dba *Orm) InsertGetId() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return dba.ISession.LastInsertId(),nil
+	return dba.ISession.LastInsertId(), nil
 }
 
 // Update : update data
 func (dba *Orm) Update() (int64, error) {
 	// 构建sql
-	sqlStr,args,err := dba.BuildSql("update")
+	sqlStr, args, err := dba.BuildSql("update")
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
 
 	return dba.ISession.Execute(sqlStr, args...)
 }
 
+// Force 强制执行没有where的删除和修改
+func (dba *Orm) Force() IOrm {
+	dba.force = true
+	return dba
+}
+
 // Delete : delete data
 func (dba *Orm) Delete() (int64, error) {
 	// 构建sql
-	sqlStr,args,err := dba.BuildSql("delete")
+	sqlStr, args, err := dba.BuildSql("delete")
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
 
 	return dba.ISession.Execute(sqlStr, args...)
@@ -254,12 +260,12 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	// 解析table
 	dba.table, err = dba.ISession.GetTableName()
 	//dba.table = dba.GetBindName()
-	if err!=nil {
+	if err != nil {
 		return
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		return NewBuilder(dba.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba,strings.ToLower(operType[0]))
+		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 	}
 }

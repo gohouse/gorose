@@ -3,8 +3,6 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/gorose/across"
-	"github.com/gohouse/gorose/utils"
 	"github.com/gohouse/t"
 	"strconv"
 	"strings"
@@ -45,17 +43,19 @@ func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, 
 	return
 }
 
-
-
 // BuildExecut : build execute query string
 func (b *BuilderSqlite3) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
 	// delete : ...
 	b.IOrm = o
-	var update, insertkey, insertval, sqlstr string
+	var update, insertkey, insertval string
 	if operType != "delete" {
-		update, insertkey, insertval = b.buildData()
+		if b.IOrm.GetData() == nil {
+			err = errors.New("insert,update请传入数据操作")
+			return
+		}
+		update, insertkey, insertval = b.BuildData()
 	}
 
 	where, err := b.BuildWhere()
@@ -64,28 +64,27 @@ func (b *BuilderSqlite3) BuildExecute(o IOrm, operType string) (sqlStr string, a
 	}
 	switch operType {
 	case "insert":
-		sqlstr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 	case "update":
-		if res=="" && ormApi.Sforce==false{
-			return sqlstr, errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Update())")
+		if where == "" && o.GetForce() == false {
+			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Update())")
+			return
 		}
-		sqlstr = fmt.Sprintf("UPDATE %s SET %s%s", tableName, update, where)
+		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
 	case "delete":
-		if res=="" && ormApi.Sforce==false{
-			return sqlstr, errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Delete())")
+		if where == "" && o.GetForce() == false {
+			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Delete())")
+			return
 		}
-		sqlstr = fmt.Sprintf("DELETE FROM %s%s", tableName, where)
+		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
 	}
-	//fmt.Println(sqlstr)
-	//dba.Reset()
 
-	return sqlstr, nil
+	args = b.bindParams
+	return
 }
 
-
-
 // buildData : build inert or update data
-func (b *BuilderSqlite3) buildData() (string, string, string) {
+func (b *BuilderSqlite3) BuildData() (string, string, string) {
 	// insert
 	var dataFields []string
 	var dataValues []string
@@ -110,7 +109,9 @@ func (b *BuilderSqlite3) buildData() (string, string, string) {
 				if item[key] == nil {
 					dataValuesSub = append(dataValuesSub, "null")
 				} else {
-					dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+					//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+					dataValuesSub = append(dataValuesSub, "?")
+					b.bindParams = append(b.bindParams, item[key])
 				}
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
@@ -124,14 +125,18 @@ func (b *BuilderSqlite3) buildData() (string, string, string) {
 			if val == nil {
 				dataValuesSub = append(dataValuesSub, "null")
 			} else {
-				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+				//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+				dataValuesSub = append(dataValuesSub, "?")
+				b.bindParams = append(b.bindParams, val)
 			}
 			// update
 			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
 			if val == nil {
 				dataObj = append(dataObj, key+"=null")
 			} else {
-				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+				//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+				dataObj = append(dataObj, key+"=?")
+				b.bindParams = append(b.bindParams, val)
 			}
 		}
 		// insert
@@ -220,7 +225,7 @@ func (b *BuilderSqlite3) BuildOffset() string {
 }
 
 // parseWhere : parse where condition
-func  (b *BuilderSqlite3) parseWhere(ormApi IOrm) (string, error) {
+func (b *BuilderSqlite3) parseWhere(ormApi IOrm) (string, error) {
 	// 取出所有where
 	wheres := ormApi.GetWhere()
 	// where解析后存放每一项的容器

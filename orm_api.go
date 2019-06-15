@@ -13,6 +13,7 @@ type OrmApi struct {
 	group    string
 	having   string
 	data     interface{}
+	force    bool
 }
 
 func (o *Orm) GetTable() string {
@@ -65,4 +66,8 @@ func (o *Orm) GetHaving() string {
 
 func (o *Orm) GetData() interface{} {
 	return o.data
+}
+
+func (dba *Orm) GetForce() bool {
+	return dba.force
 }

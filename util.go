@@ -115,7 +115,7 @@ func addQuotes(data interface{}, sep string) string {
 		ret = strings.Replace(ret, `\`, `\\`, -1)
 		ret = strings.Replace(ret, `"`, `\"`, -1)
 		ret = strings.Replace(ret, `'`, `\'`, -1)
-		return fmt.Sprintf("%s%s%s",sep,ret,sep)
+		return fmt.Sprintf("%s%s%s", sep, ret, sep)
 	}
 }
 
@@ -147,7 +147,7 @@ func inArray(needle interface{}, hystack interface{}) bool {
 	return false
 }
 
-func withLockContext(fn func())  {
+func withLockContext(fn func()) {
 	var mu sync.Mutex
 	mu.Lock()
 	defer mu.Unlock()

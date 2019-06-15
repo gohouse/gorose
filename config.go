@@ -8,8 +8,8 @@ type Config struct {
 }
 
 type ConfigCluster struct {
-	Master         []Config
-	Slave          []Config
-	Prefix         string
+	Master       []Config
+	Slave        []Config
+	Prefix       string
 	EnableSqlLog bool
 }

@@ -22,14 +22,14 @@ const (
 	OBJECT_MAP_SLICE_T                  // map 多条数据		([]map[string]t.T)
 )
 
-var BindString = map[BindType]string {
-	OBJECT_STRUCT:"OBJECT_STRUCT",
+var BindString = map[BindType]string{
+	OBJECT_STRUCT:       "OBJECT_STRUCT",
 	OBJECT_STRUCT_SLICE: "OBJECT_STRUCT_SLICE",
-	OBJECT_MAP: "OBJECT_MAP",
-	OBJECT_MAP_SLICE: "OBJECT_MAP_SLICE",
-	OBJECT_STRING: "OBJECT_STRING",
-	OBJECT_MAP_T: "OBJECT_MAP_T",
-	OBJECT_MAP_SLICE_T: "OBJECT_MAP_SLICE_T",
+	OBJECT_MAP:          "OBJECT_MAP",
+	OBJECT_MAP_SLICE:    "OBJECT_MAP_SLICE",
+	OBJECT_STRING:       "OBJECT_STRING",
+	OBJECT_MAP_T:        "OBJECT_MAP_T",
+	OBJECT_MAP_SLICE_T:  "OBJECT_MAP_SLICE_T",
 }
 
 func (b BindType) String() string {
@@ -58,10 +58,11 @@ type Binder struct {
 var binderOnce sync.Once
 var _ IBinder = &Binder{}
 var binder *Binder
+
 func NewBinder(o ...interface{}) IBinder {
 	binderOnce.Do(func() {
 		binder = &Binder{}
-		if len(o)>0 {
+		if len(o) > 0 {
 			binder.SetBindOrigin(o)
 		}
 	})
@@ -150,7 +151,7 @@ func (s *Binder) BindParse(prefix string) error {
 		}
 	}
 
-	s.SetBindName(prefix+BindName)
+	s.SetBindName(prefix + BindName)
 	return nil
 }
 

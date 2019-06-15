@@ -6,8 +6,8 @@ import (
 
 type dbObject struct {
 	driver string
-	db *sql.DB
-	tx *sql.Tx
+	db     *sql.DB
+	tx     *sql.Tx
 }
 type cluster struct {
 	master     []dbObject
@@ -16,10 +16,10 @@ type cluster struct {
 	slaveSize  int
 }
 type Engin struct {
-	config         *ConfigCluster
+	config       *ConfigCluster
 	enableSqlLog bool
-	prefix         string
-	dbs            *cluster
+	prefix       string
+	dbs          *cluster
 }
 
 var _ IEngin = &Engin{}
@@ -92,7 +92,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.slave = append(c.dbs.slave, dbObject{driver:item.Driver, db:db})
+			c.dbs.slave = append(c.dbs.slave, dbObject{driver: item.Driver, db: db})
 			c.dbs.slaveSize++
 		}
 	}
@@ -105,7 +105,7 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.master = append(c.dbs.master, dbObject{driver:item.Driver, db:db})
+			c.dbs.master = append(c.dbs.master, dbObject{driver: item.Driver, db: db})
 			c.dbs.masterSize++
 		}
 	}

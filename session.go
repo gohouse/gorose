@@ -14,8 +14,8 @@ type Session struct {
 	//IOrm
 	IBuilder
 	IBinder
-	master     dbObject
-	slave      dbObject
+	master       dbObject
+	slave        dbObject
 	lastInsertId int64
 	sqlLogs      []string
 	lastSql      string
@@ -50,6 +50,7 @@ func (s *Session) Close() {
 func (s *Session) GetMasterDriver() string {
 	return s.master.driver
 }
+
 // GetSlaveDriver 获取驱动
 func (s *Session) GetSlaveDriver() string {
 	return s.slave.driver
@@ -241,7 +242,7 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 			}
 			//entry[col] = v
 			switch s.GetBindType() {
-			case OBJECT_MAP_T,OBJECT_MAP_SLICE_T:
+			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T:
 				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
 			default:
 				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
