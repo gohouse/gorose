@@ -5,34 +5,43 @@ import (
 )
 
 type Builder struct {
-}
-
-func NewBuilder(driver string) IBuilder {
-	return NewDriver().Getter(driver)
-}
-
-type Driver struct {
+	IOrm
+	driver   string
 	builders map[string]IBuilder
 }
 
-var driverOnce sync.Once
-var driver *Driver
+var onceBuilder sync.Once
+var builder *Builder
 
-func NewDriver() *Driver {
-	driverOnce.Do(func() {
-		driver = &Driver{
-			builders: make(map[string]IBuilder),
-		}
+func NewBuilder(driver string) *Builder {
+	onceBuilder.Do(func() {
+		builder = &Builder{builders: make(map[string]IBuilder)}
 	})
-	return driver
+	builder.driver = driver
+	//builder.IOrm = o
+	return builder
+	//return NewDriver().Getter(driver)
+}
+func NewDriver() *Builder {
+	return NewBuilder("")
+}
+func (b *Builder) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
+	return b.Getter(b.driver).BuildQuery(o)
+}
+func (b *Builder) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
+	return
 }
 
-func (b *Driver) Register(driver string, val IBuilder) {
+func (b *Builder) Register(driver string, val IBuilder) {
 	withLockContext(func() {
 		b.builders[driver] = val
 	})
 }
 
-func (b *Driver) Getter(driver string) (ib IBuilder) {
+func (b *Builder) Getter(driver string) (ib IBuilder) {
 	return b.builders[driver]
+}
+
+func (b *Builder) GetIOrm() IOrm {
+	return b.IOrm
 }

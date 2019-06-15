@@ -27,7 +27,7 @@ func TestOrm_Get(t *testing.T) {
 			})
 		}).Where("e", 5).
 		Limit(5).Offset(2)
-	s, a, err := ormObj.BuildSql("update")
+	s, a, err := ormObj.BuildSql()
 
 	fmt.Println(u)
 	fmt.Println(err, s, a)

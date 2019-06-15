@@ -9,6 +9,7 @@ import (
 )
 
 type BuilderSqlite3 struct {
+	*Builder
 	IOrm
 	bindParams []interface{}
 }
@@ -18,10 +19,6 @@ type BuilderSqlite3 struct {
 // select {distinct} {fields} from {table} {join} {where} {group} {having} {order} {limit} {offset}
 func init() {
 	NewDriver().Register("sqlite3", &BuilderSqlite3{})
-}
-
-func (b *BuilderSqlite3) Option() {
-
 }
 
 func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
