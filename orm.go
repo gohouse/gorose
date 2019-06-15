@@ -253,6 +253,7 @@ func (dba *Orm) Decrement(args ...interface{}) (int64, error) {
 func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err error) {
 	// 解析table
 	dba.table, err = dba.ISession.GetTableName()
+	//dba.table = dba.GetBindName()
 	if err!=nil {
 		return
 	}

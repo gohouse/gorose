@@ -63,6 +63,7 @@ type IOrmQuery interface {
 	//Min()
 	//Avg()
 	//Sum()
+	LastSql() string
 }
 
 type IOrmExecute interface {
@@ -78,4 +79,7 @@ type IOrmExecute interface {
 	Decrement(args ...interface{}) (int64, error)
 	// delete
 	Delete() (int64, error)
+	LastInsertId() int64
+	//GetTableName() (string, error)
+	//GetBindName() string
 }

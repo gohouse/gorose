@@ -3,6 +3,8 @@ package gorose
 import (
 	"errors"
 	"fmt"
+	"github.com/gohouse/gorose/across"
+	"github.com/gohouse/gorose/utils"
 	"github.com/gohouse/t"
 	"strconv"
 	"strings"
@@ -25,6 +27,7 @@ func (b *BuilderSqlite3) Option() {
 }
 
 func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
+	//fmt.Println(b.bindParams)
 	b.IOrm = o
 	join, err := b.BuildJoin()
 	if err != nil {
@@ -42,10 +45,100 @@ func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, 
 	return
 }
 
+
+
+// BuildExecut : build execute query string
 func (b *BuilderSqlite3) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
-	//b.IOrm = o
-	sqlStr = "execute xxx test sql"
-	return
+	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
+	// update : {"name":"fizz", "website":"fizzday.net"}
+	// delete : ...
+	b.IOrm = o
+	var update, insertkey, insertval, sqlstr string
+	if operType != "delete" {
+		update, insertkey, insertval = b.buildData()
+	}
+
+	where, err := b.BuildWhere()
+	if err != nil {
+		return
+	}
+	switch operType {
+	case "insert":
+		sqlstr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
+	case "update":
+		if res=="" && ormApi.Sforce==false{
+			return sqlstr, errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Update())")
+		}
+		sqlstr = fmt.Sprintf("UPDATE %s SET %s%s", tableName, update, where)
+	case "delete":
+		if res=="" && ormApi.Sforce==false{
+			return sqlstr, errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Delete())")
+		}
+		sqlstr = fmt.Sprintf("DELETE FROM %s%s", tableName, where)
+	}
+	//fmt.Println(sqlstr)
+	//dba.Reset()
+
+	return sqlstr, nil
+}
+
+
+
+// buildData : build inert or update data
+func (b *BuilderSqlite3) buildData() (string, string, string) {
+	// insert
+	var dataFields []string
+	var dataValues []string
+	// update or delete
+	var dataObj []string
+
+	data := b.IOrm.GetData()
+
+	switch data.(type) {
+	case string:
+		dataObj = append(dataObj, data.(string))
+	case []map[string]interface{}: // insert multi datas ([]map[string]interface{})
+		datas := data.([]map[string]interface{})
+		for key, _ := range datas[0] {
+			if inArray(key, dataFields) == false {
+				dataFields = append(dataFields, key)
+			}
+		}
+		for _, item := range datas {
+			var dataValuesSub []string
+			for _, key := range dataFields {
+				if item[key] == nil {
+					dataValuesSub = append(dataValuesSub, "null")
+				} else {
+					dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
+				}
+			}
+			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+		}
+	default: // update or insert
+		var dataValuesSub []string
+		for key, val := range data.(map[string]interface{}) {
+			// insert
+			dataFields = append(dataFields, key)
+			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			if val == nil {
+				dataValuesSub = append(dataValuesSub, "null")
+			} else {
+				dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
+			}
+			// update
+			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			if val == nil {
+				dataObj = append(dataObj, key+"=null")
+			} else {
+				dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
+			}
+		}
+		// insert
+		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+	}
+
+	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
 }
 
 func (b *BuilderSqlite3) BuildJoin() (string, error) {
@@ -266,7 +359,7 @@ func (b *BuilderSqlite3) parseParams(args []interface{}, ormApi IOrm) (string, e
 			//}
 			for _, item := range ar2 {
 				tmp = append(tmp, "?")
-				b.bindParams = append(b.bindParams, item.Interface{})
+				b.bindParams = append(b.bindParams, t.New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 		case "between", "not between":

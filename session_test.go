@@ -21,7 +21,7 @@ func TestSession_Query(t *testing.T) {
 	var user []Users
 	err := s.Bind(&user).Query("select * from users where name=?", "goroom")
 	fmt.Println(user, err)
-	fmt.Println(s.LastInsertSql())
+	fmt.Println(s.LastSql())
 }
 
 func TestSession_Execute(t *testing.T) {
@@ -93,7 +93,7 @@ func TestSession_Query_map(t *testing.T) {
 	}
 	t.Log("一条map绑定:", user2)
 	t.Log("一条map绑定的uid为:", user2["uid"])
-	t.Log(s.LastInsertSql())
+	t.Log(s.LastSql())
 
 	var user = bbb{}
 	err = s.Bind(&user).Query("select * from users limit ?", 2)
@@ -102,7 +102,7 @@ func TestSession_Query_map(t *testing.T) {
 	}
 	t.Log("多条map绑定:", user)
 	t.Log("多条map绑定:", user[0]["age"].Int())
-	t.Log(s.LastInsertSql())
+	t.Log(s.LastSql())
 }
 
 func TestSession_Transaction(t *testing.T) {

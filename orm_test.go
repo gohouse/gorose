@@ -30,5 +30,5 @@ func TestOrm_Get(t *testing.T) {
 
 	fmt.Println(u)
 	fmt.Println(err)
-	fmt.Println(orm.BuildSql())
+	fmt.Println(orm.LastSql())
 }

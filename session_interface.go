@@ -14,6 +14,7 @@ type ISession interface {
 	GetSlaveDriver() string
 	//GetBinder() *Binder
 	LastInsertId() int64
-	LastInsertSql() string
+	LastSql() string
 	GetTableName() (string, error)
+	//GetBindName() string
 }

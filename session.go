@@ -189,7 +189,7 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 func (s *Session) LastInsertId() int64 {
 	return s.lastInsertId
 }
-func (s *Session) LastInsertSql() string {
+func (s *Session) LastSql() string {
 	return s.lastSql
 }
 
