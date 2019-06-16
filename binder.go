@@ -62,10 +62,10 @@ var binder *Binder
 func NewBinder(o ...interface{}) IBinder {
 	binderOnce.Do(func() {
 		binder = &Binder{}
-		if len(o) > 0 {
-			binder.SetBindOrigin(o)
-		}
 	})
+	if len(o) > 0 {
+		binder.SetBindOrigin(o)
+	}
 	return binder
 }
 
@@ -94,10 +94,6 @@ func (s *Binder) BindParse(prefix string) error {
 			s.SetBindResult(sliceVal)
 			// 默认只查一条
 			s.SetBindLimit(1)
-			// 是否设置了表名
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
-			}
 			// 解析出字段
 			s.parseFields()
 		case reflect.Map: // map
@@ -109,10 +105,6 @@ func (s *Binder) BindParse(prefix string) error {
 			//TODO 检查map的值类型, 是否是t.T
 			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 				s.SetBindType(OBJECT_MAP_T)
-			}
-			// 是否设置了表名
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
 			}
 
 		case reflect.Slice: // []struct,[]map
@@ -127,20 +119,12 @@ func (s *Binder) BindParse(prefix string) error {
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 					s.SetBindType(OBJECT_MAP_SLICE_T)
 				}
-				// 是否设置了表名
-				if tn := s.GetBindResult().MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
-				}
 
 			case reflect.Struct:
 				s.SetBindType(OBJECT_STRUCT_SLICE)
 				BindName = eltType.Name()
 				s.SetBindResult(reflect.New(eltType))
 				s.SetBindResultSlice(sliceVal)
-				// 是否设置了表名
-				if tn := s.GetBindResult().MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
-				}
 				// 解析出字段
 				s.parseFields()
 			default:
@@ -148,6 +132,10 @@ func (s *Binder) BindParse(prefix string) error {
 			}
 		default:
 			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
+		}
+		// 是否设置了表名
+		if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
+			BindName = tn.Call(nil)[0].String()
 		}
 	}
 

@@ -17,4 +17,5 @@ type ISession interface {
 	LastSql() string
 	GetTableName() (string, error)
 	//GetBindName() string
+	GetBinder() IBinder
 }

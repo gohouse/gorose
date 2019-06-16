@@ -12,7 +12,7 @@ import (
 type Session struct {
 	IEngin
 	//IOrm
-	IBuilder
+	//IBuilder
 	IBinder
 	master       dbObject
 	slave        dbObject
@@ -223,15 +223,16 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 	}
 
 	count := len(columns)
-	values := make([]interface{}, count)
-	scanArgs := make([]interface{}, count)
-
 	for rows.Next() {
+		values := make([]interface{}, count)
+		scanArgs := make([]interface{}, count)
 		for i := 0; i < count; i++ {
 			scanArgs[i] = &values[i]
 		}
 		_ = rows.Scan(scanArgs...)
 		//entry := make(map[string]interface{})
+		var bindResultTmp = reflect.MakeMap(s.GetBindResult().Type())
+		//sliceVal := reflect.Indirect(dstVal)
 		for i, col := range columns {
 			var v interface{}
 			val := values[i]
@@ -244,13 +245,19 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 			switch s.GetBindType() {
 			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T:
 				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+				if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+					bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+				}
 			default:
 				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+				if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+					bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+				}
 			}
 		}
 		//result = append(result, entry)
 		if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-			s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult()))
+			s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), bindResultTmp))
 		}
 	}
 	return
@@ -294,4 +301,8 @@ func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	}
 
 	return rows.Err()
+}
+
+func (s *Session) GetBinder() IBinder {
+	return s.IBinder
 }

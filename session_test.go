@@ -19,7 +19,7 @@ func (u *Users) TableName() string {
 func TestSession_Query(t *testing.T) {
 	var s = NewSession(initDB())
 	var user []Users
-	err := s.Bind(&user).Query("select * from users where name=?", "goroom")
+	err := s.Bind(&user).Query("select * from users where name=?", "gorose")
 	fmt.Println(user, err)
 	fmt.Println(s.LastSql())
 }

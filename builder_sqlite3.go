@@ -194,6 +194,9 @@ func (b *BuilderSqlite3) BuildDistinct() (dis string) {
 }
 
 func (b *BuilderSqlite3) BuildFields() string {
+	if len(b.IOrm.GetFields())==0 {
+		return "*"
+	}
 	return strings.Join(b.IOrm.GetFields(), ",")
 }
 
@@ -338,7 +341,7 @@ func (b *BuilderSqlite3) parseParams(args []interface{}, ormApi IOrm) (string, e
 			b.bindParams = append(b.bindParams, argsReal[2])
 		case "in", "not in":
 			var tmp []string
-			var ar2 = t.New(argsReal[2]).MapStr()
+			var ar2 = t.New(argsReal[2]).MapString()
 			//switch argsReal[2].(type) {
 			//case []string:
 			//	for _, item := range argsReal[2].([]string) {
