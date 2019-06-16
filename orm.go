@@ -141,6 +141,18 @@ func (dba *Orm) Join(args ...interface{}) IOrm {
 	dba._joinBuilder("INNER", args)
 	return dba
 }
+func (dba *Orm) LeftJoin(args ...interface{}) IOrm {
+	dba._joinBuilder("LEFT", args)
+	return dba
+}
+func (dba *Orm) RightJoin(args ...interface{}) IOrm {
+	dba._joinBuilder("RIGHT", args)
+	return dba
+}
+func (dba *Orm) CrossJoin(args ...interface{}) IOrm {
+	dba._joinBuilder("CROSS", args)
+	return dba
+}
 
 // _joinBuilder
 func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
@@ -157,6 +169,13 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 		return
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
+		// 根据传入的struct, 设置limit, 有效的节约空间
+		if dba.union==""{
+			var bindType = NewBinder().GetBindType()
+			if bindType==OBJECT_MAP || bindType==OBJECT_STRUCT {
+				dba.Limit(1)
+			}
+		}
 		return NewBuilder(dba.GetSlaveDriver()).BuildQuery(dba)
 	} else {
 		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))

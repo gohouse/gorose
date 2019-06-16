@@ -19,6 +19,7 @@ type Session struct {
 	lastInsertId int64
 	sqlLogs      []string
 	lastSql      string
+	union interface{}
 }
 
 var _ ISession = &Session{}
@@ -241,7 +242,11 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 			} else {
 				v = val
 			}
-			//entry[col] = v
+			// 是否union操作, 不是的话,就绑定数据
+			if s.GetUnion()!=nil {
+				s.union = v
+				return
+			}
 			switch s.GetBindType() {
 			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T:
 				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
@@ -261,6 +266,14 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 		}
 	}
 	return
+}
+
+func (s *Session) SetUnion(u interface{})  {
+	s.union = u
+}
+
+func (s *Session) GetUnion() interface{} {
+	return s.union
 }
 
 // scan a single row of data into a struct.

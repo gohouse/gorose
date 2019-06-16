@@ -92,14 +92,14 @@ func (s *Binder) BindParse(prefix string) error {
 			s.SetBindType(OBJECT_STRUCT)
 			BindName = sliceVal.Type().Name()
 			s.SetBindResult(sliceVal)
-			// 默认只查一条
-			s.SetBindLimit(1)
+			//// 默认只查一条
+			//s.SetBindLimit(1)
 			// 解析出字段
 			s.parseFields()
 		case reflect.Map: // map
 			s.SetBindType(OBJECT_MAP)
-			// 默认只查一条
-			s.SetBindLimit(1)
+			//// 默认只查一条
+			//s.SetBindLimit(1)
 			//
 			s.SetBindResult(sliceVal)
 			//TODO 检查map的值类型, 是否是t.T

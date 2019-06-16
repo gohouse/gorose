@@ -18,4 +18,6 @@ type ISession interface {
 	GetTableName() (string, error)
 	//GetBindName() string
 	GetBinder() IBinder
+	SetUnion(u interface{})
+	GetUnion() interface{}
 }

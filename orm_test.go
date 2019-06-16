@@ -37,30 +37,34 @@ func TestOrm_Get(t *testing.T) {
 func TestOrm_Pluck(t *testing.T) {
 	orm := initOrm()
 
-	var u = bbb{}
+	//var u = bbb{}
+	var u Users
 	ormObj := orm.Table(&u)
-
-	//s, a, err := ormObj.BuildSql()
-	//fmt.Println(u)
-	//fmt.Println(err, s, a)
-	//fmt.Println(orm.LastSql())
-
-	//res,err := ormObj.Pluck("uid")
-	err := ormObj.Get()
+	res,err := ormObj.Pluck("name", "uid")
 	fmt.Println(err)
 	fmt.Println(u)
-	//fmt.Println(res)
+	fmt.Println(res)
 }
 
-func TestOrm_Get2(t *testing.T) {
+func TestOrm_Value(t *testing.T) {
 	orm := initOrm()
 
-	var u = bbb{}
+	//var u = aaa{}
+	var u []Users
 	ormObj := orm.Table(&u)
-
-	res,err := ormObj.Pluck("name", "uid")
-	//err := ormObj.Get()
+	res,err := ormObj.Value("Name")
 	fmt.Println(err)
 	fmt.Println(u)
+	fmt.Println(res)
+}
+
+func TestOrm_Count(t *testing.T) {
+	orm := initOrm()
+
+	var u = aaa{}
+	ormObj := orm.Table(&u)
+	res,err := ormObj.Count()
+	fmt.Println(err)
+	fmt.Println(orm.LastSql())
 	fmt.Println(res)
 }

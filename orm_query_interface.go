@@ -17,8 +17,8 @@ type IOrmQuery interface {
 	//// 例如，我们可以将处理全部 users 表数据分割成一次处理 100 条记录的小组块
 	//// 你可以通过从闭包函数中返回 false 来终止组块的运行
 	//Chunk()
-	//// 查询构建器还提供了多个聚合方法，如count, max, min, avg 和 sum，你可以在构造查询之后调用这些方法：
-	//Count()
+	// 查询构建器还提供了多个聚合方法，如count, max, min, avg 和 sum，你可以在构造查询之后调用这些方法：
+	Count(args ...string) (int64, error)
 	//Max()
 	//Min()
 	//Avg()

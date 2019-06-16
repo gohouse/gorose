@@ -26,9 +26,9 @@ type IOrm interface {
 	OrWhere(args ...interface{}) IOrm
 	// join(=innerJoin),leftJoin,rightJoin,crossJoin
 	Join(args ...interface{}) IOrm
-	//LeftJoin()
-	//RightJoin()
-	//CrossJoin()
+	LeftJoin(args ...interface{}) IOrm
+	RightJoin(args ...interface{}) IOrm
+	CrossJoin(args ...interface{}) IOrm
 	//// truncate
 	//Truncate()
 	//// 悲观锁使用
