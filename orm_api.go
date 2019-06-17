@@ -52,9 +52,9 @@ func (o *Orm) GetDistinct() bool {
 	return o.distinct
 }
 
-func (o *Orm) GetUnion() string {
-	return o.union
-}
+//func (o *Orm) GetUnion() string {
+//	return o.union
+//}
 
 func (o *Orm) GetGroup() string {
 	return o.group

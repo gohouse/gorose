@@ -96,25 +96,14 @@ func (dba *Orm) Value(field string) (v t.T, err error) {
 	var binder = dba.ISession.GetBinder()
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
-		//fmt.Println(binder.GetBindResult(), binder.GetBindResult().Type())
 		v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
 	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-		//v = t.New(reflect.Indirect(binder.GetBindResult()).FieldByName(field).Interface())
 		bindResult := reflect.Indirect(binder.GetBindResult())
-		//ostype := os.Type()
-		//for i := 0; i < ostype.NumField(); i++ {
-		//	tag := ostype.Field(i).Tag.Get(TAGNAME)
-		//	if tag == field || ostype.Field(i).Name == field {
-		//		v = t.New(os.FieldByName(ostype.Field(i).Name))
-		//		return
-		//	}
-		//}
 		v = dba._valueFromStruct(bindResult, field)
 	}
 	return
 }
 func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T) {
-	//os := val
 	ostype := bindResult.Type()
 	for i := 0; i < ostype.NumField(); i++ {
 		tag := ostype.Field(i).Tag.Get(TAGNAME)
@@ -157,34 +146,23 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 			val := item.MapInterface()
 			if len(fieldKey) > 0 {
 				resMap[val[fieldKey[0]].Interface()] = val[field]
-				//v = t.New(resMap)
 			} else {
 				resSlice = append(resSlice, val[field])
-				//v = t.New(resSlice)
 			}
 		}
 	case OBJECT_STRUCT_SLICE: // rows
 		var brs = binder.GetBindResultSlice()
 		for i := 0; i < brs.Len(); i++ {
 			val := reflect.Indirect(brs.Index(i))
-			//fmt.Println(val)
 			if len(fieldKey) > 0 {
-				//var resMap = make(t.Map)
-				//fmt.Println(dba._valueFromStruct(val, field))
 				mapkey := dba._valueFromStruct(val, fieldKey[0])
 				mapVal := dba._valueFromStruct(val, field)
-				//fmt.Println(mapkey, mapVal)
 				resMap[mapkey.Interface()] = mapVal
-				//fmt.Println(resMap)
-				//v = t.New(resMap)
 			} else {
-				//var resSlice = make(t.Slice, 0)
 				resSlice = append(resSlice, dba._valueFromStruct(val, field))
-				//v = t.New(resSlice)
 			}
 		}
 	}
-	//fmt.Println(resMap)
 	if len(fieldKey) > 0 {
 		v = t.New(t.New(resMap).Map())
 	} else {

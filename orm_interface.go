@@ -4,6 +4,8 @@ type IOrm interface {
 	IOrmApi
 	IOrmQuery
 	IOrmExecute
+	IOrmSession
+	//ISession
 	Hello()
 	BuildSql(operType ...string) (string, []interface{}, error)
 	Table(tab interface{}) IOrm
@@ -36,7 +38,10 @@ type IOrm interface {
 	//SharedLock()
 	//// 此外你还可以使用 lockForUpdate 方法。“for update”锁避免选择行被其它共享锁修改或删除：
 	//LockForUpdate()
-	GetRegex() []string
+	//GetRegex() []string
 	GetDriver() string
-	GetBinder() IBinder
+	//GetBinder() IBinder
+	SetBindValues(v interface{})
+	GetBindValues() []interface{}
+	ClearBindValues()
 }

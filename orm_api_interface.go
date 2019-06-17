@@ -18,7 +18,7 @@ type IOrmApi interface {
 	//SetDistinct(arg bool)
 	GetDistinct() bool
 	//SetUnion(arg string)
-	GetUnion() string
+	//GetUnion() string
 	//SetGroup(arg string)
 	GetGroup() string
 	//SetHaving(arg string)

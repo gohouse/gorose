@@ -11,7 +11,6 @@ import (
 type BuilderSqlite3 struct {
 	*Builder
 	IOrm
-	bindParams []interface{}
 }
 
 // sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
@@ -22,7 +21,6 @@ func init() {
 }
 
 func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
-	//fmt.Println(b.bindParams)
 	b.IOrm = o
 	join, err := b.BuildJoin()
 	if err != nil {
@@ -36,7 +34,8 @@ func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, 
 		b.BuildDistinct(), b.BuildFields(), b.BuildTable(), join, where,
 		b.BuildGroup(), b.BuildHaving(), b.BuildOrder(), b.BuildLimit(), b.BuildOffset())
 
-	args = b.bindParams
+	//args = b.bindParams
+	args = b.IOrm.GetBindValues()
 	return
 }
 
@@ -77,7 +76,7 @@ func (b *BuilderSqlite3) BuildExecute(o IOrm, operType string) (sqlStr string, a
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
 	}
 
-	args = b.bindParams
+	args = b.IOrm.GetBindValues()
 	return
 }
 
@@ -94,28 +93,7 @@ func (b *BuilderSqlite3) BuildData(operType string) (string, string, string) {
 	switch data.(type) {
 	case string:
 		dataObj = append(dataObj, data.(string))
-	case []map[string]interface{},[]Data: // insert multi datas ([]map[string]interface{})
-		//datas := data.([]map[string]interface{})
-		//for key, _ := range datas[0] {
-		//	if inArray(key, dataFields) == false {
-		//		dataFields = append(dataFields, key)
-		//	}
-		//}
-		//for _, item := range datas {
-		//	var dataValuesSub []string
-		//	for _, key := range dataFields {
-		//		if item[key] == nil {
-		//			dataValuesSub = append(dataValuesSub, "null")
-		//		} else {
-		//			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
-		//			dataValuesSub = append(dataValuesSub, "?")
-		//			b.bindParams = append(b.bindParams, item[key])
-		//		}
-		//	}
-		//	dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
-		//}
-
-		//dataFields,dataValues = b._buildDataMulti(t.New(data), dataFields, dataValues)
+	case []map[string]interface{}, []Data: // insert multi datas ([]map[string]interface{})
 		sliceData := t.New(data).Slice()
 		for key, _ := range sliceData[0].MapString() {
 			if inArray(key, dataFields) == false {
@@ -129,124 +107,43 @@ func (b *BuilderSqlite3) BuildData(operType string) (string, string, string) {
 				if item[key] == nil {
 					dataValuesSub = append(dataValuesSub, "null")
 				} else {
-					//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
 					dataValuesSub = append(dataValuesSub, "?")
-					b.bindParams = append(b.bindParams, item[key])
+					b.IOrm.SetBindValues(item[key])
 				}
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
-	case map[string]interface{},Data: // insert multi datas ([]map[string]interface{})
-		//dataFields,dataValues,dataObj = b._buildData(t.New(data), dataFields, dataValues, dataObj)
+	case map[string]interface{}, Data: // insert multi datas ([]map[string]interface{})
 		var dataValuesSub []string
 		for key, val := range t.New(data).MapString() {
-			if operType=="insert"{
+			if operType == "insert" {
 				// insert
 				dataFields = append(dataFields, key)
-				//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
 				if val.Interface() == nil {
 					dataValuesSub = append(dataValuesSub, "null")
 				} else {
-					//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
 					dataValuesSub = append(dataValuesSub, "?")
-					b.bindParams = append(b.bindParams, val.Interface())
+					b.IOrm.SetBindValues(val.Interface())
 				}
-			} else if operType=="update"{
+			} else if operType == "update" {
 				// update
-				//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
 				if val.Interface() == nil {
 					dataObj = append(dataObj, key+"=null")
 				} else {
-					//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
 					dataObj = append(dataObj, key+"=?")
-					b.bindParams = append(b.bindParams, val.Interface())
+					b.IOrm.SetBindValues(val.Interface())
 				}
 			}
 		}
-		if operType=="insert"{
+		if operType == "insert" {
 			// insert
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
 	default: // update or insert
-		//var dataValuesSub []string
-		//for key, val := range data.(map[string]interface{}) {
-		//	// insert
-		//	dataFields = append(dataFields, key)
-		//	//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-		//	if val == nil {
-		//		dataValuesSub = append(dataValuesSub, "null")
-		//	} else {
-		//		//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-		//		dataValuesSub = append(dataValuesSub, "?")
-		//		b.bindParams = append(b.bindParams, val)
-		//	}
-		//	// update
-		//	//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-		//	if val == nil {
-		//		dataObj = append(dataObj, key+"=null")
-		//	} else {
-		//		//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-		//		dataObj = append(dataObj, key+"=?")
-		//		b.bindParams = append(b.bindParams, val)
-		//	}
-		//}
-		//// insert
-		//dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+		return "", "", ""
 	}
 
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
-}
-//func (b *BuilderSqlite3) _buildData(data t.T, dataFields,dataValues,dataObj []string) ([]string, []string, []string) {
-//
-//	var dataValuesSub []string
-//	for key, val := range data.MapString() {
-//		// insert
-//		dataFields = append(dataFields, key)
-//		//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-//		if val.Interface() == nil {
-//			dataValuesSub = append(dataValuesSub, "null")
-//		} else {
-//			//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(val))
-//			dataValuesSub = append(dataValuesSub, "?")
-//			b.bindParams = append(b.bindParams, val.Interface())
-//		}
-//		// update
-//		//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-//		if val.Interface() == nil {
-//			dataObj = append(dataObj, key+"=null")
-//		} else {
-//			//dataObj = append(dataObj, key+"="+utils.AddSingleQuotes(val))
-//			dataObj = append(dataObj, key+"=?")
-//			b.bindParams = append(b.bindParams, val.Interface())
-//		}
-//	}
-//	// insert
-//	dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
-//fmt.Println(b.bindParams)
-//	return dataFields, dataValues, dataObj
-//}
-func (b *BuilderSqlite3) _buildDataMulti(data t.T, dataFields,dataValues []string) ([]string, []string) {
-	sliceData := data.Slice()
-	for key, _ := range sliceData[0].MapString() {
-		if inArray(key, dataFields) == false {
-			dataFields = append(dataFields, key)
-		}
-	}
-	for _, itemT := range sliceData {
-		item := itemT.MapString()
-		var dataValuesSub []string
-		for _, key := range dataFields {
-			if item[key] == nil {
-				dataValuesSub = append(dataValuesSub, "null")
-			} else {
-				//dataValuesSub = append(dataValuesSub, utils.AddSingleQuotes(item[key]))
-				dataValuesSub = append(dataValuesSub, "?")
-				b.bindParams = append(b.bindParams, item[key])
-			}
-		}
-		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
-	}
-	return dataFields, dataValues
 }
 
 func (b *BuilderSqlite3) BuildJoin() (string, error) {
@@ -367,7 +264,7 @@ func (b *BuilderSqlite3) parseWhere(ormApi IOrm) (string, error) {
 				for key, val := range paramReal {
 					//whereArr = append(whereArr, key+"="+addSingleQuotes(val))
 					whereArr = append(whereArr, key+"=?")
-					b.bindParams = append(b.bindParams, val)
+					b.IOrm.SetBindValues(val)
 				}
 				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
 			case [][]interface{}: // 二维数组
@@ -393,7 +290,6 @@ func (b *BuilderSqlite3) parseWhere(ormApi IOrm) (string, error) {
 				}
 				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
 			case func():
-				//fmt.Println(b.bindParams)
 				// 清空where,给嵌套的where让路,复用这个节点
 				ormApi.SetWhere([][]interface{}{})
 
@@ -433,7 +329,7 @@ func (b *BuilderSqlite3) parseParams(args []interface{}, ormApi IOrm) (string, e
 
 	switch paramsLength {
 	case 3: // 常规3个参数:  {"id",">",1}
-		if !inArray(argsReal[1], ormApi.GetRegex()) {
+		if !inArray(argsReal[1], b.GetRegex()) {
 			return "", errors.New("where parameter is wrong")
 		}
 
@@ -442,69 +338,30 @@ func (b *BuilderSqlite3) parseParams(args []interface{}, ormApi IOrm) (string, e
 
 		switch argsReal[1] {
 		case "like", "not like":
-			//paramsToArr = append(paramsToArr, addSingleQuotes(argsReal[2]))
 			paramsToArr = append(paramsToArr, "?")
-			b.bindParams = append(b.bindParams, argsReal[2])
+			b.IOrm.SetBindValues(argsReal[2])
 		case "in", "not in":
 			var tmp []string
 			var ar2 = t.New(argsReal[2]).MapString()
-			//switch argsReal[2].(type) {
-			//case []string:
-			//	for _, item := range argsReal[2].([]string) {
-			//		//tmp = append(tmp, addSingleQuotes(item))
-			//		tmp = append(tmp, "?")
-			//		b.bindParams = append(b.bindParams, item)
-			//	}
-			//case []int:
-			//	for _, item := range argsReal[2].([]int) {
-			//		//tmp = append(tmp, addSingleQuotes(item))
-			//		tmp = append(tmp, "?")
-			//		b.bindParams = append(b.bindParams, item)
-			//	}
-			//case []interface{}:
-			//	for _, item := range argsReal[2].([]interface{}) {
-			//		//tmp = append(tmp, addSingleQuotes(item))
-			//		tmp = append(tmp, "?")
-			//		b.bindParams = append(b.bindParams, item)
-			//	}
-			//}
 			for _, item := range ar2 {
 				tmp = append(tmp, "?")
-				b.bindParams = append(b.bindParams, t.New(item).Interface())
+				b.IOrm.SetBindValues(t.New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 		case "between", "not between":
-			//var tmpB []interface{}
 			var ar2 = t.New(argsReal[2]).Slice()
-			//switch argsReal[2].(type) {
-			//case []string:
-			//	tmp := argsReal[2].([]string)
-			//	tmpB = append(tmpB, tmp[0])
-			//	tmpB = append(tmpB, tmp[1])
-			//case []int:
-			//	tmp := argsReal[2].([]int)
-			//	tmpB = append(tmpB, tmp[0])
-			//	tmpB = append(tmpB, tmp[1])
-			//case []interface{}:
-			//	tmp := argsReal[2].([]interface{})
-			//	tmpB = append(tmpB, tmp[0])
-			//	tmpB = append(tmpB, tmp[1])
-			//}
-			//paramsToArr = append(paramsToArr, addSingleQuotes(tmpB[0])+" and "+addSingleQuotes(tmpB[1]))
 			paramsToArr = append(paramsToArr, "? and ?")
-			b.bindParams = append(b.bindParams, ar2[0].Interface())
-			b.bindParams = append(b.bindParams, ar2[1].Interface())
+			b.IOrm.SetBindValues(ar2[0].Interface())
+			b.IOrm.SetBindValues(ar2[1].Interface())
 		default:
-			//paramsToArr = append(paramsToArr, addSingleQuotes(argsReal[2]))
 			paramsToArr = append(paramsToArr, "?")
-			b.bindParams = append(b.bindParams, argsReal[2])
+			b.IOrm.SetBindValues(argsReal[2])
 		}
 	case 2:
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, "=")
-		//paramsToArr = append(paramsToArr, addSingleQuotes(argsReal[1]))
 		paramsToArr = append(paramsToArr, "?")
-		b.bindParams = append(b.bindParams, argsReal[1])
+		b.IOrm.SetBindValues(argsReal[1])
 	}
 
 	return strings.Join(paramsToArr, " "), nil

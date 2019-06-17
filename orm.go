@@ -5,37 +5,38 @@ import (
 	"strings"
 )
 
-var (
-	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
-		"in", "not in", "between", "not between"}
-)
-
 type Orm struct {
 	ISession
 	IBinder
 	*OrmApi
-	regex  []string
 	driver string
+	bindValues []interface{}
 }
 
 var _ IOrm = &Orm{}
 
-func NewOrm(s ISession, b IBinder) *Orm {
-	s.SetIBinder(b)
-	return &Orm{
-		ISession: s,
-		IBinder: b,
-		OrmApi:   &OrmApi{},
-		regex:    regex,
-	}
+func NewOrm(e IEngin, b IBinder) *Orm {
+	var orm = new(Orm)
+	orm.ISession = NewSession(e, b)
+	orm.IBinder = b
+	orm.OrmApi = new(OrmApi)
+	return orm
 }
 
 func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
 }
 
-func (dba *Orm) GetRegex() []string {
-	return dba.regex
+func (dba *Orm) SetBindValues(v interface{}) {
+	dba.bindValues = append(dba.bindValues, v)
+}
+
+func (dba *Orm) ClearBindValues() {
+	dba.bindValues = nil
+}
+
+func (dba *Orm) GetBindValues() []interface{} {
+	return dba.bindValues
 }
 
 func (dba *Orm) GetDriver() string {
@@ -166,6 +167,15 @@ func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
 	dba.join = append(dba.join, []interface{}{joinType, args})
 }
 
+// _joinBuilder
+func (dba *Orm) Reset() {
+	dba.union = ""
+	dba.fields = []string{}
+	dba.where = [][]interface{}{}
+	dba.join = [][]interface{}{}
+	dba.ClearBindValues()
+}
+
 // BuildSql
 // operType(select, insert, update, delete)
 func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err error) {
@@ -183,8 +193,10 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 				dba.Limit(1)
 			}
 		}
-		return NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
+		a,b,err = NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		return NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		a,b,err = NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 	}
+	dba.Reset()
+	return
 }

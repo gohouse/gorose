@@ -14,7 +14,7 @@ type IOrmExecute interface {
 	Decrement(args ...interface{}) (int64, error)
 	// delete
 	Delete() (int64, error)
-	LastInsertId() int64
+	//LastInsertId() int64
 	//GetTableName() (string, error)
 	//GetBindName() string
 }

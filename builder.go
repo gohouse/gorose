@@ -4,10 +4,16 @@ import (
 	"sync"
 )
 
+var (
+	regex = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
+		"in", "not in", "between", "not between"}
+)
+
 type Builder struct {
 	IOrm
 	driver   string
 	builders map[string]IBuilder
+	regex    []string
 }
 
 var onceBuilder sync.Once
@@ -15,12 +21,10 @@ var builder *Builder
 
 func NewBuilder(driver string) *Builder {
 	onceBuilder.Do(func() {
-		builder = &Builder{builders: make(map[string]IBuilder)}
+		builder = &Builder{builders: make(map[string]IBuilder), regex: regex}
 	})
 	builder.driver = driver
-	//builder.IOrm = o
 	return builder
-	//return NewDriver().Getter(driver)
 }
 func NewDriver() *Builder {
 	return NewBuilder("")
@@ -44,4 +48,8 @@ func (b *Builder) Getter(driver string) (ib IBuilder) {
 
 func (b *Builder) GetIOrm() IOrm {
 	return b.IOrm
+}
+
+func (b *Builder) GetRegex() []string {
+	return b.regex
 }

@@ -23,5 +23,5 @@ type IOrmQuery interface {
 	//Min()
 	//Avg()
 	//Sum()
-	LastSql() string
+	//LastSql() string
 }

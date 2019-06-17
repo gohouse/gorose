@@ -5,16 +5,16 @@ import (
 	"testing"
 )
 
-func initOrm() IEngin {
-	return initDB()
+func initOrm() IOrm {
+	return initDB().NewOrm()
 }
 func TestNewOrm(t *testing.T) {
-	orm := initOrm().NewOrm()
+	orm := initOrm()
 	orm.Hello()
 }
 
 func TestOrm_Get(t *testing.T) {
-	orm := initOrm().NewOrm()
+	orm := initOrm()
 
 	var u = aaa{}
 	ormObj := orm.Table(&u).Join("b", "a.id", "=", "b.id").
@@ -35,7 +35,7 @@ func TestOrm_Get(t *testing.T) {
 }
 
 func TestOrm_Pluck(t *testing.T) {
-	orm := initOrm().NewOrm()
+	orm := initOrm()
 
 	//var u = aaa{}
 	var u = bbb{}
@@ -50,7 +50,7 @@ func TestOrm_Pluck(t *testing.T) {
 }
 
 func TestOrm_Value(t *testing.T) {
-	orm := initOrm().NewOrm()
+	orm := initOrm()
 
 	//var u = aaa{}
 	var u = bbb{}
@@ -64,7 +64,7 @@ func TestOrm_Value(t *testing.T) {
 }
 
 func TestOrm_Count(t *testing.T) {
-	orm := initOrm().NewOrm()
+	orm := initOrm()
 
 	var u = aaa{}
 	ormObj := orm.Table(&u)
