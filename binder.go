@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"github.com/gohouse/t"
 	"reflect"
-	"sync"
 )
 
-type MapRow map[string]t.T
-type MapRows []MapRow
+type Map t.MapString
+type Data map[string]interface{}
 
 type BindType int
 
@@ -55,14 +54,10 @@ type Binder struct {
 	BindLimit int
 }
 
-var binderOnce sync.Once
 var _ IBinder = &Binder{}
-var binder *Binder
 
 func NewBinder(o ...interface{}) IBinder {
-	binderOnce.Do(func() {
-		binder = &Binder{}
-	})
+	var binder = &Binder{}
 	if len(o) > 0 {
 		binder.SetBindOrigin(o)
 	}

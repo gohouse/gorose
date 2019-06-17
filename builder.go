@@ -29,7 +29,7 @@ func (b *Builder) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err err
 	return b.Getter(b.driver).BuildQuery(o)
 }
 func (b *Builder) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
-	return
+	return b.Getter(b.driver).BuildExecute(o, operType)
 }
 
 func (b *Builder) Register(driver string, val IBuilder) {

@@ -96,9 +96,31 @@ func (dba *Orm) Value(field string) (v t.T, err error) {
 	var binder = dba.ISession.GetBinder()
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
+		//fmt.Println(binder.GetBindResult(), binder.GetBindResult().Type())
 		v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
 	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-		v = t.New(reflect.Indirect(binder.GetBindResult()).FieldByName(field).Interface())
+		//v = t.New(reflect.Indirect(binder.GetBindResult()).FieldByName(field).Interface())
+		bindResult := reflect.Indirect(binder.GetBindResult())
+		//ostype := os.Type()
+		//for i := 0; i < ostype.NumField(); i++ {
+		//	tag := ostype.Field(i).Tag.Get(TAGNAME)
+		//	if tag == field || ostype.Field(i).Name == field {
+		//		v = t.New(os.FieldByName(ostype.Field(i).Name))
+		//		return
+		//	}
+		//}
+		v = dba._valueFromStruct(bindResult, field)
+	}
+	return
+}
+func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T) {
+	//os := val
+	ostype := bindResult.Type()
+	for i := 0; i < ostype.NumField(); i++ {
+		tag := ostype.Field(i).Tag.Get(TAGNAME)
+		if tag == field || ostype.Field(i).Name == field {
+			v = t.New(bindResult.FieldByName(ostype.Field(i).Name))
+		}
 	}
 	return
 }
@@ -108,6 +130,8 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 		return
 	}
 	var binder = dba.ISession.GetBinder()
+	var resMap = make(t.MapInterface, 0)
+	var resSlice = t.Slice{}
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_STRUCT: // row
 		var key, val t.T
@@ -120,40 +144,51 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 			if err != nil {
 				return
 			}
-			v = t.New(map[t.T]t.T{key: val})
+			v = t.New(t.Map{key: val})
 		} else {
 			v, err = dba.Value(field)
 			if err != nil {
 				return
 			}
 		}
+		return
 	case OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		for _, item := range t.New(binder.GetBindResultSlice().Interface()).Slice() {
-			val := item.MapString()
+			val := item.MapInterface()
 			if len(fieldKey) > 0 {
-				var resMap = make(t.Map)
-				resMap[val[fieldKey[0]]] = val[field]
-				v = t.New(resMap)
+				resMap[val[fieldKey[0]].Interface()] = val[field]
+				//v = t.New(resMap)
 			} else {
-				var resSlice = make(t.Slice, 0)
 				resSlice = append(resSlice, val[field])
-				v = t.New(resSlice)
+				//v = t.New(resSlice)
 			}
 		}
 	case OBJECT_STRUCT_SLICE: // rows
 		var brs = binder.GetBindResultSlice()
-		for i:=0;i<brs.Len();i++ {
-			val := brs.Index(i)
+		for i := 0; i < brs.Len(); i++ {
+			val := reflect.Indirect(brs.Index(i))
+			//fmt.Println(val)
 			if len(fieldKey) > 0 {
-				var resMap = make(t.Map)
-				resMap[t.New(val.FieldByName(fieldKey[0]).Interface())] = t.New(val.FieldByName(field).Interface())
-				v = t.New(resMap)
+				//var resMap = make(t.Map)
+				//fmt.Println(dba._valueFromStruct(val, field))
+				mapkey := dba._valueFromStruct(val, fieldKey[0])
+				mapVal := dba._valueFromStruct(val, field)
+				//fmt.Println(mapkey, mapVal)
+				resMap[mapkey.Interface()] = mapVal
+				//fmt.Println(resMap)
+				//v = t.New(resMap)
 			} else {
-				var resSlice = make(t.Slice, 0)
-				resSlice = append(resSlice, t.New(val.FieldByName(field).Interface()))
-				v = t.New(resSlice)
+				//var resSlice = make(t.Slice, 0)
+				resSlice = append(resSlice, dba._valueFromStruct(val, field))
+				//v = t.New(resSlice)
 			}
 		}
+	}
+	//fmt.Println(resMap)
+	if len(fieldKey) > 0 {
+		v = t.New(t.New(resMap).Map())
+	} else {
+		v = t.New(resSlice)
 	}
 	return
 }

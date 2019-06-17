@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const TAGNAME = "gorose"
+
 func Open(conf ...interface{}) (e *Engin, err error) {
 	// 驱动engin
 	conn := NewEngin()

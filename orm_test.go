@@ -5,16 +5,16 @@ import (
 	"testing"
 )
 
-func initOrm() IOrm {
-	return NewOrm(NewSession(initDB()))
+func initOrm() IEngin {
+	return initDB()
 }
 func TestNewOrm(t *testing.T) {
-	orm := initOrm()
+	orm := initOrm().NewOrm()
 	orm.Hello()
 }
 
 func TestOrm_Get(t *testing.T) {
-	orm := initOrm()
+	orm := initOrm().NewOrm()
 
 	var u = aaa{}
 	ormObj := orm.Table(&u).Join("b", "a.id", "=", "b.id").
@@ -35,35 +35,40 @@ func TestOrm_Get(t *testing.T) {
 }
 
 func TestOrm_Pluck(t *testing.T) {
-	orm := initOrm()
+	orm := initOrm().NewOrm()
 
-	//var u = bbb{}
-	var u Users
+	//var u = aaa{}
+	var u = bbb{}
+	//var u Users
+	//var u []Users
 	ormObj := orm.Table(&u)
-	res,err := ormObj.Pluck("name", "uid")
+	//res,err := ormObj.Pluck("name", "uid")
+	res, err := ormObj.Pluck("name")
 	fmt.Println(err)
 	fmt.Println(u)
 	fmt.Println(res)
 }
 
 func TestOrm_Value(t *testing.T) {
-	orm := initOrm()
+	orm := initOrm().NewOrm()
 
 	//var u = aaa{}
-	var u []Users
+	var u = bbb{}
+	//var u Users
+	//var u []Users
 	ormObj := orm.Table(&u)
-	res,err := ormObj.Value("Name")
+	res, err := ormObj.Value("name")
 	fmt.Println(err)
 	fmt.Println(u)
 	fmt.Println(res)
 }
 
 func TestOrm_Count(t *testing.T) {
-	orm := initOrm()
+	orm := initOrm().NewOrm()
 
 	var u = aaa{}
 	ormObj := orm.Table(&u)
-	res,err := ormObj.Count()
+	res, err := ormObj.Count()
 	fmt.Println(err)
 	fmt.Println(orm.LastSql())
 	fmt.Println(res)

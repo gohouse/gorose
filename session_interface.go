@@ -15,6 +15,7 @@ type ISession interface {
 	//GetBinder() *Binder
 	LastInsertId() int64
 	LastSql() string
+	SetIBinder(b IBinder)
 	GetTableName() (string, error)
 	//GetBindName() string
 	GetBinder() IBinder

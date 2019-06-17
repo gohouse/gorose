@@ -11,28 +11,25 @@ import (
 
 type Session struct {
 	IEngin
-	//IOrm
-	//IBuilder
 	IBinder
 	master       dbObject
 	slave        dbObject
 	lastInsertId int64
 	sqlLogs      []string
 	lastSql      string
-	union interface{}
+	union        interface{}
 }
 
 var _ ISession = &Session{}
 
 // NewSession : 初始化 Session
-func NewSession(e IEngin) ISession {
+func NewSession(e IEngin, b IBinder) ISession {
 	var s = new(Session)
 	s.IEngin = e
+	s.IBinder = b
 
 	s.master = s.IEngin.GetExecuteDB()
 	s.slave = s.IEngin.GetQueryDB()
-
-	s.IBinder = NewBinder()
 
 	return s
 }
@@ -40,6 +37,10 @@ func NewSession(e IEngin) ISession {
 // Close : 关闭 Session
 func (s *Session) Close() {
 	s = nil
+}
+// Close : 关闭 Session
+func (s *Session) SetIBinder(b IBinder) {
+	s.IBinder = b
 }
 
 //// GetBinder 获取绑定对象
@@ -136,7 +137,7 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 	if err != nil {
 		return
 	}
-	s.lastSql = fmt.Sprintf(sqlstring, args...)
+	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
 	// 记录sqlLog
 	if s.IfEnableSqlLog() {
 		s.sqlLogs = append(s.sqlLogs, s.lastSql)
@@ -243,7 +244,7 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 				v = val
 			}
 			// 是否union操作, 不是的话,就绑定数据
-			if s.GetUnion()!=nil {
+			if s.GetUnion() != nil {
 				s.union = v
 				return
 			}
@@ -268,7 +269,7 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 	return
 }
 
-func (s *Session) SetUnion(u interface{})  {
+func (s *Session) SetUnion(u interface{}) {
 	s.union = u
 }
 

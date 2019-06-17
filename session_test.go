@@ -3,21 +3,26 @@ package gorose
 import (
 	"errors"
 	"fmt"
+	"github.com/gohouse/t"
 	"testing"
 )
 
 type Users struct {
-	Uid  int    `orm:"id"`
-	Name string `orm:"name"`
-	Age  int    `orm:"age"`
+	Uid  int    `gorose:"uid"`
+	Name string `gorose:"name"`
+	Age  int    `gorose:"age"`
 }
 
 func (u *Users) TableName() string {
 	return "users"
 }
 
+func initSession() ISession {
+	return initDB().NewSession()
+}
+
 func TestSession_Query(t *testing.T) {
-	var s = NewSession(initDB())
+	var s = initSession()
 	var user []Users
 	err := s.Bind(&user).Query("select * from users where name=?", "gorose")
 	fmt.Println(user, err)
@@ -30,7 +35,7 @@ func TestSession_Execute(t *testing.T) {
 	 "name" TEXT NOT NULL,
 	 "age" integer NOT NULL
 )`
-	var s = NewSession(initDB())
+	var s = initSession()
 	var err error
 	var aff int64
 
@@ -49,7 +54,7 @@ func TestSession_Execute(t *testing.T) {
 }
 
 func TestSession_Query_struct(t *testing.T) {
-	var s = NewSession(initDB())
+	var s = initSession()
 	var err error
 	defer s.Close()
 
@@ -70,20 +75,21 @@ func TestSession_Query_struct(t *testing.T) {
 
 //type UserMap map[string]interface{}
 
-type aaa MapRow
+type aaa t.MapString
 
 func (u *aaa) TableName() string {
 	return "users"
 }
 
-type bbb MapRows
+//type bbb MapRows
+type bbb []t.MapString
 
 func (u *bbb) TableName() string {
 	return "users"
 }
 
 func TestSession_Query_map(t *testing.T) {
-	var s = NewSession(initDB())
+	var s = initSession()
 	var err error
 
 	var user2 = aaa{}
@@ -105,8 +111,18 @@ func TestSession_Query_map(t *testing.T) {
 	t.Log(s.LastSql())
 }
 
+func TestSession_Orm(t *testing.T) {
+	var s = initSession()
+	var err error
+
+	var user2 = aaa{}
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+
+	fmt.Println(err)
+}
+
 func TestSession_Transaction(t *testing.T) {
-	var s = NewSession(initDB())
+	var s = initSession()
 	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
 	err := s.Transaction(trans1, trans2)
 	t.Log(err)

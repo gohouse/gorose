@@ -7,5 +7,7 @@ type IEngin interface {
 	IfEnableSqlLog() (e bool)
 	Prefix(pre string)
 	GetPrefix() (pre string)
+	NewSession() ISession
+	NewOrm() IOrm
 	//NewSession() ISession
 }

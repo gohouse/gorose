@@ -1,6 +1,5 @@
 package gorose
 
-
 type IOrmExecute interface {
 	GetForce() bool
 	// insert,insertGetId

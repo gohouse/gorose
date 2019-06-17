@@ -59,7 +59,7 @@ func getTagName(structName interface{}) []string {
 	for i := 0; i < fieldNum; i++ {
 		//fieldName := t.Field(i).Name
 		// tag 名字
-		tagName := t.Field(i).Tag.Get("orm")
+		tagName := t.Field(i).Tag.Get(TAGNAME)
 		// tag为-时, 不解析
 		if tagName == "-" || tagName == "" {
 			// 字段名字

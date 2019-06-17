@@ -12,6 +12,7 @@ var (
 
 type Orm struct {
 	ISession
+	IBinder
 	*OrmApi
 	regex  []string
 	driver string
@@ -19,8 +20,14 @@ type Orm struct {
 
 var _ IOrm = &Orm{}
 
-func NewOrm(s ISession) *Orm {
-	return &Orm{ISession: s, OrmApi: &OrmApi{}, regex: regex}
+func NewOrm(s ISession, b IBinder) *Orm {
+	s.SetIBinder(b)
+	return &Orm{
+		ISession: s,
+		IBinder: b,
+		OrmApi:   &OrmApi{},
+		regex:    regex,
+	}
 }
 
 func (dba *Orm) Hello() {
@@ -170,14 +177,14 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		// 根据传入的struct, 设置limit, 有效的节约空间
-		if dba.union==""{
-			var bindType = NewBinder().GetBindType()
-			if bindType==OBJECT_MAP || bindType==OBJECT_STRUCT {
+		if dba.union == "" {
+			var bindType = dba.GetBindType()
+			if bindType == OBJECT_MAP || bindType == OBJECT_STRUCT {
 				dba.Limit(1)
 			}
 		}
-		return NewBuilder(dba.GetSlaveDriver()).BuildQuery(dba)
+		return NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		return NewBuilder(dba.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		return NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 	}
 }
