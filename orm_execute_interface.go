@@ -15,6 +15,5 @@ type IOrmExecute interface {
 	// delete
 	Delete() (int64, error)
 	//LastInsertId() int64
-	//GetTableName() (string, error)
-	//GetBindName() string
+	Force() IOrm
 }

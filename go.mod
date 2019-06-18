@@ -8,4 +8,4 @@ require (
 	github.com/mattn/go-sqlite3 v1.10.0
 )
 
-replace github.com/gohouse/t => /Users/fizz/go/src/github.com/gohouse/t
+replace github.com/gohouse/t => ../t

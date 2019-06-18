@@ -15,10 +15,12 @@ type IBinder interface {
 	GetBindFields() []string
 	SetBindType(arg BindType)
 	GetBindType() BindType
-	SetBindLimit(arg int)
-	GetBindLimit() int
+	//SetBindLimit(arg int)
+	//GetBindLimit() int
 	BindParse(prefix string) error
 	SetBindPrefix(arg string)
 	GetBindPrefix() string
 	ResetBindResultSlice()
+	SetBindAll(arg []Map)
+	GetBindAll() []Map
 }

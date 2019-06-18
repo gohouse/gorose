@@ -8,6 +8,9 @@ import (
 func initOrm() IOrm {
 	return initDB().NewOrm()
 }
+func DB() IOrm {
+	return initDB().NewOrm()
+}
 func TestNewOrm(t *testing.T) {
 	orm := initOrm()
 	orm.Hello()
@@ -88,9 +91,40 @@ func TestOrm_Chunk(t *testing.T) {
 	orm := initOrm()
 
 	var u = bbb{}
-	err := orm.Table(&u).Chunk(1, func(data interface{}) error {
-		fmt.Println(data)
+	err := orm.Table(&u).Chunk(1, func(data []Map) error {
+		for _,item := range data{
+			fmt.Println(item["name"].String())
+		}
 		return nil
 	})
 	fmt.Println(err)
+}
+
+func TestOrm_Loop(t *testing.T) {
+	db := DB()
+
+	var u = bbb{}
+	//aff,err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
+	//fmt.Println(aff,err)
+	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Map) error {
+		for _,item := range data{
+			DB().Data(Data{"age": 19}).Where("uid", item["uid"].Int64()).Update()
+		}
+		return nil
+	})
+	fmt.Println(err)
+}
+
+func TestOrm_Get2(t *testing.T) {
+	db := initOrm()
+	var u = bbb{}
+	var err error
+
+	err = db.Table(&u).Limit(1).Get()
+	fmt.Println(err,u,db.LastSql())
+
+	res,err := db.Table("users").Limit(2).GetAll()
+	fmt.Println(err,res,db.LastSql())
+
+	fmt.Println(u)
 }

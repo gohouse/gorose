@@ -1,7 +1,6 @@
 package gorose
 
 import (
-	"fmt"
 	"github.com/gohouse/t"
 	"math"
 	"reflect"
@@ -17,6 +16,13 @@ func (dba *Orm) Get() error {
 
 	// 执行查询
 	return dba.ISession.Query(sqlStr, args...)
+}
+
+// Get : select more rows , relation limit set
+func (dba *Orm) GetAll() (result []Map, err error) {
+	err = dba.Get()
+	result = dba.ISession.GetBindAll()
+	return
 }
 
 // Count : select count rows
@@ -174,33 +180,39 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 }
 
 // Chunk : select chunk more data to piceses block
-func (dba *Orm) Chunk(limit int, callback func(interface{}) error) (err error) {
-	return nil
+func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 	var page = 0
-	dba.Limit(limit)
-	count, _ := dba.Count()
-	for count > 0 {
-		var binder = dba.ISession.GetBinder()
-
-		// 设置指定的limit, offset
-		_ = dba.Offset(dba.offset + page*limit).Get()
-		fmt.Println(dba.LastSql())
-		var result = binder.GetBindResultSlice()
-
-		if result.Len() == 0 {
+	var tableName = dba.ISession.GetBinder().GetBindName()
+	// 先执行一条看看是否报错, 同时设置指定的limit, offset
+	result,err := dba.Table(tableName).Limit(limit).Offset(page*limit).GetAll()
+	if err!=nil {
+		return
+	}
+	for len(result) > 0 {
+		if err = callback(result); err != nil {
 			break
 		}
-
-		if err = callback(result.Interface()); err != nil {
-			break
-		}
-
 		page++
-		count = count - int64(limit)
+		result,_ = dba.Offset(page*limit).GetAll()
+	}
+	return
+}
 
-		var bs = binder.GetBindResultSlice()
-		binder.SetBindResultSlice(reflect.MakeSlice(bs.Type(),bs.Len(),bs.Cap()))
-		binder.SetBindOrigin(nil)
+// Loop : select Loop more data to piceses block
+func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
+	var page = 0
+	var tableName = dba.ISession.GetBinder().GetBindName()
+	// 先执行一条看看是否报错, 同时设置指定的limit
+	result,err := dba.Table(tableName).Limit(limit).GetAll()
+	if err!=nil {
+		return
+	}
+	for len(result) > 0 {
+		if err = callback(result); err != nil {
+			break
+		}
+		page++
+		result,_ = dba.GetAll()
 	}
 	return
 }

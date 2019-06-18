@@ -22,4 +22,5 @@ type ISession interface {
 	SetTransaction(b bool)
 	GetTransaction() bool
 	//ResetBinder()
+	GetBindAll() []Map
 }

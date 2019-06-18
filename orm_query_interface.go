@@ -6,6 +6,7 @@ type IOrmQuery interface {
 	// 如果你只是想要从数据表中获取一行数据，可以使用 first 方法
 	//First()
 	Get() error
+	GetAll() ([]Map,error)
 	// 如果你不需要完整的一行，可以使用 value 方法从结果中获取单个值，该方法会直接返回指定列的值：
 	Value(field string) (v t.T, err error)
 	// 如果想要获取包含单个列值的数组，可以使用 pluck 方法
@@ -24,5 +25,6 @@ type IOrmQuery interface {
 	Max(max string) (interface{}, error)
 	Min(min string) (interface{}, error)
 	Paginate(limit,current_page int) (res Data, err error)
-	Chunk(limit int, callback func(interface{}) error) (err error)
+	Chunk(limit int, callback func([]Map) error) (err error)
+	Loop(limit int, callback func([]Map) error) (err error)
 }

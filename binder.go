@@ -53,6 +53,8 @@ type Binder struct {
 	// 出入传入得是非slice对象, 则只需要取一条, 取多了也是浪费
 	BindLimit int
 	BindPrefix string
+	// 多条map结果,传入的是string table时
+	BindAll []Map
 }
 
 var _ IBinder = &Binder{}
@@ -74,6 +76,7 @@ func (s *Binder) BindParse(prefix string) error {
 	case string: // 直接传入的是表名
 		s.SetBindType(OBJECT_STRING)
 		BindName = s.GetBindOrigin().(string)
+		//s.SetBindAll([]Map{})
 
 	// 传入的是struct或切片
 	default:
@@ -209,10 +212,10 @@ func (o *Binder) GetBindType() BindType {
 	return o.BindType
 }
 
-func (o *Binder) SetBindLimit(arg int) {
-	o.BindLimit = arg
+func (o *Binder) SetBindAll(arg []Map) {
+	o.BindAll = arg
 }
 
-func (o *Binder) GetBindLimit() int {
-	return o.BindLimit
+func (o *Binder) GetBindAll() []Map {
+	return o.BindAll
 }

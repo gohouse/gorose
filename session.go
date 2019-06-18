@@ -131,9 +131,9 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 }
 
 func (s *Session) Query(sqlstring string, args ...interface{}) error {
-	err := s.IBinder.BindParse(s.IEngin.GetPrefix())
-	if err != nil {
-		return err
+	//err := s.IBinder.BindParse(s.IEngin.GetPrefix())
+	if s.err != nil {
+		return s.err
 	}
 	// 记录sqlLog
 	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
@@ -225,10 +225,10 @@ func (s *Session) LastSql() string {
 func (s *Session) scan(rows *sql.Rows) (err error) {
 	// 检查实多维数组还是一维数组
 	switch s.GetBindType() {
-	case OBJECT_STRUCT:
-		err = s.scanRow(rows, s.GetBindOrigin())
-	case OBJECT_STRUCT_SLICE:
-		err = s.scanAll(rows, s.GetBindResultSlice())
+	case OBJECT_STRING:
+		err = s.scanAll(rows)
+	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
+		err = s.scanStructAll(rows, s.GetBindResultSlice())
 	//case OBJECT_MAP, OBJECT_MAP_T:
 	//	err = s.scanMap(rows, s.GetBindResult())
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
@@ -312,8 +312,33 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 	return
 }
 
-// scan a single row of data into a struct.
-func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
+//// scan a single row of data into a struct.
+//func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
+//	// check if there is data waiting
+//	if !rows.Next() {
+//		if err := rows.Err(); err != nil {
+//			return err
+//		}
+//		return sql.ErrNoRows
+//	}
+//
+//	// get a list of targets
+//	var fields = strutForScan(dst)
+//
+//	// perform the scan
+//	if err := rows.Scan(fields...); err != nil {
+//		//if err := rows.Scan(strutForScan(s.BindResult.Interface())...); err != nil {
+//		return err
+//	}
+//
+//	return rows.Err()
+//}
+
+// ScanAll scans all sql result rows into a slice of structs.
+// It reads all rows and closes rows when finished.
+// dst should be a pointer to a slice of the appropriate type.
+// The new results will be appended to any existing data in dst.
+func (s *Session) scanStructAll(rows *sql.Rows, dst interface{}) error {
 	// check if there is data waiting
 	if !rows.Next() {
 		if err := rows.Err(); err != nil {
@@ -321,35 +346,63 @@ func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
 		}
 		return sql.ErrNoRows
 	}
-
-	// get a list of targets
-	var fields = strutForScan(dst)
-
-	// perform the scan
-	if err := rows.Scan(fields...); err != nil {
-		//if err := rows.Scan(strutForScan(s.BindResult.Interface())...); err != nil {
-		return err
-	}
-
-	return rows.Err()
-}
-
-// ScanAll scans all sql result rows into a slice of structs.
-// It reads all rows and closes rows when finished.
-// dst should be a pointer to a slice of the appropriate type.
-// The new results will be appended to any existing data in dst.
-func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	for rows.Next() {
 		// scan it
 		err := rows.Scan(strutForScan(s.GetBindResult().Interface())...)
 		if err != nil {
 			return err
 		}
-		// add to the result slice
-		s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult().Elem()))
+
+		// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
+		if s.GetUnion() == nil {
+			// 如果是多条数据集, 就插入到对应的结果集slice上
+			if s.GetBindType() == OBJECT_STRUCT_SLICE {
+				// add to the result slice
+				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult().Elem()))
+			}
+		}
 	}
 
 	return rows.Err()
+}
+
+func (s *Session) scanAll(rows *sql.Rows) (err error) {
+	var columns []string
+	// 获取查询的所有字段
+	if columns, err = rows.Columns(); err != nil {
+		return
+	}
+	count := len(columns)
+
+	var result = []Map{}
+	for rows.Next() {
+		// 定义要绑定的结果集
+		values := make([]interface{}, count)
+		scanArgs := make([]interface{}, count)
+		for i := 0; i < count; i++ {
+			scanArgs[i] = &values[i]
+		}
+		// 获取结果
+		_ = rows.Scan(scanArgs...)
+
+		// 定义预设的绑定对象
+		var resultTmp = Map{}
+		//// 定义union操作的map返回
+		//var unionTmp = map[string]interface{}{}
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			if b, ok := val.([]byte); ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			resultTmp[col] = t.New(v)
+		}
+		result = append(result, resultTmp)
+	}
+	s.IBinder.SetBindAll(result)
+	return
 }
 
 func (s *Session) SetUnion(u interface{}) {
@@ -364,6 +417,7 @@ func (s *Session) SetTransaction(b bool) {
 	s.transaction = b
 }
 
+// GetTransaction 提供给 orm 使用的, 方便reset操作
 func (s *Session) GetTransaction() bool {
 	return s.transaction
 }
