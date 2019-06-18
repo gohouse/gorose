@@ -52,14 +52,15 @@ type Binder struct {
 	BindType BindType
 	// 出入传入得是非slice对象, 则只需要取一条, 取多了也是浪费
 	BindLimit int
+	BindPrefix string
 }
 
 var _ IBinder = &Binder{}
 
 func NewBinder(o ...interface{}) IBinder {
-	var binder = &Binder{}
+	var binder = new(Binder)
 	if len(o) > 0 {
-		binder.SetBindOrigin(o)
+		binder.SetBindOrigin(o[0])
 	}
 	return binder
 }
@@ -110,6 +111,7 @@ func (s *Binder) BindParse(prefix string) error {
 				s.SetBindType(OBJECT_MAP_SLICE)
 				s.SetBindResult(reflect.MakeMap(eltType))
 				s.SetBindResultSlice(sliceVal)
+				//s.SetBindResultSlice(reflect.MakeSlice(sliceVal.Type(),0,0))
 				//TODO 检查map的值类型, 是否是t.T
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 					s.SetBindType(OBJECT_MAP_SLICE_T)
@@ -135,13 +137,28 @@ func (s *Binder) BindParse(prefix string) error {
 	}
 
 	s.SetBindName(prefix + BindName)
+	s.SetBindPrefix(prefix)
 	return nil
 }
 
 func (s *Binder) parseFields() {
 	if len(s.GetBindFields()) == 0 {
-		s.SetBindFields(getTagName(s.GetBindResult().Interface()))
+		s.SetBindFields(getTagName(s.GetBindResult().Interface(), TAGNAME))
 	}
+}
+
+func (o *Binder) ResetBindResultSlice() {
+	if o.BindType == OBJECT_MAP_SLICE_T {
+		o.BindResultSlice = reflect.New(o.BindResultSlice.Type())
+	}
+}
+
+func (o *Binder) SetBindPrefix(arg string) {
+	o.BindPrefix = arg
+}
+
+func (o *Binder) GetBindPrefix() string {
+	return o.BindPrefix
 }
 
 func (o *Binder) SetBindOrigin(arg interface{}) {

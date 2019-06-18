@@ -19,9 +19,10 @@ type IOrmQuery interface {
 	//Chunk()
 	// 查询构建器还提供了多个聚合方法，如count, max, min, avg 和 sum，你可以在构造查询之后调用这些方法：
 	Count(args ...string) (int64, error)
-	//Max()
-	//Min()
-	//Avg()
-	//Sum()
-	//LastSql() string
+	Sum(sum string) (interface{}, error)
+	Avg(avg string) (interface{}, error)
+	Max(max string) (interface{}, error)
+	Min(min string) (interface{}, error)
+	Paginate(limit,current_page int) (res Data, err error)
+	Chunk(limit int, callback func(interface{}) error) (err error)
 }

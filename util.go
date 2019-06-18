@@ -2,6 +2,7 @@ package gorose
 
 import (
 	"fmt"
+	"github.com/gohouse/t"
 	"log"
 	"math/rand"
 	"reflect"
@@ -40,44 +41,34 @@ func StructToMap(obj interface{}) map[string]interface{} {
 }
 
 // getTagName 获取结构体中Tag的值，如果没有tag则返回字段值
-func getTagName(structName interface{}) []string {
+func getTagName(structName interface{}, tagstr string) []string {
 	// 获取type
-	t := reflect.TypeOf(structName)
+	tag := reflect.TypeOf(structName)
 	// 如果是反射Ptr类型, 就获取他的 element type
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
+	if tag.Kind() == reflect.Ptr {
+		tag = tag.Elem()
 	}
 
 	// 判断是否是struct
-	if t.Kind() != reflect.Struct {
+	if tag.Kind() != reflect.Struct {
 		log.Println("Check type error not Struct")
 		return nil
 	}
 	// 获取字段数量
-	fieldNum := t.NumField()
+	fieldNum := tag.NumField()
 	result := make([]string, 0, fieldNum)
 	for i := 0; i < fieldNum; i++ {
 		//fieldName := t.Field(i).Name
 		// tag 名字
-		tagName := t.Field(i).Tag.Get(TAGNAME)
+		tagName := tag.Field(i).Tag.Get(tagstr)
 		// tag为-时, 不解析
 		if tagName == "-" || tagName == "" {
 			// 字段名字
-			tagName = t.Field(i).Name
+			tagName = tag.Field(i).Name
 		}
 		result = append(result, tagName)
 	}
 	return result
-}
-
-// ParseStr 转换为string
-func parseStr(data interface{}) string {
-	switch data.(type) {
-	case time.Time:
-		return data.(time.Time).Format("2006-01-02 15:04:05")
-	default:
-		return fmt.Sprint(data)
-	}
 }
 
 // If : ternary operator (三元运算)
@@ -92,58 +83,22 @@ func If(condition bool, trueVal, falseVal interface{}) interface{} {
 	return falseVal
 }
 
-// addSingleQuotes : 添加单引号
-func addSingleQuotes(data interface{}) string {
-	switch data.(type) {
-	case int, int64, int32, uint32, uint64:
-		return parseStr(data)
-	default:
-		ret := parseStr(data)
-		ret = strings.Replace(ret, `\`, `\\`, -1)
-		ret = strings.Replace(ret, `"`, `\"`, -1)
-		ret = strings.Replace(ret, `'`, `\'`, -1)
-		return "'" + ret + "'"
-	}
-}
-
 func addQuotes(data interface{}, sep string) string {
-	switch data.(type) {
-	case int, int64, int32, uint32, uint64:
-		return parseStr(data)
-	default:
-		ret := parseStr(data)
-		ret = strings.Replace(ret, `\`, `\\`, -1)
-		ret = strings.Replace(ret, `"`, `\"`, -1)
-		ret = strings.Replace(ret, `'`, `\'`, -1)
-		return fmt.Sprintf("%s%s%s", sep, ret, sep)
-	}
+	ret := t.New(data).String()
+	ret = strings.Replace(ret, `\`, `\\`, -1)
+	ret = strings.Replace(ret, `"`, `\"`, -1)
+	ret = strings.Replace(ret, `'`, `\'`, -1)
+	return fmt.Sprintf("%s%s%s", sep, ret, sep)
 }
 
 // InArray :给定元素值 是否在 指定的数组中
-func inArray(needle interface{}, hystack interface{}) bool {
-	switch key := needle.(type) {
-	case string:
-		for _, item := range hystack.([]string) {
-			if key == item {
-				return true
-			}
+func inArray(needle, hystack interface{}) bool {
+	nt := t.New(needle)
+	for _,item := range t.New(hystack).Slice(){
+		if nt.String() == item.String() {
+			return true
 		}
-	case int:
-		for _, item := range hystack.([]int) {
-			if key == item {
-				return true
-			}
-		}
-	case int64:
-		for _, item := range hystack.([]int64) {
-			if key == item {
-				return true
-			}
-		}
-	default:
-		return false
 	}
-
 	return false
 }
 

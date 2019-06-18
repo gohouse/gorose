@@ -12,6 +12,16 @@ func TestNewOrm(t *testing.T) {
 	orm := initOrm()
 	orm.Hello()
 }
+func TestOrm_AddFields(t *testing.T) {
+	orm := initOrm()
+	var u = User{}
+	var fieldStmt = orm.Table(&u).Fields("a").Where("m",55)
+	a,b,c := fieldStmt.AddFields("b").Where("d",1).BuildSql()
+	fmt.Println(a,b,c)
+
+	d,e,f := fieldStmt.AddFields("c").Where("d",2).BuildSql()
+	fmt.Println(d,e,f)
+}
 
 func TestOrm_Get(t *testing.T) {
 	orm := initOrm()
@@ -72,4 +82,15 @@ func TestOrm_Count(t *testing.T) {
 	fmt.Println(err)
 	fmt.Println(orm.LastSql())
 	fmt.Println(res)
+}
+
+func TestOrm_Chunk(t *testing.T) {
+	orm := initOrm()
+
+	var u = bbb{}
+	err := orm.Table(&u).Chunk(1, func(data interface{}) error {
+		fmt.Println(data)
+		return nil
+	})
+	fmt.Println(err)
 }

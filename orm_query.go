@@ -1,7 +1,9 @@
 package gorose
 
 import (
+	"fmt"
 	"github.com/gohouse/t"
+	"math"
 	"reflect"
 )
 
@@ -171,14 +173,88 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 	return
 }
 
-// Get : select more rows , relation limit set
-func (dba *Orm) Paginate() error {
-	// 构建sql
-	sqlStr, args, err := dba.BuildSql()
+// Chunk : select chunk more data to piceses block
+func (dba *Orm) Chunk(limit int, callback func(interface{}) error) (err error) {
+	return nil
+	var page = 0
+	dba.Limit(limit)
+	count, _ := dba.Count()
+	for count > 0 {
+		var binder = dba.ISession.GetBinder()
+
+		// 设置指定的limit, offset
+		_ = dba.Offset(dba.offset + page*limit).Get()
+		fmt.Println(dba.LastSql())
+		var result = binder.GetBindResultSlice()
+
+		if result.Len() == 0 {
+			break
+		}
+
+		if err = callback(result.Interface()); err != nil {
+			break
+		}
+
+		page++
+		count = count - int64(limit)
+
+		var bs = binder.GetBindResultSlice()
+		binder.SetBindResultSlice(reflect.MakeSlice(bs.Type(),bs.Len(),bs.Cap()))
+		binder.SetBindOrigin(nil)
+	}
+	return
+}
+
+// Paginate 自动分页
+// @param limit 每页展示数量
+// @param current_page 当前第几页, 从1开始
+// 以下是laravel的Paginate返回示例
+//{
+//	"total": 50,
+//	"per_page": 15,
+//	"current_page": 1,
+//	"last_page": 4,
+//	"first_page_url": "http://laravel.app?page=1",
+//	"last_page_url": "http://laravel.app?page=4",
+//	"next_page_url": "http://laravel.app?page=2",
+//	"prev_page_url": null,
+//	"path": "http://laravel.app",
+//	"from": 1,
+//	"to": 15,
+//	"data":[
+//		{
+//		// Result Object
+//		},
+//		{
+//		// Result Object
+//		}
+//	]
+//}
+func (dba *Orm) Paginate(limit, current_page int) (res Data, err error) {
+	// 防止limit干扰
+	dba.limit = 0
+	// 统计总量
+	count, err := dba.Count()
+	// 获取结果
+	var bind = Data{}
+	err = dba.Table(&bind).Limit(limit).Get()
 	if err != nil {
-		return err
+		return
+	}
+	var last_page = int(math.Ceil(float64(count) / float64(limit)))
+	var next_page = current_page + 1
+	var prev_page = current_page - 1
+	res = Data{
+		"total":          count,
+		"per_page":       limit,
+		"current_page":   current_page,
+		"last_page":      last_page,
+		"first_page_url": 1,
+		"last_page_url":  last_page,
+		"next_page_url":  If(next_page > last_page, nil, next_page),
+		"prev_page_url":  If(prev_page < 1, nil, prev_page),
+		"data":           dba.GetBinder().GetBindResultSlice(),
 	}
 
-	// 执行查询
-	return dba.ISession.Query(sqlStr, args...)
+	return
 }

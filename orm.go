@@ -7,18 +7,18 @@ import (
 
 type Orm struct {
 	ISession
-	IBinder
+	//IBinder
 	*OrmApi
-	driver string
+	driver     string
 	bindValues []interface{}
 }
 
 var _ IOrm = &Orm{}
 
-func NewOrm(e IEngin, b IBinder) *Orm {
+func NewOrm(e IEngin) *Orm {
 	var orm = new(Orm)
-	orm.ISession = NewSession(e, b)
-	orm.IBinder = b
+	orm.ISession = NewSession(e)
+	//orm.IBinder = b
 	orm.OrmApi = new(OrmApi)
 	return orm
 }
@@ -32,7 +32,7 @@ func (dba *Orm) SetBindValues(v interface{}) {
 }
 
 func (dba *Orm) ClearBindValues() {
-	dba.bindValues = nil
+	dba.bindValues = []interface{}{}
 }
 
 func (dba *Orm) GetBindValues() []interface{} {
@@ -167,13 +167,17 @@ func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
 	dba.join = append(dba.join, []interface{}{joinType, args})
 }
 
-// _joinBuilder
-func (dba *Orm) Reset() {
-	dba.union = ""
-	dba.fields = []string{}
-	dba.where = [][]interface{}{}
-	dba.join = [][]interface{}{}
+// Reset  orm api and bind values reset to init
+func (dba *Orm) Reset() IOrm {
+	dba.OrmApi = new(OrmApi)
 	dba.ClearBindValues()
+	return dba
+}
+
+// ResetWhere
+func (dba *Orm) ResetWhere() IOrm {
+	dba.where = [][]interface{}{}
+	return dba
 }
 
 // BuildSql
@@ -181,22 +185,44 @@ func (dba *Orm) Reset() {
 func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err error) {
 	// 解析table
 	dba.table, err = dba.ISession.GetTableName()
-	//dba.table = dba.GetBindName()
 	if err != nil {
 		return
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		// 根据传入的struct, 设置limit, 有效的节约空间
 		if dba.union == "" {
-			var bindType = dba.GetBindType()
+			var bindType = dba.GetBinder().GetBindType()
 			if bindType == OBJECT_MAP || bindType == OBJECT_STRUCT {
 				dba.Limit(1)
 			}
 		}
-		a,b,err = NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
+		a, b, err = NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		a,b,err = NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		a, b, err = NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 	}
-	dba.Reset()
+	// 如果是事务, 因为需要复用单一对象, 故参数会产生感染
+	// 所以, 在这里做一下数据绑定重置操作
+	if dba.ISession.GetTransaction() {
+		dba.Reset()
+	}
 	return
+}
+
+func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
+	err = s.ISession.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, closer := range closers {
+		//fmt.Printf("%v,%v,%v\n",s.OrmApi,s.driver,s.bindValues)
+		//s.Reset()
+		err = closer(s)
+		//fmt.Printf("%v,%v,%v\n",s.OrmApi,s.driver,s.bindValues)
+		if err != nil {
+			_ = s.ISession.Rollback()
+			return
+		}
+	}
+	return s.ISession.Commit()
 }

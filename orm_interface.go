@@ -15,7 +15,7 @@ type IOrm interface {
 	// distinct 方法允许你强制查询返回不重复的结果集：
 	Distinct() IOrm
 	Data(data interface{}) IOrm
-	//// groupBy, orderBy, having
+	// groupBy, orderBy, having
 	Group(group string) IOrm
 	GroupBy(group string) IOrm
 	Having(having string) IOrm
@@ -44,4 +44,8 @@ type IOrm interface {
 	SetBindValues(v interface{})
 	GetBindValues() []interface{}
 	ClearBindValues()
+	//Transaction(closers ...func(db IOrm) error) (err error)
+	Reset() IOrm
+	ResetWhere() IOrm
+	//GetBindName() string
 }

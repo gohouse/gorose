@@ -12,13 +12,14 @@ type ISession interface {
 	Execute(sqlstring string, args ...interface{}) (int64, error)
 	GetMasterDriver() string
 	GetSlaveDriver() string
-	//GetBinder() *Binder
 	LastInsertId() int64
 	LastSql() string
-	SetIBinder(b IBinder)
+	//SetIBinder(b IBinder)
 	GetTableName() (string, error)
-	//GetBindName() string
 	GetBinder() IBinder
 	SetUnion(u interface{})
 	GetUnion() interface{}
+	SetTransaction(b bool)
+	GetTransaction() bool
+	//ResetBinder()
 }

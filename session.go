@@ -18,15 +18,17 @@ type Session struct {
 	sqlLogs      []string
 	lastSql      string
 	union        interface{}
+	transaction  bool
+	err          error
 }
 
 var _ ISession = &Session{}
 
 // NewSession : 初始化 Session
-func NewSession(e IEngin, b IBinder) ISession {
+func NewSession(e IEngin) ISession {
 	var s = new(Session)
 	s.IEngin = e
-	s.IBinder = b
+	//s.IBinder = b
 
 	s.master = s.IEngin.GetExecuteDB()
 	s.slave = s.IEngin.GetQueryDB()
@@ -38,15 +40,6 @@ func NewSession(e IEngin, b IBinder) ISession {
 func (s *Session) Close() {
 	s = nil
 }
-// Close : 关闭 Session
-func (s *Session) SetIBinder(b IBinder) {
-	s.IBinder = b
-}
-
-//// GetBinder 获取绑定对象
-//func (s *Session) GetBinder() *Binder {
-//	return s.GetBinder()
-//}
 
 // GetMasterDriver 获取驱动
 func (s *Session) GetMasterDriver() string {
@@ -61,30 +54,63 @@ func (s *Session) GetSlaveDriver() string {
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
-	s.IBinder.SetBindOrigin(tab)
+	s.IBinder = NewBinder(tab)
+	s.err = s.IBinder.BindParse(s.IEngin.GetPrefix())
 	return s
 }
 
+// GetBinder 获取绑定对象
+func (s *Session) GetErr() error {
+	return s.err
+}
+
+// GetBinder 获取绑定对象
+func (s *Session) GetBinder() IBinder {
+	return s.IBinder
+}
+
+//// GetBinder 获取绑定对象
+//func (s *Session) SetBinder() ISession {
+//	s.Bind(s.IBinder.GetBindOrigin())
+//	return s
+//}
+
+//// GetBinder 获取绑定对象
+//func (s *Session) ResetBinder() {
+//	var origin = s.IBinder.GetBindOrigin()
+//	s.IBinder = NewBinder(origin)
+//}
+
+// GetBinder 获取绑定对象
+func (s *Session) ResetBinderResult() {
+	_ = s.IBinder.BindParse(s.IEngin.GetPrefix())
+}
+
 // GetTableName 获取解析后的名字, 提供给orm使用
+// 为什么要在这里重复添加该方法, 而不是直接继承 IBinder 的方法呢?
+// 是因为, 这里涉及到表前缀的问题, 只能通过session来传递, 所以IOrm就可以选择直接继承
 func (s *Session) GetTableName() (string, error) {
-	err := s.IBinder.BindParse(s.IEngin.GetPrefix())
-	return s.IBinder.GetBindName(), err
+	//err := s.IBinder.BindParse(s.IEngin.GetPrefix())
+	return s.IBinder.GetBindName(), s.err
 }
 
 func (s *Session) Begin() (err error) {
 	s.master.tx, err = s.master.db.Begin()
+	s.SetTransaction(true)
 	return
 }
 
 func (s *Session) Rollback() (err error) {
 	err = s.master.tx.Rollback()
 	s.master.tx = nil
+	s.SetTransaction(false)
 	return
 }
 
 func (s *Session) Commit() (err error) {
 	err = s.master.tx.Commit()
 	s.master.tx = nil
+	s.SetTransaction(false)
 	return
 }
 
@@ -218,23 +244,27 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 //}
 
 func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
-	//var result = make([]map[string]interface{}, 0)
 	var columns []string
+	// 获取查询的所有字段
 	if columns, err = rows.Columns(); err != nil {
 		return
 	}
-
 	count := len(columns)
+
 	for rows.Next() {
+		// 定义要绑定的结果集
 		values := make([]interface{}, count)
 		scanArgs := make([]interface{}, count)
 		for i := 0; i < count; i++ {
 			scanArgs[i] = &values[i]
 		}
+		// 获取结果
 		_ = rows.Scan(scanArgs...)
-		//entry := make(map[string]interface{})
+
+		// 定义预设的绑定对象
 		var bindResultTmp = reflect.MakeMap(s.GetBindResult().Type())
-		//sliceVal := reflect.Indirect(dstVal)
+		//// 定义union操作的map返回
+		//var unionTmp = map[string]interface{}{}
 		for i, col := range columns {
 			var v interface{}
 			val := values[i]
@@ -243,38 +273,43 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 			} else {
 				v = val
 			}
-			// 是否union操作, 不是的话,就绑定数据
+			// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
+			//TODO 这里可能有点问题, 比如在group时, 返回的结果不止一条, 这里直接返回的就是第一条
+			// 默认其实只是取了第一条, 满足常规的 union 操作(count,sum,max,min,avg)而已
+			// 后边需要再行完善, 以便group时使用
+			// 具体完善方法: 就是这里断点去掉, 不直接绑定union, 新增一个map,将结果放在map中,在方法最后统一返回
 			if s.GetUnion() != nil {
 				s.union = v
 				return
-			}
-			switch s.GetBindType() {
-			case OBJECT_MAP_T, OBJECT_MAP_SLICE_T:
-				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
-				if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-					bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
-				}
-			default:
-				s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
-				if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-					bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+				// 以下上通用解决方法
+				//unionTmp[col] = v
+				//s.union = unionTmp
+			} else {
+				switch s.GetBindType() {
+				case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.T类型
+					// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
+					s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+					// 跟上一行干的事是一样的, 只不过防止上一行的数据被后续的数据改变, 而无法提供给下边多条数据报错的需要
+					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+					}
+				default: // 普通类型map[string]interface{}, 具体代码注释参照 上一个 case
+					s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+					}
 				}
 			}
 		}
-		//result = append(result, entry)
-		if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
-			s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), bindResultTmp))
+		// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
+		if s.GetUnion() == nil {
+			// 如果是多条数据集, 就插入到对应的结果集slice上
+			if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
+				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), bindResultTmp))
+			}
 		}
 	}
 	return
-}
-
-func (s *Session) SetUnion(u interface{}) {
-	s.union = u
-}
-
-func (s *Session) GetUnion() interface{} {
-	return s.union
 }
 
 // scan a single row of data into a struct.
@@ -317,6 +352,18 @@ func (s *Session) scanAll(rows *sql.Rows, dst interface{}) error {
 	return rows.Err()
 }
 
-func (s *Session) GetBinder() IBinder {
-	return s.IBinder
+func (s *Session) SetUnion(u interface{}) {
+	s.union = u
+}
+
+func (s *Session) GetUnion() interface{} {
+	return s.union
+}
+
+func (s *Session) SetTransaction(b bool) {
+	s.transaction = b
+}
+
+func (s *Session) GetTransaction() bool {
+	return s.transaction
 }

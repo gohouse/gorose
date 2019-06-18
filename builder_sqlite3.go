@@ -224,6 +224,9 @@ func (b *BuilderSqlite3) BuildLimit() string {
 }
 
 func (b *BuilderSqlite3) BuildOffset() string {
+	if b.BuildLimit()==""{
+		return ""
+	}
 	return If(b.IOrm.GetOffset() == 0, "", " OFFSET "+strconv.Itoa(b.IOrm.GetOffset())).(string)
 }
 

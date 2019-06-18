@@ -141,7 +141,7 @@ func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
 // 删掉这个方法后,可以使用 gorose.NewSession(gorose.IEngin)
 // 通过 gorose.IEngin 依赖注入的方式, 达到解耦的目的
 func (c *Engin) NewSession() ISession {
-	return NewSession(c, NewBinder())
+	return NewSession(c)
 }
 
 // NewOrm 获取orm实例
@@ -150,5 +150,5 @@ func (c *Engin) NewSession() ISession {
 // 删掉这个方法后,可以使用 gorose.NewOrm(gorose.NewSession(gorose.IEngin))
 // 通过 gorose.ISession 依赖注入的方式, 达到解耦的目的
 func (c *Engin) NewOrm() IOrm {
-	return NewOrm(c, NewBinder())
+	return NewOrm(c)
 }
