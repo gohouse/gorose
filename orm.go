@@ -196,6 +196,7 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 				dba.Limit(1)
 			}
 		}
+		fmt.Println(dba.ISession.GetSlaveDriver())
 		a, b, err = NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
 	} else {
 		a, b, err = NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))

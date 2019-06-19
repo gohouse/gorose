@@ -18,12 +18,18 @@ func TestNewOrm(t *testing.T) {
 func TestOrm_AddFields(t *testing.T) {
 	orm := initOrm()
 	var u = User{}
-	var fieldStmt = orm.Table(&u).Fields("a").Where("m",55)
-	a,b,c := fieldStmt.AddFields("b").Where("d",1).BuildSql()
-	fmt.Println(a,b,c)
+	var fieldStmt = orm.Table(&u).Fields("a").Where("m", 55)
+	a, b, c := fieldStmt.AddFields("b").Where("d", 1).BuildSql()
+	fmt.Println(a, b, c)
 
-	d,e,f := fieldStmt.AddFields("c").Where("d",2).BuildSql()
-	fmt.Println(d,e,f)
+	d, e, f := fieldStmt.AddFields("c").Where("d", 2).BuildSql()
+	fmt.Println(d, e, f)
+}
+
+func TestOrm_BuildSql(t *testing.T) {
+	var u User
+	a, b, c := DB().Table(&u).Where("age", ">", 1).BuildSql()
+	fmt.Println(a, b, c)
 }
 
 func TestOrm_Get(t *testing.T) {
@@ -92,7 +98,7 @@ func TestOrm_Chunk(t *testing.T) {
 
 	var u = bbb{}
 	err := orm.Table(&u).Chunk(1, func(data []Map) error {
-		for _,item := range data{
+		for _, item := range data {
 			fmt.Println(item["name"].String())
 		}
 		return nil
@@ -107,12 +113,21 @@ func TestOrm_Loop(t *testing.T) {
 	//aff,err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
 	//fmt.Println(aff,err)
 	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Map) error {
-		for _,item := range data{
-			DB().Data(Data{"age": 19}).Where("uid", item["uid"].Int64()).Update()
+		fmt.Println(db.LastSql())
+		for _, item := range data {
+			DB().Table(&u).Data(Data{"age": 19}).Where("uid", item["uid"].Int64()).Update()
 		}
 		return nil
 	})
 	fmt.Println(err)
+}
+
+func TestOrm_Update(t *testing.T) {
+	db := DB()
+
+	var u = bbb{}
+	aff, err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
+	fmt.Println(aff, err)
 }
 
 func TestOrm_Get2(t *testing.T) {
@@ -120,11 +135,11 @@ func TestOrm_Get2(t *testing.T) {
 	var u = bbb{}
 	var err error
 
-	err = db.Table(&u).Limit(1).Get()
-	fmt.Println(err,u,db.LastSql())
+	err = db.Table(&u).Where("uid", 2).Limit(1).Select()
+	fmt.Println(err, u, db.LastSql())
 
-	res,err := db.Table("users").Limit(2).GetAll()
-	fmt.Println(err,res,db.LastSql())
+	res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
+	fmt.Println(err, res, db.LastSql())
 
 	fmt.Println(u)
 }

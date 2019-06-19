@@ -51,7 +51,7 @@ type Binder struct {
 	// 传入的对象类型判定
 	BindType BindType
 	// 出入传入得是非slice对象, 则只需要取一条, 取多了也是浪费
-	BindLimit int
+	BindLimit  int
 	BindPrefix string
 	// 多条map结果,传入的是string table时
 	BindAll []Map

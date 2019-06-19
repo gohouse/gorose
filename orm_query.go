@@ -7,7 +7,7 @@ import (
 )
 
 // Get : select more rows , relation limit set
-func (dba *Orm) Get() error {
+func (dba *Orm) Select() error {
 	// 构建sql
 	sqlStr, args, err := dba.BuildSql()
 	if err != nil {
@@ -18,9 +18,22 @@ func (dba *Orm) Get() error {
 	return dba.ISession.Query(sqlStr, args...)
 }
 
+// First : select one row , relation limit set
+func (dba *Orm) First() (result Map, err error) {
+	err = dba.Limit(1).Select()
+	if err!=nil {
+		return
+	}
+	res := dba.ISession.GetBindAll()
+	if len(res)>0 {
+		result = res[0]
+	}
+	return
+}
+
 // Get : select more rows , relation limit set
-func (dba *Orm) GetAll() (result []Map, err error) {
-	err = dba.Get()
+func (dba *Orm) Get() (result []Map, err error) {
+	err = dba.Select()
 	result = dba.ISession.GetBindAll()
 	return
 }
@@ -97,7 +110,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 // Get : select more rows , relation limit set
 func (dba *Orm) Value(field string) (v t.T, err error) {
 	dba.Limit(1)
-	err = dba.Get()
+	err = dba.Select()
 	if err != nil {
 		return
 	}
@@ -121,8 +134,9 @@ func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T)
 	}
 	return
 }
+// Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
 func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
-	err = dba.Get()
+	err = dba.Select()
 	if err != nil {
 		return
 	}
@@ -179,13 +193,15 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 	return
 }
 
-// Chunk : select chunk more data to piceses block
+// Chunk : 分块处理数据,当要处理很多数据的时候, 我不需要知道具体是多少数据, 我只需要每次取limit条数据,
+// 然后不断的增加offset去取更多数据, 从而达到分块处理更多数据的目的
+//TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
 func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 	var page = 0
 	var tableName = dba.ISession.GetBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
-	result,err := dba.Table(tableName).Limit(limit).Offset(page*limit).GetAll()
-	if err!=nil {
+	result, err := dba.Table(tableName).Limit(limit).Offset(page * limit).Get()
+	if err != nil {
 		return
 	}
 	for len(result) > 0 {
@@ -193,18 +209,24 @@ func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 			break
 		}
 		page++
-		result,_ = dba.Offset(page*limit).GetAll()
+		// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
+		// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
+		dba.ClearBindValues()
+		result, _ = dba.Offset(page * limit).Get()
 	}
 	return
 }
 
-// Loop : select Loop more data to piceses block
+// Loop : 同chunk, 不过, 这个是循环的取前limit条数据, 为什么是循环取这些数据呢
+// 因为, 我们考虑到一种情况, 那就是where条件如果刚好是要修改的值,
+// 那么最后的修改结果因为offset的原因, 只会修改一半, 比如:
+// DB().Where("age", 18) ===> DB().Data(gorose.Data{"age":19}).Where().Update()
 func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
 	var page = 0
 	var tableName = dba.ISession.GetBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit
-	result,err := dba.Table(tableName).Limit(limit).GetAll()
-	if err!=nil {
+	result, err := dba.Table(tableName).Limit(limit).Get()
+	if err != nil {
 		return
 	}
 	for len(result) > 0 {
@@ -212,7 +234,9 @@ func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
 			break
 		}
 		page++
-		result,_ = dba.GetAll()
+		// 同chunk
+		dba.ClearBindValues()
+		result, _ = dba.Get()
 	}
 	return
 }
@@ -249,7 +273,7 @@ func (dba *Orm) Paginate(limit, current_page int) (res Data, err error) {
 	count, err := dba.Count()
 	// 获取结果
 	var bind = Data{}
-	err = dba.Table(&bind).Limit(limit).Get()
+	err = dba.Table(&bind).Limit(limit).Select()
 	if err != nil {
 		return
 	}

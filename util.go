@@ -94,7 +94,7 @@ func addQuotes(data interface{}, sep string) string {
 // InArray :给定元素值 是否在 指定的数组中
 func inArray(needle, hystack interface{}) bool {
 	nt := t.New(needle)
-	for _,item := range t.New(hystack).Slice(){
+	for _, item := range t.New(hystack).Slice() {
 		if nt.String() == item.String() {
 			return true
 		}
