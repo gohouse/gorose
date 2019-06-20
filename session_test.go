@@ -11,6 +11,7 @@ type Users struct {
 	Uid  int    `gorose:"uid"`
 	Name string `gorose:"name"`
 	Age  int    `gorose:"age"`
+	Fi string `gorose:"fi"`
 }
 
 func (u *Users) TableName() string {

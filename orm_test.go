@@ -132,10 +132,10 @@ func TestOrm_Update(t *testing.T) {
 
 func TestOrm_Get2(t *testing.T) {
 	db := initOrm()
-	var u = bbb{}
+	var u = Users{}
 	var err error
 
-	err = db.Table(&u).Where("uid", 2).Limit(1).Select()
+	err = db.Table(&u).Limit(1).Select()
 	fmt.Println(err, u, db.LastSql())
 
 	res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()

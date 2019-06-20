@@ -145,7 +145,7 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
-	case map[string]interface{}, Data: // insert multi datas ([]map[string]interface{})
+	case map[string]interface{}, Data: // update or insert (map[string]interface{})
 		var dataValuesSub []string
 		for key, val := range t.New(data).MapString() {
 			if operType == "insert" {
@@ -171,7 +171,9 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 			// insert
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
-	default: // update or insert
+	default:
+
+
 		return "", "", ""
 	}
 
