@@ -4,8 +4,8 @@ type IOrmExecute interface {
 	GetForce() bool
 	// insert,insertGetId
 	Insert(data ...interface{}) (int64, error)
-	InsertGetId() (int64, error)
-	Update() (int64, error)
+	InsertGetId(data ...interface{}) (int64, error)
+	Update(data ...interface{}) (int64, error)
 	// updateOrInsert
 
 	// increment,decrement

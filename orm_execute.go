@@ -7,21 +7,18 @@ import (
 
 // Insert : insert data and get affected rows
 func (dba *Orm) Insert(data ...interface{}) (int64, error) {
+	if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
+		dba.Table(data[0])
+	}
 	if dba.GetData() == nil && len(data) > 0 {
 		dba.data = data[0]
 	}
-	// 构建sql
-	sqlStr, args, err := dba.BuildSql("insert")
-	if err != nil {
-		return 0, err
-	}
-
-	return dba.ISession.Execute(sqlStr, args...)
+	return dba.exec("insert")
 }
 
 // insertGetId : insert data and get id
-func (dba *Orm) InsertGetId() (int64, error) {
-	_, err := dba.Insert()
+func (dba *Orm) InsertGetId(data ...interface{}) (int64, error) {
+	_, err := dba.Insert(data...)
 	if err != nil {
 		return 0, err
 	}
@@ -29,14 +26,14 @@ func (dba *Orm) InsertGetId() (int64, error) {
 }
 
 // Update : update data
-func (dba *Orm) Update() (int64, error) {
-	// 构建sql
-	sqlStr, args, err := dba.BuildSql("update")
-	if err != nil {
-		return 0, err
+func (dba *Orm) Update(data ...interface{}) (int64, error) {
+	if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
+		dba.Table(data[0])
 	}
-
-	return dba.ISession.Execute(sqlStr, args...)
+	if dba.GetData() == nil && len(data) > 0 {
+		dba.data = data[0]
+	}
+	return dba.exec("update")
 }
 
 // Force 强制执行没有where的删除和修改
@@ -47,8 +44,21 @@ func (dba *Orm) Force() IOrm {
 
 // Delete : delete data
 func (dba *Orm) Delete() (int64, error) {
+	return dba.exec("delete")
+}
+
+// Delete : delete data
+func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
+	if inArray(operType, []string{"insert","update"}) {
+		if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
+			dba.Table(data[0])
+		}
+		if dba.GetData() == nil && len(data) > 0 {
+			dba.data = data[0]
+		}
+	}
 	// 构建sql
-	sqlStr, args, err := dba.BuildSql("delete")
+	sqlStr, args, err := dba.BuildSql(operType)
 	if err != nil {
 		return 0, err
 	}

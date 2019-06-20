@@ -125,9 +125,14 @@ func TestOrm_Loop(t *testing.T) {
 func TestOrm_Update(t *testing.T) {
 	db := DB()
 
-	var u = bbb{}
-	aff, err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
+	var u = Users{
+		Name:"gorose2",
+		Age:19,
+	}
+
+	aff, err := db.Table(&u).Force().Data(u).Update()
 	fmt.Println(aff, err)
+	fmt.Println(db.LastSql())
 }
 
 func TestOrm_Get2(t *testing.T) {

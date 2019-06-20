@@ -3,7 +3,9 @@ package gorose
 import (
 	"errors"
 	"fmt"
+	"github.com/gohouse/gocar/structEngin"
 	"github.com/gohouse/t"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -114,6 +116,25 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 
 // buildData : build inert or update data
 func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
+	data := b.IOrm.GetData()
+	ref := reflect.Indirect(reflect.ValueOf(data))
+	switch ref.Kind() {
+	case reflect.Struct:
+		return b.parseData(operType, structEngin.New().StructContent2Map(data))
+	case reflect.Map:
+		var tmp = []map[string]interface{}{t.New(data).MapStringInterface()}
+		return b.parseData(operType, tmp)
+	case reflect.Slice:
+		switch ref.Type().Elem().Kind() {
+		case reflect.Struct:
+			return b.parseData(operType, structEngin.New().StructContent2Map(data))
+		case reflect.Map:
+			return b.parseData(operType, t.New(data).SliceMapStringInterface())
+		}
+	}
+	return "","",""
+}
+func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 	// insert
 	var dataFields []string
 	var dataValues []string
@@ -172,11 +193,48 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 		}
 	default:
-
+		//ref := reflect.Indirect(reflect.ValueOf(data))
+		//switch ref.Kind() {
+		//case reflect.Struct:
+		//	structEngin.New().StructContent2Map(data)
+		//case reflect.Map:
+		//case reflect.Slice:
+		//	switch ref.Type().Elem().Kind() {
+		//	case reflect.Struct:
+		//	case reflect.Map:
+		//	}
+		//}
 
 		return "", "", ""
 	}
 
+	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
+}
+
+func (b *BuilderDefault) parseData(operType string, data []map[string]interface{}) (string, string, string)  {
+	// insert
+	var dataFields []string
+	var dataValues []string
+	// update or delete
+	var dataObj []string
+
+	for key, _ := range data[0] {
+		if inArray(key, dataFields) == false {
+			dataFields = append(dataFields, key)
+		}
+	}
+	for _, item := range data {
+		var dataValuesSub []string
+		for _, key := range dataFields {
+			if item[key] == nil {
+				dataValuesSub = append(dataValuesSub, "null")
+			} else {
+				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
+				b.IOrm.SetBindValues(item[key])
+			}
+		}
+		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
+	}
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
 }
 
