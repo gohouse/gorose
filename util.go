@@ -27,12 +27,12 @@ func strutForScan(u interface{}) []interface{} {
 }
 
 func StructToMap(obj interface{}) map[string]interface{} {
-	t := reflect.TypeOf(obj)
+	ty := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)
 
 	var data = make(map[string]interface{})
-	for i := 0; i < t.NumField(); i++ {
-		data[t.Field(i).Name] = v.Field(i).Interface()
+	for i := 0; i < ty.NumField(); i++ {
+		data[ty.Field(i).Name] = v.Field(i).Interface()
 	}
 	return data
 }
