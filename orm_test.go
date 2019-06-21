@@ -27,8 +27,13 @@ func TestOrm_AddFields(t *testing.T) {
 }
 
 func TestOrm_BuildSql(t *testing.T) {
-	var u User
-	a, b, c := DB().Table(&u).Where("age", ">", 1).BuildSql()
+	var u = Users{
+		Name: "gorose2",
+		Age:  19,
+	}
+
+	//aff, err := db.Force().Data(&u)
+	a, b, c := DB().Table(&u).Where("age", ">", 1).Data(&u).BuildSql("update")
 	fmt.Println(a, b, c)
 }
 
@@ -126,11 +131,11 @@ func TestOrm_Update(t *testing.T) {
 	db := DB()
 
 	var u = Users{
-		Name:"gorose2",
-		Age:19,
+		Name: "gorose2",
+		Age:  19,
 	}
 
-	aff, err := db.Table(&u).Force().Data(u).Update()
+	aff, err := db.Force().Data(u).Update()
 	fmt.Println(aff, err)
 	fmt.Println(db.LastSql())
 }

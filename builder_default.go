@@ -10,14 +10,15 @@ import (
 	"strings"
 	"sync"
 )
+
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
 	"in", "not in", "between", "not between"}
 
 type BuilderDefault struct {
 	IOrm
-	operator []string
+	operator    []string
 	placeholder int
-	driver string
+	driver      string
 }
 
 var onceBuilderDefault sync.Once
@@ -34,18 +35,20 @@ func NewBuilderDefault(o IOrm) *BuilderDefault {
 	builderDefault.placeholder = 0
 	return builderDefault
 }
+
 // SetDriver 设置驱动, 方便获取占位符使用
 func (b *BuilderDefault) SetDriver(dr string) *BuilderDefault {
 	b.driver = dr
 	return b
 }
+
 // GetPlaceholder 获取占位符
 func (b *BuilderDefault) GetPlaceholder() (phstr string) {
 	switch b.driver {
 	case "postgres":
 		withLockContext(func() {
-			ph := b.placeholder+1
-			phstr= fmt.Sprintf("$%v",ph)
+			ph := b.placeholder + 1
+			phstr = fmt.Sprintf("$%v", ph)
 			b.placeholder = ph
 		})
 	default:
@@ -98,13 +101,13 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 	case "update":
 		if where == "" && b.IOrm.GetForce() == false {
-			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Update())")
+			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
 			return
 		}
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
 	case "delete":
 		if where == "" && b.IOrm.GetForce() == false {
-			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用force(如: db.xxx.Force().Delete())")
+			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Delete())")
 			return
 		}
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
@@ -114,25 +117,26 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 	return
 }
 
-// buildData : build inert or update data
+// BuildData : build inert or update data
 func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 	data := b.IOrm.GetData()
 	ref := reflect.Indirect(reflect.ValueOf(data))
+
 	switch ref.Kind() {
 	case reflect.Struct:
-		return b.parseData(operType, structEngin.New().StructContent2Map(data))
+		return b.parseData(operType, structEngin.New().SetExtraCols(b.IOrm.GetExtraExecCols()).StructContent2Map(data))
 	case reflect.Map:
 		var tmp = []map[string]interface{}{t.New(data).MapStringInterface()}
 		return b.parseData(operType, tmp)
 	case reflect.Slice:
 		switch ref.Type().Elem().Kind() {
 		case reflect.Struct:
-			return b.parseData(operType, structEngin.New().StructContent2Map(data))
+			return b.parseData(operType, structEngin.New().SetExtraCols(b.IOrm.GetExtraExecCols()).StructContent2Map(data))
 		case reflect.Map:
 			return b.parseData(operType, t.New(data).SliceMapStringInterface())
 		}
 	}
-	return "","",""
+	return "", "", ""
 }
 func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 	// insert
@@ -211,7 +215,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
 }
 
-func (b *BuilderDefault) parseData(operType string, data []map[string]interface{}) (string, string, string)  {
+func (b *BuilderDefault) parseData(operType string, data []map[string]interface{}) (string, string, string) {
 	// insert
 	var dataFields []string
 	var dataValues []string
@@ -224,14 +228,22 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		}
 	}
 	for _, item := range data {
+		// 定义1条数据的存储
 		var dataValuesSub []string
 		for _, key := range dataFields {
 			if item[key] == nil {
-				dataValuesSub = append(dataValuesSub, "null")
-			} else {
+				// 放入占位符
 				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
+				// 保存真正的值为null
+				b.IOrm.SetBindValues("null")
+			} else {
+				// 放入占位符
+				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
+				// 保存真正的值
 				b.IOrm.SetBindValues(item[key])
 			}
+			// update
+			dataObj = append(dataObj, fmt.Sprintf("%s=%s", key, b.GetPlaceholder()))
 		}
 		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
@@ -470,5 +482,3 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (string, e
 func (b *BuilderDefault) GetOperator() []string {
 	return b.operator
 }
-
-

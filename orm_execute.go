@@ -7,13 +7,7 @@ import (
 
 // Insert : insert data and get affected rows
 func (dba *Orm) Insert(data ...interface{}) (int64, error) {
-	if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
-		dba.Table(data[0])
-	}
-	if dba.GetData() == nil && len(data) > 0 {
-		dba.data = data[0]
-	}
-	return dba.exec("insert")
+	return dba.exec("insert", data...)
 }
 
 // insertGetId : insert data and get id
@@ -22,18 +16,12 @@ func (dba *Orm) InsertGetId(data ...interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return dba.ISession.LastInsertId(), nil
+	return dba.GetISession().LastInsertId(), nil
 }
 
 // Update : update data
 func (dba *Orm) Update(data ...interface{}) (int64, error) {
-	if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
-		dba.Table(data[0])
-	}
-	if dba.GetData() == nil && len(data) > 0 {
-		dba.data = data[0]
-	}
-	return dba.exec("update")
+	return dba.exec("update", data...)
 }
 
 // Force 强制执行没有where的删除和修改
@@ -49,12 +37,21 @@ func (dba *Orm) Delete() (int64, error) {
 
 // Delete : delete data
 func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
-	if inArray(operType, []string{"insert","update"}) {
-		if dba.ISession.GetBinder().GetBindOrigin() == nil && len(data)>0 {
-			dba.Table(data[0])
+	if inArray(operType, []string{"insert", "update"}) {
+		if dba.GetData() == nil {
+			if len(data) > 0 {
+				dba.Data(data[0])
+			} else {
+				return 0, GetErr(ERR_PARAMS_MISSING, "Data()")
+			}
 		}
-		if dba.GetData() == nil && len(data) > 0 {
-			dba.data = data[0]
+
+		if dba.GetISession().GetIBinder() == nil {
+			if dba.GetData() != nil {
+				dba.Table(dba.GetData())
+			} else {
+				return 0, GetErr(ERR_PARAMS_MISSING, "Data() or Table()")
+			}
 		}
 	}
 	// 构建sql
@@ -63,7 +60,7 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 		return 0, err
 	}
 
-	return dba.ISession.Execute(sqlStr, args...)
+	return dba.GetISession().Execute(sqlStr, args...)
 }
 
 // Increment : auto Increment +1 default

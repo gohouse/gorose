@@ -54,7 +54,8 @@ func (s *Session) GetSlaveDriver() string {
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
-	s.IBinder = NewBinder(tab)
+	//fmt.Println(tab, NewBinder(tab))
+	s.SetIBinder(NewBinder(tab))
 	s.err = s.IBinder.BindParse(s.IEngin.GetPrefix())
 	return s
 }
@@ -65,7 +66,12 @@ func (s *Session) GetErr() error {
 }
 
 // GetBinder 获取绑定对象
-func (s *Session) GetBinder() IBinder {
+func (s *Session) SetIBinder(ib IBinder) {
+	s.IBinder = ib
+}
+
+// GetBinder 获取绑定对象
+func (s *Session) GetIBinder() IBinder {
 	return s.IBinder
 }
 
@@ -74,7 +80,6 @@ func (s *Session) GetBinder() IBinder {
 //	s.Bind(s.IBinder.GetBindOrigin())
 //	return s
 //}
-
 //// GetBinder 获取绑定对象
 //func (s *Session) ResetBinder() {
 //	var origin = s.IBinder.GetBindOrigin()
@@ -91,7 +96,8 @@ func (s *Session) ResetBinderResult() {
 // 是因为, 这里涉及到表前缀的问题, 只能通过session来传递, 所以IOrm就可以选择直接继承
 func (s *Session) GetTableName() (string, error) {
 	//err := s.IBinder.BindParse(s.IEngin.GetPrefix())
-	return s.IBinder.GetBindName(), s.err
+	//fmt.Println(s.GetIBinder())
+	return s.GetIBinder().GetBindName(), s.err
 }
 
 func (s *Session) Begin() (err error) {

@@ -40,7 +40,7 @@ type IOrm interface {
 	//LockForUpdate()
 	//GetRegex() []string
 	GetDriver() string
-	//GetBinder() IBinder
+	//GetIBinder() IBinder
 	SetBindValues(v interface{})
 	GetBindValues() []interface{}
 	ClearBindValues()

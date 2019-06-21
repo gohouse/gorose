@@ -11,7 +11,7 @@ type BuilderSqlite3 struct {
 // {execute} {table} {data} {where}
 func init() {
 	var driver = "sqlite3"
-	var builder = &BuilderSqlite3{driver:driver}
+	var builder = &BuilderSqlite3{driver: driver}
 	NewBuilderDriver().Register(driver, builder)
 }
 

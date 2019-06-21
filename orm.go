@@ -17,7 +17,7 @@ var _ IOrm = &Orm{}
 
 func NewOrm(e IEngin) *Orm {
 	var orm = new(Orm)
-	orm.ISession = NewSession(e)
+	orm.SetISession(NewSession(e))
 	//orm.IBinder = b
 	orm.OrmApi = new(OrmApi)
 	return orm
@@ -25,6 +25,16 @@ func NewOrm(e IEngin) *Orm {
 
 func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
+}
+
+func (dba *Orm) ExtraExecCols(args ...string) IOrm {
+	dba.extraExecCols = append(dba.extraExecCols, args...)
+	return dba
+}
+
+func (dba *Orm) ResetExtraExecCols() IOrm {
+	dba.extraExecCols = []string{}
+	return dba
 }
 
 func (dba *Orm) SetBindValues(v interface{}) {
@@ -43,10 +53,18 @@ func (dba *Orm) GetDriver() string {
 	return dba.driver
 }
 
+func (dba *Orm) SetISession(is ISession) {
+	dba.ISession = is
+}
+
+func (dba *Orm) GetISession() ISession {
+	return dba.ISession
+}
+
 // Fields : select fields
 func (dba *Orm) Table(tab interface{}) IOrm {
-	dba.Bind(tab)
-	//dba.table = dba.ISession.GetTableName()
+	dba.GetISession().Bind(tab)
+	//dba.table = dba.GetISession().GetTableName()
 	return dba
 }
 
@@ -184,26 +202,27 @@ func (dba *Orm) ResetWhere() IOrm {
 // operType(select, insert, update, delete)
 func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err error) {
 	// 解析table
-	dba.table, err = dba.ISession.GetTableName()
+	dba.table, err = dba.GetISession().GetTableName()
 	if err != nil {
 		return
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		// 根据传入的struct, 设置limit, 有效的节约空间
 		if dba.union == "" {
-			var bindType = dba.GetBinder().GetBindType()
+			var bindType = dba.GetIBinder().GetBindType()
 			if bindType == OBJECT_MAP || bindType == OBJECT_STRUCT {
 				dba.Limit(1)
 			}
 		}
-		fmt.Println(dba.ISession.GetSlaveDriver())
-		a, b, err = NewBuilder(dba.ISession.GetSlaveDriver()).BuildQuery(dba)
+		a, b, err = NewBuilder(dba.GetISession().GetSlaveDriver()).BuildQuery(dba)
 	} else {
-		a, b, err = NewBuilder(dba.ISession.GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		a, b, err = NewBuilder(dba.GetISession().GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		// 重置强制获取更新或插入的字段, 防止复用时感染
+		dba.ResetExtraExecCols()
 	}
 	// 如果是事务, 因为需要复用单一对象, 故参数会产生感染
 	// 所以, 在这里做一下数据绑定重置操作
-	if dba.ISession.GetTransaction() {
+	if dba.GetISession().GetTransaction() {
 		dba.Reset()
 	}
 	return
@@ -216,10 +235,7 @@ func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
 	}
 
 	for _, closer := range closers {
-		//fmt.Printf("%v,%v,%v\n",s.OrmApi,s.driver,s.bindValues)
-		//s.Reset()
 		err = closer(s)
-		//fmt.Printf("%v,%v,%v\n",s.OrmApi,s.driver,s.bindValues)
 		if err != nil {
 			_ = s.ISession.Rollback()
 			return

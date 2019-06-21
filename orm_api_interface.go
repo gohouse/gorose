@@ -13,4 +13,7 @@ type IOrmApi interface {
 	GetGroup() string
 	GetHaving() string
 	GetData() interface{}
+	ExtraExecCols(args ...string) IOrm
+	ResetExtraExecCols() IOrm
+	GetExtraExecCols() []string
 }

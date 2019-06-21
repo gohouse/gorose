@@ -11,7 +11,7 @@ type BuilderMysql struct {
 // {execute} {table} {data} {where}
 func init() {
 	var driver = "mysql"
-	var builder = &BuilderMysql{driver:driver}
+	var builder = &BuilderMysql{driver: driver}
 	NewBuilderDriver().Register(driver, builder)
 }
 

@@ -15,17 +15,17 @@ func (dba *Orm) Select() error {
 	}
 
 	// 执行查询
-	return dba.ISession.Query(sqlStr, args...)
+	return dba.GetISession().Query(sqlStr, args...)
 }
 
 // First : select one row , relation limit set
 func (dba *Orm) First() (result Map, err error) {
 	err = dba.Limit(1).Select()
-	if err!=nil {
+	if err != nil {
 		return
 	}
-	res := dba.ISession.GetBindAll()
-	if len(res)>0 {
+	res := dba.GetISession().GetBindAll()
+	if len(res) > 0 {
 		result = res[0]
 	}
 	return
@@ -34,7 +34,7 @@ func (dba *Orm) First() (result Map, err error) {
 // Get : select more rows , relation limit set
 func (dba *Orm) Get() (result []Map, err error) {
 	err = dba.Select()
-	result = dba.ISession.GetBindAll()
+	result = dba.GetISession().GetBindAll()
 	return
 }
 
@@ -79,7 +79,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	// 缓存fields字段,暂时由union占用
 	fieldsTmp := dba.fields
 	dba.fields = []string{dba.union}
-	dba.ISession.SetUnion(true)
+	dba.GetISession().SetUnion(true)
 
 	// 构建sql
 	sqls, args, err := dba.BuildSql()
@@ -88,7 +88,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	}
 
 	// 执行查询
-	err = dba.ISession.Query(sqls, args...)
+	err = dba.GetISession().Query(sqls, args...)
 	if err != nil {
 		return tmp, err
 	}
@@ -99,9 +99,10 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	dba.fields = fieldsTmp
 
 	// 语法糖获取union值
-	if dba.ISession.GetUnion() != nil {
-		tmp = dba.ISession.GetUnion()
-		dba.ISession.SetUnion(nil)
+	if dba.GetISession().GetUnion() != nil {
+		tmp = dba.GetISession().GetUnion()
+		// 获取之后, 释放掉
+		dba.GetISession().SetUnion(nil)
 	}
 
 	return tmp, nil
@@ -114,7 +115,7 @@ func (dba *Orm) Value(field string) (v t.T, err error) {
 	if err != nil {
 		return
 	}
-	var binder = dba.ISession.GetBinder()
+	var binder = dba.GetISession().GetIBinder()
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
 		v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
@@ -134,13 +135,14 @@ func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T)
 	}
 	return
 }
+
 // Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
 func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 	err = dba.Select()
 	if err != nil {
 		return
 	}
-	var binder = dba.ISession.GetBinder()
+	var binder = dba.GetISession().GetIBinder()
 	var resMap = make(t.MapInterface, 0)
 	var resSlice = t.Slice{}
 	switch binder.GetBindType() {
@@ -198,7 +200,7 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 //TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
 func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 	var page = 0
-	var tableName = dba.ISession.GetBinder().GetBindName()
+	var tableName = dba.GetISession().GetIBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
 	result, err := dba.Table(tableName).Limit(limit).Offset(page * limit).Get()
 	if err != nil {
@@ -223,7 +225,7 @@ func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 // DB().Where("age", 18) ===> DB().Data(gorose.Data{"age":19}).Where().Update()
 func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
 	var page = 0
-	var tableName = dba.ISession.GetBinder().GetBindName()
+	var tableName = dba.GetISession().GetIBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit
 	result, err := dba.Table(tableName).Limit(limit).Get()
 	if err != nil {
@@ -289,7 +291,7 @@ func (dba *Orm) Paginate(limit, current_page int) (res Data, err error) {
 		"last_page_url":  last_page,
 		"next_page_url":  If(next_page > last_page, nil, next_page),
 		"prev_page_url":  If(prev_page < 1, nil, prev_page),
-		"data":           dba.GetBinder().GetBindResultSlice(),
+		"data":           dba.GetIBinder().GetBindResultSlice(),
 	}
 
 	return

@@ -1,19 +1,20 @@
 package gorose
 
 type OrmApi struct {
-	table    string
-	fields   []string
-	where    [][]interface{}
-	order    string
-	limit    int
-	offset   int
-	join     [][]interface{}
-	distinct bool
-	union    string
-	group    string
-	having   string
-	data     interface{}
-	force    bool
+	table         string
+	fields        []string
+	where         [][]interface{}
+	order         string
+	limit         int
+	offset        int
+	join          [][]interface{}
+	distinct      bool
+	union         string
+	group         string
+	having        string
+	data          interface{}
+	force         bool
+	extraExecCols []string
 }
 
 func (o *Orm) GetTable() string {
@@ -66,4 +67,8 @@ func (o *Orm) GetData() interface{} {
 
 func (dba *Orm) GetForce() bool {
 	return dba.force
+}
+
+func (dba *Orm) GetExtraExecCols() []string {
+	return dba.extraExecCols
 }

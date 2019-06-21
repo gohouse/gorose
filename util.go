@@ -17,15 +17,12 @@ func getRandomInt(num int) int {
 }
 
 func strutForScan(u interface{}) []interface{} {
-	//fmt.Printf("%#v\n",u)
 	val := reflect.ValueOf(u).Elem()
 	v := make([]interface{}, val.NumField())
-	//fmt.Printf("%#v\n",val.Elem())
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
 		v[i] = valueField.Addr().Interface()
 	}
-	//fmt.Printf("%#v",v)
 	return v
 }
 

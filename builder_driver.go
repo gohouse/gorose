@@ -9,7 +9,8 @@ type BuilderDriver struct {
 }
 
 var builderDriverOnce sync.Once
-var  builderDriver *BuilderDriver
+var builderDriver *BuilderDriver
+
 func NewBuilderDriver() *BuilderDriver {
 	builderDriverOnce.Do(func() {
 		builderDriver = &BuilderDriver{make(map[string]IBuilder)}
@@ -17,7 +18,7 @@ func NewBuilderDriver() *BuilderDriver {
 	return builderDriver
 }
 
-func (b *BuilderDriver) Register(driver string, val IBuilder)  {
+func (b *BuilderDriver) Register(driver string, val IBuilder) {
 	withLockContext(func() {
 		b.builders[driver] = val
 	})

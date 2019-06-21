@@ -16,11 +16,13 @@ type ISession interface {
 	LastSql() string
 	//SetIBinder(b IBinder)
 	GetTableName() (string, error)
-	GetBinder() IBinder
+	SetIBinder(ib IBinder)
+	GetIBinder() IBinder
 	SetUnion(u interface{})
 	GetUnion() interface{}
 	SetTransaction(b bool)
 	GetTransaction() bool
 	//ResetBinder()
 	GetBindAll() []Map
+	GetErr() error
 }

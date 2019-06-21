@@ -11,7 +11,7 @@ type BuilderPostgres struct {
 // {execute} {table} {data} {where}
 func init() {
 	var driver = "postgres"
-	var builder = &BuilderPostgres{driver:driver}
+	var builder = &BuilderPostgres{driver: driver}
 	NewBuilderDriver().Register(driver, builder)
 }
 
