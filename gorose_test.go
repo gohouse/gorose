@@ -4,7 +4,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func initDB() IEngin {
+func initDB() *Engin {
 	e, err := Open(&Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
 
 	if err != nil {

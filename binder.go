@@ -90,7 +90,7 @@ func (s *Binder) BindParse(prefix string) error {
 		case reflect.Struct: // struct
 			s.SetBindType(OBJECT_STRUCT)
 			BindName = sliceVal.Type().Name()
-			s.SetBindResult(sliceVal)
+			s.SetBindResult(dstVal)
 			//// 默认只查一条
 			//s.SetBindLimit(1)
 			// 解析出字段

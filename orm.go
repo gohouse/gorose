@@ -27,6 +27,7 @@ func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
 }
 
+// ExtraExecCols 额外的字段
 func (dba *Orm) ExtraExecCols(args ...string) IOrm {
 	dba.extraExecCols = append(dba.extraExecCols, args...)
 	return dba
@@ -204,6 +205,7 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	// 解析table
 	dba.table, err = dba.GetISession().GetTableName()
 	if err != nil {
+		dba.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
@@ -214,9 +216,9 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 				dba.Limit(1)
 			}
 		}
-		a, b, err = NewBuilder(dba.GetISession().GetSlaveDriver()).BuildQuery(dba)
+		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildQuery(dba)
 	} else {
-		a, b, err = NewBuilder(dba.GetISession().GetMasterDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
+		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 		// 重置强制获取更新或插入的字段, 防止复用时感染
 		dba.ResetExtraExecCols()
 	}
@@ -231,12 +233,14 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
 	err = s.ISession.Begin()
 	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
 		return err
 	}
 
 	for _, closer := range closers {
 		err = closer(s)
 		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
 			_ = s.ISession.Rollback()
 			return
 		}

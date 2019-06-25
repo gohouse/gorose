@@ -2,51 +2,56 @@ package gorose
 
 import (
 	"database/sql"
+	"fmt"
 )
 
-type dbObject struct {
-	driver string
-	db     *sql.DB
-	tx     *sql.Tx
-}
 type cluster struct {
-	master     []dbObject
+	master     []*sql.DB
 	masterSize int
-	slave      []dbObject
+	slave      []*sql.DB
 	slaveSize  int
 }
 type Engin struct {
-	config       *ConfigCluster
-	enableSqlLog bool
-	prefix       string
-	dbs          *cluster
+	config *ConfigCluster
+	driver string
+	prefix string
+	dbs    *cluster
+	logger ILogger
 }
 
 var _ IEngin = &Engin{}
 
 // NewEngin : init Engin struct pointer
 // NewEngin : 初始化 Engin 结构体对象指针
-func NewEngin() *Engin {
-	return new(Engin)
+func NewEngin(conf ...interface{}) (e *Engin, err error) {
+	engin := new(Engin)
+	if len(conf) == 0 {
+		return
+	}
+	switch conf[0].(type) {
+	// 传入的是单个配置
+	case *Config:
+		err = engin.bootSingle(conf[0].(*Config))
+	// 传入的是集群配置
+	case *ConfigCluster:
+		engin.config = conf[0].(*ConfigCluster)
+		err = engin.bootCluster()
+	default:
+		panic(fmt.Sprint("Open() need *gorose.Config or *gorose.ConfigCluster param, also can empty for build sql string only, but ",
+			conf, " given"))
+	}
+
+	return engin, err
 }
 
-// EnableSqlLog : wither record sql logs, if no args input, the arg value default true
-// EnableSqlLog : 是否启用sql日志记录, 如果不传递参数, 则参数值默认为true
-func (c *Engin) EnableSqlLog(arg ...bool) {
-	if len(arg) == 0 {
-		c.enableSqlLog = true
-	} else {
-		c.enableSqlLog = arg[0]
+func (c *Engin) Use(closers ...func(e *Engin)) {
+	for _, closer := range closers {
+		closer(c)
 	}
 }
 
-// IfEnableSqlLog 是否启用sql日志
-func (c *Engin) IfEnableSqlLog() bool {
-	return c.enableSqlLog
-}
-
-// Prefix 设置前缀
-func (c *Engin) Prefix(pre string) {
+// SetPrefix 设置表前缀
+func (c *Engin) SetPrefix(pre string) {
 	c.prefix = pre
 }
 
@@ -55,9 +60,13 @@ func (c *Engin) GetPrefix() string {
 	return c.prefix
 }
 
+func (c *Engin) GetDriver() string {
+	return c.driver
+}
+
 // GetQueryDB : get a slave db for using query operation
 // GetQueryDB : 获取一个从库用来做查询操作
-func (c *Engin) GetQueryDB() dbObject {
+func (c *Engin) GetQueryDB() *sql.DB {
 	if c.dbs.slaveSize == 0 {
 		return c.GetExecuteDB()
 	}
@@ -67,15 +76,20 @@ func (c *Engin) GetQueryDB() dbObject {
 
 // GetExecuteDB : get a master db for using execute operation
 // GetExecuteDB : 获取一个主库用来做查询之外的操作
-func (c *Engin) GetExecuteDB() dbObject {
+func (c *Engin) GetExecuteDB() *sql.DB {
 	if c.dbs.masterSize == 0 {
-		return dbObject{}
+		return nil
 	}
 	var randint = getRandomInt(c.dbs.masterSize)
 	return c.dbs.master[randint]
 }
 
+func (c *Engin) GetLogger() ILogger {
+	return c.logger
+}
+
 func (c *Engin) bootSingle(conf *Config) error {
+	// 如果传入的是单一配置, 则转换成集群配置, 方便统一管理
 	var cc = new(ConfigCluster)
 	cc.Master = append(cc.Master, *conf)
 	c.config = cc
@@ -92,8 +106,9 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.slave = append(c.dbs.slave, dbObject{driver: item.Driver, db: db})
+			c.dbs.slave = append(c.dbs.slave, db)
 			c.dbs.slaveSize++
+			c.driver = item.Driver
 		}
 	}
 	if len(c.config.Master) > 0 {
@@ -105,9 +120,18 @@ func (c *Engin) bootCluster() error {
 			if c.dbs == nil {
 				c.dbs = new(cluster)
 			}
-			c.dbs.master = append(c.dbs.master, dbObject{driver: item.Driver, db: db})
+			c.dbs.master = append(c.dbs.master, db)
 			c.dbs.masterSize++
+			c.driver = item.Driver
 		}
+	}
+	// 如果config没有设置prefix,且configcluster设置了prefix,则使用cluster的prefix
+	if c.config.Prefix != "" && c.prefix == "" {
+		c.prefix = c.config.Prefix
+	}
+	// 如果config没有设置driver,且configcluster设置了driver,则使用cluster的driver
+	if c.config.Driver != "" && c.driver == "" {
+		c.driver = c.config.Driver
 	}
 
 	return nil

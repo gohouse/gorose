@@ -5,6 +5,8 @@ import (
 	"github.com/gohouse/t"
 	"log"
 	"math/rand"
+	"os"
+	"path"
 	"reflect"
 	"strings"
 	"sync"
@@ -17,11 +19,18 @@ func getRandomInt(num int) int {
 }
 
 func strutForScan(u interface{}) []interface{} {
-	val := reflect.ValueOf(u).Elem()
+	fmt.Printf("%#v\n",u)
+	val := reflect.Indirect(reflect.ValueOf(u))
+	fmt.Printf("%v\n",val)
 	v := make([]interface{}, val.NumField())
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
-		v[i] = valueField.Addr().Interface()
+		fmt.Printf("%v\n",valueField)
+		if valueField.CanAddr() {
+			v[i] = valueField.Addr().Interface()
+		} else {
+			v[i] = valueField
+		}
 	}
 	return v
 }
@@ -104,4 +113,22 @@ func withLockContext(fn func()) {
 	mu.Lock()
 	defer mu.Unlock()
 	fn()
+}
+
+func withRunTimeContext(closer func(), callback func(time.Duration)) {
+	// 记录开始时间
+	start := time.Now()
+	closer()
+	timeduration := time.Since(start)
+	//log.Println("执行完毕,用时:", timeduration.Seconds(),timeduration.Seconds()>1.1)
+	callback(timeduration)
+}
+
+func readFile(filepath string) *os.File {
+	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil && os.IsNotExist(err) {
+		_ = os.MkdirAll(path.Dir(filepath), os.ModePerm)
+		file, err = os.Create(filepath)
+	}
+	return file
 }

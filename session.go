@@ -7,13 +7,15 @@ import (
 	"github.com/gohouse/t"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type Session struct {
 	IEngin
 	IBinder
-	master       dbObject
-	slave        dbObject
+	master       *sql.DB
+	tx           *sql.Tx
+	slave        *sql.DB
 	lastInsertId int64
 	sqlLogs      []string
 	lastSql      string
@@ -30,8 +32,8 @@ func NewSession(e IEngin) ISession {
 	s.IEngin = e
 	//s.IBinder = b
 
-	s.master = s.IEngin.GetExecuteDB()
-	s.slave = s.IEngin.GetQueryDB()
+	s.master = e.GetExecuteDB()
+	s.slave = e.GetQueryDB()
 
 	return s
 }
@@ -41,22 +43,27 @@ func (s *Session) Close() {
 	s = nil
 }
 
-// GetMasterDriver 获取驱动
-func (s *Session) GetMasterDriver() string {
-	return s.master.driver
+// GetIEngin 获取engin
+func (s *Session) GetIEngin() IEngin {
+	return s.IEngin
 }
 
-// GetSlaveDriver 获取驱动
-func (s *Session) GetSlaveDriver() string {
-	return s.slave.driver
+// GetDriver 获取驱动
+func (s *Session) SetIEngin(ie IEngin) {
+	s.IEngin = ie
 }
+
+//// GetDriver 获取驱动
+//func (s *Session) GetDriver() string {
+//	return s.driver
+//}
 
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
 	//fmt.Println(tab, NewBinder(tab))
 	s.SetIBinder(NewBinder(tab))
-	s.err = s.IBinder.BindParse(s.IEngin.GetPrefix())
+	s.err = s.IBinder.BindParse(s.GetIEngin().GetPrefix())
 	return s
 }
 
@@ -75,47 +82,36 @@ func (s *Session) GetIBinder() IBinder {
 	return s.IBinder
 }
 
-//// GetBinder 获取绑定对象
-//func (s *Session) SetBinder() ISession {
-//	s.Bind(s.IBinder.GetBindOrigin())
-//	return s
-//}
-//// GetBinder 获取绑定对象
-//func (s *Session) ResetBinder() {
-//	var origin = s.IBinder.GetBindOrigin()
-//	s.IBinder = NewBinder(origin)
-//}
-
 // GetBinder 获取绑定对象
 func (s *Session) ResetBinderResult() {
-	_ = s.IBinder.BindParse(s.IEngin.GetPrefix())
+	_ = s.IBinder.BindParse(s.GetIEngin().GetPrefix())
 }
 
 // GetTableName 获取解析后的名字, 提供给orm使用
 // 为什么要在这里重复添加该方法, 而不是直接继承 IBinder 的方法呢?
 // 是因为, 这里涉及到表前缀的问题, 只能通过session来传递, 所以IOrm就可以选择直接继承
 func (s *Session) GetTableName() (string, error) {
-	//err := s.IBinder.BindParse(s.IEngin.GetPrefix())
+	//err := s.IBinder.BindParse(s.GetIEngin().GetPrefix())
 	//fmt.Println(s.GetIBinder())
 	return s.GetIBinder().GetBindName(), s.err
 }
 
 func (s *Session) Begin() (err error) {
-	s.master.tx, err = s.master.db.Begin()
+	s.tx, err = s.master.Begin()
 	s.SetTransaction(true)
 	return
 }
 
 func (s *Session) Rollback() (err error) {
-	err = s.master.tx.Rollback()
-	s.master.tx = nil
+	err = s.tx.Rollback()
+	s.tx = nil
 	s.SetTransaction(false)
 	return
 }
 
 func (s *Session) Commit() (err error) {
-	err = s.master.tx.Commit()
-	s.master.tx = nil
+	err = s.tx.Commit()
+	s.tx = nil
 	s.SetTransaction(false)
 	return
 }
@@ -123,12 +119,14 @@ func (s *Session) Commit() (err error) {
 func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 	err = s.Begin()
 	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
 		return err
 	}
 
 	for _, closer := range closers {
 		err = closer(s)
 		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
 			_ = s.Rollback()
 			return
 		}
@@ -136,90 +134,117 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 	return s.Commit()
 }
 
-func (s *Session) Query(sqlstring string, args ...interface{}) error {
-	//err := s.IBinder.BindParse(s.IEngin.GetPrefix())
-	if s.err != nil {
-		return s.err
-	}
-	// 记录sqlLog
-	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-	if s.IfEnableSqlLog() {
-		s.sqlLogs = append(s.sqlLogs, s.lastSql)
-	}
+func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
+	// 记录开始时间
+	start := time.Now()
+	//withRunTimeContext(func() {
+		if s.err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			err = s.err
+		}
+		// 记录sqlLog
+		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+		//if s.IfEnableSqlLog() {
+		//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
+		//}
 
-	stmt, err := s.slave.db.Prepare(sqlstring)
-	if err != nil {
-		return err
-	}
+		stmt, err := s.slave.Prepare(sqlstring)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 
-	defer stmt.Close()
-	rows, err := stmt.Query(args...)
-	if err != nil {
-		return err
-	}
+		defer stmt.Close()
+		rows, err := stmt.Query(args...)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 
-	// make sure we always close rows
-	defer rows.Close()
+		// make sure we always close rows
+		defer rows.Close()
 
-	return s.scan(rows)
+		err = s.scan(rows)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+	//}, func(duration time.Duration) {
+	//	//if duration.Seconds() > 1 {
+	//	//	s.GetIEngin().GetLogger().Slow(s.LastSql(), duration)
+	//	//} else {
+	//	//	s.GetIEngin().GetLogger().Sql(s.LastSql(), duration)
+	//	//}
+	//})
+
+	timeduration := time.Since(start)
+	//if timeduration.Seconds() > 1 {
+		s.GetIEngin().GetLogger().Slow(s.LastSql(), timeduration)
+	//} else {
+		s.GetIEngin().GetLogger().Sql(s.LastSql(), timeduration)
+	//}
+	return
 }
 
 func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected int64, err error) {
-	err = s.IBinder.BindParse(s.IEngin.GetPrefix())
-	if err != nil {
-		return
-	}
-	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-	// 记录sqlLog
-	if s.IfEnableSqlLog() {
-		s.sqlLogs = append(s.sqlLogs, s.lastSql)
-	}
-
-	var operType = strings.ToLower(sqlstring[0:6])
-	if operType == "select" {
-		return 0, errors.New("Execute does not allow select operations, please use Query")
-	}
-
-	var stmt *sql.Stmt
-	if s.master.tx == nil {
-		stmt, err = s.master.db.Prepare(sqlstring)
-	} else {
-		stmt, err = s.master.tx.Prepare(sqlstring)
-	}
-
-	if err != nil {
-		return 0, err
-	}
-	//return dba.parseExecute(stmt, operType, vals)
-
-	//var err error
-	defer stmt.Close()
-	result, errs := stmt.Exec(args...)
-	if errs != nil {
-		return 0, errs
-	}
-
-	if operType == "insert" {
-		// get last insert id
-		lastInsertId, err := result.LastInsertId()
-		if err == nil {
-			s.lastInsertId = lastInsertId
+	withRunTimeContext(func() {
+		err = s.GetIBinder().BindParse(s.GetIEngin().GetPrefix())
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
-	}
-	// get rows affected
-	rowsAffected, err = result.RowsAffected()
+		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+		//// 记录sqlLog
+		//if s.IfEnableSqlLog() {
+		//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
+		//}
 
-	//// 如果是事务, 则重置所有参数
-	//if dba.Strans == true {
-	//	dba.Reset("transaction")
-	//}
+		var operType = strings.ToLower(sqlstring[0:6])
+		if operType == "select" {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			err = errors.New("Execute does not allow select operations, please use Query")
+			return
+		}
 
-	//// 持久化日志
-	//if dba.Connection.Logger != nil {
-	//	dba.Connection.Logger.Write(dba.lastSql, time.Since(t_start).String(), time.Now().Format("2006-01-02 15:04:05"))
-	//}
+		var stmt *sql.Stmt
+		if s.tx == nil {
+			stmt, err = s.master.Prepare(sqlstring)
+		} else {
+			stmt, err = s.tx.Prepare(sqlstring)
+		}
 
-	return rowsAffected, err
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+
+		//var err error
+		defer stmt.Close()
+		result, err := stmt.Exec(args...)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+
+		if operType == "insert" {
+			// get last insert id
+			lastInsertId, err := result.LastInsertId()
+			if err == nil {
+				s.lastInsertId = lastInsertId
+			} else {
+				s.GetIEngin().GetLogger().Error(err.Error())
+			}
+		}
+		// get rows affected
+		rowsAffected, err = result.RowsAffected()
+	}, func(duration time.Duration) {
+		if duration.Seconds() > 1 {
+			s.GetIEngin().GetLogger().Slow(s.LastSql(), duration)
+		} else {
+			s.GetIEngin().GetLogger().Sql(s.LastSql(), duration)
+		}
+	})
+	return
 }
 func (s *Session) LastInsertId() int64 {
 	return s.lastInsertId
@@ -234,7 +259,7 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 	case OBJECT_STRING:
 		err = s.scanAll(rows)
 	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-		err = s.scanStructAll(rows, s.GetBindResultSlice())
+		err = s.scanStructAll(rows)
 	//case OBJECT_MAP, OBJECT_MAP_T:
 	//	err = s.scanMap(rows, s.GetBindResult())
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
@@ -344,21 +369,22 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 // It reads all rows and closes rows when finished.
 // dst should be a pointer to a slice of the appropriate type.
 // The new results will be appended to any existing data in dst.
-func (s *Session) scanStructAll(rows *sql.Rows, dst interface{}) error {
+func (s *Session) scanStructAll(rows *sql.Rows) error {
 	// check if there is data waiting
-	if !rows.Next() {
-		if err := rows.Err(); err != nil {
-			return err
-		}
-		return sql.ErrNoRows
-	}
+	//if !rows.Next() {
+	//	if err := rows.Err(); err != nil {
+	//		s.GetIEngin().GetLogger().Error(err.Error())
+	//		return err
+	//	}
+	//	return sql.ErrNoRows
+	//}
 	for rows.Next() {
 		// scan it
-		err := rows.Scan(strutForScan(s.GetBindResult().Interface())...)
+		err := rows.Scan(strutForScan(s.GetBindResult())...)
 		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
 			return err
 		}
-
 		// 如果是union操作就不需要绑定数据直接返回, 否则就绑定数据
 		if s.GetUnion() == nil {
 			// 如果是多条数据集, 就插入到对应的结果集slice上

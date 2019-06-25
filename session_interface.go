@@ -10,8 +10,8 @@ type ISession interface {
 	Transaction(closer ...func(session ISession) error) (err error)
 	Query(sqlstring string, args ...interface{}) error
 	Execute(sqlstring string, args ...interface{}) (int64, error)
-	GetMasterDriver() string
-	GetSlaveDriver() string
+	//GetDriver() string
+	GetIEngin() IEngin
 	LastInsertId() int64
 	LastSql() string
 	//SetIBinder(b IBinder)

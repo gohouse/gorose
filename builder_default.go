@@ -61,10 +61,12 @@ func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err er
 	//b.IOrm = o
 	join, err := b.BuildJoin()
 	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
 	where, err := b.BuildWhere()
 	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
 	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
@@ -86,6 +88,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 	if operType != "delete" {
 		if b.IOrm.GetData() == nil {
 			err = errors.New("insert,update请传入数据操作")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
 		update, insertkey, insertval = b.BuildData(operType)
@@ -93,6 +96,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 
 	where, err := b.BuildWhere()
 	if err != nil {
+		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
 
@@ -102,12 +106,14 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 	case "update":
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
 	case "delete":
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Delete())")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 			return
 		}
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
@@ -250,7 +256,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
 }
 
-func (b *BuilderDefault) BuildJoin() (string, error) {
+func (b *BuilderDefault) BuildJoin() (s string, err error) {
 	// 用户传入的join参数+join类型
 	var join []interface{}
 	var returnJoinArr []string
@@ -263,12 +269,16 @@ func (b *BuilderDefault) BuildJoin() (string, error) {
 		var args []interface{}
 
 		if len(join) != 2 {
-			return "", errors.New("join conditions are wrong")
+			err = errors.New("join conditions are wrong")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
 
 		// 获取真正的用户传入的join参数
 		if args, ok = join[1].([]interface{}); !ok {
-			return "", errors.New("join conditions are wrong")
+			err = errors.New("join conditions are wrong")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
 
 		argsLength := len(args)
@@ -280,7 +290,9 @@ func (b *BuilderDefault) BuildJoin() (string, error) {
 		case 4: // join表 + (a字段+关系+a字段)
 			w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 		default:
-			return "", errors.New("join format error")
+			err = errors.New("join format error")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
 
 		returnJoinArr = append(returnJoinArr, " "+join[0].(string)+" JOIN "+w)
@@ -404,6 +416,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				// 再解析一遍后来嵌套进去的where
 				wherenested, err := b.parseWhere(ormApi)
 				if err != nil {
+					b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
 					return "", err
 				}
 				// 嵌套的where放入一个括号内
@@ -431,7 +444,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
  * example: {"id",">",1}, {"age", 18}
  */
 // parseParams : 将where条件中的参数转换为where条件字符串
-func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (string, error) {
+func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string, err error) {
 	paramsLength := len(args)
 	argsReal := args
 
@@ -442,7 +455,9 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (string, e
 	case 3: // 常规3个参数:  {"id",">",1}
 		//if !inArray(argsReal[1], b.GetRegex()) {
 		if !inArray(argsReal[1], b.GetOperator()) {
-			return "", errors.New("where parameter is wrong")
+			err = errors.New("where parameter is wrong")
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
 
 		paramsToArr = append(paramsToArr, argsReal[0].(string))

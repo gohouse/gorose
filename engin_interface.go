@@ -1,13 +1,16 @@
 package gorose
 
+import "database/sql"
+
 type IEngin interface {
-	GetExecuteDB() dbObject
-	GetQueryDB() dbObject
-	EnableSqlLog(e ...bool)
-	IfEnableSqlLog() (e bool)
-	Prefix(pre string)
+	GetExecuteDB() *sql.DB
+	GetQueryDB() *sql.DB
+	//EnableSqlLog(e ...bool)
+	//IfEnableSqlLog() (e bool)
+	//SetPrefix(pre string)
 	GetPrefix() (pre string)
-	NewSession() ISession
-	NewOrm() IOrm
 	//NewSession() ISession
+	//NewOrm() IOrm
+	GetLogger() ILogger
+	GetDriver() string
 }

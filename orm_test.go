@@ -17,7 +17,7 @@ func TestNewOrm(t *testing.T) {
 }
 func TestOrm_AddFields(t *testing.T) {
 	orm := initOrm()
-	var u = User{}
+	var u = Users{}
 	var fieldStmt = orm.Table(&u).Fields("a").Where("m", 55)
 	a, b, c := fieldStmt.AddFields("b").Where("d", 1).BuildSql()
 	fmt.Println(a, b, c)
@@ -125,31 +125,4 @@ func TestOrm_Loop(t *testing.T) {
 		return nil
 	})
 	fmt.Println(err)
-}
-
-func TestOrm_Update(t *testing.T) {
-	db := DB()
-
-	var u = Users{
-		Name: "gorose2",
-		Age:  19,
-	}
-
-	aff, err := db.Force().Data(u).Update()
-	fmt.Println(aff, err)
-	fmt.Println(db.LastSql())
-}
-
-func TestOrm_Get2(t *testing.T) {
-	db := initOrm()
-	var u = Users{}
-	var err error
-
-	err = db.Table(&u).Limit(1).Select()
-	fmt.Println(err, u, db.LastSql())
-
-	res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
-	fmt.Println(err, res, db.LastSql())
-
-	fmt.Println(u)
 }

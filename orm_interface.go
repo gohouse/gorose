@@ -47,5 +47,5 @@ type IOrm interface {
 	//Transaction(closers ...func(db IOrm) error) (err error)
 	Reset() IOrm
 	ResetWhere() IOrm
-	//GetBindName() string
+	GetISession() ISession
 }
