@@ -263,7 +263,7 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 	//case OBJECT_MAP, OBJECT_MAP_T:
 	//	err = s.scanMap(rows, s.GetBindResult())
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
-		err = s.scanMapAll(rows, s.GetBindResultSlice())
+		err = s.scanMapAll(rows)
 	default:
 		err = errors.New("Bind value error")
 	}
@@ -274,7 +274,7 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 //	return s.scanMapAll(rows, dst)
 //}
 
-func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
+func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 	var columns []string
 	// 获取查询的所有字段
 	if columns, err = rows.Columns(); err != nil {
@@ -293,7 +293,8 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 		_ = rows.Scan(scanArgs...)
 
 		// 定义预设的绑定对象
-		var bindResultTmp = reflect.MakeMap(s.GetBindResult().Type())
+		//fmt.Println(reflect.TypeOf(s.GetBindResult()).Kind())
+		var bindResultTmp = reflect.MakeMap(reflect.Indirect(reflect.ValueOf(s.GetBindResult())).Type())
 		//// 定义union操作的map返回
 		//var unionTmp = map[string]interface{}{}
 		for i, col := range columns {
@@ -316,16 +317,17 @@ func (s *Session) scanMapAll(rows *sql.Rows, dst interface{}) (err error) {
 				//unionTmp[col] = v
 				//s.union = unionTmp
 			} else {
+				br := reflect.Indirect(reflect.ValueOf(s.GetBindResult()))
 				switch s.GetBindType() {
 				case OBJECT_MAP_T, OBJECT_MAP_SLICE_T: // t.T类型
 					// 绑定到一条数据结果对象上,方便其他地方的调用,永远存储最新一条
-					s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
+					br.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
 					// 跟上一行干的事是一样的, 只不过防止上一行的数据被后续的数据改变, 而无法提供给下边多条数据报错的需要
 					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
 						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(t.New(v)))
 					}
 				default: // 普通类型map[string]interface{}, 具体代码注释参照 上一个 case
-					s.GetBindResult().SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
+					br.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
 					if s.GetBindType() == OBJECT_MAP_SLICE || s.GetBindType() == OBJECT_MAP_SLICE_T {
 						bindResultTmp.SetMapIndex(reflect.ValueOf(col), reflect.ValueOf(v))
 					}
@@ -390,7 +392,8 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 			// 如果是多条数据集, 就插入到对应的结果集slice上
 			if s.GetBindType() == OBJECT_STRUCT_SLICE {
 				// add to the result slice
-				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(), s.GetBindResult().Elem()))
+				s.GetBindResultSlice().Set(reflect.Append(s.GetBindResultSlice(),
+					reflect.Indirect(reflect.ValueOf(s.GetBindResult()))))
 			}
 		}
 	}

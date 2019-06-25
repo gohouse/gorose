@@ -3,20 +3,9 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/t"
 	"testing"
 )
 
-type Users struct {
-	Uid  int    `gorose:"uid"`
-	Name string `gorose:"name"`
-	Age  int    `gorose:"age"`
-	//Fi   string `gorose:"ignore"`
-}
-
-func (u *Users) TableName() string {
-	return "users"
-}
 
 func initSession() ISession {
 	return initDB().NewSession()
@@ -76,18 +65,6 @@ func TestSession_Query_struct(t *testing.T) {
 
 //type UserMap map[string]interface{}
 
-type aaa t.MapString
-
-func (u *aaa) TableName() string {
-	return "users"
-}
-
-//type bbb MapRows
-type bbb []t.MapString
-
-func (u *bbb) TableName() string {
-	return "users"
-}
 
 func TestSession_Query_map(t *testing.T) {
 	var s = initSession()

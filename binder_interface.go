@@ -7,8 +7,8 @@ type IBinder interface {
 	GetBindOrigin() interface{}
 	SetBindName(arg string)
 	GetBindName() string
-	SetBindResult(arg reflect.Value)
-	GetBindResult() reflect.Value
+	SetBindResult(arg interface{})
+	GetBindResult() interface{}
 	SetBindResultSlice(arg reflect.Value)
 	GetBindResultSlice() reflect.Value
 	SetBindFields(arg []string)

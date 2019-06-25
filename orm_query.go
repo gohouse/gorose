@@ -115,14 +115,14 @@ func (dba *Orm) Value(field string) (v t.T, err error) {
 	if err != nil {
 		return
 	}
-	var binder = dba.GetISession().GetIBinder()
-	switch binder.GetBindType() {
-	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
-		v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
-	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-		bindResult := reflect.Indirect(binder.GetBindResult())
-		v = dba._valueFromStruct(bindResult, field)
-	}
+	//var binder = dba.GetISession().GetIBinder()
+	//switch binder.GetBindType() {
+	//case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
+	//	v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
+	//case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
+	//	bindResult := reflect.Indirect(binder.GetBindResult())
+	//	v = dba._valueFromStruct(bindResult, field)
+	//}
 	return
 }
 func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T) {

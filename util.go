@@ -19,13 +19,10 @@ func getRandomInt(num int) int {
 }
 
 func strutForScan(u interface{}) []interface{} {
-	fmt.Printf("%#v\n",u)
 	val := reflect.Indirect(reflect.ValueOf(u))
-	fmt.Printf("%v\n",val)
 	v := make([]interface{}, val.NumField())
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
-		fmt.Printf("%v\n",valueField)
 		if valueField.CanAddr() {
 			v[i] = valueField.Addr().Interface()
 		} else {

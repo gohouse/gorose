@@ -3,6 +3,7 @@ package gorose
 import (
 	"fmt"
 	"github.com/gohouse/gocar/varBindValue"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -25,7 +26,8 @@ func TestIf(t *testing.T) {
 
 func TestStructToMap2(t *testing.T) {
 	var u Users
-	res := strutForScan(&u)
+	//res := strutForScan(&u)
+	res := strutForScan(reflect.ValueOf(&u).Interface())
 	fmt.Printf("%#v\n",res)
 	for _,item:=range res {
 		varBindValue.BindVal(item,1234)
