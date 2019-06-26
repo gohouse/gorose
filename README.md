@@ -1,6 +1,6 @@
 ## 简介
 gorose是一个golang orm框架, 借鉴自laravel的eloquent. 
-gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依赖下层.每一个模块都可以拆卸, 甚至自定义为自己喜欢的样子.  
+gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依赖下层.每一个模块都可以拆卸, 甚至可以自定义为自己喜欢的样子.  
 模块关系图如下:  ![gorose-2.0-design](https://i.loli.net/2019/06/19/5d0a1273f12ef86624.jpg)
 
 ## 安装
@@ -174,6 +174,7 @@ INSERT INTO "users" VALUES (1, 'gorose', 18);
 INSERT INTO "users" VALUES (2, 'goroom', 18);
 INSERT INTO "users" VALUES (3, 'fizzday', 18);
 ```
+实战代码
 ```go
 package main
 
