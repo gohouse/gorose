@@ -12,7 +12,8 @@ go mod tidy
 
 ## 文档
 [最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835)  
-[1.x文档](https://www.kancloud.cn/fizz/gorose/769179)
+[1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
+[0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
 ## api预览
 ```go
