@@ -1,3 +1,19 @@
+# GoRose ORM
+[![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
+[![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
+<a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
+<img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
+
+```
+  _______   ______   .______        ______        _______. _______ 
+ /  _____| /  __  \  |   _  \      /  __  \      /       ||   ____|
+|  |  __  |  |  |  | |  |_)  |    |  |  |  |    |   (----`|  |__   
+|  | |_ | |  |  |  | |      /     |  |  |  |     \   \    |   __|  
+|  |__| | |  `--'  | |  |\  \----.|  `--'  | .----)   |   |  |____ 
+ \______|  \______/  | _| `._____| \______/  |_______/    |_______|
+```
+
 ## 简介
 gorose是一个golang orm框架, 借鉴自laravel的eloquent. 
 gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依赖下层.每一个模块都可以拆卸, 甚至可以自定义为自己喜欢的样子.  
