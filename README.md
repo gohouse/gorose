@@ -10,6 +10,10 @@ cd github.com/gohouse/gorose
 go mod tidy
 ```
 
+## 文档
+[最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835)  
+[1.x文档](https://www.kancloud.cn/fizz/gorose/769179)
+
 ## api预览
 ```go
 db.Table().Fields().Where().GroupBy().Having().OrderBy.Limit().Select()
