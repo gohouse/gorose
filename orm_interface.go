@@ -24,13 +24,26 @@ type IOrm interface {
 	Limit(limit int) IOrm
 	Offset(offset int) IOrm
 	Page(page int) IOrm
-	Where(args ...interface{}) IOrm
-	OrWhere(args ...interface{}) IOrm
 	// join(=innerJoin),leftJoin,rightJoin,crossJoin
 	Join(args ...interface{}) IOrm
 	LeftJoin(args ...interface{}) IOrm
 	RightJoin(args ...interface{}) IOrm
 	CrossJoin(args ...interface{}) IOrm
+	// `Where`,`OrWhere`,`WhereNull / WhereNotNull`,`WhereIn / WhereNotIn / OrWhereIn / OrWhereNotIn`,`WhereBetween / WhereBetwee / OrWhereBetween / OrWhereNotBetween`
+	Where(args ...interface{}) IOrm
+	OrWhere(args ...interface{}) IOrm
+	WhereNull(arg string) IOrm
+	OrWhereNull(arg string) IOrm
+	WhereNotNull(arg string) IOrm
+	OrWhereNotNull(arg string) IOrm
+	WhereIn(needle string, hystack []interface{}) IOrm
+	OrWhereIn(needle string, hystack []interface{}) IOrm
+	WhereNotIn(needle string, hystack []interface{}) IOrm
+	OrWhereNotIn(needle string, hystack []interface{}) IOrm
+	WhereBetween(needle string, hystack []interface{}) IOrm
+	OrWhereBetween(needle string, hystack []interface{}) IOrm
+	WhereNotBetween(needle string, hystack []interface{}) IOrm
+	OrWhereNotBetween(needle string, hystack []interface{}) IOrm
 	//// truncate
 	//Truncate()
 	//// 悲观锁使用

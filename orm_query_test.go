@@ -81,9 +81,15 @@ func TestOrm_Get(t *testing.T) {
 
 	var u = UsersMap{}
 	ormObj := orm.Table(&u).Join("b", "a.id", "=", "b.id").
-		Fields("uid,age").
+		RightJoin("userinfo d on a.id=d.id").
+		Fields("a.uid,a.age").
 		Order("uid desc").
 		Where("a", 1).
+		WhereNull("bb").
+		WhereNotNull("cc").
+		WhereIn("dd", []interface{}{1, 2}).
+		OrWhereNotIn("ee", []interface{}{1, 2}).
+		WhereNotBetween("ff", []interface{}{1, 2}).
 		OrWhere(func() {
 			orm.Where("c", 3).OrWhere(func() {
 				orm.Where("d", ">", 4)

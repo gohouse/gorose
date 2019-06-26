@@ -469,7 +469,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 			b.IOrm.SetBindValues(argsReal[2])
 		case "in", "not in":
 			var tmp []string
-			var ar2 = t.New(argsReal[2]).MapString()
+			var ar2 = t.New(argsReal[2]).Slice()
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
 				b.IOrm.SetBindValues(t.New(item).Interface())

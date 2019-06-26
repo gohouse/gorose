@@ -163,6 +163,54 @@ func (dba *Orm) OrWhere(args ...interface{}) IOrm {
 	return dba
 }
 
+func (dba *Orm) WhereNull(arg string) IOrm {
+	return dba.Where(arg + " IS NULL")
+}
+
+func (dba *Orm) OrWhereNull(arg string) IOrm {
+	return dba.OrWhere(arg + " IS NULL")
+}
+
+func (dba *Orm) WhereNotNull(arg string) IOrm {
+	return dba.Where(arg + " IS NOT NULL")
+}
+
+func (dba *Orm) OrWhereNotNull(arg string) IOrm {
+	return dba.OrWhere(arg + " IS NOT NULL")
+}
+
+func (dba *Orm) WhereIn(needle string, hystack []interface{}) IOrm {
+	return dba.Where(needle, "IN", hystack)
+}
+
+func (dba *Orm) OrWhereIn(needle string, hystack []interface{}) IOrm {
+	return dba.OrWhere(needle, "IN", hystack)
+}
+
+func (dba *Orm) WhereNotIn(needle string, hystack []interface{}) IOrm {
+	return dba.Where(needle, "NOT IN", hystack)
+}
+
+func (dba *Orm) OrWhereNotIn(needle string, hystack []interface{}) IOrm {
+	return dba.OrWhere(needle, "NOT IN", hystack)
+}
+
+func (dba *Orm) WhereBetween(needle string, hystack []interface{}) IOrm {
+	return dba.Where(needle, "BETWEEN", hystack)
+}
+
+func (dba *Orm) OrWhereBetween(needle string, hystack []interface{}) IOrm {
+	return dba.OrWhere(needle, "BETWEEN", hystack)
+}
+
+func (dba *Orm) WhereNotBetween(needle string, hystack []interface{}) IOrm {
+	return dba.Where(needle, "NOT BETWEEN", hystack)
+}
+
+func (dba *Orm) OrWhereNotBetween(needle string, hystack []interface{}) IOrm {
+	return dba.OrWhere(needle, "NOT BETWEEN", hystack)
+}
+
 // Join : select join query
 func (dba *Orm) Join(args ...interface{}) IOrm {
 	dba._joinBuilder("INNER", args)
