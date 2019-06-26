@@ -1,211 +1,285 @@
-# GoRose ORM
-[![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
-[![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
-<a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
-<img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
+## 简介
+gorose是一个golang orm框架, 借鉴自laravel的eloquent. 
+gorose 2.0 才用模块化结构, 通过interface的api通信,严格的上层依赖下层.每一个模块都可以拆卸, 甚至自定义为自己喜欢的样子.  
+模块关系图如下:  ![gorose-2.0-design](https://i.loli.net/2019/06/19/5d0a1273f12ef86624.jpg)
 
+## 安装
+```bash
+go get github.com/gohouse/gorose
+cd github.com/gohouse/gorose
+go mod tidy
 ```
-  _______   ______   .______        ______        _______. _______ 
- /  _____| /  __  \  |   _  \      /  __  \      /       ||   ____|
-|  |  __  |  |  |  | |  |_)  |    |  |  |  |    |   (----`|  |__   
-|  | |_ | |  |  |  | |      /     |  |  |  |     \   \    |   __|  
-|  |__| | |  `--'  | |  |\  \----.|  `--'  | .----)   |   |  |____ 
- \______|  \______/  | _| `._____| \______/  |_______/    |_______|
-```
-### [中文-readme](https://github.com/gohouse/gorose/blob/master/README_zh-cn.md) | [english-readme](https://github.com/gohouse/gorose/blob/master/README.md)
 
-### What is GoRose?
-
-GoRose, a mini database ORM for golang, which inspired by the famous php framwork laravel's eloquent. It will be friendly for php developers and python or ruby developers.  
-Currently provides five major database drivers:   
-- **mysql** : <https://github.com/go-sql-driver/mysql>  
-- **sqlite3** : <https://github.com/mattn/go-sqlite3>  
-- **postgres** : <https://github.com/lib/pq>  
-- **oracle** : <https://github.com/mattn/go-oci8>  
-- **mssql** : <https://github.com/denisenkom/go-mssqldb>  
-- **clickhouse** : <https://github.com/kshvakov/clickhouse>  
-
-### 1.0.0 update notes
-- struct support  
-- seperation of write & read cluster  
-- New architecture  
-
-
-### Documentation
-
-[latest document](https://www.kancloud.cn/fizz/gorose) | [最新中文文档](https://www.kancloud.cn/fizz/gorose)  
-[0.x version english document](https://gohouse.github.io/gorose/dist/en/index.html) | [0.x版本中文文档](https://gohouse.github.io/gorose/dist/zh-cn/index.html)  
-[github](https://github.com/gohouse/gorose)  
-
-### Quick Preview
-
+## api预览
 ```go
-type users struct {
-	Name string
-	Age int `orm:"age"`
+db.Table().Fields().Where().GroupBy().Having().OrderBy.Limit().Select()
+db.Table().Data().Insert()
+db.Table().Data().Where().Update()
+db.Table().Where().Delete()
+```
+
+## 使用建议
+gorose提供数据对象绑定(map, struct), 同时支持字符串表名和map数据返回. 提供了很大的灵活性  
+建议优先采用数据绑定的方式来完成查询操作, 做到数据源类型可控  
+gorose提供了默认的 Map和Data类型, 用来方便初始化绑定和data
+
+## 配置和链接初始化
+简单配置
+```go
+var configSimple = &gorose.Config{
+	Driver: "sqlite3", 
+	Dsn: "./db.sqlite",
 }
-
-// select * from users where id=1 limit 1
-var user users      // a row data
-var users []users   // several rows
-// use struct
-db.Table(&user).Select()
-db.Table(&users).Where("id",1).Limit(10).Select()
-// use string instead of struct
-db.Table("users").Where("id",1).First()
-
-// select id as uid,name,age from users where id=1 order by id desc limit 10
-db.Table(&user).Where("id",1).Fields("id as uid,name,age").Order("id desc").Limit(10).Get()
-
-// query string
-db.Query("select * from user limit 10")
-db.Execute("update users set name='fizzday' where id=?", 1)
 ```
-
-### Features
-
-- Chain Operation
-- Connection Pool
-- struct/string compatible
-- read/write separation cluster
-- process a lot of data into slices  
-- transaction easily  
-- friendly for extended (extend more builders or config parsers)  
-
-### Installation
-
-- standard:  
+更多配置, 可以配置集群,甚至可以同时配置不同数据库在一个集群中, 数据库会随机选择集群的数据库来完成对应的读写操作, 其中master是写库, slave是读库, 需要自己做好主从复制, 这里只负责读写
 ```go
-go get -u github.com/gohouse/gorose
+var config = &gorose.ConfigCluster{
+	Master:       []&gorose.Config{}{configSimple}
+    Slave:        []&gorose.Config{}{configSimple}
+    Prefix:       "pre_",
+    Driver:       "sqlite3",
+}
+```
+初始化使用
+```go
+var engin *gorose.Engin
+engin, err := Open(config)
+
+if err != nil {
+    panic(err.Error())
+}
 ```
 
-### Base Usage
+## 原生sql操作(增删改查), session的使用
+创建用户表 `users`
+```sql
+CREATE TABLE IF NOT EXISTS "users" (
+	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	 "name" TEXT NOT NULL,
+	 "age" integer NOT NULL
+)
+```
+定义表struct
+```go
+type Users struct {
+	Uid  int    `gorose:"uid"`
+	Name string `gorose:"name"`
+	Age  int    `gorose:"age"`
+}
+// 设置表名, 如果没有设置, 默认使用struct的名字
+func (u *Users) TableName() string {
+	return "users"
+}
+```
+原生查询操作
+```go
+var u Users
+session := engin.NewSession()
+err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
+fmt.Println(err)
+fmt.Println(u)
+fmt.Println(session.LastSql())
+```
+原生增删改操作
+```go
+session.Bind(&u).Query("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
+session.Bind(&u).Query("update users set name=? where uid=?","gorose",1)
+session.Bind(&u).Query("delete from users where uid=?", 1)
+```
+## 对象关系映射, orm的使用
+- 1. 基本链式使用
+```go
+var u Users
+db := engin.NewOrm()
+err := db.Table(&u).Fields("name").AddFields("uid","age").Distinct().Where("uid",">",0).OrWhere("age",18).
+	Group("age").Having("age>1").OrderBy("uid desc").Limit(10).Offset(1).Select()
+```
+- 2. 如果不想定义struct, 又想绑定指定类型的map结果, 则可以定义map类型, 如
+```go
+type user gorose.Map
+// 或者 以下的type定义, 都是可以正常解析的
+type user2 map[string]interface{}
+type users3 []user
+type users4 []map[string]string
+type users5 []gorose.Map
+type users6 []gorose.Data
+```
+- 2.1 开始使用map绑定
+```go
+db.Table(&user).Select()
+db.Table(&users4).Limit(5).Select()
+```
+> 注意: 如果使用的不是slice数据结构, 则只能获取到一条数据  
+
+---
+这里使用的 gorose.Data , 实际上就是 `map[string]interface{}` 类型.  
+而 `gorose.Map`, 实际上是 `t.MapString` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/t
+
+- 3. laravel的`First()`,`Get()`, 用来返回结果集  
+也就是说, 你甚至可以不用传入各种绑定的struct和map, 直接传入表名, 返回两个参数, 一个是 `[]gorose.Map`结果集, 第二个是`error`,看成简单粗暴  
+用法就是把上边的 `Select()` 方法换成 Get,First 即可, 只不过, `Select()` 只返回一个参数  
+
+- 4. orm的增删改查  
+```go
+db.Table(&user2).Limit(10.Select()
+db.Table(&user2).Where("uid", 1).Data(gorose.Data{"name","gorose"}).Update()
+db.Table(&user2).Data(gorose.Data{"name","gorose33"}).Insert()
+db.Table(&user2).Data([]gorose.Data{{"name","gorose33"},"name","gorose44"}).Insert()
+db.Table(&user2).Where("uid", 1).Delete()
+```
+
+## 最终sql构造器, builder构造不同数据库的sql
+目前支持 mysql, sqlite3, postgres, oracle, mssql, clickhouse等符合 `database/sql` 接口支持的数据库驱动  
+这一部分, 用户基本无感知, 分理出来, 主要是为了开发者可以自由添加和修改相关驱动以达到个性化的需求  
+
+## binder, 数据绑定对象  
+这一部分也是用户无感知的, 主要是传入的绑定对象解析和数据绑定, 同样是为了开发者个性化定制而独立出来的
+
+## 模块化
+gorose2.0 完全模块化, 每一个模块都封装了interface接口api, 模块间调用, 都是通过接口, 上层依赖下层
+
+- 主模块
+    - engin  
+    gorose 初始化配置模块, 可以全局保存并复用
+    - session  
+    真正操作数据库底层模块, 所有的操作, 最终都会走到这里来获取或修改数据  
+    - orm  
+    对象关系映射模块, 所有的orm操作, 都在这里完成  
+    - builder  
+    构建终极执行的sql模块, 可以构建任何数据库的sql, 但要符合`database/sql`包的接口  
+- 子模块
+    - driver  
+    数据库驱动模块, 被engin和builder依赖, 根据驱动来搞事情  
+    - binder  
+    结果集绑定模块, 所有的返回结果集都在这里  
+
+以上主模块, 都相对独立, 可以个性化定制和替换, 只要实现相应模块的接口即可.  
+
+## 最佳实践
+sql
+```
+DROP TABLE IF EXISTS "users";
+CREATE TABLE "users" (
+	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	 "name" TEXT NOT NULL,
+	 "age" integer NOT NULL
+);
+
+INSERT INTO "users" VALUES (1, 'gorose', 18);
+INSERT INTO "users" VALUES (2, 'goroom', 18);
+INSERT INTO "users" VALUES (3, 'fizzday', 18);
+```
 ```go
 package main
 
 import (
-	"github.com/gohouse/gorose"
-	_ "github.com/gohouse/gorose/driver/mysql"
 	"fmt"
+	"github.com/gohouse/gorose"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Users struct {
-	Name string
-	Age  int `orm:"age"`
+    Uid int64 `gorose:"uid"`
+    Name string `gorose:"name"`
+    Age int64 `gorose:"age"`
+    Xxx interface{} `gorose:"ignore"` // 这个字段在orm中会忽略
 }
 
-// DB Config.(Recommend to use configuration file to import)
-var dbConfig = &gorose.DbConfigSingle{
-    Driver:          "mysql", // driver: mysql/sqlite/oracle/mssql/postgres
-    EnableQueryLog:  true,    // if enable sql logs
-    SetMaxOpenConns: 0,       // connection pool of max Open connections, default zero
-    SetMaxIdleConns: 0,       // connection pool of max sleep connections
-    Prefix:          "",      // prefix of table
-    Dsn:             "root:root@tcp(localhost:3306)/test?charset=utf8", // db dsn
+func (u *Users) TableName() string {
+	return "users"
 }
 
+var err error
+var engin *gorose.Engin
+
+func init() {
+    // 全局初始化数据库,并复用
+    // 这里的engin需要全局保存,可以用全局变量,也可以用单例
+    // 配置&gorose.Config{}是单一数据库配置
+    // 如果配置读写分离集群,则使用&gorose.ConfigCluster{}
+	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
+}
+func DB() gorose.IOrm {
+	return engin.NewOrm()
+}
 func main() {
-	connection, err := gorose.Open(dbConfig)
-	if err != nil {
+	// 这里定义一个变量db, 是为了复用db对象, 可以在最后使用 db.LastSql() 获取最后执行的sql
+	// 如果不复用 db, 而是直接使用 DB(), 则会新建一个orm对象, 每一次都是全新的对象
+	// 所以复用 db, 一定要在当前会话周期内
+	db := DB()
+	// 这里的对象是map, 所以需要初始化(var u = user{}), 不能像struct那样, 可以直接 `var u Users`
+	var u = Users{}
+	var count int64
+	// 统计数据
+	count,err = db.Table(&u).Fields("uid,name,age").Where("age",">",0).OrderBy("uid desc").Limit(10).Offset(1).Count()
+	if err!=nil {
 		fmt.Println(err)
-		return
 	}
-	// start a new session
-	session := connection.NewSession()
-	// get a row of data
-	var user Users
-	err2 := session.Table(&user).Select()
-	if err2 != nil {
-		fmt.Println(err2)
-		return
-	}
-	fmt.Println(session.LastSql)
-	fmt.Println(user)
+	// 查询数据并绑定到 user{} 上, 这里复用了 db 及上下文条件参数
+	// 如果不想复用,则可以使用DB()就会开启全新会话,或者使用db.Reset()
+	// db.Reset()只会清除上下文参数干扰,不回更换链接,DB()则会更换链接
+	err = db.Select()
 	
-	// get several rows of data
-	var users []Users
-	// use connection derictly instead of NewSession()
-	err3 := connection.Table(&users).Limit(3).Select()
-	if err3 != nil {
-		fmt.Println(err3)
-		return
-	}
-	fmt.Println(users)
+	fmt.Println(count)
+	fmt.Println(u, u.Name.String())
+	fmt.Println(db.LastSql())
 }
 ```
 
-For more usage, please read the Documentation.
+## 高级用法
+- 嵌套where  
+Chunk 数据分片 大量数据批量处理 (累积处理)  
+   ` 当需要操作大量数据的时候, 一次性取出再操作, 不太合理, 就可以使用chunk方法  
+        chunk的第一个参数是指定一次操作的数据量, 根据业务量, 取100条或者1000条都可以  
+        chunk的第二个参数是一个回调方法, 用于书写正常的数据处理逻辑  
+        目的是做到, 无感知处理大量数据  
+        实现原理是, 每一次操作, 自动记录当前的操作位置, 下一次重复取数据的时候, 从当前位置开始取
+        `
+```
+	User := db.Table("users")
+    User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+        // for _,item := range data {
+        // 	   fmt.Println(item)
+        // }
+        fmt.Println(data)
+    })
 
-### Contribution
-
-- [Issues](https://github.com/gohouse/gorose/issues)
-- [Pull requests](https://github.com/gohouse/gorose/pulls)
-
-### Contributors
-
-- `fizzday` : Initiator  
-- `wuyumin` : pursuing the open source standard  
-- `holdno`  : official website builder  
-- `LazyNeo` : bug fix and improve source code  
-- `dmhome`  : improve source code 
-
-### version plan
-- struct support in insert, update  
-
-- move transaction to connection  
-
-- auto add or edit  
-
-- wherenested improve  
-
-- binary support (use origin values bind)  
- 
-### release notes
-
-> v1.0.4
-
-- add middleware support, add logger cors
-
-> v1.0.3
-
-- add version get by const: gorose.VERSION
-
-> v1.0.2
-
-- improve go mod's bug
-
-> 1.0.0
-
-- New architecture, struct support, seperation of write & read cluster  
-
-> 0.9.2  
-
-- new connection pack for supporting multi connection
-
-> 0.9.1  
-
-- replace the insert result lastInsertId with rowsAffected as default
-
-> 0.9.0  
-
-- new seperate db instance
-
-> 0.8.2  
-
-- improve config format, new config format support file config like json/toml etc.
-
-> 0.8.1
-
-- improve multi connection and nulti transation
-
-> 0.8.0  
-
-- add connection pool  
-- adjust dir for open source standard  
-- add glide version control  
-- translate for english and chinese docment  
-
-### License
-
-MIT
+    // 打印结果:  
+    // map[id:3 name:gorose]
+    // map[id:4 name:fizzday]
+    // map[id:5 name:fizz3]
+    // map[id:6 name:gohouse]
+    [map[id:3 name:gorose] map[name:fizzday id:4]]
+    [map[id:5 name:fizz3] map[id:6 name:gohouse]]
+```
+Loop 数据分片 大量数据批量处理 (从头处理)  
+   ` 类似 chunk 方法, 实现原理是, 每一次操作, 都是从头开始取数据
+   原因: 当我们更改数据时, 更改的结果可能作为where条件会影响我们取数据的结果,所以, 可以使用Loop`
+```
+	User := db.Table("users")
+    User.Fields("id, name").Where("id",">",2).Loop(2, func(data []map[string]interface{}) {
+        // for _,item := range data {
+        // 	   fmt.Println(item)
+        // }
+        // 这里执行update / delete  等操作
+    })
+```
+嵌套where
+```
+// SELECT  * FROM users  
+//     WHERE  id > 1 
+//         and ( name = 'fizz' 
+//             or ( name = 'fizz2' 
+//                 and ( name = 'fizz3' or website like 'fizzday%')
+//                 )
+//             ) 
+//     and job = 'it' LIMIT 1
+User := db.Table("users")
+User.Where("id", ">", 1).Where(func() {
+		User.Where("name", "fizz").OrWhere(func() {
+			User.Where("name", "fizz2").Where(func() {
+				User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+			})
+		})
+	}).Where("job", "it").First()
+```

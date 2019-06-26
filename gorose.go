@@ -1,5 +1,6 @@
 package gorose
 
+const TAGNAME = "gorose"
 const GOROSE_IMG = `
                                                                             
   ,ad8888ba,                88888888ba                                      
@@ -19,29 +20,17 @@ const (
 	VERSION      = VERSION_TEXT + VERSION_NO + GOROSE_IMG
 )
 
-// Open 链接数据库入口, 传入配置
-// args 接收一个或2个参数, 一个参数时:struct配置文件(across.DbConfigCluster{})
-//		两个参数时: 第一个是驱动或文件类型, 第二个是dsn或文件路径
-func Open(args ...interface{}) (*Connection, error) {
-	var c = NewConnection()
-	var err error
-
-	// 解析配置获取参数并保存
-	c.DbConfig, err = c.parseOpenArgs(args...)
-
+func Open(conf ...interface{}) (engin *Engin, err error) {
+	// 驱动engin
+	engin, err = NewEngin(conf...)
 	if err != nil {
-		return c, err
+		if engin.GetLogger().EnableErrorLog() {
+			engin.GetLogger().Error(err.Error())
+		}
+		return
 	}
 
-	// 驱动数据库获取链接并保存
-	err = c.bootDbs(c.DbConfig)
-	return c, err
-}
-
-func NewConnection() *Connection {
-	return &Connection{}
-}
-
-func NewOrm() *Session {
-	return new(Session)
+	// 使用默认的log, 如果自定义了logger, 则只需要调用 Use() 方法即可覆盖
+	engin.Use(DefaultLogger())
+	return
 }

@@ -1,0 +1,179 @@
+package gorose
+
+import (
+	"testing"
+)
+
+func TestOrm_First(t *testing.T) {
+	db := DB()
+	var u = Users{}
+	res, err := db.Table(&u).Get()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res)
+	err = db.Table(&u).Limit(2).Select()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(u)
+}
+
+func TestOrm_Select(t *testing.T) {
+	db := DB()
+	var err error
+
+	var u = []Users{}
+	err = db.Table(&u).Limit(2).Select()
+	t.Log(err, u, db.LastSql())
+
+	var u2 = Users{}
+	err = db.Table(&u2).Limit(1).Select()
+	t.Log(err, u2, db.LastSql())
+
+	var u3 Users
+	err = db.Table(&u3).Limit(1).Select()
+	t.Log(err, u3, db.LastSql())
+
+	var u4 []Users
+	err = db.Table(&u4).Limit(2).Select()
+	t.Log(err, u4, db.LastSql())
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(u, u2, u3, u4)
+}
+
+func TestOrm_Select2(t *testing.T) {
+	db := DB()
+	var err error
+
+	var u = UsersMap{}
+	err = db.Table(&u).Limit(2).Select()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(u)
+
+	var u3 = UsersMapSlice{}
+	err = db.Table(&u3).Limit(1).Select()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(u)
+}
+
+func TestOrm_Get2(t *testing.T) {
+	db := DB()
+	var err error
+	var u = []Users{}
+
+	//res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
+	res, err := db.Table(&u).Where("uid", ">", 2).Limit(2).Get()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res, u)
+}
+
+func TestOrm_Get(t *testing.T) {
+	orm := DB()
+
+	var u = UsersMap{}
+	ormObj := orm.Table(&u).Join("b", "a.id", "=", "b.id").
+		Fields("uid,age").
+		Order("uid desc").
+		Where("a", 1).
+		OrWhere(func() {
+			orm.Where("c", 3).OrWhere(func() {
+				orm.Where("d", ">", 4)
+			})
+		}).Where("e", 5).
+		Limit(5).Offset(2)
+	s, a, err := ormObj.BuildSql()
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(s, a, u)
+}
+
+func TestOrm_Pluck(t *testing.T) {
+	orm := DB()
+
+	//var u = UsersMap{}
+	var u = UsersMapSlice{}
+	//var u Users
+	//var u []Users
+	ormObj := orm.Table(&u)
+	//res,err := ormObj.Pluck("name", "uid")
+	res, err := ormObj.Pluck("name")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res, u)
+}
+
+func TestOrm_Value(t *testing.T) {
+	db := DB()
+
+	//var u = UsersMap{}
+	var u = UsersMapSlice{}
+	//var u Users
+	//var u []Users
+	ormObj := db.Table(&u)
+	res, err := ormObj.Value("name")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res, db.LastSql())
+}
+
+func TestOrm_Count(t *testing.T) {
+	db := DB()
+
+	var u = UsersMap{}
+	ormObj := db.Table(&u)
+	res, err := ormObj.Count()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res, db.LastSql())
+}
+
+func TestOrm_Chunk(t *testing.T) {
+	orm := DB()
+
+	var u = UsersMapSlice{}
+	err := orm.Table(&u).Chunk(1, func(data []Map) error {
+		for _, item := range data {
+			t.Log(item["name"].String())
+		}
+		return nil
+	})
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("Chunk() success")
+}
+
+func TestOrm_Loop(t *testing.T) {
+	db := DB()
+
+	var u = UsersMapSlice{}
+	//aff,err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
+	//fmt.Println(aff,err)
+	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Map) error {
+		for _, item := range data {
+			_, err := DB().Table(&u).Data(Data{"age": 19}).Where("uid", item["uid"].Int64()).Update()
+			if err != nil {
+				t.Error(err.Error())
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("Loop() success")
+}

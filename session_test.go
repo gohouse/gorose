@@ -1,97 +1,159 @@
 package gorose
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 )
-type users struct {
-	Name string
+
+func initSession() ISession {
+	return initDB().NewSession()
 }
-var db1 *Session
-func InitOrm() {
-	db1 = NewOrm()
-	db1.Connection = &Connection{DbConfig:&DbConfigCluster{Master:&DbConfigSingle{
-		"mysql",
-		true,
-		0,
-		0,
-		"",
-		"",
-	}}}
-}
-func TestSession_QueryApi(test *testing.T) {
-	InitOrm()
-	var b = users{"fizz"}
-	sql,err := db1.Table(&b).
-		Distinct().
-		//Fields("id as uid","name").
-		Where("a",1).
-		OrderBy("id desc").
-		GroupBy("name").
-		Having("count(uid)>0").
-		Limit(1).
-		Offset(2).
-		BuildSql()
+
+func TestSession_Query(t *testing.T) {
+	var s = initSession()
+	var user []Users
+	err := s.Bind(&user).Query("select * from users where name=?", "gorose")
 	if err != nil {
-		test.Error("FAIL: orm failed.", err)
-		return
+		t.Error(err.Error())
+	}
+	t.Log(user, s.LastSql())
+}
+
+func TestSession_Execute(t *testing.T) {
+	var sql = `CREATE TABLE IF NOT EXISTS "users" (
+	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	 "name" TEXT NOT NULL default "",
+	 "age" integer NOT NULL default ""
+)`
+	var s = initSession()
+	var err error
+	var aff int64
+
+	aff, err = s.Execute(sql)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(aff)
+
+	aff, err = s.Execute("insert into users(name,age) VALUES(?,?),(?,?)",
+		"fizz", 18, "gorose", 19)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(aff)
+}
+
+func TestSession_Query_struct(t *testing.T) {
+	var s = initSession()
+	var err error
+	defer s.Close()
+
+	var user []Users
+	err = s.Bind(&user).Query("select * from users limit ?", 2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("多条struct绑定:", user)
+
+	var user2 Users
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("一条struct绑定:", user2)
+}
+
+//type UserMap map[string]interface{}
+
+func TestSession_Query_map(t *testing.T) {
+	var s = initSession()
+	var err error
+
+	var user2 = aaa{}
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("一条map绑定:", user2)
+	t.Log("一条map绑定的uid为:", user2["uid"])
+	t.Log(s.LastSql())
+
+	var user = bbb{}
+	err = s.Bind(&user).Query("select * from users limit ?", 2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("多条map绑定:", user)
+	t.Log("多条map绑定:", user[0]["age"].Int())
+	t.Log(s.LastSql())
+}
+
+func TestSession_Bind(t *testing.T) {
+	var s = initSession()
+	var err error
+
+	var user2 = aaa{}
+	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("session bind success")
+}
+
+func TestSession_Transaction(t *testing.T) {
+	var s = initSession()
+	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
+	err := s.Transaction(trans1, trans2)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("session transaction success")
+}
+
+func trans1(s ISession) error {
+	var err error
+	var aff int64
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
+		"gorose3", 21, 3)
+	if err != nil {
+		return err
+	}
+	if aff == 0 {
+		return errors.New("fail")
 	}
 
-	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
-}
-func TestSession_Insert(test *testing.T) {
-	InitOrm()
-	var b = users{"fizz"}
-	sql,err := db1.Table(&b).
-		Data(map[string]interface{}{"name":"fizz333", "age":19}).
-		BuildSql("insert")
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
+		"gorose2", 20, 2)
 	if err != nil {
-		test.Error("FAIL: orm failed.", err)
-		return
+		return err
+	}
+	if aff == 0 {
+		return errors.New("fail")
 	}
 
-	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+	return nil
 }
-func TestSession_Update(test *testing.T) {
-	InitOrm()
-	//var b = "users"
-	var b = users{"fizz"}
-	sql,err := db1.Table(&b).
-		Data(map[string]interface{}{"name":"fizz333", "age":18}).
-		Where("a","1").
-		BuildSql("update")
+func trans2(s ISession) error {
+	var err error
+	var aff int64
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
+		"gorose3", 21, 3)
 	if err != nil {
-		test.Error("FAIL: orm failed.", err)
-		return
+		return err
+	}
+	if aff == 0 {
+		return errors.New("fail")
 	}
 
-	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
-}
-func TestSession_Delete(test *testing.T) {
-	InitOrm()
-	//var b = "users"
-	var b = users{"fizz"}
-	sql,err := db1.Table(&b).
-		Where("a",1).
-		BuildSql("delete")
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
+		"gorose2", 20, 2)
 	if err != nil {
-		test.Error("FAIL: orm failed.", err)
-		return
+		return err
+	}
+	if aff == 0 {
+		return errors.New("fail")
 	}
 
-	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
-}
-func TestSession_InsertMulti(test *testing.T) {
-	InitOrm()
-	//var b = "users"
-	var b = users{"fizz"}
-	sql,err := db1.Table(&b).
-		Data([]map[string]interface{}{{"name":"fizz333","age":10},{"name":"fizz222","age":20}}).
-		BuildSql("insert")
-	if err != nil {
-		test.Error("FAIL: orm failed.", err)
-		return
-	}
-
-	test.Log(fmt.Sprintf("PASS: orm: %v", sql))
+	return nil
 }
