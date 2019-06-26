@@ -1,6 +1,6 @@
 package gorose
 
-type BuilderOracle struct {
+type BuilderClickhouse struct {
 	//IOrm
 	driver string
 }
@@ -10,17 +10,17 @@ type BuilderOracle struct {
 // select {distinct} {fields} from {table} {join} {where} {group} {having} {order} {limit} {offset}
 // {execute} {table} {data} {where}
 func init() {
-	var driver = "oci8"
-	var builder = &BuilderOracle{driver: driver}
+	var driver = "clickhouse"
+	var builder = &BuilderClickhouse{driver: driver}
 	NewBuilderDriver().Register(driver, builder)
 }
 
 // BuildQuery : build query sql string
-func (b *BuilderOracle) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
+func (b *BuilderClickhouse) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()
 }
 
 // BuildExecut : build execute sql string
-func (b *BuilderOracle) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
+func (b *BuilderClickhouse) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(b.driver).BuildExecute(operType)
 }
