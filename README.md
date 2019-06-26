@@ -203,7 +203,7 @@ func main() {
 	err = db.Select()
 	
 	fmt.Println(count)
-	fmt.Println(u, u.Name.String())
+	fmt.Println(u, u["name"].String())
 	fmt.Println(db.LastSql())
 }
 ```

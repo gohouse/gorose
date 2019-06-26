@@ -44,7 +44,7 @@ type IOrm interface {
 	SetBindValues(v interface{})
 	GetBindValues() []interface{}
 	ClearBindValues()
-	//Transaction(closers ...func(db IOrm) error) (err error)
+	Transaction(closers ...func(db IOrm) error) (err error)
 	Reset() IOrm
 	ResetWhere() IOrm
 	GetISession() ISession
