@@ -1,7 +1,6 @@
 package gorose
 
 import (
-	"fmt"
 	"github.com/gohouse/gocar/varBindValue"
 	"reflect"
 	"testing"
@@ -9,18 +8,17 @@ import (
 )
 
 func TestStructToMap(t *testing.T) {
-	user := Users{Uid:1,Name:"gorose"}
+	user := Users{Uid: 1, Name: "gorose"}
 	data := StructToMap(user)
 	t.Log(data)
 }
 
 func TestIf(t *testing.T) {
 	closer := func() {
-		time.Sleep(1*time.Second)
-		fmt.Println("234")
+		time.Sleep(1 * time.Second)
 	}
-	withRunTimeContext(closer, func(td time.Duration){
-		fmt.Println("用时:",td,td.Seconds()>1)
+	withRunTimeContext(closer, func(td time.Duration) {
+		t.Log("用时:", td, td.Seconds() > 1)
 	})
 }
 
@@ -28,15 +26,17 @@ func TestStructToMap2(t *testing.T) {
 	var u Users
 	//res := strutForScan(&u)
 	res := strutForScan(reflect.ValueOf(&u).Interface())
-	fmt.Printf("%#v\n",res)
-	for _,item:=range res {
-		varBindValue.BindVal(item,1234)
+	for _, item := range res {
+		err := varBindValue.BindVal(item, 1234)
+		if err != nil {
+			t.Error(err.Error())
+		}
 	}
-	fmt.Println(u)
+	t.Log(res, u)
 }
 func Test_getRandomInt(t *testing.T) {
-	fmt.Println(getRandomInt(2))
-	fmt.Println(getRandomInt(2))
-	fmt.Println(getRandomInt(2))
-	fmt.Println(getRandomInt(2))
+	t.Log(getRandomInt(2))
+	t.Log(getRandomInt(3))
+	t.Log(getRandomInt(2))
+	t.Log(getRandomInt(3))
 }

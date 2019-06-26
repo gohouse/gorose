@@ -4,8 +4,8 @@ const TAGNAME = "gorose"
 
 func Open(conf ...interface{}) (engin *Engin, err error) {
 	// 驱动engin
-	engin,err = NewEngin(conf...)
-	if err!=nil {
+	engin, err = NewEngin(conf...)
+	if err != nil {
 		if engin.GetLogger().EnableErrorLog() {
 			engin.GetLogger().Error(err.Error())
 		}

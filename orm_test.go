@@ -1,29 +1,31 @@
 package gorose
 
 import (
-	"fmt"
 	"testing"
 )
 
-func initOrm() IOrm {
-	return initDB().NewOrm()
-}
 func DB() IOrm {
 	return initDB().NewOrm()
 }
 func TestNewOrm(t *testing.T) {
-	orm := initOrm()
+	orm := DB()
 	orm.Hello()
 }
 func TestOrm_AddFields(t *testing.T) {
-	orm := initOrm()
+	orm := DB()
 	var u = Users{}
 	var fieldStmt = orm.Table(&u).Fields("a").Where("m", 55)
-	a, b, c := fieldStmt.AddFields("b").Where("d", 1).BuildSql()
-	fmt.Println(a, b, c)
+	a, b, err := fieldStmt.AddFields("b").Where("d", 1).BuildSql()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(a, b)
 
-	d, e, f := fieldStmt.AddFields("c").Where("d", 2).BuildSql()
-	fmt.Println(d, e, f)
+	d, e, err := fieldStmt.AddFields("c").Where("d", 2).BuildSql()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(d, e)
 }
 
 func TestOrm_BuildSql(t *testing.T) {
@@ -33,6 +35,27 @@ func TestOrm_BuildSql(t *testing.T) {
 	}
 
 	//aff, err := db.Force().Data(&u)
-	a, b, c := DB().Table(&u).Where("age", ">", 1).Data(&u).BuildSql("update")
-	fmt.Println(a, b, c)
+	a, b, err := DB().Table(&u).Where("age", ">", 1).Data(&u).BuildSql("update")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(a, b)
+}
+
+func TestOrm_BuildSql_where(t *testing.T) {
+	var u = Users{
+		Name: "gorose2",
+		Age:  19,
+	}
+
+	var db = DB()
+	a, b, err := db.Table(&u).Where("age", ">", 1).Where(func() {
+		db.Where("name", "like", "%fizz%").OrWhere(func() {
+			db.Where("age", ">", 10).Where("uid", ">", 2)
+		})
+	}).Limit(10).BuildSql()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(a, b)
 }

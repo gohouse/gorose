@@ -13,16 +13,20 @@ func (u *aaa) TableName() string {
 
 //type bbb MapRows
 type bbb []t.MapString
+
 func (u *bbb) TableName() string {
 	return "users"
 }
 
-type UsersMap Map
+type UsersMap Data
+
 func (u *UsersMap) TableName() string {
 	return "users"
 }
+
 // 定义map多返回绑定表名,一定要像下边这样,单独定义,否则无法获取对应的 TableName()
-type UsersMapSlice []Map
+type UsersMapSlice []Data
+
 func (u *UsersMapSlice) TableName() string {
 	return "users"
 }
@@ -48,7 +52,7 @@ func TestEngin(t *testing.T) {
 
 	err := db.Ping()
 
-	if err!=nil {
+	if err != nil {
 		t.Error("gorose初始化失败")
 	}
 	t.Log("gorose初始化成功")

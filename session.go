@@ -138,37 +138,37 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
 	// 记录开始时间
 	start := time.Now()
 	//withRunTimeContext(func() {
-		if s.err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			err = s.err
-		}
-		// 记录sqlLog
-		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-		//if s.IfEnableSqlLog() {
-		//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
-		//}
+	if s.err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		err = s.err
+	}
+	// 记录sqlLog
+	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+	//if s.IfEnableSqlLog() {
+	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
+	//}
 
-		stmt, err := s.slave.Prepare(sqlstring)
-		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
+	stmt, err := s.slave.Prepare(sqlstring)
+	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
 
-		defer stmt.Close()
-		rows, err := stmt.Query(args...)
-		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
+	defer stmt.Close()
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
 
-		// make sure we always close rows
-		defer rows.Close()
+	// make sure we always close rows
+	defer rows.Close()
 
-		err = s.scan(rows)
-		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
+	err = s.scan(rows)
+	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
 	//}, func(duration time.Duration) {
 	//	//if duration.Seconds() > 1 {
 	//	//	s.GetIEngin().GetLogger().Slow(s.LastSql(), duration)
@@ -179,71 +179,74 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
 
 	timeduration := time.Since(start)
 	//if timeduration.Seconds() > 1 {
-		s.GetIEngin().GetLogger().Slow(s.LastSql(), timeduration)
+	s.GetIEngin().GetLogger().Slow(s.LastSql(), timeduration)
 	//} else {
-		s.GetIEngin().GetLogger().Sql(s.LastSql(), timeduration)
+	s.GetIEngin().GetLogger().Sql(s.LastSql(), timeduration)
 	//}
 	return
 }
 
 func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected int64, err error) {
-	withRunTimeContext(func() {
-		err = s.GetIBinder().BindParse(s.GetIEngin().GetPrefix())
-		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
-		s.lastSql = fmt.Sprint(sqlstring, ", ", args)
-		//// 记录sqlLog
-		//if s.IfEnableSqlLog() {
-		//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
-		//}
+	// 记录开始时间
+	start := time.Now()
+	//withRunTimeContext(func() {
+	//	err = s.GetIBinder().BindParse(s.GetIEngin().GetPrefix())
+	if s.err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+	s.lastSql = fmt.Sprint(sqlstring, ", ", args)
+	//// 记录sqlLog
+	//if s.IfEnableSqlLog() {
+	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
+	//}
 
-		var operType = strings.ToLower(sqlstring[0:6])
-		if operType == "select" {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			err = errors.New("Execute does not allow select operations, please use Query")
-			return
-		}
+	var operType = strings.ToLower(sqlstring[0:6])
+	if operType == "select" {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		err = errors.New("Execute does not allow select operations, please use Query")
+		return
+	}
 
-		var stmt *sql.Stmt
-		if s.tx == nil {
-			stmt, err = s.master.Prepare(sqlstring)
+	var stmt *sql.Stmt
+	if s.tx == nil {
+		stmt, err = s.master.Prepare(sqlstring)
+	} else {
+		stmt, err = s.tx.Prepare(sqlstring)
+	}
+
+	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+
+	//var err error
+	defer stmt.Close()
+	result, err := stmt.Exec(args...)
+	if err != nil {
+		s.GetIEngin().GetLogger().Error(err.Error())
+		return
+	}
+
+	if operType == "insert" {
+		// get last insert id
+		lastInsertId, err := result.LastInsertId()
+		if err == nil {
+			s.lastInsertId = lastInsertId
 		} else {
-			stmt, err = s.tx.Prepare(sqlstring)
-		}
-
-		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())
-			return
 		}
-
-		//var err error
-		defer stmt.Close()
-		result, err := stmt.Exec(args...)
-		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			return
-		}
-
-		if operType == "insert" {
-			// get last insert id
-			lastInsertId, err := result.LastInsertId()
-			if err == nil {
-				s.lastInsertId = lastInsertId
-			} else {
-				s.GetIEngin().GetLogger().Error(err.Error())
-			}
-		}
-		// get rows affected
-		rowsAffected, err = result.RowsAffected()
-	}, func(duration time.Duration) {
-		if duration.Seconds() > 1 {
-			s.GetIEngin().GetLogger().Slow(s.LastSql(), duration)
-		} else {
-			s.GetIEngin().GetLogger().Sql(s.LastSql(), duration)
-		}
-	})
+	}
+	// get rows affected
+	rowsAffected, err = result.RowsAffected()
+	timeduration := time.Since(start)
+	//}, func(duration time.Duration) {
+	if timeduration.Seconds() > 1 {
+		s.GetIEngin().GetLogger().Slow(s.LastSql(), timeduration)
+	} else {
+		s.GetIEngin().GetLogger().Sql(s.LastSql(), timeduration)
+	}
+	//})
 	return
 }
 func (s *Session) LastInsertId() int64 {

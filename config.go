@@ -11,6 +11,6 @@ type Config struct {
 type ConfigCluster struct {
 	Master []Config // 主
 	Slave  []Config // 从
-	Driver string // 驱动
-	Prefix string // 前缀
+	Driver string   // 驱动
+	Prefix string   // 前缀
 }

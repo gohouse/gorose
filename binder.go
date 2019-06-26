@@ -1,6 +1,7 @@
 package gorose
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gohouse/t"
 	"reflect"
@@ -110,6 +111,9 @@ func (s *Binder) BindParse(prefix string) error {
 				s.SetBindType(OBJECT_MAP_T)
 			}
 			// 是否设置了表名
+			if dstVal.Kind() != reflect.Ptr {
+				return errors.New("传入的不是map指针,如:var user gorose.Map,传入 &user{}")
+			}
 			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 				BindName = tn.Call(nil)[0].String()
 			}
@@ -126,6 +130,9 @@ func (s *Binder) BindParse(prefix string) error {
 				//TODO 检查map的值类型, 是否是t.T
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 					s.SetBindType(OBJECT_MAP_SLICE_T)
+				}
+				if dstVal.Kind() != reflect.Ptr {
+					return errors.New("传入的不是map指针,如:var user gorose.Map,传入 &user{}")
 				}
 
 			case reflect.Struct:

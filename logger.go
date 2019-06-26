@@ -11,6 +11,7 @@ const (
 	LOG_SLOW
 	LOG_ERROR
 )
+
 type LogLevel uint
 
 func (l LogLevel) String() string {
@@ -26,10 +27,10 @@ func (l LogLevel) String() string {
 }
 
 type LogOption struct {
-	FilePath string
+	FilePath     string
 	EnableSqlLog bool
 	// 是否记录慢查询, 默认0s, 不记录, 设置记录的时间阀值, 比如 1, 则表示超过1s的都记录
-	EnableSlowLog float64
+	EnableSlowLog  float64
 	EnableErrorLog bool
 }
 
@@ -38,7 +39,7 @@ type Logger struct {
 	sqlLog   bool
 	slowLog  float64
 	//infoLog  bool
-	errLog   bool
+	errLog bool
 }
 
 var _ ILogger = &Logger{}
@@ -48,8 +49,8 @@ var logger *Logger
 
 func NewLogger(o *LogOption) *Logger {
 	onceLogger.Do(func() {
-		logger = &Logger{filePath:"."}
-		if o.FilePath!="" {
+		logger = &Logger{filePath: "."}
+		if o.FilePath != "" {
 			logger.filePath = o.FilePath
 		}
 		logger.sqlLog = o.EnableSqlLog
@@ -61,7 +62,7 @@ func NewLogger(o *LogOption) *Logger {
 
 func DefaultLogger() func(e *Engin) {
 	return func(e *Engin) {
-		e.logger = NewLogger(&LogOption{EnableSlowLog:3})
+		e.logger = NewLogger(&LogOption{EnableSlowLog: 3})
 	}
 }
 
@@ -79,23 +80,23 @@ func (l *Logger) EnableSlowLog() float64 {
 
 func (l *Logger) Slow(sqlStr string, runtime time.Duration) {
 	if runtime.Seconds() > l.EnableSlowLog() {
-		logger.write(LOG_SLOW,"gorose_slow", sqlStr, runtime.String())
+		logger.write(LOG_SLOW, "gorose_slow", sqlStr, runtime.String())
 	}
 }
 
 func (l *Logger) Sql(sqlStr string, runtime time.Duration) {
 	if l.EnableSqlLog() {
-		logger.write(LOG_SQL,"gorose_sql", sqlStr, runtime.String())
+		logger.write(LOG_SQL, "gorose_sql", sqlStr, runtime.String())
 	}
 }
 
 func (l *Logger) Error(msg string) {
 	if l.EnableErrorLog() {
-		logger.write(LOG_ERROR,"gorose", msg, "0")
+		logger.write(LOG_ERROR, "gorose", msg, "0")
 	}
 }
 
-func (l *Logger) write(ll LogLevel,filename string, msg string, runtime string) {
+func (l *Logger) write(ll LogLevel, filename string, msg string, runtime string) {
 	now := time.Now()
 	date := now.Format("20060102")
 	datetime := now.Format("2006-01-02 15:04:05")

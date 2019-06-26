@@ -2,10 +2,8 @@ package gorose
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 )
-
 
 func initSession() ISession {
 	return initDB().NewSession()
@@ -15,15 +13,17 @@ func TestSession_Query(t *testing.T) {
 	var s = initSession()
 	var user []Users
 	err := s.Bind(&user).Query("select * from users where name=?", "gorose")
-	fmt.Println(user, err)
-	fmt.Println(s.LastSql())
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(user, s.LastSql())
 }
 
 func TestSession_Execute(t *testing.T) {
 	var sql = `CREATE TABLE IF NOT EXISTS "users" (
 	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	 "name" TEXT NOT NULL,
-	 "age" integer NOT NULL
+	 "name" TEXT NOT NULL default "",
+	 "age" integer NOT NULL default ""
 )`
 	var s = initSession()
 	var err error
@@ -65,7 +65,6 @@ func TestSession_Query_struct(t *testing.T) {
 
 //type UserMap map[string]interface{}
 
-
 func TestSession_Query_map(t *testing.T) {
 	var s = initSession()
 	var err error
@@ -89,27 +88,33 @@ func TestSession_Query_map(t *testing.T) {
 	t.Log(s.LastSql())
 }
 
-func TestSession_Orm(t *testing.T) {
+func TestSession_Bind(t *testing.T) {
 	var s = initSession()
 	var err error
 
 	var user2 = aaa{}
 	err = s.Bind(&user2).Query("select * from users limit ?", 2)
 
-	fmt.Println(err)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("session bind success")
 }
 
 func TestSession_Transaction(t *testing.T) {
 	var s = initSession()
 	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
 	err := s.Transaction(trans1, trans2)
-	t.Log(err)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log("session transaction success")
 }
 
 func trans1(s ISession) error {
 	var err error
 	var aff int64
-	aff, err = s.Execute("update users set name='?',age=? where uid=?",
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
 		"gorose3", 21, 3)
 	if err != nil {
 		return err
@@ -118,7 +123,7 @@ func trans1(s ISession) error {
 		return errors.New("fail")
 	}
 
-	aff, err = s.Execute("update users set name='?',age=? where uid=?",
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
 		"gorose2", 20, 2)
 	if err != nil {
 		return err
@@ -132,7 +137,7 @@ func trans1(s ISession) error {
 func trans2(s ISession) error {
 	var err error
 	var aff int64
-	aff, err = s.Execute("update users set name='?',age=? where uid=?",
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
 		"gorose3", 21, 3)
 	if err != nil {
 		return err
@@ -141,7 +146,7 @@ func trans2(s ISession) error {
 		return errors.New("fail")
 	}
 
-	aff, err = s.Execute("update users set name='?',age=? where uid=?",
+	aff, err = s.Execute("update users set name=?,age=? where uid=?",
 		"gorose2", 20, 2)
 	if err != nil {
 		return err
