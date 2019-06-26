@@ -175,8 +175,11 @@ var err error
 var engin *gorose.Engin
 
 func init() {
+    // 全局初始化数据库,并复用
+    // 这里的engin需要全局保存,可以用全局变量,也可以用单例
+    // 配置&gorose.Config{}是单一数据库配置
+    // 如果配置读写分离集群,则使用&gorose.ConfigCluster{}
 	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
-	//fmt.Println(err)
 }
 func DB() gorose.IOrm {
 	return engin.NewOrm()
@@ -186,18 +189,21 @@ func main() {
 	// 如果不复用 db, 而是直接使用 DB(), 则会新建一个orm对象, 每一次都是全新的对象
 	// 所以复用 db, 一定要在当前会话周期内
 	db := DB()
-	// 这里的对象是map, 所以需要初始化(var u = user{}), 不能像struct那样, 直接 `var u Users`
+	// 这里的对象是map, 所以需要初始化(var u = user{}), 不能像struct那样, 可以直接 `var u Users`
 	var u = user{}
 	var count int64
 	// 统计数据
-	count,err = db.Table(&u).Count()
+	count,err = db.Table(&u).Fields("uid,name,age").Where("age",">",0).OrderBy("uid desc").Limit(10).Offset(1).Count()
 	if err!=nil {
 		fmt.Println(err)
 	}
-	// 查询数据并绑定到 user{} 上, 这复用了 db
+	// 查询数据并绑定到 user{} 上, 这里复用了 db 及上下文条件参数
+	// 如果不想复用,则可以使用DB()就会开启全新会话,或者使用db.Reset()
+	// db.Reset()只会清除上下文参数干扰,不回更换链接,DB()则会更换链接
 	err = db.Select()
+	
 	fmt.Println(count)
-	fmt.Println(u)
+	fmt.Println(u, u.Name.String())
 	fmt.Println(db.LastSql())
 }
 ```

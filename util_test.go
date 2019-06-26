@@ -34,3 +34,9 @@ func TestStructToMap2(t *testing.T) {
 	}
 	fmt.Println(u)
 }
+func Test_getRandomInt(t *testing.T) {
+	fmt.Println(getRandomInt(2))
+	fmt.Println(getRandomInt(2))
+	fmt.Println(getRandomInt(2))
+	fmt.Println(getRandomInt(2))
+}
