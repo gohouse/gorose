@@ -89,13 +89,13 @@ func TestOrm_Get(t *testing.T) {
 		WhereNotNull("cc").
 		WhereIn("dd", []interface{}{1, 2}).
 		OrWhereNotIn("ee", []interface{}{1, 2}).
+		WhereBetween("ff", []interface{}{11, 21}).
 		WhereNotBetween("ff", []interface{}{1, 2}).
 		OrWhere(func() {
 			orm.Where("c", 3).OrWhere(func() {
 				orm.Where("d", ">", 4)
 			})
-		}).Where("e", 5).
-		Limit(5).Offset(2)
+		}).Where("e", 5).Limit(5).Offset(2)
 	s, a, err := ormObj.BuildSql()
 
 	if err != nil {

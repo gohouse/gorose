@@ -98,7 +98,7 @@ func addQuotes(data interface{}, sep string) string {
 func inArray(needle, hystack interface{}) bool {
 	nt := t.New(needle)
 	for _, item := range t.New(hystack).Slice() {
-		if nt.String() == item.String() {
+		if strings.ToLower(nt.String()) == strings.ToLower(item.String()) {
 			return true
 		}
 	}
