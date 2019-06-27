@@ -21,10 +21,9 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 模块关系图如下:  ![gorose-2.0-design](https://i.loli.net/2019/06/19/5d0a1273f12ef86624.jpg)
 
 ## 安装
+- go.mod
 ```bash
-go get github.com/gohouse/gorose
-cd github.com/gohouse/gorose
-go mod tidy
+require github.com/gohouse/gorose v2.0-rc3
 ```
 
 ## 文档
