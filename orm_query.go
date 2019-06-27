@@ -73,7 +73,7 @@ func (dba *Orm) Min(min string) (interface{}, error) {
 
 // _unionBuild : build union select real
 func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
-	var tmp interface{}
+	var tmp interface{} = 0
 
 	dba.union = union + "(" + field + ") as " + union
 	// 缓存fields字段,暂时由union占用

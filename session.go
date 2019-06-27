@@ -384,6 +384,16 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 	//	return sql.ErrNoRows
 	//}
 	for rows.Next() {
+		if s.GetUnion() != nil {
+			var union interface{}
+			err := rows.Scan(&union)
+			if err != nil {
+				s.GetIEngin().GetLogger().Error(err.Error())
+				return err
+			}
+			s.union = union
+			return err
+		}
 		// scan it
 		err := rows.Scan(strutForScan(s.GetBindResult())...)
 		if err != nil {
@@ -434,6 +444,13 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 				v = string(b)
 			} else {
 				v = val
+			}
+			if s.GetUnion() != nil {
+				s.union = v
+				return
+				// 以下上通用解决方法
+				//unionTmp[col] = v
+				//s.union = unionTmp
 			}
 			resultTmp[col] = t.New(v)
 		}

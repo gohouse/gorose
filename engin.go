@@ -28,6 +28,10 @@ func NewEngin(conf ...interface{}) (e *Engin, err error) {
 	if len(conf) == 0 {
 		return
 	}
+
+	// 使用默认的log, 如果自定义了logger, 则只需要调用 Use() 方法即可覆盖
+	engin.Use(DefaultLogger())
+
 	switch conf[0].(type) {
 	// 传入的是单个配置
 	case *Config:
@@ -48,6 +52,11 @@ func (c *Engin) Use(closers ...func(e *Engin)) {
 	for _, closer := range closers {
 		closer(c)
 	}
+}
+
+// Ping
+func (c *Engin) Ping() error {
+	return c.GetQueryDB().Ping()
 }
 
 // SetPrefix 设置表前缀
@@ -97,6 +106,7 @@ func (c *Engin) bootSingle(conf *Config) error {
 }
 
 func (c *Engin) bootCluster() error {
+	//fmt.Println(len(c.config.Slave))
 	if len(c.config.Slave) > 0 {
 		for _, item := range c.config.Slave {
 			db, err := c.bootReal(item)
@@ -114,6 +124,7 @@ func (c *Engin) bootCluster() error {
 	if len(c.config.Master) > 0 {
 		for _, item := range c.config.Master {
 			db, err := c.bootReal(item)
+
 			if err != nil {
 				return err
 			}
@@ -121,8 +132,9 @@ func (c *Engin) bootCluster() error {
 				c.dbs = new(cluster)
 			}
 			c.dbs.master = append(c.dbs.master, db)
-			c.dbs.masterSize++
+			c.dbs.masterSize = c.dbs.masterSize + 1
 			c.driver = item.Driver
+			//fmt.Println(c.dbs.masterSize)
 		}
 	}
 	// 如果config没有设置prefix,且configcluster设置了prefix,则使用cluster的prefix

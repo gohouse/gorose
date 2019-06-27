@@ -30,7 +30,5 @@ func Open(conf ...interface{}) (engin *Engin, err error) {
 		return
 	}
 
-	// 使用默认的log, 如果自定义了logger, 则只需要调用 Use() 方法即可覆盖
-	engin.Use(DefaultLogger())
 	return
 }
