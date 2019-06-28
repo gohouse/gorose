@@ -35,7 +35,7 @@ type Users struct {
 	Uid  int    `gorose:"uid"`
 	Name string `gorose:"name"`
 	Age  int    `gorose:"age"`
-	//Fi   string `gorose:"ignore"`
+	Fi   string `gorose:"ignore"`
 }
 
 func (u *Users) TableName() string {

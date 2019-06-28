@@ -348,28 +348,6 @@ func (s *Session) scanMapAll(rows *sql.Rows) (err error) {
 	return
 }
 
-//// scan a single row of data into a struct.
-//func (s *Session) scanRow(rows *sql.Rows, dst interface{}) error {
-//	// check if there is data waiting
-//	if !rows.Next() {
-//		if err := rows.Err(); err != nil {
-//			return err
-//		}
-//		return sql.ErrNoRows
-//	}
-//
-//	// get a list of targets
-//	var fields = strutForScan(dst)
-//
-//	// perform the scan
-//	if err := rows.Scan(fields...); err != nil {
-//		//if err := rows.Scan(strutForScan(s.BindResult.Interface())...); err != nil {
-//		return err
-//	}
-//
-//	return rows.Err()
-//}
-
 // ScanAll scans all sql result rows into a slice of structs.
 // It reads all rows and closes rows when finished.
 // dst should be a pointer to a slice of the appropriate type.
@@ -395,6 +373,7 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 			return err
 		}
 		// scan it
+		//fmt.Println(strutForScan(s.GetBindResult()))
 		err := rows.Scan(strutForScan(s.GetBindResult())...)
 		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())

@@ -65,7 +65,7 @@ func getTagName(structName interface{}, tagstr string) []string {
 		// tag 名字
 		tagName := tag.Field(i).Tag.Get(tagstr)
 		// tag为-时, 不解析
-		if tagName == "-" || tagName == "" {
+		if tagName == "-" || tagName == "" || tagName==IGNORE {
 			// 字段名字
 			tagName = tag.Field(i).Name
 		}

@@ -7,12 +7,13 @@ import (
 func TestOrm_First(t *testing.T) {
 	db := DB()
 	var u = Users{}
-	res, err := db.Table(&u).Get()
-	if err != nil {
-		t.Error(err.Error())
-	}
-	t.Log(res)
-	err = db.Table(&u).Limit(2).Select()
+	var err error
+	//res, err := db.Table(&u).Get()
+	//if err != nil {
+	//	t.Error(err.Error())
+	//}
+	//t.Log(res)
+	err = db.Table(&u).Select()
 	if err != nil {
 		t.Error(err.Error())
 	}
