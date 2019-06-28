@@ -24,7 +24,7 @@ type Session struct {
 	err          error
 }
 
-var _ ISession = &Session{}
+var _ ISession = (*Session)(nil)
 
 // NewSession : 初始化 Session
 func NewSession(e IEngin) ISession {

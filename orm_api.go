@@ -14,7 +14,7 @@ type OrmApi struct {
 	having        string
 	data          interface{}
 	force         bool
-	extraExecCols []string
+	extraCols []string
 }
 
 func (o *Orm) GetTable() string {
@@ -69,6 +69,6 @@ func (dba *Orm) GetForce() bool {
 	return dba.force
 }
 
-func (dba *Orm) GetExtraExecCols() []string {
-	return dba.extraExecCols
+func (dba *Orm) GetExtraCols() []string {
+	return dba.extraCols
 }

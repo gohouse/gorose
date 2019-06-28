@@ -13,7 +13,7 @@ type Orm struct {
 	bindValues []interface{}
 }
 
-var _ IOrm = &Orm{}
+var _ IOrm = (*Orm)(nil)
 
 func NewOrm(e IEngin) *Orm {
 	var orm = new(Orm)
@@ -27,14 +27,14 @@ func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
 }
 
-// ExtraExecCols 额外的字段
-func (dba *Orm) ExtraExecCols(args ...string) IOrm {
-	dba.extraExecCols = append(dba.extraExecCols, args...)
+// ExtraCols 额外的字段
+func (dba *Orm) ExtraCols(args ...string) IOrm {
+	dba.extraCols = append(dba.extraCols, args...)
 	return dba
 }
 
-func (dba *Orm) ResetExtraExecCols() IOrm {
-	dba.extraExecCols = []string{}
+func (dba *Orm) ResetExtraCols() IOrm {
+	dba.extraCols = []string{}
 	return dba
 }
 
@@ -268,7 +268,7 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	} else {
 		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 		// 重置强制获取更新或插入的字段, 防止复用时感染
-		dba.ResetExtraExecCols()
+		dba.ResetExtraCols()
 	}
 	// 如果是事务, 因为需要复用单一对象, 故参数会产生感染
 	// 所以, 在这里做一下数据绑定重置操作

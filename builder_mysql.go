@@ -5,6 +5,8 @@ type BuilderMysql struct {
 	driver string
 }
 
+var _ IBuilder = (*BuilderMysql)(nil)
+
 // sqlstr := fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s%s",
 //		distinct, fields, table, join, where, group, having, order, limit, offset)
 // select {distinct} {fields} from {table} {join} {where} {group} {having} {order} {limit} {offset}

@@ -42,7 +42,7 @@ type Logger struct {
 	errLog bool
 }
 
-var _ ILogger = &Logger{}
+var _ ILogger = (*Logger)(nil)
 
 var onceLogger sync.Once
 var logger *Logger
