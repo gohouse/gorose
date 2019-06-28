@@ -20,13 +20,16 @@ func getRandomInt(num int) int {
 
 func strutForScan(u interface{}) []interface{} {
 	val := reflect.Indirect(reflect.ValueOf(u))
-	v := make([]interface{}, val.NumField())
+	v := make([]interface{}, 0)
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
-		if valueField.CanAddr() {
-			v[i] = valueField.Addr().Interface()
-		} else {
-			v[i] = valueField
+		if val.Type().Field(i).Tag.Get(TAGNAME)!=IGNORE{
+			if valueField.CanAddr() {
+				v = append(v, valueField.Addr().Interface())
+			} else {
+				//v[i] = valueField
+				v = append(v, valueField)
+			}
 		}
 	}
 	return v
@@ -61,15 +64,16 @@ func getTagName(structName interface{}, tagstr string) []string {
 	fieldNum := tag.NumField()
 	result := make([]string, 0, fieldNum)
 	for i := 0; i < fieldNum; i++ {
-		//fieldName := t.Field(i).Name
 		// tag 名字
 		tagName := tag.Field(i).Tag.Get(tagstr)
-		// tag为-时, 不解析
-		if tagName == "-" || tagName == "" || tagName==IGNORE {
-			// 字段名字
-			tagName = tag.Field(i).Name
+		if tagName!=IGNORE{
+			// tag为-时, 不解析
+			if tagName == "-" || tagName == "" {
+				// 字段名字
+				tagName = tag.Field(i).Name
+			}
+			result = append(result, tagName)
 		}
-		result = append(result, tagName)
 	}
 	return result
 }
