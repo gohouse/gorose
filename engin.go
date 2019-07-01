@@ -6,7 +6,7 @@ import (
 )
 
 var TAGNAME = "gorose"
-var IGNORE = "ignore"
+var IGNORE = "-"
 
 type cluster struct {
 	master     []*sql.DB
@@ -62,13 +62,13 @@ func (c *Engin) Ping() error {
 	return c.GetQueryDB().Ping()
 }
 
-// TagName
+// TagName 自定义结构体对应的orm字段,默认gorose
 func (c *Engin) TagName(arg string) {
 	//c.tagName = arg
 	TAGNAME = arg
 }
 
-// IgnoreName
+// IgnoreName 自定义结构体对应的orm忽略字段名字,默认-
 func (c *Engin) IgnoreName(arg string) {
 	//c.ignoreName = arg
 	IGNORE = arg
