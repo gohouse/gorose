@@ -1,7 +1,5 @@
 package gorose
 
-const TAGNAME = "gorose"
-const IGNORE = "ignore"
 const GOROSE_IMG = `
                                                                             
   ,ad8888ba,                88888888ba                                      

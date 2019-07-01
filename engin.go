@@ -5,6 +5,9 @@ import (
 	"fmt"
 )
 
+var TAGNAME = "gorose"
+var IGNORE = "ignore"
+
 type cluster struct {
 	master     []*sql.DB
 	masterSize int
@@ -57,6 +60,18 @@ func (c *Engin) Use(closers ...func(e *Engin)) {
 // Ping
 func (c *Engin) Ping() error {
 	return c.GetQueryDB().Ping()
+}
+
+// TagName
+func (c *Engin) TagName(arg string) {
+	//c.tagName = arg
+	TAGNAME = arg
+}
+
+// IgnoreName
+func (c *Engin) IgnoreName(arg string) {
+	//c.ignoreName = arg
+	IGNORE = arg
 }
 
 // SetPrefix 设置表前缀
