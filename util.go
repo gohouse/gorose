@@ -23,7 +23,7 @@ func strutForScan(u interface{}) []interface{} {
 	v := make([]interface{}, 0)
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
-		if val.Type().Field(i).Tag.Get(TAGNAME)!=IGNORE{
+		if val.Type().Field(i).Tag.Get(TAGNAME) != IGNORE {
 			if valueField.CanAddr() {
 				v = append(v, valueField.Addr().Interface())
 			} else {
@@ -66,7 +66,7 @@ func getTagName(structName interface{}, tagstr string) []string {
 	for i := 0; i < fieldNum; i++ {
 		// tag 名字
 		tagName := tag.Field(i).Tag.Get(tagstr)
-		if tagName!=IGNORE{
+		if tagName != IGNORE {
 			// tag为-时, 不解析
 			if tagName == "-" || tagName == "" {
 				// 字段名字

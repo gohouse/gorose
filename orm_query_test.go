@@ -1,6 +1,7 @@
 package gorose
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -70,7 +71,7 @@ func TestOrm_Get2(t *testing.T) {
 	var u = []Users{}
 
 	//res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
-	res, err := db.Table(&u).Where("uid", ">", 2).Limit(2).Get()
+	res, err := db.Table(&u).Where("uid", ">", 0).Limit(2).Get()
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -114,7 +115,7 @@ func TestOrm_Pluck(t *testing.T) {
 	//var u []Users
 	ormObj := orm.Table(&u)
 	//res,err := ormObj.Pluck("name", "uid")
-	res, err := ormObj.Pluck("name")
+	res, err := ormObj.Limit(5).Pluck("name")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -129,7 +130,7 @@ func TestOrm_Value(t *testing.T) {
 	//var u Users
 	//var u []Users
 	ormObj := db.Table(&u)
-	res, err := ormObj.Value("name")
+	res, err := ormObj.Limit(5).Value("name")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -156,9 +157,10 @@ func TestOrm_Chunk(t *testing.T) {
 		for _, item := range data {
 			t.Log(item["name"].String())
 		}
-		return nil
+		return errors.New("故意停止,防止数据过多,浪费时间")
+		//return nil
 	})
-	if err != nil {
+	if err != nil && err.Error() != "故意停止,防止数据过多,浪费时间" {
 		t.Error(err.Error())
 	}
 	t.Log("Chunk() success")
@@ -177,9 +179,10 @@ func TestOrm_Loop(t *testing.T) {
 				t.Error(err.Error())
 			}
 		}
-		return nil
+		return errors.New("故意停止,防止数据过多,浪费时间")
+		//return nil
 	})
-	if err != nil {
+	if err != nil && err.Error() != "故意停止,防止数据过多,浪费时间" {
 		t.Error(err.Error())
 	}
 	t.Log("Loop() success")

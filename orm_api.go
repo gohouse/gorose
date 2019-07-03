@@ -1,20 +1,21 @@
 package gorose
 
 type OrmApi struct {
-	table         string
-	fields        []string
-	where         [][]interface{}
-	order         string
-	limit         int
-	offset        int
-	join          [][]interface{}
-	distinct      bool
-	union         string
-	group         string
-	having        string
-	data          interface{}
-	force         bool
-	extraCols []string
+	table           string
+	fields          []string
+	where           [][]interface{}
+	order           string
+	limit           int
+	offset          int
+	join            [][]interface{}
+	distinct        bool
+	union           string
+	group           string
+	having          string
+	data            interface{}
+	force           bool
+	extraCols       []string
+	pessimisticLock string
 }
 
 func (o *Orm) GetTable() string {
@@ -71,4 +72,8 @@ func (dba *Orm) GetForce() bool {
 
 func (dba *Orm) GetExtraCols() []string {
 	return dba.extraCols
+}
+
+func (dba *Orm) GetPessimisticLock() string {
+	return dba.pessimisticLock
 }

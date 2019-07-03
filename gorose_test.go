@@ -12,12 +12,15 @@ func initDB() *Engin {
 		panic(err.Error())
 	}
 
+	e.TagName("orm")
+	e.IgnoreName("ignore")
+
 	initTable(e)
 
 	return e
 }
 
-func initTable(e *Engin)  {
+func initTable(e *Engin) {
 	var sql = `CREATE TABLE IF NOT EXISTS "users" (
 	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	 "name" TEXT NOT NULL default "",
@@ -29,6 +32,9 @@ func initTable(e *Engin)  {
 
 	aff, err = s.Execute(sql)
 	if err != nil {
+		return
+	}
+	if aff == 0 {
 		return
 	}
 

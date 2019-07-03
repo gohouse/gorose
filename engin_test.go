@@ -32,10 +32,10 @@ func (u *UsersMapSlice) TableName() string {
 }
 
 type Users struct {
-	Uid  int    `gorose:"uid"`
-	Name string `gorose:"name"`
-	Age  int    `gorose:"age"`
-	Fi   string `gorose:"ignore"`
+	Uid  int    `orm:"uid"`
+	Name string `orm:"name"`
+	Age  int    `orm:"age"`
+	Fi   string `orm:"ignore"`
 }
 
 func (u *Users) TableName() string {

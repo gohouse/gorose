@@ -16,4 +16,5 @@ type IOrmApi interface {
 	ExtraCols(args ...string) IOrm
 	ResetExtraCols() IOrm
 	GetExtraCols() []string
+	GetPessimisticLock() string
 }

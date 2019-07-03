@@ -265,6 +265,9 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 			}
 		}
 		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildQuery(dba)
+		if dba.GetISession().GetTransaction() {
+			a = a + dba.GetPessimisticLock()
+		}
 	} else {
 		a, b, err = NewBuilder(dba.GetISession().GetIEngin().GetDriver()).BuildExecute(dba, strings.ToLower(operType[0]))
 		// 重置强制获取更新或插入的字段, 防止复用时感染
@@ -294,4 +297,18 @@ func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
 		}
 	}
 	return s.ISession.Commit()
+}
+
+// SharedLock 共享锁
+// select * from xxx lock in share mode
+func (dba *Orm) SharedLock() *Orm {
+	dba.pessimisticLock = " lock in share mode"
+	return dba
+}
+
+// LockForUpdate
+// select * from xxx for update
+func (dba *Orm) LockForUpdate() *Orm {
+	dba.pessimisticLock = " for update"
+	return dba
 }

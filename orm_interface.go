@@ -44,14 +44,8 @@ type IOrm interface {
 	OrWhereBetween(needle string, hystack []interface{}) IOrm
 	WhereNotBetween(needle string, hystack []interface{}) IOrm
 	OrWhereNotBetween(needle string, hystack []interface{}) IOrm
-	//// truncate
+	// truncate
 	//Truncate()
-	//// 悲观锁使用
-	//// sharedLock(lock in share mode)
-	//SharedLock()
-	//// 此外你还可以使用 lockForUpdate 方法。“for update”锁避免选择行被其它共享锁修改或删除：
-	//LockForUpdate()
-	//GetRegex() []string
 	GetDriver() string
 	//GetIBinder() IBinder
 	SetBindValues(v interface{})
@@ -61,4 +55,10 @@ type IOrm interface {
 	Reset() IOrm
 	ResetWhere() IOrm
 	GetISession() ISession
+	// 悲观锁使用
+	// sharedLock(lock in share mode) 不会阻塞其它事务读取被锁定行记录的值
+	SharedLock() *Orm
+	// 此外你还可以使用 lockForUpdate 方法。“for update”锁避免选择行被其它共享锁修改或删除：
+	// 会阻塞其他锁定性读对锁定行的读取（非锁定性读仍然可以读取这些记录，lock in share mode 和 for update 都是锁定性读）
+	LockForUpdate() *Orm
 }

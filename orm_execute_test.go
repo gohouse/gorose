@@ -37,6 +37,8 @@ func Test_Transaction(t *testing.T) {
 	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
 	err := db.Transaction(
 		func(db IOrm) error {
+			//db.Table("users").Limit(2).SharedLock().Get()
+			//fmt.Println(db.LastSql())
 			_, err := db.Table("users").Where("uid", 2).Update(Data{"name": "gorose2"})
 			fmt.Println(db.LastSql())
 			if err != nil {
