@@ -19,12 +19,22 @@ func TestSession_Query(t *testing.T) {
 	t.Log(user, s.LastSql())
 }
 
+func TestSession_Query3(t *testing.T) {
+	var s = initSession()
+	var o Orders
+	err := s.Bind(&o).Query("select * from orders limit 2")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(o, s.LastSql())
+}
+
 func TestSession_Execute(t *testing.T) {
-	var sql = `CREATE TABLE IF NOT EXISTS "users" (
-	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	 "name" TEXT NOT NULL default "",
-	 "age" integer NOT NULL default ""
-)`
+	var sql = `CREATE TABLE IF NOT EXISTS "orders" (
+	 "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	 "goodsname" TEXT NOT NULL default "",
+	 "price" decimal default "0.00"
+	)`
 	var s = initSession()
 	var err error
 	var aff int64
@@ -33,10 +43,12 @@ func TestSession_Execute(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(aff)
+	if aff==0 {
+		return
+	}
 
-	aff, err = s.Execute("insert into users(name,age) VALUES(?,?),(?,?)",
-		"fizz", 18, "gorose", 19)
+	aff, err = s.Execute("insert into orders(goodsname,price) VALUES(?,?),(?,?)",
+		"goods1", 1.23, "goods2", 3.23)
 	if err != nil {
 		t.Error(err.Error())
 	}

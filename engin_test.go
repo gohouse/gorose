@@ -42,6 +42,12 @@ func (u *Users) TableName() string {
 	return "users"
 }
 
+type Orders struct {
+	Id int `orm:"id"`
+	GoodsName string `orm:"goodsname"`
+	Price float64 `orm:"price"`
+}
+
 func TestEngin(t *testing.T) {
 	e := initDB()
 	e.SetPrefix("pre_")

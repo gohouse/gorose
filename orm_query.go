@@ -48,7 +48,7 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 	if count == nil {
 		count = int64(0)
 	}
-	return count.(int64), err
+	return t.New(count).Int64(), err
 }
 
 // Sum : select sum field
