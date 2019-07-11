@@ -22,8 +22,6 @@ type Engin struct {
 	logger ILogger
 }
 
-var _ IEngin = (*Engin)(nil)
-
 // NewEngin : init Engin struct pointer
 // NewEngin : 初始化 Engin 结构体对象指针
 func NewEngin(conf ...interface{}) (e *Engin, err error) {
