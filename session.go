@@ -373,8 +373,8 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 			return err
 		}
 		// scan it
-		//fmt.Println(strutForScan(s.GetBindResult()))
-		err := rows.Scan(strutForScan(s.GetBindResult())...)
+		//fmt.Println(structForScan(s.GetBindResult()))
+		err := rows.Scan(structForScan(s.GetBindResult())...)
 		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())
 			return err

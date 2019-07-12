@@ -24,8 +24,8 @@ func TestIf(t *testing.T) {
 
 func TestStructToMap2(t *testing.T) {
 	var u Users
-	//res := strutForScan(&u)
-	res := strutForScan(reflect.ValueOf(&u).Interface())
+	//res := structForScan(&u)
+	res := structForScan(reflect.ValueOf(&u).Interface())
 	for _, item := range res {
 		err := varBindValue.BindVal(item, 1234)
 		if err != nil {

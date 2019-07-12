@@ -18,7 +18,7 @@ func getRandomInt(num int) int {
 	return rand.Intn(num)
 }
 
-func strutForScan(u interface{}) []interface{} {
+func structForScan(u interface{}) []interface{} {
 	val := reflect.Indirect(reflect.ValueOf(u))
 	v := make([]interface{}, 0)
 	for i := 0; i < val.NumField(); i++ {
