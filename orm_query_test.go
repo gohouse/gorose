@@ -187,3 +187,17 @@ func TestOrm_Loop(t *testing.T) {
 	}
 	t.Log("Loop() success")
 }
+
+func BenchmarkNewOrm(b *testing.B) {
+	engin:=initDB()
+	for i:=0;i<b.N;i++{
+		engin.NewOrm().Table("users").First()
+	}
+}
+
+func BenchmarkNewOrm2(b *testing.B) {
+	engin:=initDB()
+	for i:=0;i<b.N;i++{
+		engin.NewOrm().Table("users").First()
+	}
+}

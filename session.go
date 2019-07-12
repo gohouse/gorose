@@ -148,7 +148,14 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
 	//	s.sqlLogs = append(s.sqlLogs, s.lastSql)
 	//}
 
-	stmt, err := s.slave.Prepare(sqlstring)
+	var stmt *sql.Stmt
+	// 如果是事务, 则从主库中读写
+	if s.tx == nil {
+		stmt, err = s.slave.Prepare(sqlstring)
+	} else {
+		stmt, err = s.master.Prepare(sqlstring)
+	}
+
 	if err != nil {
 		s.GetIEngin().GetLogger().Error(err.Error())
 		return
