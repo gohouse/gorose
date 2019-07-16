@@ -269,55 +269,55 @@ func main() {
         目的是做到, 无感知处理大量数据  
         实现原理是, 每一次操作, 自动记录当前的操作位置, 下一次重复取数据的时候, 从当前位置开始取
         `
-    ```
+	```
 	User := db.Table("users")
-    User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
-        // for _,item := range data {
-        // 	   fmt.Println(item)
-        // }
-        fmt.Println(data)
-    })
+	User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
+	    // for _,item := range data {
+	    // 	   fmt.Println(item)
+	    // }
+	    fmt.Println(data)
+	})
 
-    // 打印结果:  
-    // map[id:3 name:gorose]
-    // map[id:4 name:fizzday]
-    // map[id:5 name:fizz3]
-    // map[id:6 name:gohouse]
-    [map[id:3 name:gorose] map[name:fizzday id:4]]
-    [map[id:5 name:fizz3] map[id:6 name:gohouse]]
-    ```
+	// 打印结果:  
+	// map[id:3 name:gorose]
+	// map[id:4 name:fizzday]
+	// map[id:5 name:fizz3]
+	// map[id:6 name:gohouse]
+	[map[id:3 name:gorose] map[name:fizzday id:4]]
+	[map[id:5 name:fizz3] map[id:6 name:gohouse]]
+	```
     
 - Loop 数据分片 大量数据批量处理 (从头处理)   
 
-   ` 类似 chunk 方法, 实现原理是, 每一次操作, 都是从头开始取数据
-   原因: 当我们更改数据时, 更改的结果可能作为where条件会影响我们取数据的结果,所以, 可以使用Loop`
+	` 类似 chunk 方法, 实现原理是, 每一次操作, 都是从头开始取数据
+	原因: 当我们更改数据时, 更改的结果可能作为where条件会影响我们取数据的结果,所以, 可以使用Loop`
     ```
 	User := db.Table("users")
-    User.Fields("id, name").Where("id",">",2).Loop(2, func(data []map[string]interface{}) {
-        // for _,item := range data {
-        // 	   fmt.Println(item)
-        // }
-        // 这里执行update / delete  等操作
-    })
-    ```
+	User.Fields("id, name").Where("id",">",2).Loop(2, func(data []map[string]interface{}) {
+	    // for _,item := range data {
+	    // 	   fmt.Println(item)
+	    // }
+	    // 这里执行update / delete  等操作
+	})
+	```
     
 - 嵌套where  
 
-    ```
-    // SELECT  * FROM users  
-    //     WHERE  id > 1 
-    //         and ( name = 'fizz' 
-    //             or ( name = 'fizz2' 
-    //                 and ( name = 'fizz3' or website like 'fizzday%')
-    //                 )
-    //             ) 
-    //     and job = 'it' LIMIT 1
-    User := db.Table("users")
-    User.Where("id", ">", 1).Where(func() {
-            User.Where("name", "fizz").OrWhere(func() {
-                User.Where("name", "fizz2").Where(func() {
-                    User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
-                })
-            })
-        }).Where("job", "it").First()
-    ```
+	```
+	// SELECT  * FROM users  
+	//     WHERE  id > 1 
+	//         and ( name = 'fizz' 
+	//             or ( name = 'fizz2' 
+	//                 and ( name = 'fizz3' or website like 'fizzday%')
+	//                 )
+	//             ) 
+	//     and job = 'it' LIMIT 1
+	User := db.Table("users")
+	User.Where("id", ">", 1).Where(func() {
+	        User.Where("name", "fizz").OrWhere(func() {
+	            User.Where("name", "fizz2").Where(func() {
+	                User.Where("name", "fizz3").OrWhere("website", "like", "fizzday%")
+	            })
+	        })
+	    }).Where("job", "it").First()
+	```
