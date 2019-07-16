@@ -45,9 +45,6 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 		fields = args[0]
 	}
 	count, err := dba._unionBuild("count", fields)
-	if count == nil {
-		count = int64(0)
-	}
 	if count==nil {
 		return 0, err
 	}
