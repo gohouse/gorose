@@ -48,6 +48,9 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 	if count == nil {
 		count = int64(0)
 	}
+	if count==nil {
+		return 0, err
+	}
 	return t.New(count).Int64(), err
 }
 

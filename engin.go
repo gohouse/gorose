@@ -59,6 +59,9 @@ func (c *Engin) Use(closers ...func(e *Engin)) {
 
 // Ping
 func (c *Engin) Ping() error {
+	//for _,item := range c.dbs.master {
+	//
+	//}
 	return c.GetQueryDB().Ping()
 }
 
