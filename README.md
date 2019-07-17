@@ -105,6 +105,7 @@ func (u *Users) TableName() string {
 // var u = gorose.Map{}  这两个都是可以的
 var u Users
 session := engin.NewSession()
+// 这里Bind()是为了存放结果的, 如果你使用的是NewOrm()初始化,则可以直接使用 NewOrm().Table().Query()
 err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
 fmt.Println(err)
 fmt.Println(u)
