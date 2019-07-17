@@ -42,7 +42,7 @@ db.Table().Where().Delete()
 ## 使用建议
 gorose提供数据对象绑定(map, struct), 同时支持字符串表名和map数据返回. 提供了很大的灵活性  
 建议优先采用数据绑定的方式来完成查询操作, 做到数据源类型可控  
-gorose提供了默认的 Map和Data类型, 用来方便初始化绑定和data
+gorose提供了默认的 `gorose.Map` 和 `gorose.Data` 类型, 用来方便初始化绑定和data
 
 ## 配置和链接初始化
 简单配置
@@ -74,11 +74,16 @@ if err != nil {
 ## 原生sql操作(增删改查), session的使用
 创建用户表 `users`
 ```sql
-CREATE TABLE IF NOT EXISTS "users" (
+DROP TABLE IF EXISTS "users";
+CREATE TABLE "users" (
 	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	 "name" TEXT NOT NULL,
 	 "age" integer NOT NULL
-)
+);
+
+INSERT INTO "users" VALUES (1, 'gorose', 18);
+INSERT INTO "users" VALUES (2, 'goroom', 18);
+INSERT INTO "users" VALUES (3, 'fizzday', 18);
 ```
 定义表struct
 ```go
@@ -94,6 +99,10 @@ func (u *Users) TableName() string {
 ```
 原生查询操作
 ```go
+// 这里是要绑定的结构体对象
+// 如果你没有定义结构体, 则可以直接使用map, map示例
+// var u = gorose.Data{}
+// var u = gorose.Map{}  这两个都是可以的
 var u Users
 session := engin.NewSession()
 err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
