@@ -193,7 +193,7 @@ func TestOrm_Paginate(t *testing.T) {
 	db := DB()
 
 	var u []Users
-	res,err := db.Table(&u).Limit(2).Page(3).Paginate()
+	res,err := db.Table(&u).Limit(2).Paginate()
 	if err != nil {
 		t.Error(err.Error())
 	}
