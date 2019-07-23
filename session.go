@@ -408,7 +408,7 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 	}
 	count := len(columns)
 
-	var result = []Map{}
+	var result = []Data{}
 	for rows.Next() {
 		// 定义要绑定的结果集
 		values := make([]interface{}, count)
@@ -420,7 +420,7 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 		_ = rows.Scan(scanArgs...)
 
 		// 定义预设的绑定对象
-		var resultTmp = Map{}
+		var resultTmp = Data{}
 		//// 定义union操作的map返回
 		//var unionTmp = map[string]interface{}{}
 		for i, col := range columns {
@@ -438,7 +438,7 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 				//unionTmp[col] = v
 				//s.union = unionTmp
 			}
-			resultTmp[col] = t.New(v)
+			resultTmp[col] = v
 		}
 		result = append(result, resultTmp)
 	}

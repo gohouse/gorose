@@ -21,6 +21,6 @@ type IBinder interface {
 	SetBindPrefix(arg string)
 	GetBindPrefix() string
 	ResetBindResultSlice()
-	SetBindAll(arg []Map)
-	GetBindAll() []Map
+	SetBindAll(arg []Data)
+	GetBindAll() []Data
 }

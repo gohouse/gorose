@@ -153,9 +153,9 @@ func TestOrm_Chunk(t *testing.T) {
 	orm := DB()
 
 	var u = UsersMapSlice{}
-	err := orm.Table(&u).Chunk(1, func(data []Map) error {
+	err := orm.Table(&u).Chunk(1, func(data []Data) error {
 		for _, item := range data {
-			t.Log(item["name"].String())
+			t.Log(item["name"])
 		}
 		return errors.New("故意停止,防止数据过多,浪费时间")
 		//return nil
@@ -172,9 +172,9 @@ func TestOrm_Loop(t *testing.T) {
 	var u = UsersMapSlice{}
 	//aff,err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
 	//fmt.Println(aff,err)
-	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Map) error {
+	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Data) error {
 		for _, item := range data {
-			_, err := DB().Table(&u).Data(Data{"age": 19}).Where("uid", item["uid"].Int64()).Update()
+			_, err := DB().Table(&u).Data(Data{"age": 19}).Where("uid", item["uid"]).Update()
 			if err != nil {
 				t.Error(err.Error())
 			}

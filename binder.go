@@ -55,7 +55,7 @@ type Binder struct {
 	BindLimit  int
 	BindPrefix string
 	// 多条map结果,传入的是string table时
-	BindAll []Map
+	BindAll []Data
 }
 
 var _ IBinder = &Binder{}
@@ -233,10 +233,10 @@ func (o *Binder) GetBindType() BindType {
 	return o.BindType
 }
 
-func (o *Binder) SetBindAll(arg []Map) {
+func (o *Binder) SetBindAll(arg []Data) {
 	o.BindAll = arg
 }
 
-func (o *Binder) GetBindAll() []Map {
+func (o *Binder) GetBindAll() []Data {
 	return o.BindAll
 }

@@ -19,7 +19,7 @@ func (dba *Orm) Select() error {
 }
 
 // First : select one row , relation limit set
-func (dba *Orm) First() (result Map, err error) {
+func (dba *Orm) First() (result Data, err error) {
 	err = dba.Limit(1).Select()
 	if err != nil {
 		return
@@ -32,7 +32,7 @@ func (dba *Orm) First() (result Map, err error) {
 }
 
 // Get : select more rows , relation limit set
-func (dba *Orm) Get() (result []Map, err error) {
+func (dba *Orm) Get() (result []Data, err error) {
 	err = dba.Select()
 	result = dba.GetISession().GetBindAll()
 	return
@@ -45,7 +45,7 @@ func (dba *Orm) Count(args ...string) (int64, error) {
 		fields = args[0]
 	}
 	count, err := dba._unionBuild("count", fields)
-	if count==nil {
+	if count == nil {
 		return 0, err
 	}
 	return t.New(count).Int64(), err
@@ -198,7 +198,7 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 // Chunk : 分块处理数据,当要处理很多数据的时候, 我不需要知道具体是多少数据, 我只需要每次取limit条数据,
 // 然后不断的增加offset去取更多数据, 从而达到分块处理更多数据的目的
 //TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
-func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
+func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 	var page = 0
 	var tableName = dba.GetISession().GetIBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
@@ -223,7 +223,7 @@ func (dba *Orm) Chunk(limit int, callback func([]Map) error) (err error) {
 // 因为, 我们考虑到一种情况, 那就是where条件如果刚好是要修改的值,
 // 那么最后的修改结果因为offset的原因, 只会修改一半, 比如:
 // DB().Where("age", 18) ===> DB().Data(gorose.Data{"age":19}).Where().Update()
-func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
+func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 	var page = 0
 	var tableName = dba.GetISession().GetIBinder().GetBindName()
 	// 先执行一条看看是否报错, 同时设置指定的limit
@@ -268,14 +268,17 @@ func (dba *Orm) Loop(limit int, callback func([]Map) error) (err error) {
 //		}
 //	]
 //}
-func (dba *Orm) Paginate(limit, current_page int) (res Data, err error) {
-	// 防止limit干扰
-	dba.limit = 0
+func (dba *Orm) Paginate() (res Data, err error) {
+	var limit = dba.GetLimit()
+	if limit == 0 {
+		limit = 15
+	}
+	var offset = dba.GetOffset()
+	var current_page = int(math.Ceil(float64(offset+1) / float64(limit)))
 	// 统计总量
 	count, err := dba.Count()
 	// 获取结果
-	var bind = Data{}
-	err = dba.Table(&bind).Limit(limit).Select()
+	err = dba.Select()
 	if err != nil {
 		return
 	}
@@ -291,7 +294,7 @@ func (dba *Orm) Paginate(limit, current_page int) (res Data, err error) {
 		"last_page_url":  last_page,
 		"next_page_url":  If(next_page > last_page, nil, next_page),
 		"prev_page_url":  If(prev_page < 1, nil, prev_page),
-		"data":           dba.GetIBinder().GetBindResultSlice(),
+		"data":           dba.GetIBinder().GetBindResultSlice().Interface(),
 	}
 
 	return
