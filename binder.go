@@ -138,10 +138,16 @@ func (s *Binder) BindParse(prefix string) error {
 			case reflect.Struct:
 				s.SetBindType(OBJECT_STRUCT_SLICE)
 				BindName = eltType.Name()
-				s.SetBindResult(reflect.New(eltType).Interface())
+				br := reflect.New(eltType)
+				s.SetBindResult(br.Interface())
 				s.SetBindResultSlice(sliceVal)
 				// 解析出字段
 				s.parseFields()
+
+				// 是否设置了表名
+				if tn := br.MethodByName("TableName"); tn.IsValid() {
+					BindName = tn.Call(nil)[0].String()
+				}
 			default:
 				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
 			}
