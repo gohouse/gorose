@@ -188,6 +188,19 @@ func TestOrm_Loop(t *testing.T) {
 	t.Log("Loop() success")
 }
 
+
+func TestOrm_Paginate(t *testing.T) {
+	db := DB()
+
+	var u []Users
+	res,err := db.Table(&u).Limit(2).Page(3).Paginate()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(res)
+	t.Log(db.LastSql())
+}
+
 func BenchmarkNewOrm(b *testing.B) {
 	engin:=initDB()
 	for i:=0;i<b.N;i++{
