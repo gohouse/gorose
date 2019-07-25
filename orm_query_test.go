@@ -2,6 +2,7 @@ package gorose
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -65,13 +66,25 @@ func TestOrm_Select2(t *testing.T) {
 	t.Log(u)
 }
 
+
+type Users2 struct {
+	Name string `orm:"name"`
+	Age  int    `orm:"age"`
+	Uid  int    `orm:"uid"`
+	Fi   string `orm:"ignore"`
+}
+
+func (u *Users2) TableName() string {
+	return "users"
+}
 func TestOrm_Get2(t *testing.T) {
 	db := DB()
 	var err error
-	var u = []Users{}
+	var u []Users2
 
 	//res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
 	res, err := db.Table(&u).Where("uid", ">", 0).Limit(2).Get()
+	fmt.Println(db.LastSql())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -197,7 +210,7 @@ func TestOrm_Paginate(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(res)
+	t.Log(res, u)
 	t.Log(db.LastSql())
 }
 

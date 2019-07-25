@@ -238,12 +238,20 @@ func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
 func (dba *Orm) Reset() IOrm {
 	dba.OrmApi = new(OrmApi)
 	dba.ClearBindValues()
+	dba.GetISession().SetUnion(nil)
 	return dba
 }
 
 // ResetWhere
 func (dba *Orm) ResetWhere() IOrm {
 	dba.where = [][]interface{}{}
+	return dba
+}
+
+// ResetUnion
+func (dba *Orm) ResetUnion() IOrm {
+	dba.union = ""
+	dba.GetISession().SetUnion(nil)
 	return dba
 }
 
@@ -255,6 +263,10 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	if err != nil {
 		dba.GetISession().GetIEngin().GetLogger().Error(err.Error())
 		return
+	}
+	// 解析字段
+	if inArray(dba.GetIBinder().GetBindType(), []interface{}{OBJECT_STRUCT, OBJECT_STRUCT_SLICE}) {
+		dba.fields = getTagName(dba.GetIBinder().GetBindResult(), TAGNAME)
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {
 		// 根据传入的struct, 设置limit, 有效的节约空间

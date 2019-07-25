@@ -380,7 +380,7 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 			return err
 		}
 		// scan it
-		//fmt.Println(structForScan(s.GetBindResult()))
+		//fmt.Printf("%#v \n",structForScan(s.GetBindResult()))
 		err := rows.Scan(structForScan(s.GetBindResult())...)
 		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())
