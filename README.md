@@ -26,6 +26,12 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 require github.com/gohouse/gorose v2.0-rc10
 ```
 
+- docker
+```bash
+docker run -it --rm ababy/gorose sh -c "go run main.go"
+```
+> docker 镜像: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), docker镜像包含了gorose所必须的包和运行环境, [查看`Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
+
 ## 文档
 [最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835)  
 [1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
