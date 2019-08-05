@@ -13,15 +13,16 @@ func TestNewOrm(t *testing.T) {
 }
 func TestOrm_AddFields(t *testing.T) {
 	orm := DB()
-	var u = Users{}
-	var fieldStmt = orm.Table(&u).Fields("a").Where("m", 55)
+	//var u = Users{}
+	var fieldStmt = orm.Table("users").Fields("a").Where("m", 55)
 	a, b, err := fieldStmt.AddFields("b").Where("d", 1).BuildSql()
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log(a, b)
 
-	d, e, err := fieldStmt.AddFields("c").Where("d", 2).BuildSql()
+	fieldStmt.Reset()
+	d, e, err := fieldStmt.Fields("a").AddFields("c").Where("d", 2).BuildSql()
 	if err != nil {
 		t.Error(err.Error())
 	}

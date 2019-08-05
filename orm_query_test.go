@@ -122,17 +122,15 @@ func TestOrm_Get(t *testing.T) {
 func TestOrm_Pluck(t *testing.T) {
 	orm := DB()
 
-	//var u = UsersMap{}
-	var u = UsersMapSlice{}
-	//var u Users
-	//var u []Users
+	//var u = UsersMapSlice{}
+	var u []Users
 	ormObj := orm.Table(&u)
-	//res,err := ormObj.Pluck("name", "uid")
-	res, err := ormObj.Limit(5).Pluck("name")
+	res,err := ormObj.Pluck("name", "uid")
+	//res, err := ormObj.Limit(5).Pluck("name")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(res, u)
+	t.Log(res, orm.LastSql())
 }
 
 func TestOrm_Value(t *testing.T) {
