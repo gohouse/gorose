@@ -194,7 +194,7 @@ gorose2.0 完全模块化, 每一个模块都封装了interface接口api, 模块
 
 ## 最佳实践
 sql
-```
+```sql
 DROP TABLE IF EXISTS "users";
 CREATE TABLE "users" (
 	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -285,7 +285,7 @@ func main() {
         目的是做到, 无感知处理大量数据  
         实现原理是, 每一次操作, 自动记录当前的操作位置, 下一次重复取数据的时候, 从当前位置开始取
         `
-	```
+	```go
 	User := db.Table("users")
 	User.Fields("id, name").Where("id",">",2).Chunk(2, func(data []map[string]interface{}) {
 	    // for _,item := range data {
@@ -307,7 +307,7 @@ func main() {
 
 	` 类似 chunk 方法, 实现原理是, 每一次操作, 都是从头开始取数据
 	原因: 当我们更改数据时, 更改的结果可能作为where条件会影响我们取数据的结果,所以, 可以使用Loop`
-    ```
+    ```go
 	User := db.Table("users")
 	User.Fields("id, name").Where("id",">",2).Loop(2, func(data []map[string]interface{}) {
 	    // for _,item := range data {
@@ -319,7 +319,7 @@ func main() {
     
 - 嵌套where  
 
-	```
+	```go
 	// SELECT  * FROM users  
 	//     WHERE  id > 1 
 	//         and ( name = 'fizz' 
