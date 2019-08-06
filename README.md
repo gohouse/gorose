@@ -22,7 +22,8 @@
 ## introduction
 gorose is a golang orm framework, which is Inspired by laravel's eloquent.  
 Gorose 2.0 adopts modular architecture, communicates through the API of interface, and strictly relies on the lower layer. Each module can be disassembled, and even can be customized to its preferred appearance.  
-The module diagram is as follows:  ![gorose-2.0-design](https://i.loli.net/2019/08/06/Xu9c4DEIJH8KByg.jpg)
+The module diagram is as follows:  
+![gorose.2.0.jpg](https://i.loli.net/2019/08/06/7R2GlbwUiFKOrNP.jpg)
 
 ## installation
 - go.mod
