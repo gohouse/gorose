@@ -129,14 +129,17 @@ session.Bind(&u).Query("insert into users(name,age) values(?,?)(?,?)", "gorose",
 session.Bind(&u).Query("update users set name=? where uid=?","gorose",1)
 session.Bind(&u).Query("delete from users where uid=?", 1)
 ```
-## Object Relational Mapping, the Use of ORM
-- 1. Basic Chain Usage
+## Object Relational Mapping, the Use of ORM  
+
+- 1. Basic Chain Usage  
+
 ```go
 var u Users
 db := engin.NewOrm()
 err := db.Table(&u).Fields("name").AddFields("uid","age").Distinct().Where("uid",">",0).OrWhere("age",18).
 	Group("age").Having("age>1").OrderBy("uid desc").Limit(10).Offset(1).Select()
 ```
+
 - 2. If you don't want to define struct and want to bind map results of a specified type, you can define map types, such as
 ```go
 type user gorose.Map
@@ -147,7 +150,7 @@ type users4 []map[string]string
 type users5 []gorose.Map
 type users6 []gorose.Data
 ```
-- 2.1 Start using map binding
+Start using map binding
 ```go
 db.Table(&user).Select()
 db.Table(&users4).Limit(5).Select()
@@ -159,12 +162,14 @@ The gorose. Data used here is actually the `map [string] interface {}'type.
 
 And `gorose. Map'is actually a `t. MapString' type. Here comes a `t'package, a golang basic data type conversion package. See http://github.com/gohouse/t for more details.  
 
-- 3. laravel的`First()`,`Get()`, Used to return the result set  
+
+- 3. laravel's `First()`,`Get()`, Used to return the result set   
 That is to say, you can even pass in the table name directly without passing in various bound structs and maps, and return two parameters, one is the `[] gorose. Map `result set, and the second is `error', which is considered simple and rude.
 
 Usage is to replace the `Select ()'method above with Get, First, but `Select ()' returns only one parameter.
 
-- 4. orm Select Update Insert Delete
+
+- 4. orm Select Update Insert Delete  
 ```go
 db.Table(&user2).Limit(10.Select()
 db.Table(&user2).Where("uid", 1).Data(gorose.Data{"name","gorose"}).Update()
@@ -183,7 +188,7 @@ This part is also user-insensitive, mainly for incoming binding object parsing a
 ## Modularization
 Gorose 2.0 is fully modular, each module encapsulates the interface api, calling between modules, through the interface, the upper layer depends on the lower layer
 
-- Main module
+- Main module  
     - engin  
     gorose Initialize the configuration module, which can be saved and reused globally  
     - session  
@@ -192,7 +197,7 @@ Gorose 2.0 is fully modular, each module encapsulates the interface api, calling
     Object relational mapping module, all ORM operations, are done here    
     - builder  
     Building the ultimate execution SQL module, you can build any database sql, but to comply with the `database / SQL ` package interface  
-- sub module
+- sub module  
     - driver  
     The database driver module, which is dependent on engin and builder, does things according to the driver    
     - binder  
