@@ -179,7 +179,7 @@ db.Table(&user2).Where("uid", 1).Delete()
 ```
 
 ## Final SQL constructor, builder constructs SQL of different databases
-Currently supports mysql, sqlite3, postgres, oracle, mssql, Clickhouse and other database drivers that conform to `database/sql'interface support  
+Currently supports mysql, sqlite3, postgres, oracle, mssql, Clickhouse and other database drivers that conform to `database/sql` interface support  
 In this part, users are basically insensitive, sorted out, mainly for developers can freely add and modify related drivers to achieve personalized needs.  
 
 ## binder, Data Binding Objects  
