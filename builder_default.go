@@ -469,10 +469,10 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
-		switch argsReal[1] {
-		case "like", "not like":
-			paramsToArr = append(paramsToArr, b.GetPlaceholder())
-			b.IOrm.SetBindValues(argsReal[2])
+		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String())," ") {
+		//case "like", "not like":
+		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
+		//	b.IOrm.SetBindValues(argsReal[2])
 		case "in", "not in":
 			var tmp []string
 			var ar2 = t.New(argsReal[2]).Slice()
@@ -481,11 +481,13 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 				b.IOrm.SetBindValues(t.New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
+
 		case "between", "not between":
 			var ar2 = t.New(argsReal[2]).Slice()
 			paramsToArr = append(paramsToArr, b.GetPlaceholder()+" and "+b.GetPlaceholder())
 			b.IOrm.SetBindValues(ar2[0].Interface())
 			b.IOrm.SetBindValues(ar2[1].Interface())
+
 		default:
 			paramsToArr = append(paramsToArr, b.GetPlaceholder())
 			b.IOrm.SetBindValues(argsReal[2])

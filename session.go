@@ -368,6 +368,7 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 	//	}
 	//	return sql.ErrNoRows
 	//}
+	var sfs = structForScan(s.GetBindResult())
 	for rows.Next() {
 		if s.GetUnion() != nil {
 			var union interface{}
@@ -381,7 +382,7 @@ func (s *Session) scanStructAll(rows *sql.Rows) error {
 		}
 		// scan it
 		//fmt.Printf("%#v \n",structForScan(s.GetBindResult()))
-		err := rows.Scan(structForScan(s.GetBindResult())...)
+		err := rows.Scan(sfs...)
 		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())
 			return err

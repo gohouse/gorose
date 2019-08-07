@@ -143,8 +143,9 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 		return
 	}
 	var binder = dba.GetISession().GetIBinder()
-	var resMap = make(t.MapInterface, 0)
+	var resMap = make(t.MapStringInterface, 0)
 	var resSlice = t.Slice{}
+
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_STRUCT: // row
 		var key, val t.T
@@ -169,7 +170,7 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 		for _, item := range t.New(binder.GetBindResultSlice().Interface()).Slice() {
 			val := item.MapInterface()
 			if len(fieldKey) > 0 {
-				resMap[val[fieldKey[0]].Interface()] = val[field]
+				resMap[val[fieldKey[0]].String()] = val[field]
 			} else {
 				resSlice = append(resSlice, val[field])
 			}
@@ -181,7 +182,7 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 			if len(fieldKey) > 0 {
 				mapkey := dba._valueFromStruct(val, fieldKey[0])
 				mapVal := dba._valueFromStruct(val, field)
-				resMap[mapkey.Interface()] = mapVal
+				resMap[mapkey.String()] = mapVal
 			} else {
 				resSlice = append(resSlice, dba._valueFromStruct(val, field))
 			}

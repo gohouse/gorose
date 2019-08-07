@@ -44,7 +44,7 @@ func Test_Transaction(t *testing.T) {
 			if err != nil {
 				return err
 			}
-			_, err = db.Insert(&UsersMap{"name": "gorose2"})
+			_, err = db.Insert(&UsersMap{"name": "gorose2", "age":0})
 			fmt.Println(db.LastSql())
 			if err != nil {
 				return err
@@ -57,7 +57,7 @@ func Test_Transaction(t *testing.T) {
 			if err != nil {
 				return err
 			}
-			_, err = db.Insert(&UsersMap{"name": "gorose2"})
+			_, err = db.Insert(&UsersMap{"name": "gorose2", "age":0})
 			fmt.Println(db.LastSql())
 			if err != nil {
 				return err

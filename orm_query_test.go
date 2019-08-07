@@ -106,6 +106,7 @@ func TestOrm_Get(t *testing.T) {
 		OrWhereNotIn("ee", []interface{}{1, 2}).
 		WhereBetween("ff", []interface{}{11, 21}).
 		WhereNotBetween("ff", []interface{}{1, 2}).
+		Where("a","like", "%3%").
 		OrWhere(func() {
 			orm.Where("c", 3).OrWhere(func() {
 				orm.Where("d", ">", 4)

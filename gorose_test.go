@@ -24,7 +24,7 @@ func initTable(e *Engin) {
 	var sql = `CREATE TABLE IF NOT EXISTS "users" (
 	 "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	 "name" TEXT NOT NULL default "",
-	 "age" integer NOT NULL default ""
+	 "age" integer NOT NULL default 0
 )`
 	var s = e.NewSession()
 	var err error
