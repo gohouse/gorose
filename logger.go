@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
+type LogLevel uint
+
 const (
 	LOG_SQL LogLevel = iota
 	LOG_SLOW
 	LOG_ERROR
 )
-
-type LogLevel uint
 
 func (l LogLevel) String() string {
 	switch l {
