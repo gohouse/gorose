@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gohouse/gocar/structEngin"
 	"github.com/gohouse/t"
-	//"log"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -72,49 +72,54 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		return
 	}
 
-	if len(b.GetJoin()) > 0 {
+	if len(b.GetJoin()) > 0{
 		b.GetFields()
 	}
 
-	// 默认情况
 	fieldsStr := b.BuildFields()
 	tableName := b.BuildTable()
-	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
+	sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
+		tableName, join, where, b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
 
-	// 批量取数据需嵌套写法
-	if  b.GetLimit() > 0{
-		aliasNameA := "tabA"
-		aliasNameB := "tabB"
+	if b.GetLimit() > 0 {
+		var (
+			fieldListNew []string
+			tmpList  	 []string
+			aliasName    string
+		)
+
 		page := b.GetOffset()/b.GetLimit() + 1
 		startRow := (page-1)*b.GetLimit() + 1
 		endRow := page*b.GetLimit() + 1
 
-		if fieldsStr == "*"{
-			fieldsStr = b.GetTable() + ".*, rownum r"
-		}else{
-			if b.GetGroup() == ""{
-				fieldsStr = fieldsStr + ", rownum r"
-			}
+		// 聚合、order by优化 需要嵌套
+		aliasName  = "tabA"
+		if len(b.GetGroup()) > 0 || len(b.GetOrder()) > 0 {
+			tableName = "(" + sqlStr + ") " + aliasName
 		}
 
-		// 没有group by需要1层嵌套， 有group by需要2层嵌套
-		// 如果考虑orderby优化，还需要一层嵌套
-		if b.GetGroup() == "" {
-			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-				tableName, join, where, b.BuildLimit(), b.BuildOrder())
-
-			sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
-				sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
-		}else{
-			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-				tableName, join, where,  b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
-
-			sqlStr = fmt.Sprintf(
-				"select * from (select %s, rownum r from (%s) %s where rownum<%s ) %s where %s.r>=%s",
-				aliasNameA + ".*", sqlStr, aliasNameA, strconv.Itoa(endRow), aliasNameB, aliasNameB,
-				strconv.Itoa(startRow))
+		if strings.Index(fieldsStr, "*") < 0{
+			fieldList := strings.Split(fieldsStr, ",")
+			for _, field := range fieldList{
+				field = strings.Trim(field, " ")
+				tmpList = strings.Split(field, "as")  // 别名用as
+				if len(tmpList) != 2{
+					tmpList = strings.Split(field, " ")  //别名用空格
+					if len(tmpList) != 2 {
+						err = errors.New("join必须使用别名！！！")
+						log.Println(err.Error())
+						return
+					}
+				}
+				fieldListNew = append(fieldListNew, tmpList[1])
 			}
+			fieldsStr = strings.Join(fieldListNew, ",")
+		}else{
+			fieldsStr = aliasName + ".*"
+		}
+
+		sqlStr = fmt.Sprintf("select * from (SELECT %s, rownum r FROM %s where rownum<%s) a where a.r>=%s",
+			fieldsStr, tableName, strconv.Itoa(endRow), strconv.Itoa(startRow))
 	}
 
 	//args = b.bindParams
@@ -259,27 +264,6 @@ func (b *BuilderOracle) BuildHaving() string {
 
 func (b *BuilderOracle) BuildOrder() string {
 	return b.BuilderDefault.BuildOrder()
-}
-
-func (b *BuilderOracle) BuildLimit() string {
-	if b.IOrm.GetUnion() != nil {
-		return ""
-	}
-
-	if b.GetLimit() == 0{
-		return ""
-	}
-
-	page := b.GetOffset()/b.GetLimit() + 1
-	endRow := page * b.GetLimit() + 1
-
-	var limitStr string
-	if len(b.IOrm.GetWhere()) > 0 {
-		limitStr = fmt.Sprintf(" and rownum < %d", endRow)
-	} else {
-		limitStr = fmt.Sprintf(" where rownum < %d", endRow)
-	}
-	return If(b.IOrm.GetLimit() == 0, "", limitStr).(string)
 }
 
 func (b *BuilderOracle) BuildOffset() string {
