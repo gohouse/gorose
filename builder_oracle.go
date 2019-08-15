@@ -99,7 +99,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		}
 
 		// 没有group by需要1层嵌套， 有group by需要2层嵌套
-		// 如果考虑orderby优化，还需要一层嵌套
+		// 如果考虑orderby优化，还需要一层嵌套。目前未考虑
 		if b.GetGroup() == "" {
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s", b.BuildDistinct(), fieldsStr,
 				tableName, join, where, b.BuildLimit(), b.BuildOrder())
