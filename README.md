@@ -44,7 +44,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 
 ## api preview
 ```go
-db.Table().Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
+db.Table().Fields().Distinct().Where().GroupBy().Having().OrderBy().Limit().Offset().Select()
 db.Table().Data().Insert()
 db.Table().Data().Where().Update()
 db.Table().Where().Delete()
