@@ -50,6 +50,17 @@ db.Table().Data().Where().Update()
 db.Table().Where().Delete()
 ```
 
+## simple usage example
+```go
+res, err := db.Table("users").First()
+// res is a map[string]interface{}
+fmt.Println(res)
+
+res2, _ := db.Table("users").Get()
+// res2 is a []map[string]interface{}
+fmt.Println(res2)
+```
+
 ## usage advise
 Gorose provides data object binding (map, struct), while supporting string table names and map data return. It provides great flexibility.
 

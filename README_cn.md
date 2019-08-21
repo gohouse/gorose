@@ -45,6 +45,17 @@ db.Table().Data().Where().Update()
 db.Table().Where().Delete()
 ```
 
+## 简单用法示例
+```go
+res, err := db.Table("users").First()
+// res 类型为 map[string]interface{}
+fmt.Println(res)
+
+res2, _ := db.Table("users").Get()
+// res2 类型为 []map[string]interface{}
+fmt.Println(res2)
+```
+
 ## 使用建议
 gorose提供数据对象绑定(map, struct), 同时支持字符串表名和map数据返回. 提供了很大的灵活性  
 建议优先采用数据绑定的方式来完成查询操作, 做到数据源类型可控  
