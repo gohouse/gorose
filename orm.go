@@ -265,7 +265,9 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 		return
 	}
 	// 解析字段
-	if inArray(dba.GetIBinder().GetBindType(), []interface{}{OBJECT_STRUCT, OBJECT_STRUCT_SLICE}) {
+	// 如果有union操作, 则不需要
+	if inArray(dba.GetIBinder().GetBindType(), []interface{}{OBJECT_STRUCT, OBJECT_STRUCT_SLICE}) &&
+		dba.GetUnion()==nil{
 		dba.fields = getTagName(dba.GetIBinder().GetBindResult(), TAGNAME)
 	}
 	if len(operType) == 0 || (len(operType) > 0 && strings.ToLower(operType[0]) == "select") {

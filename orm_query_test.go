@@ -7,19 +7,11 @@ import (
 )
 
 func TestOrm_First(t *testing.T) {
-	db := DB()
-	var u = Users{}
-	var err error
-	//res, err := db.Table(&u).Get()
-	//if err != nil {
-	//	t.Error(err.Error())
-	//}
-	//t.Log(res)
-	err = db.Table(&u).Select()
+	res,err := DB().Table("users").First()
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(u)
+	t.Log(res)
 }
 
 func TestOrm_Select(t *testing.T) {
@@ -159,6 +151,16 @@ func TestOrm_Count(t *testing.T) {
 		t.Error(err.Error())
 	}
 	t.Log(res, db.LastSql())
+}
+
+func TestOrm_Count2(t *testing.T) {
+	var u Users
+	var count int64
+	count, err := DB().Table(&u).Count()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(count)
 }
 
 func TestOrm_Chunk(t *testing.T) {
