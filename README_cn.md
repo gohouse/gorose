@@ -47,13 +47,35 @@ db.Table().Where().Delete()
 
 ## 简单用法示例
 ```go
-res, err := db.Table("users").First()
-// res 类型为 map[string]interface{}
-fmt.Println(res)
-
-res2, _ := db.Table("users").Get()
-// res2 类型为 []map[string]interface{}
-fmt.Println(res2)
+package main
+import (
+	"fmt"
+	"github.com/gohouse/gorose"
+	_ "github.com/mattn/go-sqlite3"
+)
+var err error
+var engin *gorose.Engin
+func init() {
+    // 全局初始化数据库,并复用
+    // 这里的engin需要全局保存,可以用全局变量,也可以用单例
+    // 配置&gorose.Config{}是单一数据库配置
+    // 如果配置读写分离集群,则使用&gorose.ConfigCluster{}
+	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
+}
+func DB() gorose.IOrm {
+	return engin.NewOrm()
+}
+func main() {
+    // 单条数据
+    res, err := DB().Table("users").First()
+    // res 类型为 map[string]interface{}
+    fmt.Println(res)
+    
+    // 多条数据
+    res2, _ := DB().Table("users").Get()
+    // res2 类型为 []map[string]interface{}
+    fmt.Println(res2)
+}
 ```
 
 ## 使用建议

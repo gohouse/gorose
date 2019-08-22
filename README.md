@@ -52,13 +52,35 @@ db.Table().Where().Delete()
 
 ## simple usage example
 ```go
-res, err := db.Table("users").First()
-// res is a map[string]interface{}
-fmt.Println(res)
-
-res2, _ := db.Table("users").Get()
-// res2 is a []map[string]interface{}
-fmt.Println(res2)
+package main
+import (
+	"fmt"
+	"github.com/gohouse/gorose"
+	_ "github.com/mattn/go-sqlite3"
+)
+var err error
+var engin *gorose.Engin
+func init() {
+    // Global initialization and reuse of databases
+    // The engin here needs to be saved globally, using either global variables or singletons
+    // Configuration & gorose. Config {} is a single database configuration
+    // If you configure a read-write separation cluster, use & gorose. ConfigCluster {}
+	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
+}
+func DB() gorose.IOrm {
+	return engin.NewOrm()
+}
+func main() {
+    // fetch one row
+    res, err := DB().Table("users").First()
+    // res's type is map[string]interface{}
+    fmt.Println(res)
+    
+    // fetch more rows
+    res2, _ := DB().Table("users").Get()
+    // res2's type is []map[string]interface{}
+    fmt.Println(res2)
+}
 ```
 
 ## usage advise
