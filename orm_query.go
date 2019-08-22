@@ -109,46 +109,46 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 }
 
 // Get : select more rows , relation limit set
-func (dba *Orm) Value(field string) (v t.T, err error) {
+func (dba *Orm) Value(field string) (v interface{}, err error) {
 	dba.Limit(1)
 	err = dba.Select()
 	if err != nil {
 		return
 	}
-	//var binder = dba.GetISession().GetIBinder()
-	//switch binder.GetBindType() {
-	//case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
-	//	v = t.New(binder.GetBindResult().MapIndex(reflect.ValueOf(field)).Interface())
-	//case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-	//	bindResult := reflect.Indirect(binder.GetBindResult())
-	//	v = dba._valueFromStruct(bindResult, field)
-	//}
+	var binder = dba.GetISession().GetIBinder()
+	switch binder.GetBindType() {
+	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
+		v = reflect.ValueOf(binder.GetBindResult()).MapIndex(reflect.ValueOf(field)).Interface()
+	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
+		bindResult := reflect.Indirect(reflect.ValueOf(binder.GetBindResult()))
+		v = dba._valueFromStruct(bindResult, field)
+	}
 	return
 }
-func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v t.T) {
+func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v interface{}) {
 	ostype := bindResult.Type()
 	for i := 0; i < ostype.NumField(); i++ {
 		tag := ostype.Field(i).Tag.Get(TAGNAME)
 		if tag == field || ostype.Field(i).Name == field {
-			v = t.New(bindResult.FieldByName(ostype.Field(i).Name))
+			v = bindResult.FieldByName(ostype.Field(i).Name).Interface()
 		}
 	}
 	return
 }
 
 // Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
-func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
+func (dba *Orm) Pluck(field string, fieldKey ...string) (v interface{}, err error) {
 	err = dba.Select()
 	if err != nil {
 		return
 	}
 	var binder = dba.GetISession().GetIBinder()
-	var resMap = make(t.MapStringInterface, 0)
-	var resSlice = t.Slice{}
+	var resMap = make(map[interface{}]interface{}, 0)
+	var resSlice = make([]interface{}, 0)
 
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_STRUCT: // row
-		var key, val t.T
+		var key, val interface{}
 		if len(fieldKey) > 0 {
 			key, err = dba.Value(fieldKey[0])
 			if err != nil {
@@ -158,21 +158,20 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 			if err != nil {
 				return
 			}
-			v = t.New(t.Map{key: val})
+			resMap[key] = val
 		} else {
 			v, err = dba.Value(field)
 			if err != nil {
 				return
 			}
 		}
-		return
 	case OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		for _, item := range t.New(binder.GetBindResultSlice().Interface()).Slice() {
 			val := item.MapInterface()
 			if len(fieldKey) > 0 {
-				resMap[val[fieldKey[0]].String()] = val[field]
+				resMap[val[fieldKey[0]].Interface()] = val[field].Interface()
 			} else {
-				resSlice = append(resSlice, val[field])
+				resSlice = append(resSlice, val[field].Interface())
 			}
 		}
 	case OBJECT_STRUCT_SLICE: // rows
@@ -182,16 +181,16 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v t.T, err error) {
 			if len(fieldKey) > 0 {
 				mapkey := dba._valueFromStruct(val, fieldKey[0])
 				mapVal := dba._valueFromStruct(val, field)
-				resMap[mapkey.String()] = mapVal
+				resMap[mapkey] = mapVal
 			} else {
 				resSlice = append(resSlice, dba._valueFromStruct(val, field))
 			}
 		}
 	}
 	if len(fieldKey) > 0 {
-		v = t.New(t.New(resMap).Map())
+		v = resMap
 	} else {
-		v = t.New(resSlice)
+		v = resSlice
 	}
 	return
 }
