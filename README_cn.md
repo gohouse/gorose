@@ -23,7 +23,7 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose v2.0.1
+require github.com/gohouse/gorose v2.0.2
 ```
 
 - docker
