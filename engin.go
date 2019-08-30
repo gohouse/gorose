@@ -139,6 +139,7 @@ func (c *Engin) bootCluster() error {
 			c.driver = item.Driver
 		}
 	}
+	var pre,dr string
 	if len(c.config.Master) > 0 {
 		for _, item := range c.config.Master {
 			db, err := c.bootReal(item)
@@ -153,15 +154,21 @@ func (c *Engin) bootCluster() error {
 			c.dbs.masterSize = c.dbs.masterSize + 1
 			c.driver = item.Driver
 			//fmt.Println(c.dbs.masterSize)
+			if item.Prefix != "" {
+				pre = item.Prefix
+			}
+			if item.Driver != "" {
+				dr = item.Driver
+			}
 		}
 	}
 	// 如果config没有设置prefix,且configcluster设置了prefix,则使用cluster的prefix
-	if c.config.Prefix != "" && c.prefix == "" {
-		c.prefix = c.config.Prefix
+	if pre != "" && c.prefix == "" {
+		c.prefix = pre
 	}
 	// 如果config没有设置driver,且configcluster设置了driver,则使用cluster的driver
-	if c.config.Driver != "" && c.driver == "" {
-		c.driver = c.config.Driver
+	if dr != "" && c.driver == "" {
+		c.driver = dr
 	}
 
 	return nil
