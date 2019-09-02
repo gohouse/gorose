@@ -37,6 +37,11 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
 > docker image: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), The docker image contains the packages and runtime environment necessary for gorose, [view `Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
 
+- without version control  
+```bash
+go get -u github.com/gohouse/gorose
+```
+
 ## document
 [2.x doc](https://www.kancloud.cn/fizz/gorose-2/1135835)  
 [1.x doc](https://www.kancloud.cn/fizz/gorose/769179)  

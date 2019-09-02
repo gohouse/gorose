@@ -32,10 +32,19 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
 > docker 镜像: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), docker镜像包含了gorose所必须的包和运行环境, [查看`Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
 
+- 不使用版本控制  
+```bash
+go get -u github.com/gohouse/gorose
+```
+
 ## 文档
 [最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835)  
 [1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
+
+## 升级日志
+- v2.1.0-rc: join表自动加前缀,不需要再手动加前缀  
+- v2.0.0: 船新版本,船新架构  
 
 ## api预览
 ```go
