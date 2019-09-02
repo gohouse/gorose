@@ -42,6 +42,10 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 [1.x doc](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
 
+## realease log
+- v2.1.0-rc: update join with auto table prefix  
+- v2.0.0: new version, new structure  
+
 ## api preview
 ```go
 db.Table().Fields().Distinct().Where().GroupBy().Having().OrderBy().Limit().Offset().Select()
