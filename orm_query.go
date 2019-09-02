@@ -108,43 +108,16 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	return tmp, nil
 }
 
-// Get : select more rows , relation limit set
-func (dba *Orm) Value(field string) (v interface{}, err error) {
-	dba.Limit(1)
-	err = dba.Select()
-	if err != nil {
-		return
-	}
-	var binder = dba.GetISession().GetIBinder()
-	switch binder.GetBindType() {
-	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
-		v = reflect.ValueOf(binder.GetBindResult()).MapIndex(reflect.ValueOf(field)).Interface()
-	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
-		bindResult := reflect.Indirect(reflect.ValueOf(binder.GetBindResult()))
-		v = dba._valueFromStruct(bindResult, field)
-	}
-	return
-}
-func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v interface{}) {
-	ostype := bindResult.Type()
-	for i := 0; i < ostype.NumField(); i++ {
-		tag := ostype.Field(i).Tag.Get(TAGNAME)
-		if tag == field || ostype.Field(i).Name == field {
-			v = bindResult.FieldByName(ostype.Field(i).Name).Interface()
-		}
-	}
-	return
-}
-
 // Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
 func (dba *Orm) Pluck(field string, fieldKey ...string) (v interface{}, err error) {
-	err = dba.Select()
-	if err != nil {
-		return
-	}
 	var binder = dba.GetISession().GetIBinder()
 	var resMap = make(map[interface{}]interface{}, 0)
 	var resSlice = make([]interface{}, 0)
+
+	err = dba.Select()
+	if err != nil {
+		return
+	}
 
 	switch binder.GetBindType() {
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_STRUCT: // row
@@ -186,11 +159,55 @@ func (dba *Orm) Pluck(field string, fieldKey ...string) (v interface{}, err erro
 				resSlice = append(resSlice, dba._valueFromStruct(val, field))
 			}
 		}
+	case OBJECT_STRING:
+		res := dba.GetISession().GetBindAll()
+		if len(res) > 0 {
+			for _, val := range res {
+				if len(fieldKey) > 0 {
+					resMap[val[fieldKey[0]]] = val[field]
+				} else {
+					resSlice = append(resSlice, val[field])
+				}
+			}
+		}
 	}
 	if len(fieldKey) > 0 {
 		v = resMap
 	} else {
 		v = resSlice
+	}
+	return
+}
+
+// Get : select more rows , relation limit set
+func (dba *Orm) Value(field string) (v interface{}, err error) {
+	dba.Limit(1)
+	err = dba.Select()
+	if err != nil {
+		return
+	}
+	var binder = dba.GetISession().GetIBinder()
+	switch binder.GetBindType() {
+	case OBJECT_MAP, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T, OBJECT_MAP_T:
+		v = reflect.ValueOf(binder.GetBindResult()).MapIndex(reflect.ValueOf(field)).Interface()
+	case OBJECT_STRUCT, OBJECT_STRUCT_SLICE:
+		bindResult := reflect.Indirect(reflect.ValueOf(binder.GetBindResult()))
+		v = dba._valueFromStruct(bindResult, field)
+	case OBJECT_STRING:
+		res := dba.GetISession().GetBindAll()
+		if len(res) > 0 {
+			v = res[0][field]
+		}
+	}
+	return
+}
+func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v interface{}) {
+	ostype := bindResult.Type()
+	for i := 0; i < ostype.NumField(); i++ {
+		tag := ostype.Field(i).Tag.Get(TAGNAME)
+		if tag == field || ostype.Field(i).Name == field {
+			v = bindResult.FieldByName(ostype.Field(i).Name).Interface()
+		}
 	}
 	return
 }

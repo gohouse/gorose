@@ -116,10 +116,10 @@ func TestOrm_Pluck(t *testing.T) {
 	orm := DB()
 
 	//var u = UsersMapSlice{}
-	var u []Users
-	ormObj := orm.Table(&u)
-	res,err := ormObj.Pluck("name", "uid")
-	//res, err := ormObj.Limit(5).Pluck("name")
+	//var u []Users
+	ormObj := orm.Table("users")
+	//res,err := ormObj.Pluck("name", "uid")
+	res, err := ormObj.Limit(5).Pluck("name")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -130,10 +130,11 @@ func TestOrm_Value(t *testing.T) {
 	db := DB()
 
 	//var u = UsersMap{}
-	var u = UsersMapSlice{}
-	//var u Users
-	//var u []Users
-	ormObj := db.Table(&u)
+	//var u = UsersMapSlice{}
+	////var u Users
+	////var u []Users
+	//ormObj := db.Table(&u)
+	ormObj := db.Table("users")
 	res, err := ormObj.Limit(5).Value("name")
 	if err != nil {
 		t.Error(err.Error())
