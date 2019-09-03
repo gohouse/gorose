@@ -396,8 +396,8 @@ func main() {
 	```
 
 =====
-## 赞助渠道
-微信|支付宝
+## pay me a coffe
+wechat|alipay
 ---|---
-<img src="imgs/wechat.png" width="400"> | <img src="imgs/alipay.jpeg" width="400">
+<img src="imgs/wechat.png" width="300"> | <img src="imgs/alipay.jpeg" width="300">
 
