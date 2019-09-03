@@ -401,3 +401,6 @@ wechat|alipay|[paypal: click](https://www.paypal.me/fizzday)
 ---|---|---
 <img src="imgs/wechat.png" width="300">|<img src="imgs/alipay.png" width="300"> | <a href="https://www.paypal.me/fizzday"><img src="imgs/paypal.png" width="300"></a> 
 
+- pay list  
+![https://avatars1.githubusercontent.com/u/53846155?s=96&v=4](https://github.com/sanjinhub): ￥100  
+
