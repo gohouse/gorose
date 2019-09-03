@@ -387,5 +387,5 @@ func main() {
 ## 赞助渠道
 微信|支付宝|[paypal: click](https://www.paypal.me/fizzday)
 ---|---|---
-<img src="imgs/wechat.png" width="300">|<img src="imgs/alipay.jpeg" width="300"> | <a href="https://www.paypal.me/fizzday"><img src="imgs/paypal.png" width="300"></a> 
-      
+<img src="imgs/wechat.png" width="300">|<img src="imgs/alipay.png" width="300"> | <a href="https://www.paypal.me/fizzday"><img src="imgs/paypal.png" width="300"></a> 
+
