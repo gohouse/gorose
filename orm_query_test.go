@@ -74,8 +74,11 @@ func TestOrm_Get2(t *testing.T) {
 	var err error
 	var u []Users2
 
-	//res, err := db.Table("users").Where("uid", ">", 2).Limit(2).Get()
-	res, err := db.Table(&u).Where("uid", ">", 0).Limit(2).Get()
+	res, err := db.Table("users").Where("uid", ">", 2).
+		//Where("1","=","1").
+		Where("1 = 1").
+		Limit(2).Get()
+	//res, err := db.Table(&u).Where("uid", ">", 0).Limit(2).Get()
 	fmt.Println(db.LastSql())
 	if err != nil {
 		t.Error(err.Error())
@@ -145,8 +148,10 @@ func TestOrm_Value(t *testing.T) {
 func TestOrm_Count(t *testing.T) {
 	db := DB()
 
-	var u = UsersMap{}
-	ormObj := db.Table(&u)
+	//var u = UsersMap{}
+	//ormObj := db.Table(&u)
+	ormObj := db.Table("users")
+
 	res, err := ormObj.Count()
 	if err != nil {
 		t.Error(err.Error())

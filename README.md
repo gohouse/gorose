@@ -394,3 +394,11 @@ func main() {
 	        })
 	    }).Where("job", "it").First()
 	```
+
+=====
+## 赞助渠道
+微信|支付宝
+---|---
+<img src="imgs/wechat.png" width="400"> | 
+![](imgs/alipay.jpeg/dissolve/400)
+
