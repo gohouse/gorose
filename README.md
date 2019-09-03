@@ -399,6 +399,6 @@ func main() {
 ## 赞助渠道
 微信|支付宝
 ---|---
-<img src="imgs/wechat.png" width="400"> | 
-![](imgs/alipay.jpeg/dissolve/400)
+<img src="imgs/wechat.png" width="400"> |
+<img src="imgs/alipay.jpeg" width="400">
 
