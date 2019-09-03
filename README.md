@@ -399,7 +399,5 @@ func main() {
 ## pay me a coffe
 wechat|alipay|paypal
 ---|---|---
-<img src="imgs/wechat.png" width="300"> |
-<img src="imgs/alipay.jpeg" width="300"> |
-<img src="imgs/paypal.png" width="300"> 
+<img src="imgs/wechat.png" width="300">|<img src="imgs/alipay.jpeg" width="300"> | <img src="imgs/paypal.png" width="300"> 
 
