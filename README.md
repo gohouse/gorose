@@ -84,18 +84,18 @@ func DB() gorose.IOrm {
 	return engin.NewOrm()
 }
 func main() {
-    // Native SQL 
+    // Native SQL, return results directly 
     res,err := DB().Query("select * from users where uid>? limit 2", 1)
     fmt.Println(res)
     affected_rows,err := DB().Execute("delete from users where uid=?", 1)
     fmt.Println(affected_rows, err)
 
-    // fetch one row
+    // orm chan operation, fetch one row
     res, err := DB().Table("users").First()
     // res's type is map[string]interface{}
     fmt.Println(res)
     
-    // fetch more rows
+    // rm chan operation, fetch more rows
     res2, _ := DB().Table("users").Get()
     // res2's type is []map[string]interface{}
     fmt.Println(res2)

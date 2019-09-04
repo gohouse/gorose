@@ -79,18 +79,18 @@ func DB() gorose.IOrm {
 	return engin.NewOrm()
 }
 func main() {
-    // 原生sql
+    // 原生sql, 直接返回结果集
     res,err := DB().Query("select * from users where uid>? limit 2", 1)
     fmt.Println(res)
     affected_rows,err := DB().Execute("delete from users where uid=?", 1)
     fmt.Println(affected_rows, err)
 
-    // 单条数据
+    // orm链式操作,查询单条数据
     res, err = DB().Table("users").First()
     // res 类型为 map[string]interface{}
     fmt.Println(res)
     
-    // 多条数据
+    // orm链式操作,查询多条数据
     res2, _ := DB().Table("users").Get()
     // res2 类型为 []map[string]interface{}
     fmt.Println(res2)
