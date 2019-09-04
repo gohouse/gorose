@@ -79,8 +79,14 @@ func DB() gorose.IOrm {
 	return engin.NewOrm()
 }
 func main() {
+    // 原生sql
+    res,err := DB().Query("select * from users where uid>? limit 2", 1)
+    fmt.Println(res)
+    affected_rows,err := DB().Execute("delete from users where uid=?", 1)
+    fmt.Println(affected_rows, err)
+
     // 单条数据
-    res, err := DB().Table("users").First()
+    res, err = DB().Table("users").First()
     // res 类型为 map[string]interface{}
     fmt.Println(res)
     
@@ -149,7 +155,8 @@ func (u *Users) TableName() string {
 	return "users"
 }
 ```
-原生查询操作
+原生查询操作  
+除了上边的直接返回结果集外, 还支持绑定结果到给定对象上
 ```go
 // 这里是要绑定的结构体对象
 // 如果你没有定义结构体, 则可以直接使用map, map示例
@@ -158,7 +165,7 @@ func (u *Users) TableName() string {
 var u Users
 session := engin.NewSession()
 // 这里Bind()是为了存放结果的, 如果你使用的是NewOrm()初始化,则可以直接使用 NewOrm().Table().Query()
-err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
+_,err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
 fmt.Println(err)
 fmt.Println(u)
 fmt.Println(session.LastSql())

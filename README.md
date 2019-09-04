@@ -84,6 +84,12 @@ func DB() gorose.IOrm {
 	return engin.NewOrm()
 }
 func main() {
+    // Native SQL 
+    res,err := DB().Query("select * from users where uid>? limit 2", 1)
+    fmt.Println(res)
+    affected_rows,err := DB().Execute("delete from users where uid=?", 1)
+    fmt.Println(affected_rows, err)
+
     // fetch one row
     res, err := DB().Table("users").First()
     // res's type is map[string]interface{}
@@ -164,7 +170,7 @@ Native query operation
 var u Users
 session := engin.NewSession()
 // Here Bind () is used to store results. If you use NewOrm () initialization, you can use NewOrm (). Table (). Query () directly.
-err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
+_,err := session.Bind(&u).Query("select * from users where uid=? limit 2", 1)
 fmt.Println(err)
 fmt.Println(u)
 fmt.Println(session.LastSql())
