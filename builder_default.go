@@ -286,14 +286,14 @@ func (b *BuilderDefault) BuildJoin() (s string, err error) {
 		switch argsLength {
 		case 1: // join字符串 raw
 			//w = args[0].(string)
-			w = fmt.Sprintf("%s%s",prefix, args[0])
+			w = fmt.Sprintf("%s%s", prefix, args[0])
 		case 2: // join表 + 字符串
 			//w = args[0].(string) + " ON " + args[1].(string)
-			w = fmt.Sprintf("%s%s ON %s",prefix, args[0],args[1])
+			w = fmt.Sprintf("%s%s ON %s", prefix, args[0], args[1])
 		case 4: // join表 + (a字段+关系+a字段)
 			//w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
 
-			w = fmt.Sprintf("%s%s ON %s %s %s",prefix, args[0],args[1],args[2],args[3])
+			w = fmt.Sprintf("%s%s ON %s %s %s", prefix, args[0], args[1], args[2], args[3])
 		default:
 			err = errors.New("join format error")
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -341,7 +341,7 @@ func (b *BuilderDefault) BuildOrder() string {
 }
 
 func (b *BuilderDefault) BuildLimit() string {
-	if b.IOrm.GetUnion()!=nil {
+	if b.IOrm.GetUnion() != nil {
 		return ""
 	}
 	return If(b.IOrm.GetLimit() == 0, "", " LIMIT "+strconv.Itoa(b.IOrm.GetLimit())).(string)
@@ -351,7 +351,7 @@ func (b *BuilderDefault) BuildOffset() string {
 	if b.BuildLimit() == "" {
 		return ""
 	}
-	if b.IOrm.GetUnion()!=nil {
+	if b.IOrm.GetUnion() != nil {
 		return ""
 	}
 	return If(b.IOrm.GetOffset() == 0, "", " OFFSET "+strconv.Itoa(b.IOrm.GetOffset())).(string)
@@ -474,7 +474,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
-		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String())," ") {
+		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
 		//case "like", "not like":
 		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		//	b.IOrm.SetBindValues(argsReal[2])

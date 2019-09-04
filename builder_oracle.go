@@ -83,17 +83,17 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 		tableName, join, where, b.BuildLimit(), b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
 
 	// 批量取数据需嵌套写法
-	if  b.GetLimit() > 0{
+	if b.GetLimit() > 0 {
 		aliasNameA := "tabA"
 		aliasNameB := "tabB"
 		page := b.GetOffset()/b.GetLimit() + 1
 		startRow := (page-1)*b.GetLimit() + 1
 		endRow := page*b.GetLimit() + 1
 
-		if fieldsStr == "*"{
+		if fieldsStr == "*" {
 			fieldsStr = b.GetTable() + ".*, rownum r"
-		}else{
-			if b.GetGroup() == ""{
+		} else {
+			if b.GetGroup() == "" {
 				fieldsStr = fieldsStr + ", rownum r"
 			}
 		}
@@ -106,13 +106,13 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 
 			sqlStr = fmt.Sprintf("select * from (%s) %s where %s.r>=%s",
 				sqlStr, aliasNameA, aliasNameA, strconv.Itoa(startRow))
-		}else{
+		} else {
 			sqlStr = fmt.Sprintf("SELECT %s%s FROM %s%s%s%s%s%s", b.BuildDistinct(), fieldsStr,
-				tableName, join, where,  b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
+				tableName, join, where, b.BuildGroup(), b.BuildHaving(), b.BuildOrder())
 
 			sqlStr = fmt.Sprintf(
 				"select * from (select %s, rownum r from (%s) %s where rownum<%s ) %s where %s.r>=%s",
-				aliasNameA + ".*", sqlStr, aliasNameA, strconv.Itoa(endRow), aliasNameB, aliasNameB,
+				aliasNameA+".*", sqlStr, aliasNameA, strconv.Itoa(endRow), aliasNameB, aliasNameB,
 				strconv.Itoa(startRow))
 		}
 	}
@@ -266,12 +266,12 @@ func (b *BuilderOracle) BuildLimit() string {
 		return ""
 	}
 
-	if b.GetLimit() == 0{
+	if b.GetLimit() == 0 {
 		return ""
 	}
 
 	page := b.GetOffset()/b.GetLimit() + 1
-	endRow := page * b.GetLimit() + 1
+	endRow := page*b.GetLimit() + 1
 
 	var limitStr string
 	if len(b.IOrm.GetWhere()) > 0 {

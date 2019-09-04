@@ -1,7 +1,7 @@
 package gorose
 
 type Config struct {
-	Driver          string // 驱动: mysql/sqlite3/oracle/mssql/postgres/clickhouse, 如果集群配置了驱动, 这里可以省略
+	Driver string // 驱动: mysql/sqlite3/oracle/mssql/postgres/clickhouse, 如果集群配置了驱动, 这里可以省略
 	// mysql 示例:
 	// root:root@tcp(localhost:3306)/test?charset=utf8&parseTime=true
 	Dsn             string // 数据库链接

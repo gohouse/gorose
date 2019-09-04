@@ -7,7 +7,7 @@ import (
 )
 
 func TestOrm_First(t *testing.T) {
-	res,err := DB().Table("users").First()
+	res, err := DB().Table("users").First()
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -58,7 +58,6 @@ func TestOrm_Select2(t *testing.T) {
 	t.Log(u)
 }
 
-
 type Users2 struct {
 	Name string `orm:"name"`
 	Age  int    `orm:"age"`
@@ -101,7 +100,7 @@ func TestOrm_Get(t *testing.T) {
 		OrWhereNotIn("ee", []interface{}{1, 2}).
 		WhereBetween("ff", []interface{}{11, 21}).
 		WhereNotBetween("ff", []interface{}{1, 2}).
-		Where("a","like", "%3%").
+		Where("a", "like", "%3%").
 		OrWhere(func() {
 			orm.Where("c", 3).OrWhere(func() {
 				orm.Where("d", ">", 4)
@@ -208,12 +207,11 @@ func TestOrm_Loop(t *testing.T) {
 	t.Log("Loop() success")
 }
 
-
 func TestOrm_Paginate(t *testing.T) {
 	db := DB()
 
 	var u []Users
-	res,err := db.Table(&u).Limit(2).Paginate()
+	res, err := db.Table(&u).Limit(2).Paginate()
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -222,15 +220,15 @@ func TestOrm_Paginate(t *testing.T) {
 }
 
 func BenchmarkNewOrm(b *testing.B) {
-	engin:=initDB()
-	for i:=0;i<b.N;i++{
+	engin := initDB()
+	for i := 0; i < b.N; i++ {
 		engin.NewOrm().Table("users").First()
 	}
 }
 
 func BenchmarkNewOrm2(b *testing.B) {
-	engin:=initDB()
-	for i:=0;i<b.N;i++{
+	engin := initDB()
+	for i := 0; i < b.N; i++ {
 		engin.NewOrm().Table("users").First()
 	}
 }

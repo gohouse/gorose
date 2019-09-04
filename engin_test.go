@@ -43,9 +43,9 @@ func (u *Users) TableName() string {
 }
 
 type Orders struct {
-	Id int `orm:"id"`
-	GoodsName string `orm:"goodsname"`
-	Price float64 `orm:"price"`
+	Id        int     `orm:"id"`
+	GoodsName string  `orm:"goodsname"`
+	Price     float64 `orm:"price"`
 }
 
 func TestEngin(t *testing.T) {

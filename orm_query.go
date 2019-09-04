@@ -15,7 +15,8 @@ func (dba *Orm) Select() error {
 	}
 
 	// 执行查询
-	return dba.GetISession().Query(sqlStr, args...)
+	_, err = dba.GetISession().Query(sqlStr, args...)
+	return err
 }
 
 // First : select one row , relation limit set
@@ -88,7 +89,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	}
 
 	// 执行查询
-	err = dba.GetISession().Query(sqls, args...)
+	_, err = dba.GetISession().Query(sqls, args...)
 	if err != nil {
 		return tmp, err
 	}

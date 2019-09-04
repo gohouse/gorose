@@ -46,7 +46,9 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 			}
 		}
 
-		if dba.GetISession().GetIBinder() == nil {
+		//if dba.GetISession().GetIBinder() == nil {
+		// 如果这里是默认值, 则需要对其进行table处理
+		if dba.GetISession().GetIBinder().GetBindType() == OBJECT_NIL {
 			if dba.GetData() != nil {
 				dba.Table(dba.GetData())
 			} else {

@@ -20,6 +20,7 @@ const (
 	OBJECT_STRING                       // 非结构体 表名字符串	("users")
 	OBJECT_MAP_T                        // map 一条数据		(map[string]t.T)
 	OBJECT_MAP_SLICE_T                  // map 多条数据		([]map[string]t.T)
+	OBJECT_NIL                          // 默认没有传入任何绑定对象,一般用于query直接返回
 )
 
 var BindString = map[BindType]string{
@@ -30,6 +31,7 @@ var BindString = map[BindType]string{
 	OBJECT_STRING:       "OBJECT_STRING",
 	OBJECT_MAP_T:        "OBJECT_MAP_T",
 	OBJECT_MAP_SLICE_T:  "OBJECT_MAP_SLICE_T",
+	OBJECT_NIL:          "OBJECT_NIL",
 }
 
 func (b BindType) String() string {
@@ -64,6 +66,8 @@ func NewBinder(o ...interface{}) IBinder {
 	var binder = new(Binder)
 	if len(o) > 0 {
 		binder.SetBindOrigin(o[0])
+	} else {
+		binder.BindType = OBJECT_NIL
 	}
 	return binder
 }

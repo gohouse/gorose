@@ -8,7 +8,7 @@ type IOrmSession interface {
 	Rollback() (err error)
 	Commit() (err error)
 	//Transaction(closer ...func(session ISession) error) (err error)
-	Query(sqlstring string, args ...interface{}) error
+	Query(sqlstring string, args ...interface{}) ([]Data, error)
 	Execute(sqlstring string, args ...interface{}) (int64, error)
 	//GetMasterDriver() string
 	//GetSlaveDriver() string

@@ -11,21 +11,25 @@ func initSession() ISession {
 
 func TestSession_Query(t *testing.T) {
 	var s = initSession()
-	var user []Users
-	err := s.Bind(&user).Query("select * from users where name=?", "gorose")
+	//var user []Users
+	res, err := s.Query("select * from users where name=?", "gorose2")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(user, s.LastSql())
+	//t.Log(res)
+	t.Log(res, s.LastSql())
 }
 
 func TestSession_Query3(t *testing.T) {
 	var s = initSession()
-	var o Orders
-	err := s.Bind(&o).Query("select * from orders limit 2")
+	var o []Users
+	//var o []map[string]interface{}
+	//var o []gorose.Data
+	res, err := s.Bind(&o).Query("select * from users limit 2")
 	if err != nil {
 		t.Error(err.Error())
 	}
+	t.Log(res)
 	t.Log(o, s.LastSql())
 }
 
@@ -43,7 +47,7 @@ func TestSession_Execute(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if aff==0 {
+	if aff == 0 {
 		return
 	}
 
@@ -61,14 +65,14 @@ func TestSession_Query_struct(t *testing.T) {
 	defer s.Close()
 
 	var user []Users
-	err = s.Bind(&user).Query("select * from users limit ?", 2)
+	_, err = s.Bind(&user).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log("多条struct绑定:", user)
 
 	var user2 Users
-	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+	_, err = s.Bind(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -82,7 +86,7 @@ func TestSession_Query_map(t *testing.T) {
 	var err error
 
 	var user2 = aaa{}
-	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+	_, err = s.Bind(&user2).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -91,7 +95,7 @@ func TestSession_Query_map(t *testing.T) {
 	t.Log(s.LastSql())
 
 	var user = bbb{}
-	err = s.Bind(&user).Query("select * from users limit ?", 2)
+	_, err = s.Bind(&user).Query("select * from users limit ?", 2)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -105,7 +109,7 @@ func TestSession_Bind(t *testing.T) {
 	var err error
 
 	var user2 = aaa{}
-	err = s.Bind(&user2).Query("select * from users limit ?", 2)
+	_, err = s.Bind(&user2).Query("select * from users limit ?", 2)
 
 	if err != nil {
 		t.Error(err.Error())

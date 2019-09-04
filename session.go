@@ -30,7 +30,8 @@ var _ ISession = (*Session)(nil)
 func NewSession(e IEngin) ISession {
 	var s = new(Session)
 	s.IEngin = e
-	//s.IBinder = b
+	// 初始化 IBinder
+	s.SetIBinder(NewBinder())
 
 	s.master = e.GetExecuteDB()
 	s.slave = e.GetQueryDB()
@@ -62,7 +63,8 @@ func (s *Session) SetIEngin(ie IEngin) {
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
 func (s *Session) Bind(tab interface{}) ISession {
 	//fmt.Println(tab, NewBinder(tab))
-	s.SetIBinder(NewBinder(tab))
+	//s.SetIBinder(NewBinder(tab))
+	s.GetIBinder().SetBindOrigin(tab)
 	s.err = s.IBinder.BindParse(s.GetIEngin().GetPrefix())
 	return s
 }
@@ -134,7 +136,7 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 	return s.Commit()
 }
 
-func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
+func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, err error) {
 	// 记录开始时间
 	start := time.Now()
 	//withRunTimeContext(func() {
@@ -190,6 +192,8 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (err error) {
 	//} else {
 	s.GetIEngin().GetLogger().Sql(s.LastSql(), timeduration)
 	//}
+
+	result = s.GetIBinder().GetBindAll()
 	return
 }
 
@@ -264,6 +268,10 @@ func (s *Session) LastSql() string {
 }
 
 func (s *Session) scan(rows *sql.Rows) (err error) {
+	// 如果不需要绑定, 则需要初始化一下binder
+	if s.GetIBinder() == nil {
+		s.SetIBinder(NewBinder())
+	}
 	// 检查实多维数组还是一维数组
 	switch s.GetBindType() {
 	case OBJECT_STRING:
@@ -274,6 +282,8 @@ func (s *Session) scan(rows *sql.Rows) (err error) {
 	//	err = s.scanMap(rows, s.GetBindResult())
 	case OBJECT_MAP, OBJECT_MAP_T, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		err = s.scanMapAll(rows)
+	case OBJECT_NIL:
+		err = s.scanAll(rows)
 	default:
 		err = errors.New("Bind value error")
 	}

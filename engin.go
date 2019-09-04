@@ -139,7 +139,7 @@ func (c *Engin) bootCluster() error {
 			c.driver = item.Driver
 		}
 	}
-	var pre,dr string
+	var pre, dr string
 	if len(c.config.Master) > 0 {
 		for _, item := range c.config.Master {
 			db, err := c.bootReal(item)
