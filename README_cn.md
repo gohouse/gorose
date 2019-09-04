@@ -163,9 +163,9 @@ fmt.Println(session.LastSql())
 ```
 原生增删改操作
 ```go
-session.Bind(&u).Query("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
-session.Bind(&u).Query("update users set name=? where uid=?","gorose",1)
-session.Bind(&u).Query("delete from users where uid=?", 1)
+session.Execute("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
+session.Execute("update users set name=? where uid=?","gorose",1)
+session.Execute("delete from users where uid=?", 1)
 ```
 ## 对象关系映射, orm的使用
 - 1. 基本链式使用

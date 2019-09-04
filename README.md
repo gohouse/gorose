@@ -169,9 +169,9 @@ fmt.Println(session.LastSql())
 ```
 Native inesrt delete update
 ```go
-session.Bind(&u).Query("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
-session.Bind(&u).Query("update users set name=? where uid=?","gorose",1)
-session.Bind(&u).Query("delete from users where uid=?", 1)
+session.Execute("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
+session.Execute("update users set name=? where uid=?","gorose",1)
+session.Execute("delete from users where uid=?", 1)
 ```
 ## Object Relational Mapping, the Use of ORM  
 
