@@ -48,7 +48,9 @@ go get -u github.com/gohouse/gorose
 [0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
 
 ## realease log
-- v2.1.0-rc: update join with auto table prefix  
+- v2.1.x: 
+    * update join with auto table prefix  
+    * add query return with []map[string]interface{}  
 - v2.0.0: new version, new structure  
 
 ## api preview

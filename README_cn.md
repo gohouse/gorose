@@ -43,7 +43,9 @@ go get -u github.com/gohouse/gorose
 [0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
 ## 升级日志
-- v2.1.0-rc: join表自动加前缀,不需要再手动加前缀  
+- v2.1.x: 
+    * join表自动加前缀,不需要再手动加前缀  
+    * 原生sql的`query()`方法,增加返回结果集`[]map[string]interface{}`  
 - v2.0.0: 船新版本,船新架构  
 
 ## api预览
