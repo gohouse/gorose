@@ -42,12 +42,6 @@ go get -u github.com/gohouse/gorose
 [1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
-## 升级日志
-- v2.1.x: 
-    * join表自动加前缀,不需要再手动加前缀  
-    * 原生sql的`query()`方法,增加返回结果集`[]map[string]interface{}`  
-- v2.0.0: 船新版本,船新架构  
-
 ## api预览
 ```go
 db.Table().Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
@@ -391,8 +385,20 @@ func main() {
 	    }).Where("job", "it").First()
 	```
 
+## 升级日志
+- v2.1.x: 
+    * join表自动加前缀,不需要再手动加前缀  
+    * 原生sql的`query()`方法,增加返回结果集`[]map[string]interface{}`  
+- v2.0.0: 船新版本,船新架构  
 
-=====
+## 升级指南
+### 从2.0.x升级到2.1.x  
+- `xxx.Join("pre_tablename")`更改为`xxx.Join("tablename")`,这里不需要手动指定表前缀  
+- `err:=DB().Bind().Query()`,更改为多返回`res,err:=DB().Query()`,同时保留了`Bind()`用法  
+### 从1.x升级到2.x, 全新安装  
+
+
+-----
 ## 赞助渠道
 微信|支付宝|[paypal: click](https://www.paypal.me/fizzday)
 ---|---|---

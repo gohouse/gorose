@@ -47,12 +47,6 @@ go get -u github.com/gohouse/gorose
 [1.x doc](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
 
-## realease log
-- v2.1.x: 
-    * update join with auto table prefix  
-    * add query return with []map[string]interface{}  
-- v2.0.0: new version, new structure  
-
 ## api preview
 ```go
 db.Table().Fields().Distinct().Where().GroupBy().Having().OrderBy().Limit().Offset().Select()
@@ -402,6 +396,18 @@ func main() {
 	        })
 	    }).Where("job", "it").First()
 	```
+
+## realease log
+- v2.1.x: 
+    * update join with auto table prefix  
+    * add query return with []map[string]interface{}  
+- v2.0.0: new version, new structure  
+
+## Upgrade Guide
+### from 2.0.x to 2.1.x  
+- change `xxx.Join("pre_tablename")` into `xxx.Join("tablename")`,the join table name auto prefix  
+- change `err:=DB().Bind().Query()` into `res,err:=DB().Query()` with multi return,leave the `Bind()` method as well  
+### from 1.x to 2.x, install it for new  
 
 -----
 ## pay me a coffee
