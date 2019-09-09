@@ -28,7 +28,7 @@ The module diagram is as follows:
 ## installation
 - go.mod
 ```bash
-require github.com/gohouse/gorose v2.1.0-rc2
+require github.com/gohouse/gorose v2.1.0
 ```
 
 - docker
