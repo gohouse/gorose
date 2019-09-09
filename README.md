@@ -3,6 +3,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
 [![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/releases/latest)
 [![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
+![GitHub](https://img.shields.io/github/license/gohouse/gorose?color=blue)
+![GitHub All Releases](https://img.shields.io/github/downloads/gohouse/gorose/total?color=blue)
 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5JJOG9E">
 <img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="gorose-orm" title="gorose-orm"></a>
 
