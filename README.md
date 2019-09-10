@@ -32,7 +32,7 @@ The module diagram is as follows:
 ```bash
 require github.com/gohouse/gorose/v2 v2.1.2
 ```
-you should use it like `import "github.com/gohouse/gorose/v2"`  
+> you should use it like `import "github.com/gohouse/gorose/v2"`  
 
 - docker
 ```bash
