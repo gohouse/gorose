@@ -28,10 +28,10 @@ The module diagram is as follows:
 ![gorose.2.0.jpg](https://i.loli.net/2019/08/06/7R2GlbwUiFKOrNP.jpg)
 
 ## installation
-- go.mod
 ```bash
-require github.com/gohouse/gorose v2.1.1
+require github.com/gohouse/gorose/v2 v2.1.2
 ```
+you should use it like `import "github.com/gohouse/gorose/v2"`  
 
 - docker
 ```bash
@@ -39,7 +39,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
 > docker image: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), The docker image contains the packages and runtime environment necessary for gorose, [view `Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
 
-- without version control  
+- go get  
 ```bash
 go get -u github.com/gohouse/gorose/v2
 ```

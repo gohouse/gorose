@@ -25,8 +25,9 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose v2.1.1
+require github.com/gohouse/gorose/v2 v2.1.2
 ```
+使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用
 
 - docker
 ```bash
@@ -34,7 +35,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
 > docker 镜像: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), docker镜像包含了gorose所必须的包和运行环境, [查看`Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
 
-- 不使用版本控制  
+- go get  
 ```bash
 go get -u github.com/gohouse/gorose/v2
 ```
