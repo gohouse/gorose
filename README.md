@@ -28,6 +28,7 @@ The module diagram is as follows:
 ![gorose.2.0.jpg](https://i.loli.net/2019/08/06/7R2GlbwUiFKOrNP.jpg)
 
 ## installation
+- go.mod
 ```bash
 require github.com/gohouse/gorose/v2 v2.1.2
 ```
