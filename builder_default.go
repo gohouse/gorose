@@ -142,7 +142,7 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 			return b.parseData(operType, t.New(data).SliceMapStringInterface())
 		}
 	case reflect.String:
-		return data.(string),"",""
+		return data.(string), "", ""
 	}
 	return "", "", ""
 }
@@ -391,13 +391,29 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 			switch paramReal := params[0].(type) {
 			case string:
 				where = append(where, condition+" ("+paramReal+")")
-			case map[string]interface{}: // 一维数组
+			case map[string]interface{}: // map
 				var whereArr []string
 				for key, val := range paramReal {
 					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
 					b.IOrm.SetBindValues(val)
 				}
-				if len(whereArr)!=0 {
+				if len(whereArr) != 0 {
+					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+				}
+			case []interface{}: // 一维数组
+				var whereArr []string
+				whereMoreLength := len(paramReal)
+				switch whereMoreLength {
+				case 3, 2:
+					res, err := b.parseParams(paramReal, ormApi)
+					if err != nil {
+						return res, err
+					}
+					whereArr = append(whereArr, res)
+				default:
+					return "", errors.New("where data format is wrong")
+				}
+				if len(whereArr) != 0 {
 					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
 				}
 			case [][]interface{}: // 二维数组
@@ -405,13 +421,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
 					switch whereMoreLength {
-					case 3:
-						res, err := b.parseParams(arr, ormApi)
-						if err != nil {
-							return res, err
-						}
-						whereMore = append(whereMore, res)
-					case 2:
+					case 3, 2:
 						res, err := b.parseParams(arr, ormApi)
 						if err != nil {
 							return res, err
@@ -421,7 +431,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 						return "", errors.New("where data format is wrong")
 					}
 				}
-				if len(whereMore)!=0 {
+				if len(whereMore) != 0 {
 					where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
 				}
 			case func():
