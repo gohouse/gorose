@@ -141,6 +141,8 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 		case reflect.Map:
 			return b.parseData(operType, t.New(data).SliceMapStringInterface())
 		}
+	case reflect.String:
+		return data.(string),"",""
 	}
 	return "", "", ""
 }

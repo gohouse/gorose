@@ -2,6 +2,7 @@ package gorose
 
 import (
 	"fmt"
+	"github.com/gohouse/t"
 	"strings"
 )
 
@@ -142,6 +143,11 @@ func (dba *Orm) Page(page int) IOrm {
 
 // Where : query or execute where condition, the relation is and
 func (dba *Orm) Where(args ...interface{}) IOrm {
+	if len(args) == 0 ||
+		t.New(args[0]).Bool() == false ||
+		len(t.New(args[0]).Slice()) == 0 {
+		return dba
+	}
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
 	// 重新组合为长度为3的数组, 第一项为关系(and/or), 第二项为具体传入的参数 []interface{}
 	w := []interface{}{"and", args}
