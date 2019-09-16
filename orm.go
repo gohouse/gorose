@@ -144,8 +144,7 @@ func (dba *Orm) Page(page int) IOrm {
 // Where : query or execute where condition, the relation is and
 func (dba *Orm) Where(args ...interface{}) IOrm {
 	if len(args) == 0 ||
-		t.New(args[0]).Bool() == false ||
-		len(t.New(args[0]).Slice()) == 0 {
+		t.New(args[0]).Bool() == false {
 		return dba
 	}
 	// 如果只传入一个参数, 则可能是字符串、一维对象、二维数组
