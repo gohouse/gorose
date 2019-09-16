@@ -397,7 +397,9 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
 					b.IOrm.SetBindValues(val)
 				}
-				where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+				if len(whereArr)!=0 {
+					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+				}
 			case [][]interface{}: // 二维数组
 				var whereMore []string
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
@@ -419,7 +421,9 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 						return "", errors.New("where data format is wrong")
 					}
 				}
-				where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
+				if len(whereMore)!=0 {
+					where = append(where, condition+" ("+strings.Join(whereMore, " and ")+")")
+				}
 			case func():
 				// 清空where,给嵌套的where让路,复用这个节点
 				ormApi.SetWhere([][]interface{}{})
