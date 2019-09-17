@@ -1,7 +1,7 @@
 # GoRose ORM
-[![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
-[![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/releases/latest)
+[![GoDoc](https://godoc.org/github.com/gohouse/gorose/v2?status.svg)](https://godoc.org/github.com/gohouse/gorose/v2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose/v2)](https://goreportcard.com/report/github.com/gohouse/gorose/v2)
+[![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/v2/releases/latest)
 [![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
 ![GitHub](https://img.shields.io/github/license/gohouse/gorose?color=blue)
 ![GitHub All Releases](https://img.shields.io/github/downloads/gohouse/gorose/total?color=blue)
@@ -18,8 +18,8 @@
 ```
 
 ## translations  
-[English readme](https://github.com/gohouse/gorose/blob/master/README.md) |
-[中文 readme](https://github.com/gohouse/gorose/blob/master/README_cn.md) 
+[English readme](https://github.com/gohouse/gorose/v2/blob/master/README.md) |
+[中文 readme](https://github.com/gohouse/gorose/v2/blob/master/README_cn.md) 
 
 ## introduction
 gorose is a golang orm framework, which is Inspired by laravel's eloquent.  
@@ -30,9 +30,9 @@ The module diagram is as follows:
 ## installation
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.2
+require github.com/gohouse/gorose/v2/v2 v2.1.2
 ```
-> you should use it like `import "github.com/gohouse/gorose/v2"`  
+> you should use it like `import "github.com/gohouse/gorose/v2/v2"`  
 
 - docker
 ```bash
@@ -42,7 +42,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 
 - go get  
 ```bash
-go get -u github.com/gohouse/gorose/v2
+go get -u github.com/gohouse/gorose/v2/v2
 ```
 
 ## document
@@ -71,7 +71,7 @@ db.Table().Where().Delete()
 package main
 import (
 	"fmt"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 var err error
@@ -282,7 +282,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 

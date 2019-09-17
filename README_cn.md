@@ -1,7 +1,7 @@
 # GoRose ORM
-[![GoDoc](https://godoc.org/github.com/gohouse/gorose?status.svg)](https://godoc.org/github.com/gohouse/gorose)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose)](https://goreportcard.com/report/github.com/gohouse/gorose)
-[![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/releases/latest)
+[![GoDoc](https://godoc.org/github.com/gohouse/gorose/v2?status.svg)](https://godoc.org/github.com/gohouse/gorose/v2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose/v2)](https://goreportcard.com/report/github.com/gohouse/gorose/v2)
+[![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/v2/releases/latest)
 [![Gitter](https://badges.gitter.im/gohouse/gorose.svg)](https://gitter.im/gorose/wechat)
 ![GitHub](https://img.shields.io/github/license/gohouse/gorose?color=blue)
 ![GitHub All Releases](https://img.shields.io/github/downloads/gohouse/gorose/total?color=blue)
@@ -25,9 +25,9 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.2
+require github.com/gohouse/gorose/v2/v2 v2.1.2
 ```
-> 使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用
+> 使用的时候必须`import "github.com/gohouse/gorose/v2/v2"`方可正常使用
 
 - docker
 ```bash
@@ -37,7 +37,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 
 - go get  
 ```bash
-go get -u github.com/gohouse/gorose/v2
+go get -u github.com/gohouse/gorose/v2/v2
 ```
 
 ## 文档
@@ -66,7 +66,7 @@ db.Table().Where().Delete()
 package main
 import (
 	"fmt"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 var err error
@@ -270,7 +270,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose"
+	"github.com/gohouse/gorose/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 
