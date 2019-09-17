@@ -50,6 +50,14 @@ go get -u github.com/gohouse/gorose/v2
 [1.x doc](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
 
+## supported drivers
+- mysql : https://github.com/go-sql-driver/mysql  
+- sqlite3 : https://github.com/mattn/go-sqlite3  
+- postgres : https://github.com/lib/pq  
+- oracle : https://github.com/mattn/go-oci8  
+- mssql : https://github.com/denisenkom/go-mssqldb  
+- clickhouse : https://github.com/kshvakov/clickhouse
+
 ## api preview
 ```go
 db.Table().Fields().Distinct().Where().GroupBy().Having().OrderBy().Limit().Offset().Select()

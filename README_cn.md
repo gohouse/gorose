@@ -45,6 +45,14 @@ go get -u github.com/gohouse/gorose/v2
 [1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
 [0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
+## 支持驱动
+- mysql : https://github.com/go-sql-driver/mysql  
+- sqlite3 : https://github.com/mattn/go-sqlite3  
+- postgres : https://github.com/lib/pq  
+- oracle : https://github.com/mattn/go-oci8  
+- mssql : https://github.com/denisenkom/go-mssqldb  
+- clickhouse : https://github.com/kshvakov/clickhouse
+
 ## api预览
 ```go
 db.Table().Fields().Where().GroupBy().Having().OrderBy().Limit().Select()
