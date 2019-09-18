@@ -16,6 +16,16 @@ func TestOrm_BuildSql2(t *testing.T) {
 	t.Log(sqlstr,a,b)
 }
 
+func TestOrm_BuildSql3(t *testing.T) {
+	db := DB()
+	var u = "age=age+1,num=num+1"
+	var wheres interface{}
+	wheres = [][]interface{}{{"a",">","b"},{"a","b"}}
+	sqlstr,a,b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
+
+	t.Log(sqlstr,a,b)
+}
+
 func TestOrm_First(t *testing.T) {
 	res, err := DB().Table("users").First()
 	if err != nil {

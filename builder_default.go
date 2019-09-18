@@ -94,16 +94,16 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 		update, insertkey, insertval = b.BuildData(operType)
 	}
 
-	where, err := b.BuildWhere()
-	if err != nil {
-		b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
-		return
-	}
-
+	var where string
 	switch operType {
 	case "insert":
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 	case "update":
+		where, err = b.BuildWhere()
+		if err != nil {
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, update时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Update())")
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -111,6 +111,12 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 		}
 		sqlStr = fmt.Sprintf("UPDATE %s SET %s%s", b.BuildTable(), update, where)
 	case "delete":
+
+		where, err = b.BuildWhere()
+		if err != nil {
+			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
 		if where == "" && b.IOrm.GetForce() == false {
 			err = errors.New("出于安全考虑, delete时where条件不能为空, 如果真的不需要where条件, 请使用Force()(如: db.xxx.Force().Delete())")
 			b.IOrm.GetISession().GetIEngin().GetLogger().Error(err.Error())
@@ -225,37 +231,41 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 
 func (b *BuilderDefault) parseData(operType string, data []map[string]interface{}) (string, string, string) {
 	// insert
-	var dataFields []string
-	var dataValues []string
+	var insertFields []string
+	var insertValues []string
 	// update or delete
 	var dataObj []string
 
 	for key, _ := range data[0] {
-		if inArray(key, dataFields) == false {
-			dataFields = append(dataFields, key)
+		if inArray(key, insertFields) == false {
+			insertFields = append(insertFields, key)
 		}
 	}
 	for _, item := range data {
-		// 定义1条数据的存储
-		var dataValuesSub []string
-		for _, key := range dataFields {
-			if item[key] == nil {
-				// 放入占位符
-				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-				// 保存真正的值为null
-				b.IOrm.SetBindValues("null")
-			} else {
-				// 放入占位符
-				dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-				// 保存真正的值
-				b.IOrm.SetBindValues(item[key])
-			}
-			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s=%s", key, b.GetPlaceholder()))
+		// 定义插入1条数据的存储
+		var insertValuesSub []string
+		for _, key := range insertFields {
+				if item[key] == nil {
+					if operType=="insert" {
+						// 放入占位符
+						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
+					}
+					// 保存真正的值为null
+					b.IOrm.SetBindValues("null")
+				} else {
+					if operType=="insert" {
+						// 放入占位符
+						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
+					}
+					// 保存真正的值
+					b.IOrm.SetBindValues(item[key])
+				}
+				insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
+				// update
+				dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, b.GetPlaceholder()))
 		}
-		dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
 	}
-	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
+	return strings.Join(dataObj, ","), strings.Join(insertValues, ","), strings.Join(insertValues, ",")
 }
 
 func (b *BuilderDefault) BuildJoin() (s string, err error) {
