@@ -237,6 +237,53 @@ func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 	return
 }
 
+// ChunkStruct : 同Chunk,只不过不用返回map, 而是绑定数据到传入的对象上
+// 这里一定要传入绑定struct
+func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
+	var page = 0
+	//var tableName = dba.GetISession().GetIBinder().GetBindName()
+	// 先执行一条看看是否报错, 同时设置指定的limit, offset
+	err = dba.Limit(limit).Offset(page * limit).Select()
+	if err != nil {
+		return
+	}
+	switch dba.GetIBinder().GetBindType() {
+	case OBJECT_STRUCT,OBJECT_MAP:
+		var ibinder = dba.GetIBinder()
+		var result = ibinder.GetBindResult()
+		for result!=nil {
+			if err = callback(); err != nil {
+				break
+			}
+			page++
+			// 清空结果
+			result = nil
+			// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
+			// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
+			dba.ClearBindValues()
+			_ = dba.Table(ibinder.GetBindOrigin()).Offset(page * limit).Select()
+			result = dba.GetIBinder().GetBindResultSlice()
+		}
+	case OBJECT_STRUCT_SLICE,OBJECT_MAP_SLICE:
+		var ibinder = dba.GetIBinder()
+		var result = ibinder.GetBindResultSlice()
+		for result.Interface()!=nil {
+			if err = callback(); err != nil {
+				break
+			}
+			page++
+			// 清空结果
+			result.Set(result.Slice(0,0))
+			// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
+			// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
+			dba.ClearBindValues()
+			_ = dba.Table(ibinder.GetBindOrigin()).Offset(page * limit).Select()
+			result = dba.GetIBinder().GetBindResultSlice()
+		}
+	}
+	return
+}
+
 // Loop : 同chunk, 不过, 这个是循环的取前limit条数据, 为什么是循环取这些数据呢
 // 因为, 我们考虑到一种情况, 那就是where条件如果刚好是要修改的值,
 // 那么最后的修改结果因为offset的原因, 只会修改一半, 比如:

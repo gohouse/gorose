@@ -27,5 +27,7 @@ type IOrmQuery interface {
 	// 例如，我们可以将处理全部 users 表数据分割成一次处理 100 条记录的小组块
 	// 你可以通过从闭包函数中返回 err 来终止组块的运行
 	Chunk(limit int, callback func([]Data) error) (err error)
+	// 跟Chunk类似,只不过callback的是传入的结构体
+	ChunkStruct(limit int, callback func() error) (err error)
 	Loop(limit int, callback func([]Data) error) (err error)
 }

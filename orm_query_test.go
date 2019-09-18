@@ -195,6 +195,27 @@ func TestOrm_Chunk(t *testing.T) {
 	t.Log("Chunk() success")
 }
 
+func TestOrm_Chunk2(t *testing.T) {
+	orm := DB()
+
+	var u []Users
+	var i int
+	err := orm.Table(&u).ChunkStruct(2, func() error {
+		//for _, item := range u {
+			t.Log(u)
+		//}
+		if i==2{
+			return errors.New("故意停止,防止数据过多,浪费时间")
+		}
+		i++
+		return nil
+	})
+	if err != nil && err.Error() != "故意停止,防止数据过多,浪费时间" {
+		t.Error(err.Error())
+	}
+	t.Log("ChunkStruct() success")
+}
+
 func TestOrm_Loop(t *testing.T) {
 	db := DB()
 
