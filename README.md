@@ -123,7 +123,7 @@ var configSimple = &gorose.Config{
 更多配置, 可以配置集群,甚至可以同时配置不同数据库在一个集群中, 数据库会随机选择集群的数据库来完成对应的读写操作, 其中master是写库, slave是读库, 需要自己做好主从复制, 这里只负责读写
 ```go
 var config = &gorose.ConfigCluster{
-	Master:       []&gorose.Config{}{configSimple}
+    Master:       []&gorose.Config{}{configSimple}
     Slave:        []&gorose.Config{}{configSimple}
     Prefix:       "pre_",
     Driver:       "sqlite3",

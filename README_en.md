@@ -124,7 +124,7 @@ var configSimple = &gorose.Config{
 More configurations, you can configure the cluster, or even configure different databases in a cluster at the same time. The database will randomly select the cluster database to complete the corresponding reading and writing operations, in which master is the writing database, slave is the reading database, you need to do master-slave replication, here only responsible for reading and writing.
 ```go
 var config = &gorose.ConfigCluster{
-	Master:       []&gorose.Config{}{configSimple}
+    Master:       []&gorose.Config{}{configSimple}
     Slave:        []&gorose.Config{}{configSimple}
     Prefix:       "pre_",
     Driver:       "sqlite3",
