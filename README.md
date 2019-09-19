@@ -17,6 +17,11 @@
  \______|  \______/  | _| `._____| \______/  |_______/    |_______|
 ```
 
+## 翻译  
+[English readme](README_en.md) |
+[中文 readme](README.md) 
+
+
 ## 简介
 gorose是一个golang orm框架, 借鉴自laravel的eloquent. 
 gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依赖下层.每一个模块都可以拆卸, 甚至可以自定义为自己喜欢的样子.  

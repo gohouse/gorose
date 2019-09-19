@@ -18,8 +18,8 @@
 ```
 
 ## translations  
-[English readme](https://github.com/gohouse/gorose/v2/blob/master/README.md) |
-[中文 readme](https://github.com/gohouse/gorose/v2/blob/master/README_cn.md) 
+[English readme](README_en.md) |
+[中文 readme](README.md) 
 
 ## introduction
 gorose is a golang orm framework, which is Inspired by laravel's eloquent.  
