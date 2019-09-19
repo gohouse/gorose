@@ -30,9 +30,9 @@ The module diagram is as follows:
 ## installation
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2/v2 v2.1.2
+require github.com/gohouse/gorose/v2 v2.1.2
 ```
-> you should use it like `import "github.com/gohouse/gorose/v2/v2"`  
+> you should use it like `import "github.com/gohouse/gorose/v2"`  
 
 - docker
 ```bash
@@ -42,7 +42,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 
 - go get  
 ```bash
-go get -u github.com/gohouse/gorose/v2/v2
+go get -u github.com/gohouse/gorose/v2
 ```
 
 ## document
