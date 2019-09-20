@@ -23,4 +23,5 @@ type IBinder interface {
 	ResetBindResultSlice()
 	SetBindAll(arg []Data)
 	GetBindAll() []Data
+	ResetBinder()
 }

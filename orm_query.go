@@ -248,7 +248,7 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 		return
 	}
 	switch dba.GetIBinder().GetBindType() {
-	case OBJECT_STRUCT,OBJECT_MAP:
+	case OBJECT_STRUCT,OBJECT_MAP,OBJECT_MAP_T:
 		var ibinder = dba.GetIBinder()
 		var result = ibinder.GetBindResult()
 		for result!=nil {
@@ -264,7 +264,7 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 			_ = dba.Table(ibinder.GetBindOrigin()).Offset(page * limit).Select()
 			result = dba.GetIBinder().GetBindResultSlice()
 		}
-	case OBJECT_STRUCT_SLICE,OBJECT_MAP_SLICE:
+	case OBJECT_STRUCT_SLICE,OBJECT_MAP_SLICE,OBJECT_MAP_SLICE_T:
 		var ibinder = dba.GetIBinder()
 		var result = ibinder.GetBindResultSlice()
 		for result.Interface()!=nil {

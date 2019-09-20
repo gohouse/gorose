@@ -260,12 +260,13 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 					// 保存真正的值
 					b.IOrm.SetBindValues(item[key])
 				}
-				insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
+				//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 				// update
 				dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, b.GetPlaceholder()))
 		}
+		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
-	return strings.Join(dataObj, ","), strings.Join(insertValues, ","), strings.Join(insertValues, ",")
+	return strings.Join(dataObj, ","), strings.Join(insertFields, ","), strings.Join(insertValues, ",")
 }
 
 func (b *BuilderDefault) BuildJoin() (s string, err error) {
