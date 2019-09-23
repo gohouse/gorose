@@ -262,9 +262,9 @@ func (b *BuilderOracle) BuildOrder() string {
 }
 
 func (b *BuilderOracle) BuildLimit() string {
-	if b.IOrm.GetUnion() != nil {
-		return ""
-	}
+	//if b.IOrm.GetUnion() != nil {
+	//	return ""
+	//}
 
 	if b.GetLimit() == 0 {
 		return ""
