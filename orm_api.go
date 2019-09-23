@@ -15,6 +15,7 @@ type OrmApi struct {
 	data            interface{}
 	force           bool
 	extraCols       []string
+	// 悲观锁
 	pessimisticLock string
 }
 

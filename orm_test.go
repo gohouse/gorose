@@ -54,7 +54,7 @@ func TestOrm_BuildSql_where(t *testing.T) {
 		db.Where("name", "like", "%fizz%").OrWhere(func() {
 			db.Where("age", ">", 10).Where("uid", ">", 2)
 		})
-	}).Limit(10).BuildSql()
+	}).Limit(2).Offset(2).BuildSql()
 	if err != nil {
 		t.Error(err.Error())
 	}

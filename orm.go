@@ -298,7 +298,7 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	if dba.GetISession().GetTransaction() {
 		dba.Reset()
 	}
-	// 这里统一清理以下 绑定的数据吧, 万一要复用了, 造成绑定数据感染, 就尴尬了
+	// 这里统一清理一下绑定的数据吧, 万一要复用了, 造成绑定数据感染, 就尴尬了
 	dba.ClearBindValues()
 	return
 }
