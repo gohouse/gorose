@@ -26,6 +26,18 @@ func TestOrm_BuildSql3(t *testing.T) {
 	t.Log(sqlstr,a,b)
 }
 
+func TestOrm_BuildSql4(t *testing.T) {
+	db := DB()
+	sqlstr,a,b := db.Table("users").Limit(2).Offset(2).BuildSql()
+	//c,d := db.Table("users").Get()
+	//t.Log(db.LastSql())
+	count,d := db.Count()
+
+	t.Log(sqlstr,a,b)
+	t.Log(count,d)
+	t.Log(db.LastSql())
+}
+
 func TestOrm_First(t *testing.T) {
 	res, err := DB().Table("users").First()
 	if err != nil {

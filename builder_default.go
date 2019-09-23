@@ -354,16 +354,16 @@ func (b *BuilderDefault) BuildOrder() string {
 }
 
 func (b *BuilderDefault) BuildLimit() string {
-	if b.IOrm.GetUnion() != nil {
-		return ""
-	}
+	//if b.IOrm.GetUnion() != nil {
+	//	return ""
+	//}
 	return If(b.IOrm.GetLimit() == 0, "", " LIMIT "+strconv.Itoa(b.IOrm.GetLimit())).(string)
 }
 
 func (b *BuilderDefault) BuildOffset() string {
-	if b.BuildLimit() == "" {
-		return ""
-	}
+	//if b.BuildLimit() == "" {
+	//	return ""
+	//}
 	if b.IOrm.GetUnion() != nil {
 		return ""
 	}
