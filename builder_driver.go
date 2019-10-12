@@ -31,7 +31,7 @@ func (b *BuilderDriver) Getter(driver string) (IBuilder) {
 
 	//return b.builders[driver]
 	if v,ok:= (b.b.Load(driver));ok {
-		return v.(IBuilder).Clone()
+		return v.(IBuilder)
 	}
 	return nil
 }
