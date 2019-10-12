@@ -63,6 +63,10 @@ func (dba *Orm) GetISession() ISession {
 	return dba.ISession
 }
 
+func (dba *Orm) GetOrmApi() *OrmApi {
+	return dba.OrmApi
+}
+
 // Fields : select fields
 func (dba *Orm) Table(tab interface{}) IOrm {
 	dba.GetISession().Bind(tab)

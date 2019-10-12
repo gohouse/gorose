@@ -62,7 +62,7 @@ type Binder struct {
 
 var _ IBinder = &Binder{}
 
-func NewBinder(o ...interface{}) IBinder {
+func NewBinder(o ...interface{}) *Binder {
 	var binder = new(Binder)
 	if len(o) > 0 {
 		binder.SetBindOrigin(o[0])

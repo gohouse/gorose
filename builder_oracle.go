@@ -24,13 +24,15 @@ type BuilderOracle struct {
 	BuilderDefault
 }
 
-var builderOracle *BuilderOracle
+//var builderOracle *BuilderOracle
 
 func NewBuilderOracle(o IOrm) *BuilderOracle {
-	onceBuilderDefault.Do(func() {
-		builderOracle = new(BuilderOracle)
-		builderOracle.operator = operatorOracle
-	})
+	//onceBuilderDefault.Do(func() {
+	//	builderOracle = new(BuilderOracle)
+	//	builderOracle.operator = operatorOracle
+	//})
+	builderOracle := new(BuilderOracle)
+	builderOracle.operator = operatorOracle
 	builderOracle.IOrm = o
 	// 每次使用的时候, 重置为0, 方便pg的占位符使用
 	builderOracle.placeholder = 0
@@ -43,6 +45,11 @@ func init() {
 	NewBuilderDriver().Register(DriverOracle, builder)
 }
 
+
+// Clone : a new obj
+func (b *BuilderOracle) Clone() IBuilder {
+	return &BuilderOracle{}
+}
 // SetDriver 设置驱动, 方便获取占位符使用
 func (b *BuilderOracle) SetDriver(dr string) *BuilderOracle {
 	b.driver = dr

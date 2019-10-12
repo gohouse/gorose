@@ -27,7 +27,7 @@ type Session struct {
 var _ ISession = (*Session)(nil)
 
 // NewSession : 初始化 Session
-func NewSession(e IEngin) ISession {
+func NewSession(e IEngin) *Session {
 	var s = new(Session)
 	s.IEngin = e
 	// 初始化 IBinder

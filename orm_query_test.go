@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestOrm_BuildSql2(t *testing.T) {
@@ -36,6 +37,25 @@ func TestOrm_BuildSql4(t *testing.T) {
 	t.Log(sqlstr,a,b)
 	t.Log(count,d)
 	t.Log(db.LastSql())
+}
+
+func TestOrm_BuildSql5(t *testing.T) {
+	//ticker := time.NewTicker(100*time.Millisecond)
+	go func() {
+		for {
+			//<-ticker.C
+			db := DB()
+			sqlstr,a,b := db.Table("users").Where("uid",">",1).BuildSql()
+			//c,d := db.Table("users").Get()
+			//t.Log(db.LastSql())
+			count,d := db.First()
+
+			t.Log(sqlstr,a,b)
+			t.Log(count,d)
+			t.Log(db.LastSql())
+		}
+	}()
+	time.Sleep(500*time.Millisecond)
 }
 
 func TestOrm_First(t *testing.T) {

@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
@@ -19,17 +18,24 @@ type BuilderDefault struct {
 	operator    []string
 	placeholder int
 	driver      string
+	bindValues []interface{}
 }
 
-var onceBuilderDefault sync.Once
-var builderDefault *BuilderDefault
+//var onceBuilderDefault sync.Once
+//var builderDefault *BuilderDefault
 
 func NewBuilderDefault(o IOrm) *BuilderDefault {
-	onceBuilderDefault.Do(func() {
-		builderDefault = new(BuilderDefault)
-		builderDefault.operator = operator
-		builderDefault.driver = "mysql"
-	})
+	//onceBuilderDefault.Do(func() {
+	//	builderDefault = new(BuilderDefault)
+	//	builderDefault.operator = operator
+	//	builderDefault.driver = "mysql"
+	//})
+
+	builderDefault := new(BuilderDefault)
+	builderDefault.operator = operator
+	builderDefault.driver = "mysql"
+
+
 	builderDefault.IOrm = o
 	// 每次使用的时候, 重置为0, 方便pg的占位符使用
 	builderDefault.placeholder = 0
@@ -40,6 +46,16 @@ func NewBuilderDefault(o IOrm) *BuilderDefault {
 func (b *BuilderDefault) SetDriver(dr string) *BuilderDefault {
 	b.driver = dr
 	return b
+}
+
+// SetBindValues
+func (b *BuilderDefault) SetBindValues(bv interface{}) {
+	b.bindValues = append(b.bindValues, bv)
+}
+
+// GetBindValues
+func (b *BuilderDefault) GetBindValues() []interface{} {
+	return b.bindValues
 }
 
 // GetPlaceholder 获取占位符
@@ -74,7 +90,7 @@ func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err er
 		b.BuildGroup(), b.BuildHaving(), b.BuildOrder(), b.BuildLimit(), b.BuildOffset())
 
 	//args = b.bindParams
-	args = b.IOrm.GetBindValues()
+	args = b.GetBindValues()
 	return
 }
 
@@ -125,7 +141,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 		sqlStr = fmt.Sprintf("DELETE FROM %s%s", b.BuildTable(), where)
 	}
 
-	args = b.IOrm.GetBindValues()
+	args = b.GetBindValues()
 	return
 }
 
@@ -179,7 +195,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 					dataValuesSub = append(dataValuesSub, "null")
 				} else {
 					dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-					b.IOrm.SetBindValues(item[key])
+					b.SetBindValues(item[key])
 				}
 			}
 			dataValues = append(dataValues, "("+strings.Join(dataValuesSub, ",")+")")
@@ -194,7 +210,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 					dataValuesSub = append(dataValuesSub, "null")
 				} else {
 					dataValuesSub = append(dataValuesSub, b.GetPlaceholder())
-					b.IOrm.SetBindValues(val.Interface())
+					b.SetBindValues(val.Interface())
 				}
 			} else if operType == "update" {
 				// update
@@ -202,7 +218,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 					dataObj = append(dataObj, key+"=null")
 				} else {
 					dataObj = append(dataObj, key+"="+b.GetPlaceholder())
-					b.IOrm.SetBindValues(val.Interface())
+					b.SetBindValues(val.Interface())
 				}
 			}
 		}
@@ -251,14 +267,14 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
 					}
 					// 保存真正的值为null
-					b.IOrm.SetBindValues("null")
+					b.SetBindValues("null")
 				} else {
 					if operType=="insert" {
 						// 放入占位符
 						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
 					}
 					// 保存真正的值
-					b.IOrm.SetBindValues(item[key])
+					b.SetBindValues(item[key])
 				}
 				//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 				// update
@@ -406,7 +422,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				var whereArr []string
 				for key, val := range paramReal {
 					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
-					b.IOrm.SetBindValues(val)
+					b.SetBindValues(val)
 				}
 				if len(whereArr) != 0 {
 					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
@@ -504,31 +520,31 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
 		//case "like", "not like":
 		//	paramsToArr = append(paramsToArr, b.GetPlaceholder())
-		//	b.IOrm.SetBindValues(argsReal[2])
+		//	b.SetBindValues(argsReal[2])
 		case "in", "not in":
 			var tmp []string
 			var ar2 = t.New(argsReal[2]).Slice()
 			for _, item := range ar2 {
 				tmp = append(tmp, b.GetPlaceholder())
-				b.IOrm.SetBindValues(t.New(item).Interface())
+				b.SetBindValues(t.New(item).Interface())
 			}
 			paramsToArr = append(paramsToArr, "("+strings.Join(tmp, ",")+")")
 
 		case "between", "not between":
 			var ar2 = t.New(argsReal[2]).Slice()
 			paramsToArr = append(paramsToArr, b.GetPlaceholder()+" and "+b.GetPlaceholder())
-			b.IOrm.SetBindValues(ar2[0].Interface())
-			b.IOrm.SetBindValues(ar2[1].Interface())
+			b.SetBindValues(ar2[0].Interface())
+			b.SetBindValues(ar2[1].Interface())
 
 		default:
 			paramsToArr = append(paramsToArr, b.GetPlaceholder())
-			b.IOrm.SetBindValues(argsReal[2])
+			b.SetBindValues(argsReal[2])
 		}
 	case 2:
 		paramsToArr = append(paramsToArr, argsReal[0].(string))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, b.GetPlaceholder())
-		b.IOrm.SetBindValues(argsReal[1])
+		b.SetBindValues(argsReal[1])
 	}
 
 	return strings.Join(paramsToArr, " "), nil

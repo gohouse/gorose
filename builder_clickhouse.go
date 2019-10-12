@@ -1,5 +1,8 @@
 package gorose
 
+const (
+	DriverClickhouse = "clickhouse" // 默认驱动
+)
 type BuilderClickhouse struct {
 	//IOrm
 	driver string
@@ -10,17 +13,21 @@ type BuilderClickhouse struct {
 // select {distinct} {fields} from {table} {join} {where} {group} {having} {order} {limit} {offset}
 // {execute} {table} {data} {where}
 func init() {
-	var driver = "clickhouse"
-	var builder = &BuilderClickhouse{driver: driver}
-	NewBuilderDriver().Register(driver, builder)
+	var builder = &BuilderClickhouse{}
+	NewBuilderDriver().Register(DriverClickhouse, builder)
 }
 
+
+// Clone : a new obj
+func (b *BuilderClickhouse) Clone() IBuilder {
+	return &BuilderClickhouse{}
+}
 // BuildQuery : build query sql string
 func (b *BuilderClickhouse) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
-	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()
+	return NewBuilderDefault(o).SetDriver(DriverClickhouse).BuildQuery()
 }
 
 // BuildExecut : build execute sql string
 func (b *BuilderClickhouse) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
-	return NewBuilderDefault(o).SetDriver(b.driver).BuildExecute(operType)
+	return NewBuilderDefault(o).SetDriver(DriverClickhouse).BuildExecute(operType)
 }

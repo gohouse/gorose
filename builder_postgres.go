@@ -1,5 +1,8 @@
 package gorose
 
+const (
+	DriverPostgres = "postgres" // 默认驱动
+)
 type BuilderPostgres struct {
 	//IOrm
 	driver string
@@ -10,11 +13,15 @@ type BuilderPostgres struct {
 // select {distinct} {fields} from {table} {join} {where} {group} {having} {order} {limit} {offset}
 // {execute} {table} {data} {where}
 func init() {
-	var driver = "postgres"
-	var builder = &BuilderPostgres{driver: driver}
-	NewBuilderDriver().Register(driver, builder)
+	var builder = &BuilderPostgres{driver: DriverPostgres}
+	NewBuilderDriver().Register(DriverPostgres, builder)
 }
 
+
+// Clone : a new obj
+func (b *BuilderPostgres) Clone() IBuilder {
+	return &BuilderPostgres{driver: DriverPostgres}
+}
 // BuildQuery : build query sql string
 func (b *BuilderPostgres) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()
