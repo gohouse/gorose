@@ -30,9 +30,10 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.2
+require github.com/gohouse/gorose/v2 v2.1.3
 ```
-> 使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用
+> 使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用.  
+    千万不要漏掉末尾的`v2`,这个是vgo的规定
 
 - docker
 ```bash
@@ -418,6 +419,9 @@ func main() {
 - `xxx.Join("pre_tablename")`更改为`xxx.Join("tablename")`,这里不需要手动指定表前缀  
 - `err:=DB().Bind().Query()`,更改为多返回`res,err:=DB().Query()`,同时保留了`Bind()`用法  
 ### 从1.x升级到2.x, 全新安装  
+
+## todo
+- [ ] extracols放入tag关键词
 
 
 -----

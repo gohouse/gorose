@@ -15,7 +15,7 @@ Y8,        88  8b       d8  88    '8b   8b       d8   '"Y8ba,   8PP"""""""
 
 const (
 	VERSION_TEXT = "\ngolang orm of gorose's version : "
-	VERSION_NO   = "v2.1.3-rc"
+	VERSION_NO   = "v2.1.3"
 	VERSION      = VERSION_TEXT + VERSION_NO + GOROSE_IMG
 )
 
