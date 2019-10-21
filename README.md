@@ -32,7 +32,10 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ```bash
 require github.com/gohouse/gorose/v2 v2.1.3
 ```
-> 使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用.  
+> 重要的事情说三遍!  
+    重要的事情说三遍!  
+    重要的事情说三遍!  
+    使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用.  
     千万不要漏掉末尾的`v2`,这个是vgo的规定
 
 - docker
