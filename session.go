@@ -39,10 +39,10 @@ func NewSession(e IEngin) *Session {
 	return s
 }
 
-// Close : 关闭 Session
-func (s *Session) Close() {
-	s = nil
-}
+//// Close : 关闭 Session
+//func (s *Session) Close() {
+//	s = nil
+//}
 
 // GetIEngin 获取engin
 func (s *Session) GetIEngin() IEngin {

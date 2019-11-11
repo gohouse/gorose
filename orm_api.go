@@ -1,20 +1,20 @@
 package gorose
 
 type OrmApi struct {
-	table           string
-	fields          []string
-	where           [][]interface{}
-	order           string
-	limit           int
-	offset          int
-	join            [][]interface{}
-	distinct        bool
-	union           string
-	group           string
-	having          string
-	data            interface{}
-	force           bool
-	extraCols       []string
+	table     string
+	fields    []string
+	where     [][]interface{}
+	order     string
+	limit     int
+	offset    int
+	join      [][]interface{}
+	distinct  bool
+	union     string
+	group     string
+	having    string
+	data      interface{}
+	force     bool
+	extraCols []string
 	// 悲观锁
 	pessimisticLock string
 }

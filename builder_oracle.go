@@ -45,11 +45,11 @@ func init() {
 	NewBuilderDriver().Register(DriverOracle, builder)
 }
 
-
 // Clone : a new obj
 func (b *BuilderOracle) Clone() IBuilder {
 	return &BuilderOracle{}
 }
+
 // SetDriver 设置驱动, 方便获取占位符使用
 func (b *BuilderOracle) SetDriver(dr string) *BuilderOracle {
 	b.driver = dr

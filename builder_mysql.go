@@ -3,6 +3,7 @@ package gorose
 const (
 	DriverMysql = "mysql" // 默认驱动
 )
+
 type BuilderMysql struct {
 	//IOrm
 	driver string
@@ -30,7 +31,7 @@ func (b *BuilderMysql) Clone() IBuilder {
 // BuildQuery : build query sql string
 func (b *BuilderMysql) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	//fmt.Println(o.GetTable(),o.GetWhere())
-	sqlStr,args,err = NewBuilderDefault(o).SetDriver(DriverMysql).BuildQuery()
+	sqlStr, args, err = NewBuilderDefault(o).SetDriver(DriverMysql).BuildQuery()
 	return
 }
 

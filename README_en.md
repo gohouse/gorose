@@ -21,6 +21,11 @@
 [English readme](README_en.md) |
 [中文 readme](README.md) 
 
+## document
+[2.x doc](https://www.kancloud.cn/fizz/gorose-2/1135835) | 
+[1.x doc](https://www.kancloud.cn/fizz/gorose/769179) | 
+[0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
+
 ## introduction
 gorose is a golang orm framework, which is Inspired by laravel's eloquent.  
 Gorose 2.0 adopts modular architecture, communicates through the API of interface, and strictly relies on the lower layer. Each module can be disassembled, and even can be customized to its preferred appearance.  
@@ -45,11 +50,6 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```bash
 go get -u github.com/gohouse/gorose
 ```
-
-## document
-[2.x doc](https://www.kancloud.cn/fizz/gorose-2/1135835)  
-[1.x doc](https://www.kancloud.cn/fizz/gorose/769179)  
-[0.x doc](https://gohouse.github.io/gorose/dist/en/index.html)
 
 ## supported drivers
 - mysql : https://github.com/go-sql-driver/mysql  

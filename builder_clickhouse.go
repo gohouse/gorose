@@ -3,6 +3,7 @@ package gorose
 const (
 	DriverClickhouse = "clickhouse" // 默认驱动
 )
+
 type BuilderClickhouse struct {
 	//IOrm
 	driver string
@@ -17,11 +18,11 @@ func init() {
 	NewBuilderDriver().Register(DriverClickhouse, builder)
 }
 
-
 // Clone : a new obj
 func (b *BuilderClickhouse) Clone() IBuilder {
 	return &BuilderClickhouse{}
 }
+
 // BuildQuery : build query sql string
 func (b *BuilderClickhouse) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(DriverClickhouse).BuildQuery()

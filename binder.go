@@ -247,14 +247,14 @@ func (o *Binder) GetBindAll() []Data {
 
 func (o *Binder) ResetBinder() {
 	switch o.BindType {
-	case OBJECT_STRUCT,OBJECT_MAP,OBJECT_MAP_T:
+	case OBJECT_STRUCT, OBJECT_MAP, OBJECT_MAP_T:
 		// 清空结果
 		o.SetBindOrigin(nil)
-	case OBJECT_STRUCT_SLICE,OBJECT_MAP_SLICE,OBJECT_MAP_SLICE_T:
+	case OBJECT_STRUCT_SLICE, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		//var rvResult = reflect.ValueOf(o.GetBindResult())
 		var rvResult = o.GetBindResultSlice()
 		// 清空结果
-		rvResult.Set(rvResult.Slice(0,0))
+		rvResult.Set(rvResult.Slice(0, 0))
 	default:
 		o.SetBindAll([]Data{})
 	}

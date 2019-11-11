@@ -11,31 +11,31 @@ func TestOrm_BuildSql2(t *testing.T) {
 	db := DB()
 	var u = "age=age+1,num=num+1"
 	var wheres interface{}
-	wheres = [][]interface{}{{"a",">","b"},{"a","b"}}
-	sqlstr,a,b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
+	wheres = [][]interface{}{{"a", ">", "b"}, {"a", "b"}}
+	sqlstr, a, b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
 
-	t.Log(sqlstr,a,b)
+	t.Log(sqlstr, a, b)
 }
 
 func TestOrm_BuildSql3(t *testing.T) {
 	db := DB()
 	var u = "age=age+1,num=num+1"
 	var wheres interface{}
-	wheres = [][]interface{}{{"a",">","b"},{"a","b"}}
-	sqlstr,a,b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
+	wheres = [][]interface{}{{"a", ">", "b"}, {"a", "b"}}
+	sqlstr, a, b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
 
-	t.Log(sqlstr,a,b)
+	t.Log(sqlstr, a, b)
 }
 
 func TestOrm_BuildSql4(t *testing.T) {
 	db := DB()
-	sqlstr,a,b := db.Table("users").Limit(2).Offset(2).BuildSql()
+	sqlstr, a, b := db.Table("users").Limit(2).Offset(2).BuildSql()
 	//c,d := db.Table("users").Get()
 	//t.Log(db.LastSql())
-	count,d := db.Count()
+	count, d := db.Count()
 
-	t.Log(sqlstr,a,b)
-	t.Log(count,d)
+	t.Log(sqlstr, a, b)
+	t.Log(count, d)
 	t.Log(db.LastSql())
 }
 
@@ -45,17 +45,17 @@ func TestOrm_BuildSql5(t *testing.T) {
 		for {
 			//<-ticker.C
 			db := DB()
-			sqlstr,a,b := db.Table("users").Where("uid",">",1).BuildSql()
+			sqlstr, a, b := db.Table("users").Where("uid", ">", 1).BuildSql()
 			//c,d := db.Table("users").Get()
 			//t.Log(db.LastSql())
-			count,d := db.First()
+			count, d := db.First()
 
-			t.Log(sqlstr,a,b)
-			t.Log(count,d)
+			t.Log(sqlstr, a, b)
+			t.Log(count, d)
 			t.Log(db.LastSql())
 		}
 	}()
-	time.Sleep(500*time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestOrm_First(t *testing.T) {
@@ -244,9 +244,9 @@ func TestOrm_Chunk2(t *testing.T) {
 	var i int
 	err := orm.Table(&u).ChunkStruct(2, func() error {
 		//for _, item := range u {
-			t.Log(u)
+		t.Log(u)
 		//}
-		if i==2{
+		if i == 2 {
 			return errors.New("故意停止,防止数据过多,浪费时间")
 		}
 		i++

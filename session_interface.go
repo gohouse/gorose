@@ -1,7 +1,7 @@
 package gorose
 
 type ISession interface {
-	Close()
+	//Close()
 	//Table(bind interface{}) IOrm
 	Bind(bind interface{}) ISession
 	Begin() (err error)

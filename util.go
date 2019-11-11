@@ -129,7 +129,7 @@ func readFile(filepath string) *os.File {
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil && os.IsNotExist(err) {
 		_ = os.MkdirAll(path.Dir(filepath), os.ModePerm)
-		file, err = os.Create(filepath)
+		file, _ = os.Create(filepath)
 	}
 	return file
 }

@@ -17,9 +17,14 @@
  \______|  \______/  | _| `._____| \______/  |_______/    |_______|
 ```
 
-## 翻译  
+## 翻译(translation)  
 [English readme](README_en.md) |
 [中文 readme](README.md) 
+
+## 文档
+[最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835) | 
+[1.x文档](https://www.kancloud.cn/fizz/gorose/769179) | 
+[0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
 
 ## 简介
@@ -48,11 +53,6 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```bash
 go get -u github.com/gohouse/gorose
 ```
-
-## 文档
-[最新版2.x文档](https://www.kancloud.cn/fizz/gorose-2/1135835)  
-[1.x文档](https://www.kancloud.cn/fizz/gorose/769179)  
-[0.x文档](https://gohouse.github.io/gorose/dist/en/index.html)
 
 ## 支持驱动
 - mysql : https://github.com/go-sql-driver/mysql  

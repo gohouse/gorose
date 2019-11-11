@@ -18,7 +18,7 @@ type BuilderDefault struct {
 	operator    []string
 	placeholder int
 	driver      string
-	bindValues []interface{}
+	bindValues  []interface{}
 }
 
 //var onceBuilderDefault sync.Once
@@ -34,7 +34,6 @@ func NewBuilderDefault(o IOrm) *BuilderDefault {
 	builderDefault := new(BuilderDefault)
 	builderDefault.operator = operator
 	builderDefault.driver = "mysql"
-
 
 	builderDefault.IOrm = o
 	// 每次使用的时候, 重置为0, 方便pg的占位符使用
@@ -261,24 +260,24 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		// 定义插入1条数据的存储
 		var insertValuesSub []string
 		for _, key := range insertFields {
-				if item[key] == nil {
-					if operType=="insert" {
-						// 放入占位符
-						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
-					}
-					// 保存真正的值为null
-					b.SetBindValues("null")
-				} else {
-					if operType=="insert" {
-						// 放入占位符
-						insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
-					}
-					// 保存真正的值
-					b.SetBindValues(item[key])
+			if item[key] == nil {
+				if operType == "insert" {
+					// 放入占位符
+					insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
 				}
-				//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
-				// update
-				dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, b.GetPlaceholder()))
+				// 保存真正的值为null
+				b.SetBindValues("null")
+			} else {
+				if operType == "insert" {
+					// 放入占位符
+					insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
+				}
+				// 保存真正的值
+				b.SetBindValues(item[key])
+			}
+			//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
+			// update
+			dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, b.GetPlaceholder()))
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}

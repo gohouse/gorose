@@ -3,6 +3,7 @@ package gorose
 const (
 	DriverMsSql = "mssql" // 默认驱动
 )
+
 type BuilderMsSql struct {
 	//IOrm
 	driver string
@@ -17,11 +18,11 @@ func init() {
 	NewBuilderDriver().Register(DriverMsSql, builder)
 }
 
-
 // Clone : a new obj
 func (b *BuilderMsSql) Clone() IBuilder {
 	return &BuilderMsSql{driver: DriverMsSql}
 }
+
 // BuildQuery : build query sql string
 func (b *BuilderMsSql) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()

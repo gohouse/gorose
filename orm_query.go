@@ -248,10 +248,10 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 		return
 	}
 	switch dba.GetIBinder().GetBindType() {
-	case OBJECT_STRUCT,OBJECT_MAP,OBJECT_MAP_T:
+	case OBJECT_STRUCT, OBJECT_MAP, OBJECT_MAP_T:
 		var ibinder = dba.GetIBinder()
 		var result = ibinder.GetBindResult()
-		for result!=nil {
+		for result != nil {
 			if err = callback(); err != nil {
 				break
 			}
@@ -264,16 +264,16 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 			_ = dba.Table(ibinder.GetBindOrigin()).Offset(page * limit).Select()
 			result = dba.GetIBinder().GetBindResultSlice()
 		}
-	case OBJECT_STRUCT_SLICE,OBJECT_MAP_SLICE,OBJECT_MAP_SLICE_T:
+	case OBJECT_STRUCT_SLICE, OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		var ibinder = dba.GetIBinder()
 		var result = ibinder.GetBindResultSlice()
-		for result.Interface()!=nil {
+		for result.Interface() != nil {
 			if err = callback(); err != nil {
 				break
 			}
 			page++
 			// 清空结果
-			result.Set(result.Slice(0,0))
+			result.Set(result.Slice(0, 0))
 			// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
 			// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
 			dba.ClearBindValues()

@@ -62,7 +62,7 @@ func TestSession_Execute(t *testing.T) {
 func TestSession_Query_struct(t *testing.T) {
 	var s = initSession()
 	var err error
-	defer s.Close()
+	// defer s.Close()
 
 	var user []Users
 	_, err = s.Bind(&user).Query("select * from users limit ?", 2)

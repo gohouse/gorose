@@ -3,6 +3,7 @@ package gorose
 const (
 	DriverSqlite3 = "sqlite3" // 默认驱动
 )
+
 type BuilderSqlite3 struct {
 	//IOrm
 	driver string
@@ -17,11 +18,11 @@ func init() {
 	NewBuilderDriver().Register(DriverSqlite3, builder)
 }
 
-
 // Clone : a new obj
 func (b *BuilderSqlite3) Clone() IBuilder {
 	return &BuilderSqlite3{driver: DriverSqlite3}
 }
+
 // BuildQuery : build query sql string
 func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()
