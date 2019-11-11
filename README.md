@@ -1,7 +1,5 @@
 # GoRose ORM
 
-<base target="main">
-
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose/v2?status.svg)](https://godoc.org/github.com/gohouse/gorose/v2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose/v2)](https://goreportcard.com/report/github.com/gohouse/gorose/v2)
 [![GitHub release](https://img.shields.io/github/release/gohouse/gorose.svg)](https://github.com/gohouse/gorose/v2/releases/latest)
@@ -441,4 +439,19 @@ func main() {
 total | avator 
 ---|---
 ￥100 | [![](https://avatars1.githubusercontent.com/u/53846155?s=96&v=4)](https://github.com/sanjinhub)  
+
+
+
+---
+[//]: # (让页面所有的超链接支持新页面打开)
+<script type="text/javascript">
+    var attr=document.createAttribute("target")
+    attr.value="main"
+    
+    var base = document.createElement("base")
+    base.setAttributeNode(attr)
+    
+    var head = document.getElementsByTagName("head")
+    head[0].appendChild(base)
+</script>
 
