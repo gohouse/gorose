@@ -445,15 +445,5 @@ total | avator
 ---
 [//]: # (让页面所有的超链接支持新页面打开)  
 
-<center>挽尊卡</center>  
-<script type="text/javascript">
-    var attr=document.createAttribute("target")
-    attr.value="main"
-    
-    var base = document.createElement("base")
-    base.setAttributeNode(attr)
-    
-    var head = document.getElementsByTagName("head")
-    head[0].appendChild(base)
-</script>
+<base target="main">
 
