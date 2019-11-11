@@ -46,7 +46,7 @@ require github.com/gohouse/gorose/v2 v2.1.3
 ```bash
 docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
-> docker image: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), The docker image contains the packages and runtime environment necessary for gorose, [view `Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
+> docker image: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), The docker image contains the packages and runtime environment necessary for gorose, [view `Dockerfile`](https://github.com/docker-box/gorose/blob/master/golang-alpine/Dockerfile)   
 
 - go get  
 ```bash

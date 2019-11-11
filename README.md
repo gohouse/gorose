@@ -48,7 +48,7 @@ require github.com/gohouse/gorose/v2 v2.1.3
 ```bash
 docker run -it --rm ababy/gorose sh -c "go run main.go"
 ```
-> docker 镜像: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), docker镜像包含了gorose所必须的包和运行环境, [查看`Dockerfile`](https://github.com/docker-box/gorose/blob/master/master/golang/Dockerfile)   
+> docker 镜像: [ababy/gorose](https://cloud.docker.com/u/ababy/repository/docker/ababy/gorose), docker镜像包含了gorose所必须的包和运行环境, [查看`Dockerfile`](https://github.com/docker-box/gorose/blob/master/golang-alpine/Dockerfile)   
 
 - go get  
 ```bash
@@ -443,7 +443,9 @@ total | avator
 
 
 ---
-[//]: # (让页面所有的超链接支持新页面打开)
+[//]: # (让页面所有的超链接支持新页面打开)  
+
+<center>挽尊卡</center>  
 <script type="text/javascript">
     var attr=document.createAttribute("target")
     attr.value="main"
