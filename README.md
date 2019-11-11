@@ -1,3 +1,5 @@
+<base target="main">
+
 # GoRose ORM
 [![GoDoc](https://godoc.org/github.com/gohouse/gorose/v2?status.svg)](https://godoc.org/github.com/gohouse/gorose/v2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohouse/gorose/v2)](https://goreportcard.com/report/github.com/gohouse/gorose/v2)
