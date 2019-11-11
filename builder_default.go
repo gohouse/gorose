@@ -93,7 +93,7 @@ func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err er
 	return
 }
 
-// BuildExecut : build execute query string
+// BuilderDefault.BuildExecut : build execute query string
 func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []interface{}, err error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}

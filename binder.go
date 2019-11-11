@@ -17,21 +17,21 @@ type Data map[string]interface{}
 type BindType int
 
 const (
-	// 结构体 一条数据	(struct)
+	// OBJECT_STRUCT 结构体 一条数据	(struct)
 	OBJECT_STRUCT BindType = iota
-	// 结构体 多条数据	([]struct)
+	// OBJECT_STRUCT_SLICE 结构体 多条数据	([]struct)
 	OBJECT_STRUCT_SLICE
-	// map 一条数据 (map[string]interface{})
+	// OBJECT_MAP map 一条数据 (map[string]interface{})
 	OBJECT_MAP
-	// map 多条数据 ([]map[string]interface{})
+	// OBJECT_MAP_SLICE map 多条数据 ([]map[string]interface{})
 	OBJECT_MAP_SLICE
-	// 非结构体 表名字符串 ("users")
+	// OBJECT_STRING 非结构体 表名字符串 ("users")
 	OBJECT_STRING
-	// map 一条数据 (map[string]t.T)
+	// OBJECT_MAP_T map 一条数据 (map[string]t.T)
 	OBJECT_MAP_T
-	// map 多条数据 ([]map[string]t.T)
+	// OBJECT_MAP_SLICE_T map 多条数据 ([]map[string]t.T)
 	OBJECT_MAP_SLICE_T
-	// 默认没有传入任何绑定对象,一般用于query直接返回
+	// OBJECT_NIL 默认没有传入任何绑定对象,一般用于query直接返回
 	OBJECT_NIL
 )
 
