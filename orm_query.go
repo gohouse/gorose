@@ -318,11 +318,11 @@ func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 //	"total": 50,
 //	"per_page": 15,
 //	"current_page": 1,
-//	"last_page": 4,
+//	"lastPage": 4,
 //	"first_page_url": "http://laravel.app?page=1",
-//	"last_page_url": "http://laravel.app?page=4",
-//	"next_page_url": "http://laravel.app?page=2",
-//	"prev_page_url": null,
+//	"lastPage_url": "http://laravel.app?page=4",
+//	"nextPage_url": "http://laravel.app?page=2",
+//	"prevPage_url": null,
 //	"path": "http://laravel.app",
 //	"from": 1,
 //	"to": 15,
@@ -341,7 +341,7 @@ func (dba *Orm) Paginate() (res Data, err error) {
 		limit = 15
 	}
 	var offset = dba.GetOffset()
-	var current_page = int(math.Ceil(float64(offset+1) / float64(limit)))
+	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
 	// 统计总量
 	count, err := dba.Count()
 	dba.ResetUnion()
@@ -350,18 +350,18 @@ func (dba *Orm) Paginate() (res Data, err error) {
 	if err != nil {
 		return
 	}
-	var last_page = int(math.Ceil(float64(count) / float64(limit)))
-	var next_page = current_page + 1
-	var prev_page = current_page - 1
+	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
+	var nextPage = currentPage + 1
+	var prevPage = currentPage - 1
 	res = Data{
 		"total":          count,
 		"per_page":       limit,
-		"current_page":   current_page,
-		"last_page":      last_page,
+		"current_page":   currentPage,
+		"last_page":      lastPage,
 		"first_page_url": 1,
-		"last_page_url":  last_page,
-		"next_page_url":  If(next_page > last_page, nil, next_page),
-		"prev_page_url":  If(prev_page < 1, nil, prev_page),
+		"last_page_url":  lastPage,
+		"next_page_url":  If(nextPage > lastPage, nil, nextPage),
+		"prev_page_url":  If(prevPage < 1, nil, prevPage),
 		"data":           dba.GetIBinder().GetBindResultSlice().Interface(),
 	}
 

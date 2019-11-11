@@ -22,8 +22,6 @@ type BuilderDefault struct {
 	bindValues  []interface{}
 }
 
-//var onceBuilderDefault sync.Once
-//var builderDefault *BuilderDefault
 // NewBuilderDefault 初始化
 func NewBuilderDefault(o IOrm) *BuilderDefault {
 	//onceBuilderDefault.Do(func() {
@@ -185,7 +183,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 		dataObj = append(dataObj, data.(string))
 	case []map[string]interface{}, []Data: // insert multi datas ([]map[string]interface{})
 		sliceData := t.New(data).Slice()
-		for key, _ := range sliceData[0].MapString() {
+		for key := range sliceData[0].MapString() {
 			if inArray(key, dataFields) == false {
 				dataFields = append(dataFields, key)
 			}
@@ -255,7 +253,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 	// update or delete
 	var dataObj []string
 
-	for key, _ := range data[0] {
+	for key := range data[0] {
 		if inArray(key, insertFields) == false {
 			insertFields = append(insertFields, key)
 		}

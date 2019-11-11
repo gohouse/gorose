@@ -81,16 +81,16 @@ func (o *Orm) GetData() interface{} {
 }
 
 // GetForce ...
-func (dba *Orm) GetForce() bool {
-	return dba.force
+func (o *Orm) GetForce() bool {
+	return o.force
 }
 
 // GetExtraCols ...
-func (dba *Orm) GetExtraCols() []string {
-	return dba.extraCols
+func (o *Orm) GetExtraCols() []string {
+	return o.extraCols
 }
 
 // GetPessimisticLock ...
-func (dba *Orm) GetPessimisticLock() string {
-	return dba.pessimisticLock
+func (o *Orm) GetPessimisticLock() string {
+	return o.pessimisticLock
 }

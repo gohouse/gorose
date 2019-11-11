@@ -210,7 +210,7 @@ func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}
 	// update or delete
 	var dataObj []string
 
-	for key, _ := range data[0] {
+	for key := range data[0] {
 		if inArray(key, dataFields) == false {
 			dataFields = append(dataFields, key)
 		}

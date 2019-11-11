@@ -17,14 +17,22 @@ type Data map[string]interface{}
 type BindType int
 
 const (
-	OBJECT_STRUCT       BindType = iota // 结构体 一条数据	(struct)
-	OBJECT_STRUCT_SLICE                 // 结构体 多条数据	([]struct)
-	OBJECT_MAP                          // map 一条数据		(map[string]interface{})
-	OBJECT_MAP_SLICE                    // map 多条数据		([]map[string]interface{})
-	OBJECT_STRING                       // 非结构体 表名字符串	("users")
-	OBJECT_MAP_T                        // map 一条数据		(map[string]t.T)
-	OBJECT_MAP_SLICE_T                  // map 多条数据		([]map[string]t.T)
-	OBJECT_NIL                          // 默认没有传入任何绑定对象,一般用于query直接返回
+	// 结构体 一条数据	(struct)
+	OBJECT_STRUCT BindType = iota
+	// 结构体 多条数据	([]struct)
+	OBJECT_STRUCT_SLICE
+	// map 一条数据 (map[string]interface{})
+	OBJECT_MAP
+	// map 多条数据 ([]map[string]interface{})
+	OBJECT_MAP_SLICE
+	// 非结构体 表名字符串 ("users")
+	OBJECT_STRING
+	// map 一条数据 (map[string]t.T)
+	OBJECT_MAP_T
+	// map 多条数据 ([]map[string]t.T)
+	OBJECT_MAP_SLICE_T
+	// 默认没有传入任何绑定对象,一般用于query直接返回
+	OBJECT_NIL
 )
 
 // BindString ...
@@ -39,10 +47,12 @@ var BindString = map[BindType]string{
 	OBJECT_NIL:          "OBJECT_NIL",
 }
 
+// BindType.String ...
 func (b BindType) String() string {
 	return BindString[b]
 }
 
+// Binder ...
 type Binder struct {
 	// Bind是指传入的对象 [slice]map,[slice]struct
 	// 传入的原始对象
@@ -67,6 +77,7 @@ type Binder struct {
 
 var _ IBinder = &Binder{}
 
+// NewBinder ...
 func NewBinder(o ...interface{}) *Binder {
 	var binder = new(Binder)
 	if len(o) > 0 {
@@ -77,47 +88,48 @@ func NewBinder(o ...interface{}) *Binder {
 	return binder
 }
 
-func (s *Binder) BindParse(prefix string) error {
-	if s.GetBindOrigin() == nil {
+// BindParse ...
+func (o *Binder) BindParse(prefix string) error {
+	if o.GetBindOrigin() == nil {
 		return nil
 	}
 	var BindName string
-	switch s.GetBindOrigin().(type) {
+	switch o.GetBindOrigin().(type) {
 	case string: // 直接传入的是表名
-		s.SetBindType(OBJECT_STRING)
-		BindName = s.GetBindOrigin().(string)
-		//s.SetBindAll([]Map{})
+		o.SetBindType(OBJECT_STRING)
+		BindName = o.GetBindOrigin().(string)
+		//o.SetBindAll([]Map{})
 
 	// 传入的是struct或切片
 	default:
 		// 清空字段值,避免手动传入字段污染struct字段
-		s.SetBindFields([]string{})
+		o.SetBindFields([]string{})
 		// make sure dst is an appropriate type
-		dstVal := reflect.ValueOf(s.GetBindOrigin())
+		dstVal := reflect.ValueOf(o.GetBindOrigin())
 		sliceVal := reflect.Indirect(dstVal)
 
 		switch sliceVal.Kind() {
 		case reflect.Struct: // struct
-			s.SetBindType(OBJECT_STRUCT)
+			o.SetBindType(OBJECT_STRUCT)
 			BindName = sliceVal.Type().Name()
-			s.SetBindResult(s.GetBindOrigin())
+			o.SetBindResult(o.GetBindOrigin())
 			//// 默认只查一条
-			//s.SetBindLimit(1)
+			//o.SetBindLimit(1)
 			// 解析出字段
-			s.parseFields()
+			o.parseFields()
 			// 是否设置了表名
 			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 				BindName = tn.Call(nil)[0].String()
 			}
 		case reflect.Map: // map
-			s.SetBindType(OBJECT_MAP)
+			o.SetBindType(OBJECT_MAP)
 			//// 默认只查一条
-			//s.SetBindLimit(1)
+			//o.SetBindLimit(1)
 			//
-			s.SetBindResult(s.GetBindOrigin())
+			o.SetBindResult(o.GetBindOrigin())
 			//TODO 检查map的值类型, 是否是t.T
 			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
-				s.SetBindType(OBJECT_MAP_T)
+				o.SetBindType(OBJECT_MAP_T)
 			}
 			// 是否设置了表名
 			if dstVal.Kind() != reflect.Ptr {
@@ -132,51 +144,51 @@ func (s *Binder) BindParse(prefix string) error {
 
 			switch eltType.Kind() {
 			case reflect.Map:
-				s.SetBindType(OBJECT_MAP_SLICE)
-				s.SetBindResult(reflect.MakeMap(eltType).Interface())
-				s.SetBindResultSlice(sliceVal)
-				//s.SetBindResultSlice(reflect.MakeSlice(sliceVal.Type(),0,0))
+				o.SetBindType(OBJECT_MAP_SLICE)
+				o.SetBindResult(reflect.MakeMap(eltType).Interface())
+				o.SetBindResultSlice(sliceVal)
+				//o.SetBindResultSlice(reflect.MakeSlice(sliceVal.Type(),0,0))
 				//TODO 检查map的值类型, 是否是t.T
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
-					s.SetBindType(OBJECT_MAP_SLICE_T)
+					o.SetBindType(OBJECT_MAP_SLICE_T)
 				}
 				if dstVal.Kind() != reflect.Ptr {
 					return errors.New("传入的不是map指针,如:var user gorose.Map,传入 &user{}")
 				}
 
 			case reflect.Struct:
-				s.SetBindType(OBJECT_STRUCT_SLICE)
+				o.SetBindType(OBJECT_STRUCT_SLICE)
 				BindName = eltType.Name()
 				br := reflect.New(eltType)
-				s.SetBindResult(br.Interface())
-				s.SetBindResultSlice(sliceVal)
+				o.SetBindResult(br.Interface())
+				o.SetBindResultSlice(sliceVal)
 				// 解析出字段
-				s.parseFields()
+				o.parseFields()
 
 				// 是否设置了表名
 				if tn := br.MethodByName("TableName"); tn.IsValid() {
 					BindName = tn.Call(nil)[0].String()
 				}
 			default:
-				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
+				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", o.GetBindOrigin())
 			}
 			// 是否设置了表名
 			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 				BindName = tn.Call(nil)[0].String()
 			}
 		default:
-			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", s.GetBindOrigin())
+			return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", o.GetBindOrigin())
 		}
 	}
 
-	s.SetBindName(prefix + BindName)
-	s.SetBindPrefix(prefix)
+	o.SetBindName(prefix + BindName)
+	o.SetBindPrefix(prefix)
 	return nil
 }
 
-func (s *Binder) parseFields() {
-	if len(s.GetBindFields()) == 0 {
-		s.SetBindFields(getTagName(s.GetBindResult(), TAGNAME))
+func (o *Binder) parseFields() {
+	if len(o.GetBindFields()) == 0 {
+		o.SetBindFields(getTagName(o.GetBindResult(), TAGNAME))
 	}
 }
 

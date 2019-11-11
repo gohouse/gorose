@@ -337,22 +337,22 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 }
 
 // Transaction ...
-func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
-	err = s.ISession.Begin()
+func (dba *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
+	err = dba.ISession.Begin()
 	if err != nil {
-		s.GetIEngin().GetLogger().Error(err.Error())
+		dba.GetIEngin().GetLogger().Error(err.Error())
 		return err
 	}
 
 	for _, closer := range closers {
-		err = closer(s)
+		err = closer(dba)
 		if err != nil {
-			s.GetIEngin().GetLogger().Error(err.Error())
-			_ = s.ISession.Rollback()
+			dba.GetIEngin().GetLogger().Error(err.Error())
+			_ = dba.ISession.Rollback()
 			return
 		}
 	}
-	return s.ISession.Commit()
+	return dba.ISession.Commit()
 }
 
 // SharedLock 共享锁
