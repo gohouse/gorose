@@ -1,5 +1,6 @@
 package gorose
 
+// GOROSE_IMG ...
 const GOROSE_IMG = `
                                                                             
   ,ad8888ba,                88888888ba                                      
@@ -14,11 +15,15 @@ Y8,        88  8b       d8  88    '8b   8b       d8   '"Y8ba,   8PP"""""""
 `
 
 const (
+	// VERSION_TEXT ...
 	VERSION_TEXT = "\ngolang orm of gorose's version : "
-	VERSION_NO   = "v2.1.3"
-	VERSION      = VERSION_TEXT + VERSION_NO + GOROSE_IMG
+	// VERSION_NO ...
+	VERSION_NO = "v2.1.3"
+	// VERSION ...
+	VERSION = VERSION_TEXT + VERSION_NO + GOROSE_IMG
 )
 
+// Open ...
 func Open(conf ...interface{}) (engin *Engin, err error) {
 	// 驱动engin
 	engin, err = NewEngin(conf...)

@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	DriverOracle = "oci8" // 默认驱动
+	// DriverOracle ...
+	DriverOracle = "oci8"
 )
 
 var (
@@ -20,12 +21,12 @@ var (
 		"intersect", "minus", "union", "||", "in", "not in", "between", "not between"}
 )
 
+// BuilderOracle ...
 type BuilderOracle struct {
 	BuilderDefault
 }
 
-//var builderOracle *BuilderOracle
-
+// NewBuilderOracle ...
 func NewBuilderOracle(o IOrm) *BuilderOracle {
 	//onceBuilderDefault.Do(func() {
 	//	builderOracle = new(BuilderOracle)
@@ -66,6 +67,7 @@ func (b *BuilderOracle) GetPlaceholder() (phstr string) {
 	return
 }
 
+// BuildQueryOra ...
 func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err error) {
 	//b.IOrm = o
 	join, err := b.BuildJoin()
@@ -129,6 +131,7 @@ func (b *BuilderOracle) BuildQueryOra() (sqlStr string, args []interface{}, err 
 	return
 }
 
+// BuildExecuteOra ...
 func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []interface{}, err error) {
 	// insert : {"name":"fizz, "website":"fizzday.net"} or {{"name":"fizz2", "website":"www.fizzday.net"}, {"name":"fizz", "website":"fizzday.net"}}}
 	// update : {"name":"fizz", "website":"fizzday.net"}
@@ -173,6 +176,7 @@ func (b *BuilderOracle) BuildExecuteOra(operType string) (sqlStr string, args []
 	return
 }
 
+// BuildData ...
 func (b *BuilderOracle) BuildData(operType string) (string, string, string) {
 	data := b.IOrm.GetData()
 	ref := reflect.Indirect(reflect.ValueOf(data))
@@ -194,6 +198,7 @@ func (b *BuilderOracle) BuildData(operType string) (string, string, string) {
 	return "", "", ""
 }
 
+// BuildData2 ...
 func (b *BuilderOracle) BuildData2(operType string) (string, string, string) {
 	return b.BuilderDefault.BuildData2(operType)
 }
@@ -233,10 +238,12 @@ func (b *BuilderOracle) parseData(operType string, data []map[string]interface{}
 	return strings.Join(dataObj, ","), strings.Join(dataFields, ","), strings.Join(dataValues, ",")
 }
 
+// BuildJoin ...
 func (b *BuilderOracle) BuildJoin() (s string, err error) {
 	return b.BuilderDefault.BuildJoin()
 }
 
+// BuildWhere ...
 func (b *BuilderOracle) BuildWhere() (where string, err error) {
 	var beforeParseWhere = b.IOrm.GetWhere()
 	where, err = b.parseWhere(b.IOrm)
@@ -244,30 +251,37 @@ func (b *BuilderOracle) BuildWhere() (where string, err error) {
 	return If(where == "", "", " WHERE "+where).(string), err
 }
 
+// BuildDistinct ...
 func (b *BuilderOracle) BuildDistinct() (dis string) {
 	return b.BuilderDefault.BuildDistinct()
 }
 
+// BuildFields ...
 func (b *BuilderOracle) BuildFields() string {
 	return b.BuilderDefault.BuildFields()
 }
 
+// BuildTable ...
 func (b *BuilderOracle) BuildTable() string {
 	return b.BuilderDefault.BuildTable()
 }
 
+// BuildGroup ...
 func (b *BuilderOracle) BuildGroup() string {
 	return b.BuilderDefault.BuildGroup()
 }
 
+// BuildHaving ...
 func (b *BuilderOracle) BuildHaving() string {
 	return b.BuilderDefault.BuildHaving()
 }
 
+// BuildOrder ...
 func (b *BuilderOracle) BuildOrder() string {
 	return b.BuilderDefault.BuildOrder()
 }
 
+// BuildLimit ...
 func (b *BuilderOracle) BuildLimit() string {
 	//if b.IOrm.GetUnion() != nil {
 	//	return ""
@@ -289,6 +303,7 @@ func (b *BuilderOracle) BuildLimit() string {
 	return If(b.IOrm.GetLimit() == 0, "", limitStr).(string)
 }
 
+// BuildOffset ...
 func (b *BuilderOracle) BuildOffset() string {
 	return ""
 }
@@ -435,6 +450,7 @@ func (b *BuilderOracle) parseParams(args []interface{}, ormApi IOrm) (s string, 
 	return strings.Join(paramsToArr, " "), nil
 }
 
+// GetOperator ...
 func (b *BuilderOracle) GetOperator() []string {
 	return b.BuilderDefault.GetOperator()
 }

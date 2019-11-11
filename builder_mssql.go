@@ -1,9 +1,11 @@
 package gorose
 
 const (
-	DriverMsSql = "mssql" // 默认驱动
+	// DriverMsSql ...
+	DriverMsSql = "mssql"
 )
 
+// BuilderMsSql ...
 type BuilderMsSql struct {
 	//IOrm
 	driver string

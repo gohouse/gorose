@@ -1,9 +1,11 @@
 package gorose
 
 const (
-	DriverClickhouse = "clickhouse" // 默认驱动
+	// DriverClickhouse ...
+	DriverClickhouse = "clickhouse"
 )
 
+// BuilderClickhouse ...
 type BuilderClickhouse struct {
 	//IOrm
 	driver string

@@ -1,5 +1,6 @@
 package gorose
 
+// IOrmSession ...
 type IOrmSession interface {
 	//Close()
 	//Table(bind interface{}) IOrm

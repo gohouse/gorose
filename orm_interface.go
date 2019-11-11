@@ -1,5 +1,6 @@
 package gorose
 
+// IOrm ...
 type IOrm interface {
 	IOrmApi
 	IOrmQuery

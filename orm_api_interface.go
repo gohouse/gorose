@@ -1,5 +1,6 @@
 package gorose
 
+// IOrmApi ...
 type IOrmApi interface {
 	GetTable() string
 	GetFields() []string

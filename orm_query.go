@@ -257,7 +257,9 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 			}
 			page++
 			// 清空结果
-			result = new(interface{})
+			//result = nil
+			var rfRes = reflect.ValueOf(result)
+			rfRes.Set(reflect.Zero(rfRes.Type()))
 			// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
 			// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
 			dba.ClearBindValues()

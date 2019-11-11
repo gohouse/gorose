@@ -1,9 +1,11 @@
 package gorose
 
 const (
-	DriverMysql = "mysql" // 默认驱动
+	// DriverMysql ...
+	DriverMysql = "mysql"
 )
 
+// BuilderMysql ...
 type BuilderMysql struct {
 	//IOrm
 	driver string
@@ -19,6 +21,7 @@ func init() {
 	NewBuilderDriver().Register(DriverMysql, NewBuilderMysql())
 }
 
+// NewBuilderMysql ...
 func NewBuilderMysql() *BuilderMysql {
 	return new(BuilderMysql)
 }

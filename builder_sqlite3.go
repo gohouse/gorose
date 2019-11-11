@@ -1,9 +1,11 @@
 package gorose
 
 const (
-	DriverSqlite3 = "sqlite3" // 默认驱动
+	// DriverSqlite3 ...
+	DriverSqlite3 = "sqlite3"
 )
 
+// BuilderSqlite3 ...
 type BuilderSqlite3 struct {
 	//IOrm
 	driver string

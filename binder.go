@@ -7,9 +7,13 @@ import (
 	"reflect"
 )
 
+// Map ...
 type Map t.MapString
+
+// Data ...
 type Data map[string]interface{}
 
+// BindType ...
 type BindType int
 
 const (
@@ -23,6 +27,7 @@ const (
 	OBJECT_NIL                          // 默认没有传入任何绑定对象,一般用于query直接返回
 )
 
+// BindString ...
 var BindString = map[BindType]string{
 	OBJECT_STRUCT:       "OBJECT_STRUCT",
 	OBJECT_STRUCT_SLICE: "OBJECT_STRUCT_SLICE",
@@ -175,76 +180,94 @@ func (s *Binder) parseFields() {
 	}
 }
 
+// ResetBindResultSlice ...
 func (o *Binder) ResetBindResultSlice() {
 	if o.BindType == OBJECT_MAP_SLICE_T {
 		o.BindResultSlice = reflect.New(o.BindResultSlice.Type())
 	}
 }
 
+// SetBindPrefix ...
 func (o *Binder) SetBindPrefix(arg string) {
 	o.BindPrefix = arg
 }
 
+// GetBindPrefix ...
 func (o *Binder) GetBindPrefix() string {
 	return o.BindPrefix
 }
 
+// SetBindOrigin ...
 func (o *Binder) SetBindOrigin(arg interface{}) {
 	o.BindOrigin = arg
 }
 
+// GetBindOrigin ...
 func (o *Binder) GetBindOrigin() interface{} {
 	return o.BindOrigin
 }
 
+// SetBindName ...
 func (o *Binder) SetBindName(arg string) {
 	o.BindName = arg
 }
 
+// GetBindName ...
 func (o *Binder) GetBindName() string {
 	return o.BindName
 }
 
+// SetBindResult ...
 func (o *Binder) SetBindResult(arg interface{}) {
 	o.BindResult = arg
 }
 
+// GetBindResult ...
 func (o *Binder) GetBindResult() interface{} {
 	return o.BindResult
 }
 
+// SetBindResultSlice ...
 func (o *Binder) SetBindResultSlice(arg reflect.Value) {
 	o.BindResultSlice = arg
 }
 
+// GetBindResultSlice ...
 func (o *Binder) GetBindResultSlice() reflect.Value {
 	return o.BindResultSlice
 }
 
+// SetBindFields ...
 func (o *Binder) SetBindFields(arg []string) {
 	o.BindFields = arg
 }
 
+// GetBindFields ...
 func (o *Binder) GetBindFields() []string {
 	return o.BindFields
 }
 
+// SetBindType ...
 func (o *Binder) SetBindType(arg BindType) {
 	o.BindType = arg
 }
 
+// GetBindType ...
 func (o *Binder) GetBindType() BindType {
 	return o.BindType
 }
 
+// SetBindAll ...
 func (o *Binder) SetBindAll(arg []Data) {
 	o.BindAll = arg
 }
 
+// GetBindAll ...
 func (o *Binder) GetBindAll() []Data {
 	return o.BindAll
 }
 
+// ResetBinder ...
 func (o *Binder) ResetBinder() {
 	switch o.BindType {
 	case OBJECT_STRUCT, OBJECT_MAP, OBJECT_MAP_T:

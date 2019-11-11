@@ -6,14 +6,19 @@ import (
 	"time"
 )
 
+// LogLevel ...
 type LogLevel uint
 
 const (
+	// LOG_SQL ...
 	LOG_SQL LogLevel = iota
+	// LOG_SLOW ...
 	LOG_SLOW
+	// LOG_ERROR ...
 	LOG_ERROR
 )
 
+// String ...
 func (l LogLevel) String() string {
 	switch l {
 	case LOG_SQL:
@@ -26,6 +31,7 @@ func (l LogLevel) String() string {
 	return ""
 }
 
+// LogOption ...
 type LogOption struct {
 	FilePath     string
 	EnableSqlLog bool
@@ -34,6 +40,7 @@ type LogOption struct {
 	EnableErrorLog bool
 }
 
+// Logger ...
 type Logger struct {
 	filePath string
 	sqlLog   bool
@@ -47,6 +54,7 @@ var _ ILogger = (*Logger)(nil)
 var onceLogger sync.Once
 var logger *Logger
 
+// NewLogger ...
 func NewLogger(o *LogOption) *Logger {
 	onceLogger.Do(func() {
 		logger = &Logger{filePath: "."}
@@ -60,36 +68,43 @@ func NewLogger(o *LogOption) *Logger {
 	return logger
 }
 
+// DefaultLogger ...
 func DefaultLogger() func(e *Engin) {
 	return func(e *Engin) {
 		e.logger = NewLogger(&LogOption{EnableSlowLog: 3})
 	}
 }
 
+// EnableSqlLog ...
 func (l *Logger) EnableSqlLog() bool {
 	return l.sqlLog
 }
 
+// EnableErrorLog ...
 func (l *Logger) EnableErrorLog() bool {
 	return l.errLog
 }
 
+// EnableSlowLog ...
 func (l *Logger) EnableSlowLog() float64 {
 	return l.slowLog
 }
 
+// Slow ...
 func (l *Logger) Slow(sqlStr string, runtime time.Duration) {
 	if runtime.Seconds() > l.EnableSlowLog() {
 		logger.write(LOG_SLOW, "gorose_slow", sqlStr, runtime.String())
 	}
 }
 
+// Sql ...
 func (l *Logger) Sql(sqlStr string, runtime time.Duration) {
 	if l.EnableSqlLog() {
 		logger.write(LOG_SQL, "gorose_sql", sqlStr, runtime.String())
 	}
 }
 
+// Error ...
 func (l *Logger) Error(msg string) {
 	if l.EnableErrorLog() {
 		logger.write(LOG_ERROR, "gorose", msg, "0")

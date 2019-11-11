@@ -1,5 +1,6 @@
 package gorose
 
+// ISession ...
 type ISession interface {
 	//Close()
 	//Table(bind interface{}) IOrm

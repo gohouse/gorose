@@ -1,5 +1,6 @@
 package gorose
 
+// Config ...
 type Config struct {
 	Driver string // 驱动: mysql/sqlite3/oracle/mssql/postgres/clickhouse, 如果集群配置了驱动, 这里可以省略
 	// mysql 示例:
@@ -10,6 +11,7 @@ type Config struct {
 	Prefix          string // 表前缀, 如果集群配置了前缀, 这里可以省略
 }
 
+// ConfigCluster ...
 type ConfigCluster struct {
 	Master []Config // 主
 	Slave  []Config // 从

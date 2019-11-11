@@ -1,5 +1,6 @@
 package gorose
 
+// IOrmQuery ...
 type IOrmQuery interface {
 	// 获取数据, 依据传入的绑定对象, 选择查询一条或多条数据并绑定到传入对象上
 	// 当绑定对象传入的是string类型时, 返回多条结果集, 需要使用 Get() 来获取最终结果

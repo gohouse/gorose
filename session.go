@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Session ...
 type Session struct {
 	IEngin
 	IBinder
@@ -39,11 +40,6 @@ func NewSession(e IEngin) *Session {
 	return s
 }
 
-//// Close : 关闭 Session
-//func (s *Session) Close() {
-//	s = nil
-//}
-
 // GetIEngin 获取engin
 func (s *Session) GetIEngin() IEngin {
 	return s.IEngin
@@ -53,11 +49,6 @@ func (s *Session) GetIEngin() IEngin {
 func (s *Session) SetIEngin(ie IEngin) {
 	s.IEngin = ie
 }
-
-//// GetDriver 获取驱动
-//func (s *Session) GetDriver() string {
-//	return s.driver
-//}
 
 // Bind : 传入绑定结果的对象, 参数一为对象, 可以是 struct, gorose.MapRow 或对应的切片
 //		如果是做非query操作,第一个参数也可以仅仅指定为字符串表名
@@ -98,12 +89,14 @@ func (s *Session) GetTableName() (string, error) {
 	return s.GetIBinder().GetBindName(), s.err
 }
 
+// Begin ...
 func (s *Session) Begin() (err error) {
 	s.tx, err = s.master.Begin()
 	s.SetTransaction(true)
 	return
 }
 
+// Rollback ...
 func (s *Session) Rollback() (err error) {
 	err = s.tx.Rollback()
 	s.tx = nil
@@ -111,6 +104,7 @@ func (s *Session) Rollback() (err error) {
 	return
 }
 
+// Commit ...
 func (s *Session) Commit() (err error) {
 	err = s.tx.Commit()
 	s.tx = nil
@@ -118,6 +112,7 @@ func (s *Session) Commit() (err error) {
 	return
 }
 
+// Transaction ...
 func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 	err = s.Begin()
 	if err != nil {
@@ -136,6 +131,7 @@ func (s *Session) Transaction(closers ...func(ses ISession) error) (err error) {
 	return s.Commit()
 }
 
+// Query ...
 func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, err error) {
 	// 记录开始时间
 	start := time.Now()
@@ -197,6 +193,7 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 	return
 }
 
+// Execute ...
 func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected int64, err error) {
 	// 记录开始时间
 	start := time.Now()
@@ -260,9 +257,13 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 	//})
 	return
 }
+
+// LastInsertId ...
 func (s *Session) LastInsertId() int64 {
 	return s.lastInsertId
 }
+
+// LastSql ...
 func (s *Session) LastSql() string {
 	return s.lastSql
 }
@@ -457,14 +458,17 @@ func (s *Session) scanAll(rows *sql.Rows) (err error) {
 	return
 }
 
+// SetUnion ...
 func (s *Session) SetUnion(u interface{}) {
 	s.union = u
 }
 
+// GetUnion ...
 func (s *Session) GetUnion() interface{} {
 	return s.union
 }
 
+// SetTransaction ...
 func (s *Session) SetTransaction(b bool) {
 	s.transaction = b
 }

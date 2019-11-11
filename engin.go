@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
+// TAGNAME ...
 var TAGNAME = "gorose"
+
+// IGNORE ...
 var IGNORE = "-"
 
 type cluster struct {
@@ -14,6 +17,8 @@ type cluster struct {
 	slave      []*sql.DB
 	slaveSize  int
 }
+
+// Engin ...
 type Engin struct {
 	config *ConfigCluster
 	driver string
@@ -51,13 +56,14 @@ func NewEngin(conf ...interface{}) (e *Engin, err error) {
 	return engin, err
 }
 
+// Use ...
 func (c *Engin) Use(closers ...func(e *Engin)) {
 	for _, closer := range closers {
 		closer(c)
 	}
 }
 
-// Ping
+// Ping ...
 func (c *Engin) Ping() error {
 	//for _,item := range c.dbs.master {
 	//
@@ -87,6 +93,7 @@ func (c *Engin) GetPrefix() string {
 	return c.prefix
 }
 
+// GetDriver ...
 func (c *Engin) GetDriver() string {
 	return c.driver
 }
@@ -111,6 +118,7 @@ func (c *Engin) GetExecuteDB() *sql.DB {
 	return c.dbs.master[randint]
 }
 
+// GetLogger ...
 func (c *Engin) GetLogger() ILogger {
 	return c.logger
 }

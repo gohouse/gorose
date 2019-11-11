@@ -13,6 +13,7 @@ import (
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
 	"in", "not in", "between", "not between"}
 
+// BuilderDefault 默认构造器, 其他的可以继承这个, 重写方法即可
 type BuilderDefault struct {
 	IOrm
 	operator    []string
@@ -23,7 +24,7 @@ type BuilderDefault struct {
 
 //var onceBuilderDefault sync.Once
 //var builderDefault *BuilderDefault
-
+// NewBuilderDefault 初始化
 func NewBuilderDefault(o IOrm) *BuilderDefault {
 	//onceBuilderDefault.Do(func() {
 	//	builderDefault = new(BuilderDefault)
@@ -47,12 +48,12 @@ func (b *BuilderDefault) SetDriver(dr string) *BuilderDefault {
 	return b
 }
 
-// SetBindValues
+// SetBindValues ...
 func (b *BuilderDefault) SetBindValues(bv interface{}) {
 	b.bindValues = append(b.bindValues, bv)
 }
 
-// GetBindValues
+// GetBindValues ...
 func (b *BuilderDefault) GetBindValues() []interface{} {
 	return b.bindValues
 }
@@ -72,6 +73,7 @@ func (b *BuilderDefault) GetPlaceholder() (phstr string) {
 	return
 }
 
+// BuildQuery 构造query
 func (b *BuilderDefault) BuildQuery() (sqlStr string, args []interface{}, err error) {
 	//b.IOrm = o
 	join, err := b.BuildJoin()
@@ -167,6 +169,8 @@ func (b *BuilderDefault) BuildData(operType string) (string, string, string) {
 	}
 	return "", "", ""
 }
+
+// BuildData2 ...
 func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 	// insert
 	var dataFields []string
@@ -284,6 +288,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 	return strings.Join(dataObj, ","), strings.Join(insertFields, ","), strings.Join(insertValues, ",")
 }
 
+// BuildJoin ...
 func (b *BuilderDefault) BuildJoin() (s string, err error) {
 	// 用户传入的join参数+join类型
 	var join []interface{}
@@ -334,6 +339,7 @@ func (b *BuilderDefault) BuildJoin() (s string, err error) {
 	return strings.Join(returnJoinArr, " "), nil
 }
 
+// BuildWhere ...
 func (b *BuilderDefault) BuildWhere() (where string, err error) {
 	var beforeParseWhere = b.IOrm.GetWhere()
 	where, err = b.parseWhere(b.IOrm)
@@ -341,10 +347,12 @@ func (b *BuilderDefault) BuildWhere() (where string, err error) {
 	return If(where == "", "", " WHERE "+where).(string), err
 }
 
+// BuildDistinct ...
 func (b *BuilderDefault) BuildDistinct() (dis string) {
 	return If(b.IOrm.GetDistinct(), "DISTINCT ", "").(string)
 }
 
+// BuildFields ...
 func (b *BuilderDefault) BuildFields() string {
 	if len(b.IOrm.GetFields()) == 0 {
 		return "*"
@@ -352,22 +360,27 @@ func (b *BuilderDefault) BuildFields() string {
 	return strings.Join(b.IOrm.GetFields(), ",")
 }
 
+// BuildTable ...
 func (b *BuilderDefault) BuildTable() string {
 	return b.IOrm.GetTable()
 }
 
+// BuildGroup ...
 func (b *BuilderDefault) BuildGroup() string {
 	return If(b.IOrm.GetGroup() == "", "", " GROUP BY "+b.IOrm.GetGroup()).(string)
 }
 
+// BuildHaving ...
 func (b *BuilderDefault) BuildHaving() string {
 	return If(b.IOrm.GetHaving() == "", "", " HAVING "+b.IOrm.GetHaving()).(string)
 }
 
+// BuildOrder ...
 func (b *BuilderDefault) BuildOrder() string {
 	return If(b.IOrm.GetOrder() == "", "", " ORDER BY "+b.IOrm.GetOrder()).(string)
 }
 
+// BuildLimit ...
 func (b *BuilderDefault) BuildLimit() string {
 	//if b.IOrm.GetUnion() != nil {
 	//	return ""
@@ -375,6 +388,7 @@ func (b *BuilderDefault) BuildLimit() string {
 	return If(b.IOrm.GetLimit() == 0, "", " LIMIT "+strconv.Itoa(b.IOrm.GetLimit())).(string)
 }
 
+// BuildOffset ...
 func (b *BuilderDefault) BuildOffset() string {
 	//if b.BuildLimit() == "" {
 	//	return ""
@@ -549,6 +563,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 	return strings.Join(paramsToArr, " "), nil
 }
 
+// GetOperator ...
 func (b *BuilderDefault) GetOperator() []string {
 	return b.operator
 }

@@ -2,6 +2,7 @@ package gorose
 
 import "database/sql"
 
+// IEngin ...
 type IEngin interface {
 	GetExecuteDB() *sql.DB
 	GetQueryDB() *sql.DB

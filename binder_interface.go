@@ -2,6 +2,7 @@ package gorose
 
 import "reflect"
 
+// IBinder 数据绑定对象接口
 type IBinder interface {
 	SetBindOrigin(arg interface{})
 	GetBindOrigin() interface{}

@@ -35,6 +35,7 @@ func structForScan(u interface{}) []interface{} {
 	return v
 }
 
+// StructToMap ...
 func StructToMap(obj interface{}) map[string]interface{} {
 	ty := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)

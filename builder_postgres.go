@@ -1,9 +1,11 @@
 package gorose
 
 const (
-	DriverPostgres = "postgres" // 默认驱动
+	// DriverPostgres ...
+	DriverPostgres = "postgres"
 )
 
+// BuilderPostgres ...
 type BuilderPostgres struct {
 	//IOrm
 	driver string

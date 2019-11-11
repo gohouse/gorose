@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Orm ...
 type Orm struct {
 	ISession
 	//IBinder
@@ -16,6 +17,7 @@ type Orm struct {
 
 var _ IOrm = (*Orm)(nil)
 
+// NewOrm ...
 func NewOrm(e IEngin) *Orm {
 	var orm = new(Orm)
 	orm.SetISession(NewSession(e))
@@ -24,6 +26,7 @@ func NewOrm(e IEngin) *Orm {
 	return orm
 }
 
+// Hello ...
 func (dba *Orm) Hello() {
 	fmt.Println("hello gorose orm struct")
 }
@@ -34,35 +37,43 @@ func (dba *Orm) ExtraCols(args ...string) IOrm {
 	return dba
 }
 
+// ResetExtraCols ...
 func (dba *Orm) ResetExtraCols() IOrm {
 	dba.extraCols = []string{}
 	return dba
 }
 
+// SetBindValues ...
 func (dba *Orm) SetBindValues(v interface{}) {
 	dba.bindValues = append(dba.bindValues, v)
 }
 
+// ClearBindValues ...
 func (dba *Orm) ClearBindValues() {
 	dba.bindValues = []interface{}{}
 }
 
+// GetBindValues ...
 func (dba *Orm) GetBindValues() []interface{} {
 	return dba.bindValues
 }
 
+// GetDriver ...
 func (dba *Orm) GetDriver() string {
 	return dba.driver
 }
 
+// SetISession ...
 func (dba *Orm) SetISession(is ISession) {
 	dba.ISession = is
 }
 
+// GetISession ...
 func (dba *Orm) GetISession() ISession {
 	return dba.ISession
 }
 
+// GetOrmApi ...
 func (dba *Orm) GetOrmApi() *OrmApi {
 	return dba.OrmApi
 }
@@ -172,50 +183,62 @@ func (dba *Orm) OrWhere(args ...interface{}) IOrm {
 	return dba
 }
 
+// WhereNull ...
 func (dba *Orm) WhereNull(arg string) IOrm {
 	return dba.Where(arg + " IS NULL")
 }
 
+// OrWhereNull ...
 func (dba *Orm) OrWhereNull(arg string) IOrm {
 	return dba.OrWhere(arg + " IS NULL")
 }
 
+// WhereNotNull ...
 func (dba *Orm) WhereNotNull(arg string) IOrm {
 	return dba.Where(arg + " IS NOT NULL")
 }
 
+// OrWhereNotNull ...
 func (dba *Orm) OrWhereNotNull(arg string) IOrm {
 	return dba.OrWhere(arg + " IS NOT NULL")
 }
 
+// WhereIn ...
 func (dba *Orm) WhereIn(needle string, hystack []interface{}) IOrm {
 	return dba.Where(needle, "IN", hystack)
 }
 
+// OrWhereIn ...
 func (dba *Orm) OrWhereIn(needle string, hystack []interface{}) IOrm {
 	return dba.OrWhere(needle, "IN", hystack)
 }
 
+// WhereNotIn ...
 func (dba *Orm) WhereNotIn(needle string, hystack []interface{}) IOrm {
 	return dba.Where(needle, "NOT IN", hystack)
 }
 
+// OrWhereNotIn ...
 func (dba *Orm) OrWhereNotIn(needle string, hystack []interface{}) IOrm {
 	return dba.OrWhere(needle, "NOT IN", hystack)
 }
 
+// WhereBetween ...
 func (dba *Orm) WhereBetween(needle string, hystack []interface{}) IOrm {
 	return dba.Where(needle, "BETWEEN", hystack)
 }
 
+// OrWhereBetween ...
 func (dba *Orm) OrWhereBetween(needle string, hystack []interface{}) IOrm {
 	return dba.OrWhere(needle, "BETWEEN", hystack)
 }
 
+// WhereNotBetween ...
 func (dba *Orm) WhereNotBetween(needle string, hystack []interface{}) IOrm {
 	return dba.Where(needle, "NOT BETWEEN", hystack)
 }
 
+// OrWhereNotBetween ...
 func (dba *Orm) OrWhereNotBetween(needle string, hystack []interface{}) IOrm {
 	return dba.OrWhere(needle, "NOT BETWEEN", hystack)
 }
@@ -225,14 +248,20 @@ func (dba *Orm) Join(args ...interface{}) IOrm {
 	dba._joinBuilder("INNER", args)
 	return dba
 }
+
+// LeftJoin ...
 func (dba *Orm) LeftJoin(args ...interface{}) IOrm {
 	dba._joinBuilder("LEFT", args)
 	return dba
 }
+
+// RightJoin ...
 func (dba *Orm) RightJoin(args ...interface{}) IOrm {
 	dba._joinBuilder("RIGHT", args)
 	return dba
 }
+
+// CrossJoin ...
 func (dba *Orm) CrossJoin(args ...interface{}) IOrm {
 	dba._joinBuilder("CROSS", args)
 	return dba
@@ -252,13 +281,13 @@ func (dba *Orm) Reset() IOrm {
 	return dba
 }
 
-// ResetWhere
+// ResetWhere ...
 func (dba *Orm) ResetWhere() IOrm {
 	dba.where = [][]interface{}{}
 	return dba
 }
 
-// ResetUnion
+// ResetUnion ...
 func (dba *Orm) ResetUnion() IOrm {
 	dba.union = ""
 	dba.GetISession().SetUnion(nil)
@@ -307,6 +336,7 @@ func (dba *Orm) BuildSql(operType ...string) (a string, b []interface{}, err err
 	return
 }
 
+// Transaction ...
 func (s *Orm) Transaction(closers ...func(db IOrm) error) (err error) {
 	err = s.ISession.Begin()
 	if err != nil {
