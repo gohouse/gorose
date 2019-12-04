@@ -221,7 +221,7 @@ db.Table(&users4).Limit(5).Select()
 而 `gorose.Map`, 实际上是 `t.MapString` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/t
 
 - 3. laravel的`First()`,`Get()`, 用来返回结果集  
-也就是说, 你甚至可以不用传入各种绑定的struct和map, 直接传入表名, 返回两个参数, 一个是 `[]gorose.Map`结果集, 第二个是`error`,看成简单粗暴  
+也就是说, 你甚至可以不用传入各种绑定的struct和map, 直接传入表名, 返回两个参数, 一个是 `[]gorose.Map`结果集, 第二个是`error`,堪称简单粗暴  
 用法就是把上边的 `Select()` 方法换成 Get,First 即可, 只不过, `Select()` 只返回一个参数  
 
 - 4. orm的增删改查  
@@ -329,7 +329,7 @@ func main() {
 	// 如果不想复用,则可以使用DB()就会开启全新会话,或者使用db.Reset()
 	// db.Reset()只会清除上下文参数干扰,不会更换链接,DB()则会更换链接
 	var u2 []Users
-	err = db.Limit(10).Offset(1).Select()
+	err = db.Table(&u2).Limit(10).Offset(1).Select()
 	fmt.Println(u2)
 	
 	// 统计数据

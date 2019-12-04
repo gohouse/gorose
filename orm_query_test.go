@@ -29,14 +29,19 @@ func TestOrm_BuildSql3(t *testing.T) {
 
 func TestOrm_BuildSql4(t *testing.T) {
 	db := DB()
-	sqlstr, a, b := db.Table("users").Limit(2).Offset(2).BuildSql()
-	//c,d := db.Table("users").Get()
-	//t.Log(db.LastSql())
-	count, d := db.Count()
-
+	sqlstr, a, b := db.Table("users3").Limit(2).Offset(2).BuildSql()
 	t.Log(sqlstr, a, b)
-	t.Log(count, d)
-	t.Log(db.LastSql())
+
+	sqlstr, a, b = db.Table("users2").Limit(2).Offset(2).BuildSql()
+	t.Log(sqlstr, a, b)
+
+	var u = Users{
+		Uid:  1,
+		Name: "2",
+		Age:  3,
+	}
+	res,err := db.Reset().Insert(&u)
+	t.Log(db.LastSql(), res,err)
 }
 
 func TestOrm_BuildSql5(t *testing.T) {

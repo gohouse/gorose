@@ -277,7 +277,14 @@ func (dba *Orm) Reset() IOrm {
 	dba.OrmApi = new(OrmApi)
 	dba.ClearBindValues()
 	dba.GetISession().SetUnion(nil)
-	dba.GetIBinder().ResetBinder()
+	//dba.GetIBinder().ResetBinder()
+	dba.ResetTable()
+	return dba
+}
+
+// ResetTable ...
+func (dba *Orm) ResetTable() IOrm {
+	dba.GetISession().SetIBinder(NewBinder())
 	return dba
 }
 

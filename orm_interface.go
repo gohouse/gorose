@@ -54,6 +54,7 @@ type IOrm interface {
 	ClearBindValues()
 	Transaction(closers ...func(db IOrm) error) (err error)
 	Reset() IOrm
+	ResetTable() IOrm
 	ResetWhere() IOrm
 	GetISession() ISession
 	GetOrmApi() *OrmApi

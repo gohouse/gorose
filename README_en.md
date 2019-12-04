@@ -334,7 +334,7 @@ func main() {
 	// If you don't want to reuse, you can use DB() to open a new session, or db.Reset()
 	// db.Reset() only removes contextual parameter interference, does not change links, DB() will change links.
 	var u2 []Users
-	err = db.Limit(10).Offset(1).Select()
+	err = db.Table(&u2).Limit(10).Offset(1).Select()
 	fmt.Println(u2)
 	
 	// count
