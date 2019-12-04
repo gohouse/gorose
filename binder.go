@@ -118,8 +118,13 @@ func (o *Binder) BindParse(prefix string) error {
 			// 解析出字段
 			o.parseFields()
 			// 是否设置了表名
-			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
-				BindName = tn.Call(nil)[0].String()
+			switch dstVal.Kind() {
+			case reflect.Ptr:
+				if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
+					BindName = tn.Call(nil)[0].String()
+				}
+			default:
+				return errors.New("传入的不是指针,如:var user User,传入 &user{}")
 			}
 		case reflect.Map: // map
 			o.SetBindType(OBJECT_MAP)
@@ -166,6 +171,9 @@ func (o *Binder) BindParse(prefix string) error {
 				o.parseFields()
 
 				// 是否设置了表名
+				if dstVal.Kind() != reflect.Ptr {
+					return errors.New("传入的不是指针,如:var user User,传入 &user{}")
+				}
 				if tn := br.MethodByName("TableName"); tn.IsValid() {
 					BindName = tn.Call(nil)[0].String()
 				}

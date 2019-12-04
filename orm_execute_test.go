@@ -13,7 +13,7 @@ func TestOrm_Update(t *testing.T) {
 		Age:  19,
 	}
 
-	aff, err := db.Force().Data(u).Update()
+	aff, err := db.Force().Data(&u).Update()
 	if err != nil {
 		t.Error(err.Error())
 	}

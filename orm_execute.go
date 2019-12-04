@@ -38,7 +38,7 @@ func (dba *Orm) Delete() (int64, error) {
 
 // Delete : delete data
 func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
-	if inArray(operType, []string{"insert", "update"}) {
+	if operType == "insert" || operType == "update" {
 		if dba.GetData() == nil {
 			if len(data) > 0 {
 				dba.Data(data[0])
@@ -56,10 +56,16 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 		//		return 0, GetErr(ERR_PARAMS_MISSING, "Data() or Table()")
 		//	}
 		//}
-		rl := reflect.TypeOf(dba.GetData())
-		if _, b := rl.MethodByName("TableName"); b {
-			dba.Table(dba.GetData())
+		rl := reflect.ValueOf(dba.GetData())
+		switch rl.Kind() {
+		case reflect.Struct:
+			return 0, errors.New("传入的结构体必须是对象的地址")
+		case reflect.Ptr:
+			if tn := rl.MethodByName("TableName"); tn.IsValid() {
+				dba.Table(dba.GetData())
+			}
 		}
+
 	}
 	// 构建sql
 	sqlStr, args, err := dba.BuildSql(operType)
