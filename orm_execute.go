@@ -3,6 +3,7 @@ package gorose
 import (
 	"errors"
 	"github.com/gohouse/t"
+	"reflect"
 )
 
 // Insert : insert data and get affected rows
@@ -48,12 +49,16 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 
 		//if dba.GetISession().GetIBinder() == nil {
 		// 如果这里是默认值, 则需要对其进行table处理
-		if dba.GetISession().GetIBinder().GetBindType() == OBJECT_NIL {
-			if dba.GetData() != nil {
-				dba.Table(dba.GetData())
-			} else {
-				return 0, GetErr(ERR_PARAMS_MISSING, "Data() or Table()")
-			}
+		//if dba.GetISession().GetIBinder().GetBindType() == OBJECT_NIL {
+		//	if dba.GetData() != nil {
+		//		dba.Table(dba.GetData())
+		//	} else {
+		//		return 0, GetErr(ERR_PARAMS_MISSING, "Data() or Table()")
+		//	}
+		//}
+		rl := reflect.TypeOf(dba.GetData())
+		if _, b := rl.MethodByName("TableName"); b {
+			dba.Table(dba.GetData())
 		}
 	}
 	// 构建sql
