@@ -314,16 +314,27 @@ func (b *BuilderDefault) BuildJoin() (s string, err error) {
 
 		argsLength := len(args)
 		var prefix = b.IOrm.GetISession().GetIEngin().GetPrefix()
+		// 如果表名是 struct,则需要解析出表名
+		if argsLength > 1 {
+			// 只有长度大于2,才有可能使用对象.不然,就是个字符串
+			switch args[0].(type) {
+			case string:
+				break
+			default:
+				rl := reflect.ValueOf(args[0])
+				if tn := rl.MethodByName("TableName"); tn.IsValid() {
+					args[0] = tn.Call(nil)[0].String()
+				}
+			}
+		}
 		switch argsLength {
 		case 1: // join字符串 raw
-			//w = args[0].(string)
 			w = fmt.Sprintf("%s%s", prefix, args[0])
 		case 2: // join表 + 字符串
-			//w = args[0].(string) + " ON " + args[1].(string)
 			w = fmt.Sprintf("%s%s ON %s", prefix, args[0], args[1])
-		case 4: // join表 + (a字段+关系+a字段)
-			//w = args[0].(string) + " ON " + args[1].(string) + " " + args[2].(string) + " " + args[3].(string)
-
+		case 3: // join表 + (a字段=b字段)
+			w = fmt.Sprintf("%s%s ON %s = %s", prefix, args[0], args[1], args[2])
+		case 4: // join表 + (a字段+关系+b字段)
 			w = fmt.Sprintf("%s%s ON %s %s %s", prefix, args[0], args[1], args[2], args[3])
 		default:
 			err = errors.New("join format error")

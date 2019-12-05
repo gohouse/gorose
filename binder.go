@@ -119,12 +119,12 @@ func (o *Binder) BindParse(prefix string) error {
 			o.parseFields()
 			// 是否设置了表名
 			switch dstVal.Kind() {
-			case reflect.Ptr:
+			case reflect.Ptr,reflect.Struct:
 				if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 					BindName = tn.Call(nil)[0].String()
 				}
 			default:
-				return errors.New("传入的不是指针,如:var user User,传入 &user{}")
+				return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
 			}
 		case reflect.Map: // map
 			o.SetBindType(OBJECT_MAP)
@@ -171,14 +171,16 @@ func (o *Binder) BindParse(prefix string) error {
 				o.parseFields()
 
 				// 是否设置了表名
-				if dstVal.Kind() != reflect.Ptr {
-					return errors.New("传入的不是指针,如:var user User,传入 &user{}")
-				}
-				if tn := br.MethodByName("TableName"); tn.IsValid() {
-					BindName = tn.Call(nil)[0].String()
+				switch dstVal.Kind() {
+				case reflect.Ptr,reflect.Struct:
+					if tn := br.MethodByName("TableName"); tn.IsValid() {
+						BindName = tn.Call(nil)[0].String()
+					}
+				default:
+					return errors.New("传入的对象有误,示例:var user User,传入 &user{}")
 				}
 			default:
-				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}, 但是传入的是: %T", o.GetBindOrigin())
+				return fmt.Errorf("table只接收 struct,[]struct,map[string]interface{},[]map[string]interface{}的对象和地址, 但是传入的是: %T", o.GetBindOrigin())
 			}
 			// 是否设置了表名
 			if tn := dstVal.MethodByName("TableName"); tn.IsValid() {

@@ -38,7 +38,7 @@ type Users struct {
 	Fi   string `orm:"ignore"`
 }
 
-func (u *Users) TableName() string {
+func (Users) TableName() string {
 	return "users"
 }
 

@@ -22,7 +22,7 @@ func TestOrm_BuildSql3(t *testing.T) {
 	var u = "age=age+1,num=num+1"
 	var wheres interface{}
 	wheres = [][]interface{}{{"a", ">", "b"}, {"a", "b"}}
-	sqlstr, a, b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
+	sqlstr, a, b := db.Force().Table(Users{}).Data(u).Where(wheres).BuildSql("update")
 
 	t.Log(sqlstr, a, b)
 }
