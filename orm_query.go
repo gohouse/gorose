@@ -34,6 +34,7 @@ func (dba *Orm) First() (result Data, err error) {
 
 // Get : select more rows , relation limit set
 func (dba *Orm) Get() (result []Data, err error) {
+	dba.Table(dba.GetISession().GetIBinder().GetBindName())
 	err = dba.Select()
 	result = dba.GetISession().GetBindAll()
 	return
@@ -346,7 +347,7 @@ func (dba *Orm) Paginate() (res Data, err error) {
 	count, err := dba.Count()
 	dba.ResetUnion()
 	// 获取结果
-	err = dba.Select()
+	resData,err := dba.Get()
 	if err != nil {
 		return
 	}
@@ -362,7 +363,8 @@ func (dba *Orm) Paginate() (res Data, err error) {
 		"last_page_url":  lastPage,
 		"next_page_url":  If(nextPage > lastPage, nil, nextPage),
 		"prev_page_url":  If(prevPage < 1, nil, prevPage),
-		"data":           dba.GetIBinder().GetBindResultSlice().Interface(),
+		//"data":           dba.GetIBinder().GetBindResultSlice().Interface(),
+		"data":           resData,
 	}
 
 	return
