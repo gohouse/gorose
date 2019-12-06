@@ -4,6 +4,7 @@ import (
 	"github.com/gohouse/t"
 	"math"
 	"reflect"
+	"strings"
 )
 
 // Get : select more rows , relation limit set
@@ -34,7 +35,11 @@ func (dba *Orm) First() (result Data, err error) {
 
 // Get : select more rows , relation limit set
 func (dba *Orm) Get() (result []Data, err error) {
-	dba.Table(dba.GetISession().GetIBinder().GetBindName())
+	tabname := dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	tabname2 := strings.TrimPrefix(tabname, prefix)
+	dba.ResetTable()
+	dba.Table(tabname2)
 	err = dba.Select()
 	result = dba.GetISession().GetBindAll()
 	return

@@ -505,8 +505,8 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 
 	// 合并where,去掉左侧的空格,and,or并返回
 	return strings.TrimLeft(
-		strings.TrimLeft(
-			strings.TrimLeft(
+		strings.TrimPrefix(
+			strings.TrimPrefix(
 				strings.Trim(
 					strings.Join(where, " "),
 					" "),
