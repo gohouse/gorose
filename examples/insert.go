@@ -33,6 +33,7 @@ func main() {
 	//return
 	var t = Tag{
 		TagTitle:  "0",
+		TagStatus: 1,
 	}
 	res, err := db().Insert(&t)
 	fmt.Println(res, err)
