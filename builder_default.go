@@ -107,6 +107,10 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			return
 		}
 		update, insertkey, insertval = b.BuildData(operType)
+		if update=="" && insertkey=="" {
+			err = errors.New("传入数据为空")
+			return
+		}
 	}
 
 	var where string
@@ -252,6 +256,10 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 	var insertValues []string
 	// update or delete
 	var dataObj []string
+
+	if len(data) == 0 {
+		return "","",""
+	}
 
 	for key := range data[0] {
 		if inArray(key, insertFields) == false {
