@@ -107,7 +107,7 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 			return
 		}
 		update, insertkey, insertval = b.BuildData(operType)
-		if update=="" && insertkey=="" {
+		if update == "" && insertkey == "" {
 			err = errors.New("传入数据为空")
 			return
 		}
@@ -258,7 +258,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 	var dataObj []string
 
 	if len(data) == 0 {
-		return "","",""
+		return "", "", ""
 	}
 
 	for key := range data[0] {
@@ -270,24 +270,25 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		// 定义插入1条数据的存储
 		var insertValuesSub []string
 		for _, key := range insertFields {
+			placeholder := b.GetPlaceholder()
 			if item[key] == nil {
 				if operType == "insert" {
 					// 放入占位符
-					insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
+					insertValuesSub = append(insertValuesSub, placeholder)
 				}
 				// 保存真正的值为null
 				b.SetBindValues("null")
 			} else {
 				if operType == "insert" {
 					// 放入占位符
-					insertValuesSub = append(insertValuesSub, b.GetPlaceholder())
+					insertValuesSub = append(insertValuesSub, placeholder)
 				}
 				// 保存真正的值
 				b.SetBindValues(item[key])
 			}
 			//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, b.GetPlaceholder()))
+			dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, placeholder))
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
