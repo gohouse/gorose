@@ -22,6 +22,7 @@ func (dba *Orm) Select() error {
 
 // First : select one row , relation limit set
 func (dba *Orm) First() (result Data, err error) {
+	dba.GetIBinder().SetBindType(OBJECT_STRING)
 	err = dba.Limit(1).Select()
 	if err != nil {
 		return
@@ -35,6 +36,7 @@ func (dba *Orm) First() (result Data, err error) {
 
 // Get : select more rows , relation limit set
 func (dba *Orm) Get() (result []Data, err error) {
+	dba.GetIBinder().SetBindType(OBJECT_STRING)
 	tabname := dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	tabname2 := strings.TrimPrefix(tabname, prefix)

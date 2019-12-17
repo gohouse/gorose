@@ -80,7 +80,7 @@ func TestOrm_BuildSql6(t *testing.T) {
 }
 
 func TestOrm_First(t *testing.T) {
-	res, err := DB().Table("users").First()
+	res, err := DB().Table(Users{}).Where("uid",1).First()
 	if err != nil {
 		t.Error(err.Error())
 	}
