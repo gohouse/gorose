@@ -461,7 +461,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				var whereArr []string
 				whereMoreLength := len(paramReal)
 				switch whereMoreLength {
-				case 3, 2:
+				case 3, 2, 1:
 					res, err := b.parseParams(paramReal, ormApi)
 					if err != nil {
 						return res, err
@@ -575,6 +575,8 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		b.SetBindValues(argsReal[1])
+	case 1:
+		paramsToArr = append(paramsToArr, argsReal[0].(string))
 	}
 
 	return strings.Join(paramsToArr, " "), nil

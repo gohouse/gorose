@@ -5,7 +5,7 @@ import (
 	"github.com/gohouse/t"
 	"strings"
 )
-
+//type TransactionHandlerFunc func(db IOrm) error
 // Orm ...
 type Orm struct {
 	ISession
