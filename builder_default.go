@@ -478,7 +478,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				for _, arr := range paramReal { // {{"a", 1}, {"id", ">", 1}}
 					whereMoreLength := len(arr)
 					switch whereMoreLength {
-					case 3, 2:
+					case 3, 2, 1:
 						res, err := b.parseParams(arr, ormApi)
 						if err != nil {
 							return res, err
