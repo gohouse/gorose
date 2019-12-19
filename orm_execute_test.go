@@ -32,6 +32,17 @@ func TestOrm_UpdateMap(t *testing.T) {
 	t.Log(aff, db.LastSql())
 }
 
+func TestTrans(t *testing.T)  {
+	var db = DB()
+	var db2 = DB()
+	var res Users
+	db.Begin()
+	db2.Table(&res).Select()
+	t.Log(res)
+	db.Commit()
+	t.Log(res)
+}
+
 func Test_Transaction(t *testing.T) {
 	var db = DB()
 	// 一键事务, 自动回滚和提交, 我们只需要关注业务即可
