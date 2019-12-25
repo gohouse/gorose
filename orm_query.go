@@ -343,7 +343,10 @@ func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 //		}
 //	]
 //}
-func (dba *Orm) Paginate() (res Data, err error) {
+func (dba *Orm) Paginate(page ...int) (res Data, err error) {
+	if len(page)>0 {
+		dba.Page(page[0])
+	}
 	var limit = dba.GetLimit()
 	if limit == 0 {
 		limit = 15
