@@ -458,6 +458,15 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 				if len(whereArr) != 0 {
 					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
 				}
+			case Data: // map
+				var whereArr []string
+				for key, val := range paramReal {
+					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
+					b.SetBindValues(val)
+				}
+				if len(whereArr) != 0 {
+					where = append(where, condition+" ("+strings.Join(whereArr, " and ")+")")
+				}
 			case []interface{}: // 一维数组
 				var whereArr []string
 				whereMoreLength := len(paramReal)
