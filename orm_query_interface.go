@@ -21,7 +21,7 @@ type IOrmQuery interface {
 	Max(max string) (interface{}, error)
 	Min(min string) (interface{}, error)
 	// 分页, 返回分页需要的基本数据
-	Paginate() (res Data, err error)
+	Paginate(page ...int) (res Data, err error)
 	// 组块结果集
 	// 如果你需要处理成千上万或者更多条数据库记录，可以考虑使用 chunk 方法，该方法一次获取结果集的一小块，
 	// 然后传递每一小块数据到闭包函数进行处理，该方法在编写处理大量数据库记录的 Artisan 命令的时候非常有用。
