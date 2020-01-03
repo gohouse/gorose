@@ -318,7 +318,7 @@ func TestOrm_Paginate2(t *testing.T) {
 	db := DB()
 
 	var u []Users
-	res, err := db.Table(&u).Limit(2).Paginate()
+	res, err := db.Table(&u).Where("uid",">",1).Limit(2).Paginate(3)
 	if err != nil {
 		t.Error(err.Error())
 	}

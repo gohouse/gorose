@@ -406,6 +406,7 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 		return
 	}
 	// 统计总量
+	dba.offset = 0
 	count, err := dba.Count()
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
 	var nextPage = currentPage + 1
