@@ -399,14 +399,14 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	}
 	var offset = dba.GetOffset()
 	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
-	// 统计总量
-	count, err := dba.Count()
 	//dba.ResetUnion()
 	// 获取结果
 	resData, err := dba.Get()
 	if err != nil {
 		return
 	}
+	// 统计总量
+	count, err := dba.Count()
 	var lastPage = int(math.Ceil(float64(count) / float64(limit)))
 	var nextPage = currentPage + 1
 	var prevPage = currentPage - 1
