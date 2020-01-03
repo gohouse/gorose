@@ -194,7 +194,7 @@ func TestOrm_Pluck(t *testing.T) {
 	//var u []Users
 	ormObj := orm.Table("users")
 	//res,err := ormObj.Pluck("name", "uid")
-	res, err := ormObj.Limit(5).Pluck("name")
+	res, err := ormObj.Limit(5).Pluck("name","uid")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -206,11 +206,12 @@ func TestOrm_Value(t *testing.T) {
 
 	//var u = UsersMap{}
 	//var u = UsersMapSlice{}
-	////var u Users
-	////var u []Users
+	//var u Users
+	//var u []Users
 	//ormObj := db.Table(&u)
-	ormObj := db.Table("users")
-	res, err := ormObj.Limit(5).Value("name")
+	//ormObj := db.Table("users")
+	ormObj := db.Table(Users{})
+	res, err := ormObj.Limit(5).Value("uid")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -321,6 +322,20 @@ func TestOrm_Paginate2(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
+	t.Log(res, u)
+	t.Log(db.LastSql())
+}
+
+func TestOrm_Sum(t *testing.T) {
+	db := DB()
+
+	var u Users
+	//res, err := db.Table(Users{}).First()
+	res, err := db.Table(&u).Where(Data{"uid":1}).Sum("age")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	//fmt.Printf("%#v\n",res)
 	t.Log(res, u)
 	t.Log(db.LastSql())
 }
