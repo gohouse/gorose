@@ -1,8 +1,6 @@
 package gorose
 
 import (
-	"github.com/gohouse/gocar/varBindValue"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -22,18 +20,18 @@ func TestIf(t *testing.T) {
 	})
 }
 
-func TestStructToMap2(t *testing.T) {
-	var u Users
-	//res := structForScan(&u)
-	res := structForScan(reflect.ValueOf(&u).Interface())
-	for _, item := range res {
-		err := varBindValue.BindVal(item, 1234)
-		if err != nil {
-			t.Error(err.Error())
-		}
-	}
-	t.Log(res, u)
-}
+//func TestStructToMap2(t *testing.T) {
+//	var u Users
+//	//res := structForScan(&u)
+//	res := structForScan(reflect.ValueOf(&u).Interface())
+//	for _, item := range res {
+//		err := varBindValue.BindVal(item, 1234)
+//		if err != nil {
+//			t.Error(err.Error())
+//		}
+//	}
+//	t.Log(res, u)
+//}
 func Test_getRandomInt(t *testing.T) {
 	t.Log(getRandomInt(2))
 	t.Log(getRandomInt(3))

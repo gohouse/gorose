@@ -82,40 +82,49 @@ func (dba *Orm) Min(min string) (interface{}, error) {
 
 // _unionBuild : build union select real
 func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
-	var tmp interface{}
-
-	dba.union = union + "(" + field + ") as " + union
-	// 缓存fields字段,暂时由union占用
-	fieldsTmp := dba.fields
-	dba.fields = []string{dba.union}
-	dba.GetISession().SetUnion(true)
-
-	// 构建sql
-	sqls, args, err := dba.BuildSql()
-	if err != nil {
-		return tmp, err
+	fields := union + "(" + field + ") as " + union
+	dba.fields = []string{fields}
+	res, err := dba.First()
+	if r, ok := res[union]; ok {
+		return r, err
 	}
-
-	// 执行查询
-	_, err = dba.GetISession().Query(sqls, args...)
-	if err != nil {
-		return tmp, err
-	}
-
-	// 重置union, 防止复用的时候感染
-	dba.union = ""
-	// 返还fields
-	dba.fields = fieldsTmp
-
-	// 语法糖获取union值
-	if dba.GetISession().GetUnion() != nil {
-		tmp = dba.GetISession().GetUnion()
-		// 获取之后, 释放掉
-		dba.GetISession().SetUnion(nil)
-	}
-
-	return tmp, nil
+	return nil, err
 }
+//func (dba *Orm) _unionBuild_bak(union, field string) (interface{}, error) {
+//	var tmp interface{}
+//
+//	dba.union = union + "(" + field + ") as " + union
+//	// 缓存fields字段,暂时由union占用
+//	fieldsTmp := dba.fields
+//	dba.fields = []string{dba.union}
+//	dba.GetISession().SetUnion(true)
+//
+//	// 构建sql
+//	sqls, args, err := dba.BuildSql()
+//	if err != nil {
+//		return tmp, err
+//	}
+//
+//	// 执行查询
+//	_, err = dba.GetISession().Query(sqls, args...)
+//	if err != nil {
+//		return tmp, err
+//	}
+//
+//	// 重置union, 防止复用的时候感染
+//	dba.union = ""
+//	// 返还fields
+//	dba.fields = fieldsTmp
+//
+//	// 语法糖获取union值
+//	if dba.GetISession().GetUnion() != nil {
+//		tmp = dba.GetISession().GetUnion()
+//		// 获取之后, 释放掉
+//		dba.GetISession().SetUnion(nil)
+//	}
+//
+//	return tmp, nil
+//}
 
 // Pluck 获取一列数据, 第二个字段可以指定另一个字段的值作为这一列数据的key
 func (dba *Orm) Pluck(field string, fieldKey ...string) (v interface{}, err error) {
@@ -392,7 +401,7 @@ func (dba *Orm) Paginate(page ...int) (res Data, err error) {
 	var currentPage = int(math.Ceil(float64(offset+1) / float64(limit)))
 	// 统计总量
 	count, err := dba.Count()
-	dba.ResetUnion()
+	//dba.ResetUnion()
 	// 获取结果
 	resData, err := dba.Get()
 	if err != nil {

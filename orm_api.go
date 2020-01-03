@@ -10,7 +10,7 @@ type OrmApi struct {
 	offset    int
 	join      [][]interface{}
 	distinct  bool
-	union     string
+	//union     string
 	group     string
 	having    string
 	data      interface{}
