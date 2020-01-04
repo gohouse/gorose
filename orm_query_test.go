@@ -116,14 +116,14 @@ func TestOrm_Select2(t *testing.T) {
 	db := DB()
 	var err error
 
-	var u = UsersMap{}
+	var u = []UsersMap{}
 	err = db.Table(&u).Limit(2).Select()
 	if err != nil {
 		t.Error(err.Error())
 	}
 	t.Log(u)
 
-	var u3 = UsersMapSlice{}
+	var u3 = UsersMap{}
 	err = db.Table(&u3).Limit(1).Select()
 	if err != nil {
 		t.Error(err.Error())
@@ -245,7 +245,7 @@ func TestOrm_Count2(t *testing.T) {
 func TestOrm_Chunk(t *testing.T) {
 	orm := DB()
 
-	var u = UsersMapSlice{}
+	var u = []UsersMap{}
 	err := orm.Table(&u).Chunk(1, func(data []Data) error {
 		for _, item := range data {
 			t.Log(item["name"])
@@ -283,7 +283,7 @@ func TestOrm_Chunk2(t *testing.T) {
 func TestOrm_Loop(t *testing.T) {
 	db := DB()
 
-	var u = UsersMapSlice{}
+	var u = []UsersMap{}
 	//aff,err := db.Table(&u).Force().Data(Data{"age": 18}).Update()
 	//fmt.Println(aff,err)
 	err := db.Table(&u).Where("age", 18).Loop(2, func(data []Data) error {

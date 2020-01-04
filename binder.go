@@ -160,6 +160,11 @@ func (o *Binder) BindParse(prefix string) error {
 				if dstVal.Kind() != reflect.Ptr {
 					return errors.New("传入的不是map指针,如:var user gorose.Map,传入 &user{}")
 				}
+				// 检查设置表名
+				r2val := reflect.New(eltType)
+				if tn := r2val.MethodByName("TableName"); tn.IsValid() {
+					BindName = tn.Call(nil)[0].String()
+				}
 
 			case reflect.Struct:
 				o.SetBindType(OBJECT_STRUCT_SLICE)
