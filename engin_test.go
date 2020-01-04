@@ -20,7 +20,7 @@ func (u *bbb) TableName() string {
 
 type UsersMap Data
 
-func (u *UsersMap) TableName() string {
+func (*UsersMap) TableName() string {
 	return "users"
 }
 

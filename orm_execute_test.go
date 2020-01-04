@@ -23,9 +23,10 @@ func TestOrm_Update(t *testing.T) {
 func TestOrm_UpdateMap(t *testing.T) {
 	db := DB()
 
-	var u = []UsersMap{{"name": "gorose2", "age": 19}}
+	//var u = []UsersMap{{"name": "gorose2", "age": 19}}
+	var u = UsersMap{"name": "gorose2", "age": 19}
 
-	aff, err := db.Force().Data(&u).Update()
+	aff, err := db.Force().Update(&u)
 	if err != nil {
 		t.Error(err.Error())
 	}

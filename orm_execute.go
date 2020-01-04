@@ -65,11 +65,22 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 			if tn := rl2.MethodByName("TableName"); tn.IsValid() {
 				dba.Table(dba.GetData())
 			}
+		case reflect.Map:
+			if tn := rl2.MethodByName("TableName"); tn.IsValid() {
+				dba.Table(dba.GetData())
+			}
+			if tn := rl.MethodByName("TableName"); tn.IsValid() {
+				dba.Table(dba.GetData())
+			}
 		case reflect.Slice:
 			r2 := rl2.Type().Elem()
 			r2val := reflect.New(r2)
 			switch r2val.Kind() {
 			case reflect.Struct,reflect.Ptr:
+				if tn := r2val.MethodByName("TableName"); tn.IsValid() {
+					dba.Table(dba.GetData())
+				}
+			case reflect.Map:
 				if tn := r2val.MethodByName("TableName"); tn.IsValid() {
 					dba.Table(dba.GetData())
 				}
