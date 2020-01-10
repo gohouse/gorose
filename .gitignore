@@ -20,3 +20,4 @@ go.sum
 *.out
 *.sqlite
 *.sum
+*.log

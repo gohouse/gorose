@@ -7,8 +7,12 @@ import (
 	"strings"
 )
 
-// Get : select more rows , relation limit set
+// Select : select one or more rows , relation limit set
 func (dba *Orm) Select() error {
+	switch dba.GetIBinder().GetBindType(){
+	case OBJECT_STRUCT,OBJECT_MAP,OBJECT_MAP_T:
+		dba.Limit(1)
+	}
 	// 构建sql
 	sqlStr, args, err := dba.BuildSql()
 	if err != nil {

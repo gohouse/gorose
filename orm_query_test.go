@@ -92,15 +92,15 @@ func TestOrm_Select(t *testing.T) {
 	var err error
 
 	var u = []Users{}
-	err = db.Table(&u).Limit(2).Select()
+	err = db.Table(&u).Select()
 	t.Log(err, u, db.LastSql())
 
 	var u2 = Users{}
-	err = db.Table(&u2).Limit(1).Select()
+	err = db.Table(&u2).Select()
 	t.Log(err, u2, db.LastSql())
 
 	var u3 Users
-	err = db.Table(&u3).Limit(1).Select()
+	err = db.Table(&u3).Select()
 	t.Log(err, u3, db.LastSql())
 
 	var u4 []Users
