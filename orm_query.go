@@ -276,9 +276,11 @@ func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v inte
 //TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
 func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 	var page = 0
-	var tableName = dba.GetISession().GetIBinder().GetBindName()
+	var tabname = dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	tabname2 := strings.TrimPrefix(tabname, prefix)
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
-	result, err := dba.Table(tableName).Limit(limit).Offset(page * limit).Get()
+	result, err := dba.Table(tabname2).Limit(limit).Offset(page * limit).Get()
 	if err != nil {
 		return
 	}
@@ -350,9 +352,11 @@ func (dba *Orm) ChunkStruct(limit int, callback func() error) (err error) {
 // DB().Where("age", 18) ===> DB().Data(gorose.Data{"age":19}).Where().Update()
 func (dba *Orm) Loop(limit int, callback func([]Data) error) (err error) {
 	var page = 0
-	var tableName = dba.GetISession().GetIBinder().GetBindName()
+	var tabname = dba.GetISession().GetIBinder().GetBindName()
+	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
+	tabname2 := strings.TrimPrefix(tabname, prefix)
 	// 先执行一条看看是否报错, 同时设置指定的limit
-	result, err := dba.Table(tableName).Limit(limit).Get()
+	result, err := dba.Table(tabname2).Limit(limit).Get()
 	if err != nil {
 		return
 	}
