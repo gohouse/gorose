@@ -9,7 +9,7 @@ func DB() IOrm {
 }
 func TestNewOrm(t *testing.T) {
 	orm := DB()
-	orm.Hello()
+	orm.Close()
 }
 func TestOrm_AddFields(t *testing.T) {
 	orm := DB()
