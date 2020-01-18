@@ -40,6 +40,11 @@ func NewSession(e IEngin) *Session {
 	return s
 }
 
+func (s *Session) Close() {
+	s.master.Close()
+	s.slave.Close()
+}
+
 // GetIEngin 获取engin
 func (s *Session) GetIEngin() IEngin {
 	return s.IEngin

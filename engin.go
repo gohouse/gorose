@@ -198,8 +198,12 @@ func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
 	}
 
 	// 连接池设置
-	db.SetMaxOpenConns(dbConf.SetMaxOpenConns)
-	db.SetMaxIdleConns(dbConf.SetMaxIdleConns)
+	if dbConf.SetMaxOpenConns > 0 {
+		db.SetMaxOpenConns(dbConf.SetMaxOpenConns)
+	}
+	if dbConf.SetMaxIdleConns > 0 {
+		db.SetMaxIdleConns(dbConf.SetMaxIdleConns)
+	}
 
 	return
 }

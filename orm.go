@@ -1,7 +1,6 @@
 package gorose
 
 import (
-	"fmt"
 	"github.com/gohouse/t"
 	"strings"
 )
@@ -26,9 +25,9 @@ func NewOrm(e IEngin) *Orm {
 	return orm
 }
 
-// Hello ...
-func (dba *Orm) Hello() {
-	fmt.Println("hello gorose orm struct")
+// Close ...
+func (dba *Orm) Close() {
+	dba.GetISession().Close()
 }
 
 // ExtraCols 额外的字段

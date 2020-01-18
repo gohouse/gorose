@@ -7,7 +7,7 @@ type IOrm interface {
 	IOrmExecute
 	IOrmSession
 	//ISession
-	Hello()
+	Close()
 	BuildSql(operType ...string) (string, []interface{}, error)
 	Table(tab interface{}) IOrm
 	// fields=select

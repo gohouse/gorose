@@ -275,12 +275,12 @@ func (dba *Orm) _valueFromStruct(bindResult reflect.Value, field string) (v inte
 // 然后不断的增加offset去取更多数据, 从而达到分块处理更多数据的目的
 //TODO 后续增加 gorotine 支持, 提高批量数据处理效率, 预计需要增加获取更多链接的支持
 func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
-	var page = 0
+	var page = 1
 	var tabname = dba.GetISession().GetIBinder().GetBindName()
 	prefix := dba.GetISession().GetIBinder().GetBindPrefix()
 	tabname2 := strings.TrimPrefix(tabname, prefix)
 	// 先执行一条看看是否报错, 同时设置指定的limit, offset
-	result, err := dba.Table(tabname2).Limit(limit).Offset(page * limit).Get()
+	result, err := dba.Table(tabname2).Limit(limit).Page(page).Get()
 	if err != nil {
 		return
 	}
@@ -292,7 +292,7 @@ func (dba *Orm) Chunk(limit int, callback func([]Data) error) (err error) {
 		// 清理绑定数据, 进行下一次操作, 因为绑定数据是每一次执行的时候都会解析并保存的
 		// 而第二次以后执行的, 都会再次解析并保存, 数据结构是slice, 故会累积起来
 		dba.ClearBindValues()
-		result, _ = dba.Offset(page * limit).Get()
+		result, _ = dba.Page(page).Get()
 	}
 	return
 }
