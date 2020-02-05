@@ -36,7 +36,7 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.4-rc
+require github.com/gohouse/gorose/v2 v2.1.4-rc4
 ```
 > 重要的事情说三遍!  
     重要的事情说三遍!  
@@ -424,9 +424,10 @@ func main() {
 - `err:=DB().Bind().Query()`,更改为多返回`res,err:=DB().Query()`,同时保留了`Bind()`用法  
 ### 从1.x升级到2.x, 全新安装  
 
-## todo
-- [ ] extracols放入tag关键词
-
+---
+## Jetbrains 开源支持
+`gorose` 项目一直以来都是在 JetBrains 公司旗下的 GoLand 集成开发环境中进行开发，基于 free JetBrains Open Source license(s) 正版免费授权，在此表达我的谢意。  
+![](https://raw.githubusercontent.com/panjf2000/illustrations/master/jetbrains/jetbrains-variant-4.png)
 
 -----
 ## 赞助渠道
