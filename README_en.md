@@ -427,7 +427,12 @@ func main() {
 ### from 2.0.x to 2.1.x  
 - change `xxx.Join("pre_tablename")` into `xxx.Join("tablename")`,the join table name auto prefix  
 - change `err:=DB().Bind().Query()` into `res,err:=DB().Query()` with multi return,leave the `Bind()` method as well  
-### from 1.x to 2.x, install it for new  
+### from 1.x to 2.x
+install it for new  
+
+
+## Jetbrains non-commercial sponsorship  
+![](https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg)
 
 -----
 ## pay me a coffee
