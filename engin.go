@@ -123,6 +123,11 @@ func (c *Engin) GetLogger() ILogger {
 	return c.logger
 }
 
+// SetLogger ...
+func (c *Engin) SetLogger(lg ILogger)  {
+	c.logger = lg
+}
+
 func (c *Engin) bootSingle(conf *Config) error {
 	// 如果传入的是单一配置, 则转换成集群配置, 方便统一管理
 	var cc = new(ConfigCluster)

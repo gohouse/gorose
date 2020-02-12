@@ -12,6 +12,7 @@ type IEngin interface {
 	GetPrefix() (pre string)
 	//NewSession() ISession
 	//NewOrm() IOrm
+	SetLogger(lg ILogger)
 	GetLogger() ILogger
 	GetDriver() string
 }
