@@ -432,8 +432,7 @@ install it for new
 
 
 ## Jetbrains non-commercial sponsorship  
-![](https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg)
-
+[![](https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg)](https://www.jetbrains.com/?from=gorose)
 -----
 ## pay me a coffee
 wechat|alipay|[paypal: click](https://www.paypal.me/fizzday)
