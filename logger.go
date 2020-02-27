@@ -2,7 +2,6 @@ package gorose
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
@@ -51,27 +50,27 @@ type Logger struct {
 
 var _ ILogger = (*Logger)(nil)
 
-var onceLogger sync.Once
+//var onceLogger sync.Once
 var logger *Logger
 
 // NewLogger ...
 func NewLogger(o *LogOption) *Logger {
-	onceLogger.Do(func() {
-		logger = &Logger{filePath: "."}
+	//onceLogger.Do(func() {
+		logger = &Logger{filePath: "./"}
 		if o.FilePath != "" {
 			logger.filePath = o.FilePath
 		}
 		logger.sqlLog = o.EnableSqlLog
 		logger.slowLog = o.EnableSlowLog
 		logger.errLog = o.EnableErrorLog
-	})
+	//})
 	return logger
 }
 
 // DefaultLogger ...
 func DefaultLogger() func(e *Engin) {
 	return func(e *Engin) {
-		e.logger = NewLogger(&LogOption{EnableSlowLog: 3})
+		e.logger = NewLogger(&LogOption{})
 	}
 }
 

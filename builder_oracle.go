@@ -3,8 +3,8 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/gocar/structEngin"
-	"github.com/gohouse/t"
+	"github.com/gohouse/golib/structEngin"
+	"github.com/gohouse/golib/t"
 	//"log"
 	"reflect"
 	"strconv"

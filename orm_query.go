@@ -1,7 +1,7 @@
 package gorose
 
 import (
-	"github.com/gohouse/t"
+	"github.com/gohouse/golib/t"
 	"math"
 	"reflect"
 	"strings"

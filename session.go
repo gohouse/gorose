@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gohouse/t"
+	"github.com/gohouse/golib/t"
 	"reflect"
 	"strings"
 	"time"

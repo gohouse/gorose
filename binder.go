@@ -3,7 +3,7 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/t"
+	"github.com/gohouse/golib/t"
 	"reflect"
 )
 

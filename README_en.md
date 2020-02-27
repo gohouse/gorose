@@ -220,7 +220,7 @@ db.Table(&users4).Limit(5).Select()
 ---
 The gorose. Data used here is actually the `map [string] interface {}'type.
 
-And `gorose. Map'is actually a `t. MapString' type. Here comes a `t'package, a golang basic data type conversion package. See http://github.com/gohouse/t for more details.  
+And `gorose. Map'is actually a `t. MapString' type. Here comes a `t'package, a golang basic data type conversion package. See http://github.com/gohouse/golib/t for more details.  
 
 
 - 3. laravel's `First()`,`Get()`, Used to return the result set   

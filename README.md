@@ -36,7 +36,7 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.4-rc4
+require github.com/gohouse/gorose/v2 v2.1.4
 ```
 > 重要的事情说三遍!  
     重要的事情说三遍!  
@@ -218,7 +218,7 @@ db.Table(&users4).Limit(5).Select()
 
 ---
 这里使用的 gorose.Data , 实际上就是 `map[string]interface{}` 类型.  
-而 `gorose.Map`, 实际上是 `t.MapString` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/t
+而 `gorose.Map`, 实际上是 `t.MapString` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/golib/t
 
 - 3. laravel的`First()`,`Get()`, 用来返回结果集  
 也就是说, 你甚至可以不用传入各种绑定的struct和map, 直接传入表名, 返回两个参数, 一个是 `[]gorose.Map`结果集, 第二个是`error`,堪称简单粗暴  
@@ -413,7 +413,11 @@ func main() {
 	```
 
 ## 升级日志
-- v2.1.x: 
+- v2.1.4:  
+    * logger修正  
+    * 事物改进  
+    * 依赖包改为 gohouse/golib(gohouse/t,gohouse/gocar)  
+- v2.1.x:  
     * join表自动加前缀,不需要再手动加前缀  
     * 原生sql的`query()`方法,增加返回结果集`[]map[string]interface{}`  
 - v2.0.0: 船新版本,船新架构  
