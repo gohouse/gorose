@@ -411,6 +411,14 @@ func main() {
 	        })
 	    }).Where("job", "it").First()
 	```
+- 嵌入原生sql示例  
+以下几种操作是等效的
+```go
+db.Table("users").WhereRegexp("name","\w+").BuildSql()
+db.Table("users").Where("name","regexp","\w+").BuildSql()
+db.Table("users").Where([]interface{}{"name","regexp","\w+"}).BuildSql()
+db.Table("users").Where(gorose.Data{"name regexp","\w+"}).BuildSql()
+```
 
 ## 升级日志
 - v2.1.4:  

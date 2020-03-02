@@ -4,6 +4,7 @@ import (
 	"github.com/gohouse/golib/t"
 	"strings"
 )
+
 //type TransactionHandlerFunc func(db IOrm) error
 // Orm ...
 type Orm struct {
@@ -200,6 +201,26 @@ func (dba *Orm) WhereNotNull(arg string) IOrm {
 // OrWhereNotNull ...
 func (dba *Orm) OrWhereNotNull(arg string) IOrm {
 	return dba.OrWhere(arg + " IS NOT NULL")
+}
+
+// WhereRegexp ...
+func (dba *Orm) WhereRegexp(arg string, expstr string) IOrm {
+	return dba.Where(arg, "REGEXP", expstr)
+}
+
+// OrWhereRegexp ...
+func (dba *Orm) OrWhereRegexp(arg string, expstr string) IOrm {
+	return dba.OrWhere(arg, "REGEXP", expstr)
+}
+
+// WhereNotRegexp ...
+func (dba *Orm) WhereNotRegexp(arg string, expstr string) IOrm {
+	return dba.Where(arg, "NOT REGEXP", expstr)
+}
+
+// OrWhereNotRegexp ...
+func (dba *Orm) OrWhereNotRegexp(arg string, expstr string) IOrm {
+	return dba.OrWhere(arg, "NOT REGEXP", expstr)
 }
 
 // WhereIn ...

@@ -37,6 +37,10 @@ type IOrm interface {
 	OrWhereNull(arg string) IOrm
 	WhereNotNull(arg string) IOrm
 	OrWhereNotNull(arg string) IOrm
+	WhereRegexp(arg string, expstr string) IOrm
+	OrWhereRegexp(arg string, expstr string) IOrm
+	WhereNotRegexp(arg string, expstr string) IOrm
+	OrWhereNotRegexp(arg string, expstr string) IOrm
 	WhereIn(needle string, hystack []interface{}) IOrm
 	OrWhereIn(needle string, hystack []interface{}) IOrm
 	WhereNotIn(needle string, hystack []interface{}) IOrm

@@ -11,7 +11,7 @@ import (
 )
 
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
-	"in", "not in", "between", "not between"}
+	"in", "not in", "between", "not between", "regexp", "not regexp"}
 
 // BuilderDefault 默认构造器, 其他的可以继承这个, 重写方法即可
 type BuilderDefault struct {
