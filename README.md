@@ -421,6 +421,9 @@ db.Table("users").Where(gorose.Data{"name regexp","\w+"}).BuildSql()
 ```
 
 ## 升级日志
+- v2.1.5-master:  
+    * 增加`regexp`表达式在`where`中的使用  
+
 - v2.1.4:  
     * logger修正  
     * 事物改进  
