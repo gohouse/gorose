@@ -140,6 +140,12 @@ func (c *Engin) bootCluster() error {
 	//fmt.Println(len(c.config.Slave))
 	if len(c.config.Slave) > 0 {
 		for _, item := range c.config.Slave {
+			if c.config.Driver!=""{
+				item.Driver = c.config.Driver
+			}
+			if c.config.Prefix!=""{
+				item.Prefix = c.config.Prefix
+			}
 			db, err := c.bootReal(item)
 			if err != nil {
 				return err
@@ -155,6 +161,12 @@ func (c *Engin) bootCluster() error {
 	var pre, dr string
 	if len(c.config.Master) > 0 {
 		for _, item := range c.config.Master {
+			if c.config.Driver!=""{
+				item.Driver = c.config.Driver
+			}
+			if c.config.Prefix!=""{
+				item.Prefix = c.config.Prefix
+			}
 			db, err := c.bootReal(item)
 
 			if err != nil {
