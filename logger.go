@@ -91,7 +91,7 @@ func (l *Logger) EnableSlowLog() float64 {
 
 // Slow ...
 func (l *Logger) Slow(sqlStr string, runtime time.Duration) {
-	if runtime.Seconds() > l.EnableSlowLog() {
+	if l.EnableSlowLog() > 0 && runtime.Seconds() > l.EnableSlowLog() {
 		logger.write(LOG_SLOW, "gorose_slow", sqlStr, runtime.String())
 	}
 }

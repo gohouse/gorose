@@ -13,14 +13,14 @@ func initDB() *gorose.Engin {
 		panic(err.Error())
 	}
 
-	e.Use(func(eg *gorose.Engin) {
-		eg.SetLogger(gorose.NewLogger(&gorose.LogOption{
-			FilePath:       "log",
-			EnableSqlLog:   true,
-			EnableSlowLog:  5,
-			EnableErrorLog: true,
-		}))
-	})
+	//e.Use(func(eg *gorose.Engin) {
+	//	eg.SetLogger(gorose.NewLogger(&gorose.LogOption{
+	//		FilePath:       "log",
+	//		EnableSqlLog:   true,
+	//		EnableSlowLog:  5,
+	//		EnableErrorLog: true,
+	//	}))
+	//})
 
 	return e
 }
