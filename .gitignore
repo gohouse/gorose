@@ -4,7 +4,6 @@ Thumbs.db
 /.idea/
 /vendor/
 glide.lock
-go.sum
 *.sqlite
 # Binaries for programs and plugins
 *.exe
@@ -19,5 +18,4 @@ go.sum
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 *.sqlite
-*.sum
 *.log
