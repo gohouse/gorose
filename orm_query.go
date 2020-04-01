@@ -92,7 +92,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	if r, ok := res[union]; ok {
 		return r, err
 	}
-	return nil, err
+	return 0, err
 }
 //func (dba *Orm) _unionBuild_bak(union, field string) (interface{}, error) {
 //	var tmp interface{}
