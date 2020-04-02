@@ -554,7 +554,8 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 			return
 		}
 
-		paramsToArr = append(paramsToArr, argsReal[0].(string))
+		//paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, addBackticks(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
 		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
@@ -581,7 +582,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 			b.SetBindValues(argsReal[2])
 		}
 	case 2:
-		paramsToArr = append(paramsToArr, argsReal[0].(string))
+		paramsToArr = append(paramsToArr, addBackticks(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		b.SetBindValues(argsReal[1])

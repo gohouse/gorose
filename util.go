@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -97,6 +98,14 @@ func addQuotes(data interface{}, sep string) string {
 	ret = strings.Replace(ret, `"`, `\"`, -1)
 	ret = strings.Replace(ret, `'`, `\'`, -1)
 	return fmt.Sprintf("%s%s%s", sep, ret, sep)
+}
+
+func addBackticks(arg string) string {
+	reg := regexp.MustCompile(`^\w+$`)
+	if reg.MatchString(arg) {
+		return fmt.Sprintf("`%s`",arg)
+	}
+	return arg
 }
 
 // InArray :给定元素值 是否在 指定的数组中
