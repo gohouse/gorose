@@ -3,7 +3,6 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"sync"
 )
 
 // Error ...
@@ -56,17 +55,19 @@ type Err struct {
 	err  map[Lang]map[Error]string
 }
 
-var once sync.Once
-var err *Err
+//var gOnce *sync.Once
+var gErr *Err
+
+func init()  {
+	var tmpLang = make(map[Lang]map[Error]string)
+	gErr = &Err{err:tmpLang}
+	gErr.lang = CHINESE
+	gErr.Register(gErr.Default())
+}
 
 // NewErr ...
 func NewErr() *Err {
-	once.Do(func() {
-		err = new(Err)
-		err.lang = CHINESE
-		err.Register(err.Default())
-	})
-	return err
+	return gErr
 }
 
 // SetLang ...
@@ -95,5 +96,8 @@ func GetErr(err Error, args ...interface{}) error {
 	if len(args) > 0 {
 		argreal = fmt.Sprint(":", args)
 	}
-	return errors.New(fmt.Sprint(NewErr().Get(err), argreal))
+	return errors.New(fmt.Sprint(
+		NewErr().
+			Get(err),
+		argreal))
 }

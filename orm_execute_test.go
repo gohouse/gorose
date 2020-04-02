@@ -20,6 +20,23 @@ func TestOrm_Update(t *testing.T) {
 	t.Log(aff, db.LastSql())
 }
 
+func TestOrm_Update2(t *testing.T) {
+	db := DB()
+
+	//var u = []Users{{
+	//	Name: "gorose2",
+	//	Age:  11,
+	//}}
+
+	aff, err := db.Table("users").Where("uid",1).Update()
+	if err != nil {
+		//t.Error(err.Error())
+		t.Log(err.Error())
+		return
+	}
+	t.Log(aff, db.LastSql())
+}
+
 func TestOrm_UpdateMap(t *testing.T) {
 	db := DB()
 
