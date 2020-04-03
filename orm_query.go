@@ -88,6 +88,7 @@ func (dba *Orm) Min(min string) (interface{}, error) {
 func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	fields := union + "(" + field + ") as " + union
 	dba.fields = []string{fields}
+
 	res, err := dba.First()
 	if r, ok := res[union]; ok {
 		return r, err
