@@ -52,7 +52,7 @@ docker run -it --rm ababy/gorose sh -c "go run main.go"
 
 - go get  
 ```bash
-go get -u github.com/gohouse/gorose
+go get -u github.com/gohouse/gorose/v2
 ```
 
 ## 支持驱动
