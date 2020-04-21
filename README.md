@@ -42,7 +42,9 @@ require github.com/gohouse/gorose/v2 v2.1.6
     重要的事情说三遍!  
     重要的事情说三遍!  
     使用的时候必须`import "github.com/gohouse/gorose/v2"`方可正常使用.  
-    千万不要漏掉末尾的`v2`,这个是vgo的规定
+    千万不要漏掉末尾的`v2`,这个是vgo的规定  
+
+> 如果使用最新更新,没有tag的话,可以使用`require github.com/gohouse/gorose/v2 master`,执行`go mod tidy`后,会自动获取最新提交的版本hash最为版本号,最终效果如:`github.com/gohouse/gorose/v2 v2.1.6-0.20200403045240-167d9094d7bd`    
 
 - docker
 ```bash

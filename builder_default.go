@@ -452,7 +452,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 			case map[string]interface{}: // map
 				var whereArr []string
 				for key, val := range paramReal {
-					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
+					whereArr = append(whereArr, addBackticks(key)+"="+b.GetPlaceholder())
 					b.SetBindValues(val)
 				}
 				if len(whereArr) != 0 {
@@ -461,7 +461,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 			case Data: // map
 				var whereArr []string
 				for key, val := range paramReal {
-					whereArr = append(whereArr, key+"="+b.GetPlaceholder())
+					whereArr = append(whereArr, addBackticks(key)+"="+b.GetPlaceholder())
 					b.SetBindValues(val)
 				}
 				if len(whereArr) != 0 {

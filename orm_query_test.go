@@ -28,19 +28,15 @@ func TestOrm_BuildSql3(t *testing.T) {
 }
 
 func TestOrm_BuildSql4(t *testing.T) {
-	//sqlstr, a, b := db.Table("users3").Limit(2).Offset(2).BuildSql()
-	//t.Log(sqlstr, a, b)
-	//
-	//sqlstr, a, b = db.Table("users2").Limit(2).Offset(2).BuildSql()
-	//t.Log(sqlstr, a, b)
+	db := DB()
+	//var wheres interface{}
+	//wheres = [][]interface{}{{"a", ">", "b"},{"lock",1}}
+	wheres := Data{"lock":1}
+	sqlstr, a, b := db.Table(Users{}).Where(wheres).Where(func() {
+		db.Where("c",2).OrWhere("lock",">",4)
+	}).BuildSql()
 
-	//var u = Users{
-	//	Uid:  1,
-	//	Name: "2",
-	//	Age:  3,
-	//}
-	//res,err := db.Table("xxx").Insert(&u)
-	//t.Log(db.LastSql(), res,err)
+	t.Log(sqlstr, a, b)
 }
 
 func TestOrm_BuildSql5(t *testing.T) {
