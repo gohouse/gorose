@@ -156,7 +156,7 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 	if s.tx == nil {
 		stmt, err = s.slave.Prepare(sqlstring)
 	} else {
-		stmt, err = s.master.Prepare(sqlstring)
+		stmt, err = s.tx.Prepare(sqlstring)
 	}
 
 	if err != nil {
