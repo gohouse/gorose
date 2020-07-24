@@ -13,9 +13,10 @@ func initDB() *gorose.Engin {
 		panic(err.Error())
 	}
 
+	// 这里可以设置日志相关配置
 	//e.Use(func(eg *gorose.Engin) {
 	//	eg.SetLogger(gorose.NewLogger(&gorose.LogOption{
-	//		FilePath:       "log",
+	//		FilePath:       "./log",
 	//		EnableSqlLog:   true,
 	//		EnableSlowLog:  5,
 	//		EnableErrorLog: true,
@@ -28,5 +29,6 @@ func main()  {
 	db := initDB().NewOrm()
 	res,err := db.Table("users").First()
 	fmt.Println(err)
+	fmt.Println(db.LastSql())
 	fmt.Println(res)
 }

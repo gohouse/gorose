@@ -27,9 +27,9 @@ const (
 	OBJECT_MAP_SLICE
 	// OBJECT_STRING 非结构体 表名字符串 ("users")
 	OBJECT_STRING
-	// OBJECT_MAP_T map 一条数据 (map[string]t.T)
+	// OBJECT_MAP_T map 一条数据 (map[string]t.Type)
 	OBJECT_MAP_T
-	// OBJECT_MAP_SLICE_T map 多条数据 ([]map[string]t.T)
+	// OBJECT_MAP_SLICE_T map 多条数据 ([]map[string]t.Type)
 	OBJECT_MAP_SLICE_T
 	// OBJECT_NIL 默认没有传入任何绑定对象,一般用于query直接返回
 	OBJECT_NIL
@@ -132,7 +132,7 @@ func (o *Binder) BindParse(prefix string) error {
 			//o.SetBindLimit(1)
 			//
 			o.SetBindResult(o.GetBindOrigin())
-			//TODO 检查map的值类型, 是否是t.T
+			//TODO 检查map的值类型, 是否是t.Type
 			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 				o.SetBindType(OBJECT_MAP_T)
 			}
@@ -153,7 +153,7 @@ func (o *Binder) BindParse(prefix string) error {
 				o.SetBindResult(reflect.MakeMap(eltType).Interface())
 				o.SetBindResultSlice(sliceVal)
 				//o.SetBindResultSlice(reflect.MakeSlice(sliceVal.Type(),0,0))
-				//TODO 检查map的值类型, 是否是t.T
+				//TODO 检查map的值类型, 是否是t.Type
 				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
 					o.SetBindType(OBJECT_MAP_SLICE_T)
 				}
