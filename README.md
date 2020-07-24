@@ -224,7 +224,7 @@ db.Table(&users4).Limit(5).Select()
 
 ---
 这里使用的 gorose.Data , 实际上就是 `map[string]interface{}` 类型.  
-而 `gorose.Map`, 实际上是 `t.MapString` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/golib/t
+而 `gorose.Map`, 实际上是 `t.MapStringT` 类型, 这里出现了一个 `t` 包, 是一个golang基本数据类型的相互转换包, 请看详细介绍 http://github.com/gohouse/t
 
 - 3. laravel的`First()`,`Get()`, 用来返回结果集  
 也就是说, 你甚至可以不用传入各种绑定的struct和map, 直接传入表名, 返回两个参数, 一个是 `[]gorose.Map`结果集, 第二个是`error`,堪称简单粗暴  

@@ -1,18 +1,18 @@
 package gorose
 
 import (
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"testing"
 )
 
-type aaa t.MapString
+type aaa t.MapStringT
 
 func (u *aaa) TableName() string {
 	return "users"
 }
 
 //type bbb MapRows
-type bbb []t.MapString
+type bbb []t.MapStringT
 
 func (u *bbb) TableName() string {
 	return "users"

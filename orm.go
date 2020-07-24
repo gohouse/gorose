@@ -1,7 +1,7 @@
 package gorose
 
 import (
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"strings"
 )
 

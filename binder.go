@@ -3,12 +3,12 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"reflect"
 )
 
 // Map ...
-type Map t.MapString
+type Map t.MapStringT
 
 // Data ...
 type Data map[string]interface{}
@@ -133,7 +133,7 @@ func (o *Binder) BindParse(prefix string) error {
 			//
 			o.SetBindResult(o.GetBindOrigin())
 			//TODO 检查map的值类型, 是否是t.Type
-			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
+			if sliceVal.Type().Elem() == reflect.ValueOf(map[string]t.Type{}).Type().Elem() {
 				o.SetBindType(OBJECT_MAP_T)
 			}
 			// 是否设置了表名
@@ -154,7 +154,7 @@ func (o *Binder) BindParse(prefix string) error {
 				o.SetBindResultSlice(sliceVal)
 				//o.SetBindResultSlice(reflect.MakeSlice(sliceVal.Type(),0,0))
 				//TODO 检查map的值类型, 是否是t.Type
-				if eltType.Elem() == reflect.ValueOf(map[string]t.T{}).Type().Elem() {
+				if eltType.Elem() == reflect.ValueOf(map[string]t.Type{}).Type().Elem() {
 					o.SetBindType(OBJECT_MAP_SLICE_T)
 				}
 				if dstVal.Kind() != reflect.Ptr {

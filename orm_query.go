@@ -1,7 +1,7 @@
 package gorose
 
 import (
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"math"
 	"reflect"
 	"strings"
@@ -191,7 +191,7 @@ func (dba *Orm) Pluck_bak(field string, fieldKey ...string) (v interface{}, err 
 		}
 	case OBJECT_MAP_SLICE, OBJECT_MAP_SLICE_T:
 		for _, item := range t.New(binder.GetBindResultSlice().Interface()).Slice() {
-			val := item.MapInterface()
+			val := item.MapInterfaceT()
 			if len(fieldKey) > 0 {
 				resMap[val[fieldKey[0]].Interface()] = val[field].Interface()
 			} else {

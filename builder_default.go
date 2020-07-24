@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gohouse/golib/structEngin"
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"reflect"
 	"strconv"
 	"strings"
@@ -187,13 +187,13 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 		dataObj = append(dataObj, data.(string))
 	case []map[string]interface{}, []Data: // insert multi datas ([]map[string]interface{})
 		sliceData := t.New(data).Slice()
-		for key := range sliceData[0].MapString() {
+		for key := range sliceData[0].MapStringT() {
 			if inArray(key, dataFields) == false {
 				dataFields = append(dataFields, key)
 			}
 		}
-		for _, itemT := range sliceData {
-			item := itemT.MapString()
+		for _, itemt := range sliceData {
+			item := itemt.MapStringT()
 			var dataValuesSub []string
 			for _, key := range dataFields {
 				if item[key] == nil {
@@ -207,7 +207,7 @@ func (b *BuilderDefault) BuildData2(operType string) (string, string, string) {
 		}
 	case map[string]interface{}, Data: // update or insert (map[string]interface{})
 		var dataValuesSub []string
-		for key, val := range t.New(data).MapString() {
+		for key, val := range t.New(data).MapStringT() {
 			if operType == "insert" {
 				// insert
 				dataFields = append(dataFields, key)

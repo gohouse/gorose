@@ -2,7 +2,7 @@ package gorose
 
 import (
 	"fmt"
-	"github.com/gohouse/golib/t"
+	"github.com/gohouse/t"
 	"log"
 	"math/rand"
 	"os"
