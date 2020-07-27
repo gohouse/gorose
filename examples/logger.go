@@ -25,9 +25,9 @@ func initDB() *gorose.Engin {
 
 	return e
 }
-func main()  {
+func main() {
 	db := initDB().NewOrm()
-	res,err := db.Table("users").First()
+	res, err := db.Table("users").First()
 	fmt.Println(err)
 	fmt.Println(db.LastSql())
 	fmt.Println(res)

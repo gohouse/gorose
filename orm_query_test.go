@@ -11,7 +11,7 @@ func TestOrm_BuildSql2(t *testing.T) {
 	db := DB()
 	var u = "age=age+1,num=num+1"
 	var wheres interface{}
-	wheres = [][]interface{}{{"a", ">", "b"}, {"a", "b"},{"a is null"}}
+	wheres = [][]interface{}{{"a", ">", "b"}, {"a", "b"}, {"a is null"}}
 	sqlstr, a, b := db.Force().Table("users").Data(u).Where(wheres).BuildSql("update")
 
 	t.Log(sqlstr, a, b)
@@ -31,9 +31,9 @@ func TestOrm_BuildSql4(t *testing.T) {
 	db := DB()
 	//var wheres interface{}
 	//wheres = [][]interface{}{{"a", ">", "b"},{"lock",1}}
-	wheres := Data{"lock":1}
+	wheres := Data{"lock": 1}
 	sqlstr, a, b := db.Table(Users{}).Where(wheres).Where(func() {
-		db.Where("c",2).OrWhere("lock",">",4)
+		db.Where("c", 2).OrWhere("lock", ">", 4)
 	}).BuildSql()
 
 	t.Log(sqlstr, a, b)
@@ -71,12 +71,12 @@ func TestOrm_BuildSql6(t *testing.T) {
 		Name: "2",
 		Age:  3,
 	}
-	res,err := db.Table("xxx").Where("xx","xx").Update(&u)
-	t.Log(db.LastSql(), res,err)
+	res, err := db.Table("xxx").Where("xx", "xx").Update(&u)
+	t.Log(db.LastSql(), res, err)
 }
 
 func TestOrm_First(t *testing.T) {
-	res, err := DB().Table(Users{}).Where("uid",1).First()
+	res, err := DB().Table(Users{}).Where("uid", 1).First()
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -190,7 +190,7 @@ func TestOrm_Pluck(t *testing.T) {
 	//var u []Users
 	ormObj := orm.Table("users")
 	//res,err := ormObj.Pluck("name", "uid")
-	res, err := ormObj.Limit(5).Pluck("name","uid")
+	res, err := ormObj.Limit(5).Pluck("name", "uid")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -314,7 +314,7 @@ func TestOrm_Paginate2(t *testing.T) {
 	db := DB()
 
 	var u []Users
-	res, err := db.Table(&u).Where("uid",">",1).Limit(2).Paginate(3)
+	res, err := db.Table(&u).Where("uid", ">", 1).Limit(2).Paginate(3)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -327,7 +327,7 @@ func TestOrm_Sum(t *testing.T) {
 
 	var u Users
 	//res, err := db.Table(Users{}).First()
-	res, err := db.Table(&u).Where(Data{"uid":1}).Sum("age")
+	res, err := db.Table(&u).Where(Data{"uid": 1}).Sum("age")
 	if err != nil {
 		t.Error(err.Error())
 	}

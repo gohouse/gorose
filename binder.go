@@ -119,7 +119,7 @@ func (o *Binder) BindParse(prefix string) error {
 			o.parseFields()
 			// 是否设置了表名
 			switch dstVal.Kind() {
-			case reflect.Ptr,reflect.Struct:
+			case reflect.Ptr, reflect.Struct:
 				if tn := dstVal.MethodByName("TableName"); tn.IsValid() {
 					BindName = tn.Call(nil)[0].String()
 				}
@@ -177,7 +177,7 @@ func (o *Binder) BindParse(prefix string) error {
 
 				// 是否设置了表名
 				switch dstVal.Kind() {
-				case reflect.Ptr,reflect.Struct:
+				case reflect.Ptr, reflect.Struct:
 					if tn := br.MethodByName("TableName"); tn.IsValid() {
 						BindName = tn.Call(nil)[0].String()
 					}

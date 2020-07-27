@@ -60,7 +60,7 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 		rl2 := reflect.Indirect(rl)
 
 		switch rl2.Kind() {
-		case reflect.Struct,reflect.Ptr:
+		case reflect.Struct, reflect.Ptr:
 			//return 0, errors.New("传入的结构体必须是对象的地址")
 			if tn := rl2.MethodByName("TableName"); tn.IsValid() {
 				dba.Table(dba.GetData())
@@ -76,7 +76,7 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 			r2 := rl2.Type().Elem()
 			r2val := reflect.New(r2)
 			switch r2val.Kind() {
-			case reflect.Struct,reflect.Ptr:
+			case reflect.Struct, reflect.Ptr:
 				if tn := r2val.MethodByName("TableName"); tn.IsValid() {
 					dba.Table(dba.GetData())
 				}
@@ -85,7 +85,7 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 					dba.Table(dba.GetData())
 				}
 			default:
-				return 0,errors.New("表名有误")
+				return 0, errors.New("表名有误")
 			}
 		}
 

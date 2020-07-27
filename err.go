@@ -58,9 +58,9 @@ type Err struct {
 //var gOnce *sync.Once
 var gErr *Err
 
-func init()  {
+func init() {
 	var tmpLang = make(map[Lang]map[Error]string)
-	gErr = &Err{err:tmpLang}
+	gErr = &Err{err: tmpLang}
 	gErr.lang = CHINESE
 	gErr.Register(gErr.Default())
 }

@@ -103,7 +103,7 @@ func addQuotes(data interface{}, sep string) string {
 func addBackticks(arg string) string {
 	reg := regexp.MustCompile(`^\w+$`)
 	if reg.MatchString(arg) {
-		return fmt.Sprintf("`%s`",arg)
+		return fmt.Sprintf("`%s`", arg)
 	}
 	return arg
 }

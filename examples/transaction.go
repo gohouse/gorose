@@ -6,12 +6,12 @@ import (
 	"github.com/gohouse/gorose/v2"
 )
 
-func initEngin()*gorose.Engin {
+func initEngin() *gorose.Engin {
 	var err error
 	var engin *gorose.Engin
 	engin, err = gorose.Open(&gorose.Config{
 		Driver: "mysql",
-		Dsn:    "root:123456@tcp(localhost:3306)/novel?charset=utf8mb4",
+		Dsn:    "root:123456@tcp(localhost:3306)/test?charset=utf8mb4",
 		Prefix: "nv_",
 	})
 	if err != nil {
@@ -31,17 +31,17 @@ func trans() error {
 	db := engin.NewOrm()
 	db.Begin()
 	aff, err = db.Table("logs").Insert(gorose.Data{"username": "xx"})
-	if err != nil || aff==0 {
+	if err != nil || aff == 0 {
 		db.Rollback()
 		return err
 	}
-	aff, err = db.Table("logs").Where("id",2).Update(gorose.Data{"username": "xx1232xx1232xx1232xx1232xx1232xx1232xx1232xx1232"})
-	if err != nil || aff==0 {
+	aff, err = db.Table("logs").Where("id", 2).Update(gorose.Data{"username": "xx1232xx1232xx1232xx1232xx1232xx1232xx1232xx1232"})
+	if err != nil || aff == 0 {
 		db.Rollback()
 		return err
 	}
 	aff, err = db.Table("logs").Insert(gorose.Data{"username": "xx", "pkid": 1})
-	if err != nil || aff==0 {
+	if err != nil || aff == 0 {
 		db.Rollback()
 		return err
 	}

@@ -9,15 +9,17 @@ import (
 
 var engin *gorose.Engin
 var err error
+
 func init() {
-	engin, err = gorose.Open(&gorose.Config{Prefix: "nv_", Driver: "mysql", Dsn: "root:123456@tcp(localhost:3306)/novel?charset=utf8&parseTime=true"})
-	if err!=nil {
+	engin, err = gorose.Open(&gorose.Config{Prefix: "nv_", Driver: "mysql", Dsn: "root:123456@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true"})
+	if err != nil {
 		panic(err.Error())
 	}
 }
 func db() gorose.IOrm {
 	return engin.NewOrm()
 }
+
 type Tag struct {
 	Id        int64     `gorose:"id" json:"id"`
 	TagTitle  string    `gorose:"tag_title" json:"tag_title"`

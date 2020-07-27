@@ -9,8 +9,8 @@ import (
 
 // Select : select one or more rows , relation limit set
 func (dba *Orm) Select() error {
-	switch dba.GetIBinder().GetBindType(){
-	case OBJECT_STRUCT,OBJECT_MAP,OBJECT_MAP_T:
+	switch dba.GetIBinder().GetBindType() {
+	case OBJECT_STRUCT, OBJECT_MAP, OBJECT_MAP_T:
 		dba.Limit(1)
 	}
 	// 构建sql
@@ -95,6 +95,7 @@ func (dba *Orm) _unionBuild(union, field string) (interface{}, error) {
 	}
 	return 0, err
 }
+
 //func (dba *Orm) _unionBuild_bak(union, field string) (interface{}, error) {
 //	var tmp interface{}
 //

@@ -2,14 +2,14 @@ package gorose
 
 // OrmApi ...
 type OrmApi struct {
-	table     string
-	fields    []string
-	where     [][]interface{}
-	order     string
-	limit     int
-	offset    int
-	join      [][]interface{}
-	distinct  bool
+	table    string
+	fields   []string
+	where    [][]interface{}
+	order    string
+	limit    int
+	offset   int
+	join     [][]interface{}
+	distinct bool
 	//union     string
 	group     string
 	having    string

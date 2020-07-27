@@ -124,7 +124,7 @@ func (c *Engin) GetLogger() ILogger {
 }
 
 // SetLogger ...
-func (c *Engin) SetLogger(lg ILogger)  {
+func (c *Engin) SetLogger(lg ILogger) {
 	c.logger = lg
 }
 
@@ -140,10 +140,10 @@ func (c *Engin) bootCluster() error {
 	//fmt.Println(len(c.config.Slave))
 	if len(c.config.Slave) > 0 {
 		for _, item := range c.config.Slave {
-			if c.config.Driver!=""{
+			if c.config.Driver != "" {
 				item.Driver = c.config.Driver
 			}
-			if c.config.Prefix!=""{
+			if c.config.Prefix != "" {
 				item.Prefix = c.config.Prefix
 			}
 			db, err := c.bootReal(item)
@@ -161,10 +161,10 @@ func (c *Engin) bootCluster() error {
 	var pre, dr string
 	if len(c.config.Master) > 0 {
 		for _, item := range c.config.Master {
-			if c.config.Driver!=""{
+			if c.config.Driver != "" {
 				item.Driver = c.config.Driver
 			}
-			if c.config.Prefix!=""{
+			if c.config.Prefix != "" {
 				item.Prefix = c.config.Prefix
 			}
 			db, err := c.bootReal(item)
@@ -201,7 +201,7 @@ func (c *Engin) bootCluster() error {
 
 // boot sql driver
 func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
-	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8")
+	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8mb4")
 	// 开始驱动
 	db, err = sql.Open(dbConf.Driver, dbConf.Dsn)
 	if err != nil {

@@ -28,7 +28,7 @@ func TestOrm_Update2(t *testing.T) {
 	//	Age:  11,
 	//}}
 
-	aff, err := db.Table("users").Where("uid",1).Update()
+	aff, err := db.Table("users").Where("uid", 1).Update()
 	if err != nil {
 		//t.Error(err.Error())
 		t.Log(err.Error())

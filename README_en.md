@@ -86,7 +86,7 @@ func init() {
     // If you configure a read-write separation cluster, use & gorose. ConfigCluster {}
 	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
     // mysql demo, remeber import mysql driver of github.com/go-sql-driver/mysql
-	// engin, err = gorose.Open(&gorose.Config{Driver: "mysql", Dsn: "root:root@tcp(localhost:3306)/test?charset=utf8&parseTime=true"})
+	// engin, err = gorose.Open(&gorose.Config{Driver: "mysql", Dsn: "root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true"})
 }
 func DB() gorose.IOrm {
 	return engin.NewOrm()

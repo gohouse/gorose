@@ -11,7 +11,7 @@ func GetMysqlEngin() *gorose.Engin {
 	var engin *gorose.Engin
 	engin, err = gorose.Open(&gorose.Config{
 		Driver: "mysql",
-		Dsn:    "root:123456@tcp(localhost:3306)/novel?charset=utf8mb4",
+		Dsn:    "root:123456@tcp(localhost:3306)/test?charset=utf8mb4",
 		Prefix: "nv_",
 	})
 	if err != nil {

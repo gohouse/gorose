@@ -56,13 +56,13 @@ var logger *Logger
 // NewLogger ...
 func NewLogger(o *LogOption) *Logger {
 	//onceLogger.Do(func() {
-		logger = &Logger{filePath: "./"}
-		if o.FilePath != "" {
-			logger.filePath = o.FilePath
-		}
-		logger.sqlLog = o.EnableSqlLog
-		logger.slowLog = o.EnableSlowLog
-		logger.errLog = o.EnableErrorLog
+	logger = &Logger{filePath: "./"}
+	if o.FilePath != "" {
+		logger.filePath = o.FilePath
+	}
+	logger.sqlLog = o.EnableSqlLog
+	logger.slowLog = o.EnableSlowLog
+	logger.errLog = o.EnableErrorLog
 	//})
 	return logger
 }

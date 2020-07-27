@@ -14,7 +14,7 @@ func main() {
 	var res interface{}
 	var err error
 	db := getdb()
-	res,err = db.Table("users").Insert(gorose.Data{"uid2":222})
+	res, err = db.Table("users").Insert(gorose.Data{"uid2": 222})
 	if err != nil {
 		fmt.Println("0 - err:", err.Error())
 	}

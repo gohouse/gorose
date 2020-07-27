@@ -90,7 +90,7 @@ func init() {
     // 如果配置读写分离集群,则使用&gorose.ConfigCluster{}
 	engin, err = gorose.Open(&gorose.Config{Driver: "sqlite3", Dsn: "./db.sqlite"})
     // mysql示例, 记得导入mysql驱动 github.com/go-sql-driver/mysql
-	// engin, err = gorose.Open(&gorose.Config{Driver: "mysql", Dsn: "root:root@tcp(localhost:3306)/test?charset=utf8&parseTime=true"})
+	// engin, err = gorose.Open(&gorose.Config{Driver: "mysql", Dsn: "root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true"})
 }
 func DB() gorose.IOrm {
 	return engin.NewOrm()
