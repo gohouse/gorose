@@ -37,7 +37,7 @@ The module diagram is as follows:
 ## installation
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.7
+require github.com/gohouse/gorose/v2 v2.1.8
 ```
 > you should use it like `import "github.com/gohouse/gorose/v2"`  
     don't forget the `v2` in the end
