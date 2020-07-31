@@ -7,6 +7,7 @@ const (
 
 // BuilderMysql ...
 type BuilderMysql struct {
+	FieldQuotesDefault
 	//IOrm
 	driver string
 }
@@ -34,11 +35,11 @@ func (b *BuilderMysql) Clone() IBuilder {
 // BuildQuery : build query sql string
 func (b *BuilderMysql) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
 	//fmt.Println(o.GetTable(),o.GetWhere())
-	sqlStr, args, err = NewBuilderDefault(o).SetDriver(DriverMysql).BuildQuery()
+	sqlStr, args, err = NewBuilderDefault(o, NewBuilderMysql()).SetDriver(DriverMysql).BuildQuery()
 	return
 }
 
 // BuildExecut : build execute sql string
 func (b *BuilderMysql) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
-	return NewBuilderDefault(o).SetDriver(DriverMysql).BuildExecute(operType)
+	return NewBuilderDefault(o, NewBuilderMysql()).SetDriver(DriverMysql).BuildExecute(operType)
 }

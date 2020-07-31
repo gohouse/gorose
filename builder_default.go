@@ -20,10 +20,11 @@ type BuilderDefault struct {
 	placeholder int
 	driver      string
 	bindValues  []interface{}
+	current IBuilder
 }
 
 // NewBuilderDefault 初始化
-func NewBuilderDefault(o IOrm) *BuilderDefault {
+func NewBuilderDefault(o IOrm,current IBuilder) *BuilderDefault {
 	//onceBuilderDefault.Do(func() {
 	//	builderDefault = new(BuilderDefault)
 	//	builderDefault.operator = operator
@@ -37,6 +38,8 @@ func NewBuilderDefault(o IOrm) *BuilderDefault {
 	builderDefault.IOrm = o
 	// 每次使用的时候, 重置为0, 方便pg的占位符使用
 	builderDefault.placeholder = 0
+
+	builderDefault.current = current
 	return builderDefault
 }
 
@@ -452,7 +455,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 			case map[string]interface{}: // map
 				var whereArr []string
 				for key, val := range paramReal {
-					whereArr = append(whereArr, addBackticks(key)+"="+b.GetPlaceholder())
+					whereArr = append(whereArr, b.current.AddFieldQuotes(key)+"="+b.GetPlaceholder())
 					b.SetBindValues(val)
 				}
 				if len(whereArr) != 0 {
@@ -461,7 +464,7 @@ func (b *BuilderDefault) parseWhere(ormApi IOrm) (string, error) {
 			case Data: // map
 				var whereArr []string
 				for key, val := range paramReal {
-					whereArr = append(whereArr, addBackticks(key)+"="+b.GetPlaceholder())
+					whereArr = append(whereArr, b.current.AddFieldQuotes(key)+"="+b.GetPlaceholder())
 					b.SetBindValues(val)
 				}
 				if len(whereArr) != 0 {
@@ -555,7 +558,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 		}
 
 		//paramsToArr = append(paramsToArr, argsReal[0].(string))
-		paramsToArr = append(paramsToArr, addBackticks(argsReal[0].(string)))
+		paramsToArr = append(paramsToArr, b.current.AddFieldQuotes(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, argsReal[1].(string))
 
 		switch strings.Trim(strings.ToLower(t.New(argsReal[1]).String()), " ") {
@@ -582,7 +585,7 @@ func (b *BuilderDefault) parseParams(args []interface{}, ormApi IOrm) (s string,
 			b.SetBindValues(argsReal[2])
 		}
 	case 2:
-		paramsToArr = append(paramsToArr, addBackticks(argsReal[0].(string)))
+		paramsToArr = append(paramsToArr, b.current.AddFieldQuotes(argsReal[0].(string)))
 		paramsToArr = append(paramsToArr, "=")
 		paramsToArr = append(paramsToArr, b.GetPlaceholder())
 		b.SetBindValues(argsReal[1])

@@ -7,6 +7,7 @@ const (
 
 // BuilderSqlite3 ...
 type BuilderSqlite3 struct {
+	FieldQuotesDefault
 	//IOrm
 	driver string
 }
@@ -20,6 +21,11 @@ func init() {
 	NewBuilderDriver().Register(DriverSqlite3, builder)
 }
 
+// NewBuilderSqlite3 ...
+func NewBuilderSqlite3() *BuilderSqlite3 {
+	return new(BuilderSqlite3)
+}
+
 // Clone : a new obj
 func (b *BuilderSqlite3) Clone() IBuilder {
 	return &BuilderSqlite3{driver: DriverSqlite3}
@@ -27,10 +33,10 @@ func (b *BuilderSqlite3) Clone() IBuilder {
 
 // BuildQuery : build query sql string
 func (b *BuilderSqlite3) BuildQuery(o IOrm) (sqlStr string, args []interface{}, err error) {
-	return NewBuilderDefault(o).SetDriver(b.driver).BuildQuery()
+	return NewBuilderDefault(o, NewBuilderSqlite3()).SetDriver(b.driver).BuildQuery()
 }
 
 // BuildExecut : build execute sql string
 func (b *BuilderSqlite3) BuildExecute(o IOrm, operType string) (sqlStr string, args []interface{}, err error) {
-	return NewBuilderDefault(o).SetDriver(b.driver).BuildExecute(operType)
+	return NewBuilderDefault(o, NewBuilderSqlite3()).SetDriver(b.driver).BuildExecute(operType)
 }

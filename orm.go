@@ -26,6 +26,10 @@ func NewOrm(e IEngin) *Orm {
 	return orm
 }
 
+func NewOrmBuilder() *Orm {
+	return new(Orm)
+}
+
 // Close ...
 func (dba *Orm) Close() {
 	dba.GetISession().Close()

@@ -22,6 +22,7 @@ var (
 
 // BuilderOracle ...
 type BuilderOracle struct {
+	FieldQuotesDefault
 	BuilderDefault
 }
 
