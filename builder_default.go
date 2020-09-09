@@ -291,11 +291,15 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 			}
 			//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 			// update
-			dataObj = append(dataObj, fmt.Sprintf("%s = %s", key, placeholder))
+			dataObj = append(dataObj, fmt.Sprintf("%s = %s", b.current.AddFieldQuotes(key), placeholder))
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
-	return strings.Join(dataObj, ","), strings.Join(insertFields, ","), strings.Join(insertValues, ",")
+	var tmpInsertFields = insertFields[:0]
+	for _,v := range insertFields {
+		tmpInsertFields = append(tmpInsertFields, b.current.AddFieldQuotes(v))
+	}
+	return strings.Join(dataObj, ","), strings.Join(tmpInsertFields, ","), strings.Join(insertValues, ",")
 }
 
 // BuildJoin ...

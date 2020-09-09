@@ -31,11 +31,18 @@ func TestOrm_BuildSql4(t *testing.T) {
 	db := DB()
 	//var wheres interface{}
 	//wheres = [][]interface{}{{"a", ">", "b"},{"lock",1}}
-	wheres := Data{"lock": 1}
-	sqlstr, a, b := db.Table(Users{}).Where(wheres).Where(func() {
+	wheres := Data{"lock": 1,"`date`": 1}
+	obj := db.Table(Users{}).Where(wheres).Where(func() {
 		db.Where("c", 2).OrWhere("lock", ">", 4)
-	}).BuildSql()
+	}).Data(wheres)
 
+	sqlstr, a, b := obj.BuildSql()
+	t.Log(sqlstr, a, b)
+
+	sqlstr, a, b = obj.BuildSql("update")
+	t.Log(sqlstr, a, b)
+
+	sqlstr, a, b = obj.BuildSql("insert")
 	t.Log(sqlstr, a, b)
 }
 

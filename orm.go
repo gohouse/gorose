@@ -298,11 +298,12 @@ func (dba *Orm) _joinBuilder(joinType string, args []interface{}) {
 
 // Reset  orm api and bind values reset to init
 func (dba *Orm) Reset() IOrm {
-	dba.OrmApi = new(OrmApi)
-	dba.ClearBindValues()
-	dba.GetISession().SetUnion(nil)
-	dba.ResetTable()
-	return dba
+	//dba.OrmApi = new(OrmApi)
+	//dba.ClearBindValues()
+	//dba.GetISession().SetUnion(nil)
+	//dba.ResetTable()
+	//return dba
+	return NewOrm(dba.GetIEngin())
 }
 
 // ResetTable ...
