@@ -387,7 +387,7 @@ func (b *BuilderDefault) BuildFields() string {
 
 // BuildTable ...
 func (b *BuilderDefault) BuildTable() string {
-	return b.IOrm.GetTable()
+	return b.current.AddFieldQuotes(b.IOrm.GetTable())
 }
 
 // BuildGroup ...
