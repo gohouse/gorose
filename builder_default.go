@@ -266,6 +266,9 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 
 	for key := range data[0] {
 		if inArray(key, insertFields) == false {
+			if strings.Index(key,"`") == -1 {
+				key = "`" + key + "`"
+			}
 			insertFields = append(insertFields, key)
 		}
 	}
