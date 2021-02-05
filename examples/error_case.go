@@ -6,14 +6,10 @@ import (
 	"github.com/gohouse/gorose/v2/examples/dbobj"
 )
 
-func getdb() gorose.IOrm {
-	engin := dbobj.GetSqliteEngin()
-	return engin.NewOrm()
-}
 func main() {
 	var res interface{}
 	var err error
-	db := getdb()
+	db := dbobj.Getdb()
 	res, err = db.Table("users").Insert(gorose.Data{"uid2": 222})
 	if err != nil {
 		fmt.Println("0 - err:", err.Error())
