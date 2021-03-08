@@ -3,14 +3,15 @@ package gorose
 import (
 	"fmt"
 	"time"
+	"io"
 )
 
-// LogLevel ...
+// LogLevel 日志级别
 type LogLevel uint
 
 const (
 	// LOG_SQL ...
-	LOG_SQL LogLevel = iota
+	LOG_SQL 	LogLevel = iota
 	// LOG_SLOW ...
 	LOG_SLOW
 	// LOG_ERROR ...
@@ -32,8 +33,8 @@ func (l LogLevel) String() string {
 
 // LogOption ...
 type LogOption struct {
-	FilePath     string
-	EnableSqlLog bool
+	FilePath     	string
+	EnableSqlLog 	bool
 	// 是否记录慢查询, 默认0s, 不记录, 设置记录的时间阀值, 比如 1, 则表示超过1s的都记录
 	EnableSlowLog  float64
 	EnableErrorLog bool
@@ -121,4 +122,21 @@ func (l *Logger) write(ll LogLevel, filename string, msg string, runtime string)
 		buf := []byte(content)
 		f.Write(buf)
 	})
+}
+
+// 暂时规划
+type ilogger interface {
+	Persist(w io.Writer)
+	Info(args ...string)
+	Error(args ...string)
+	Debug(args ...string)
+	Infof(format string, args ...string)
+	Errorf(format string, args ...string)
+	Debugf(format string, args ...string)
+	InfoWithCtx(ctx interface{}, args ...string)
+	ErrorWithCtx(ctx interface{}, args ...string)
+	DebugWithCtx(ctx interface{}, args ...string)
+	InfofWithCtxf(ctx interface{}, format string, args ...string)
+	ErrorfWithCtxf(ctx interface{}, format string, args ...string)
+	DebugfWithCtxf(ctx interface{}, format string, args ...string)
 }
