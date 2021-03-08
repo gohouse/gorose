@@ -191,6 +191,8 @@ fmt.Println(err)
 fmt.Println(u)
 fmt.Println(session.LastSql())
 ```
+> struct字段顺序需要跟`select *`内的表结构字段顺序一致(也可以手动指定要查询的字段), 具体原因参考 [https://github.com/gohouse/gorose/issues/136](https://github.com/gohouse/gorose/issues/136)  
+
 原生增删改操作
 ```go
 session.Execute("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
