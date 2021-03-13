@@ -207,6 +207,7 @@ db := engin.NewOrm()
 err := db.Table(&u).Fields("name").AddFields("uid","age").Distinct().Where("uid",">",0).OrWhere("age",18).
 	Group("age").Having("age>1").OrderBy("uid desc").Limit(10).Offset(1).Select()
 ```
+也可以使用`xxx.Limit().Page()`,这个是固定用法,`Page()`必须在`Limit()`后边
 - 2. 如果不想定义struct, 又想绑定指定类型的map结果, 则可以定义map类型, 如
 ```go
 type user gorose.Map

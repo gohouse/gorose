@@ -3,7 +3,6 @@ package gorose
 import (
 	"fmt"
 	"time"
-	"io"
 )
 
 // LogLevel 日志级别
@@ -122,21 +121,4 @@ func (l *Logger) write(ll LogLevel, filename string, msg string, runtime string)
 		buf := []byte(content)
 		f.Write(buf)
 	})
-}
-
-// 暂时规划
-type ilogger interface {
-	Persist(w io.Writer)
-	Info(args ...string)
-	Error(args ...string)
-	Debug(args ...string)
-	Infof(format string, args ...string)
-	Errorf(format string, args ...string)
-	Debugf(format string, args ...string)
-	InfoWithCtx(ctx interface{}, args ...string)
-	ErrorWithCtx(ctx interface{}, args ...string)
-	DebugWithCtx(ctx interface{}, args ...string)
-	InfofWithCtxf(ctx interface{}, format string, args ...string)
-	ErrorfWithCtxf(ctx interface{}, format string, args ...string)
-	DebugfWithCtxf(ctx interface{}, format string, args ...string)
 }
