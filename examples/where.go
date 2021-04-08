@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/gohouse/gorose/v2"
 	"github.com/gohouse/gorose/v2/examples/dbobj"
 )
 
@@ -10,18 +9,19 @@ func main() {
 	var res interface{}
 	var err error
 	db := dbobj.Getdb()
-	res, err = db.Table("users").Insert(gorose.Data{"uid2": 222})
-	if err != nil {
-		fmt.Println("0 - err:", err.Error())
-	}
-	fmt.Println("0 - res:", res)
-	res, err = db.Reset().Table("users").Where("uid2", ">", 1).First()
+	res, err = db.Reset().Table("users").Get()
 	if err != nil {
 		fmt.Println("1 - err:", err.Error())
 	}
 	fmt.Println("1 - res:", res)
 
-	res, err = db.Reset().Table("users").Where("age", ">", 0).First()
+	res, err = db.Reset().Table("users").OrderBy("uid desc").Limit(1).Paginate(1)
+	if err != nil {
+		fmt.Println("2 - err:", err.Error())
+	}
+	fmt.Println("2 - res:", res)
+
+	res, err = db.Reset().Table("users").Where("age", ">", 0).Limit(1).Paginate(3)
 	if err != nil {
 		fmt.Println("2 - err:", err.Error())
 	}

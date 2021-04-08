@@ -2,9 +2,12 @@ package dbobj
 
 import (
 	"github.com/gohouse/gorose/v2"
-
 	_ "github.com/mattn/go-sqlite3"
 )
+
+func init() {
+	GetSqliteEngin()
+}
 
 func GetMysqlEngin() *gorose.Engin {
 	var err error
@@ -20,9 +23,9 @@ func GetMysqlEngin() *gorose.Engin {
 	return engin
 }
 
+var engin *gorose.Engin
 func GetSqliteEngin() *gorose.Engin {
 	var err error
-	var engin *gorose.Engin
 	engin, err = gorose.Open(&gorose.Config{
 		Driver: "sqlite3",
 		Dsn:    "./db.sqlite",
@@ -32,4 +35,8 @@ func GetSqliteEngin() *gorose.Engin {
 		panic(err.Error())
 	}
 	return engin
+}
+
+func Getdb() gorose.IOrm {
+	return engin.NewOrm()
 }

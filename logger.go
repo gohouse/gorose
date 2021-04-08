@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// LogLevel ...
+// LogLevel 日志级别
 type LogLevel uint
 
 const (
 	// LOG_SQL ...
-	LOG_SQL LogLevel = iota
+	LOG_SQL 	LogLevel = iota
 	// LOG_SLOW ...
 	LOG_SLOW
 	// LOG_ERROR ...
@@ -32,8 +32,8 @@ func (l LogLevel) String() string {
 
 // LogOption ...
 type LogOption struct {
-	FilePath     string
-	EnableSqlLog bool
+	FilePath     	string
+	EnableSqlLog 	bool
 	// 是否记录慢查询, 默认0s, 不记录, 设置记录的时间阀值, 比如 1, 则表示超过1s的都记录
 	EnableSlowLog  float64
 	EnableErrorLog bool

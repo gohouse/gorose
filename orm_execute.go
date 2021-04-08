@@ -106,8 +106,8 @@ func (dba *Orm) exec(operType string, data ...interface{}) (int64, error) {
 func (dba *Orm) Increment(args ...interface{}) (int64, error) {
 	argLen := len(args)
 	var field string
-	var mode string = "+"
-	var value string = "1"
+	var mode = "+"
+	var value = "1"
 	switch argLen {
 	case 1:
 		field = t.New(args[0]).String()

@@ -48,7 +48,7 @@ func TestOrm_BuildSql4(t *testing.T) {
 
 func TestOrm_BuildSql5(t *testing.T) {
 	//ticker := time.NewTicker(100*time.Millisecond)
-	go func() {
+	go func(t *testing.T) {
 		for {
 			//<-ticker.C
 			db := DB()
@@ -61,7 +61,7 @@ func TestOrm_BuildSql5(t *testing.T) {
 			t.Log(count, d)
 			t.Log(db.LastSql())
 		}
-	}()
+	}(t)
 	time.Sleep(500 * time.Millisecond)
 }
 

@@ -36,7 +36,7 @@ gorose 2.0 采用模块化架构, 通过interface的api通信,严格的上层依
 ## 安装
 - go.mod
 ```bash
-require github.com/gohouse/gorose/v2 v2.1.8
+require github.com/gohouse/gorose/v2 v2.1.10
 ```
 > 重要的事情说三遍!  
     重要的事情说三遍!  
@@ -191,6 +191,8 @@ fmt.Println(err)
 fmt.Println(u)
 fmt.Println(session.LastSql())
 ```
+> struct字段顺序需要跟`select *`内的表结构字段顺序一致(也可以手动指定要查询的字段), 具体原因参考 [https://github.com/gohouse/gorose/issues/136](https://github.com/gohouse/gorose/issues/136)  
+
 原生增删改操作
 ```go
 session.Execute("insert into users(name,age) values(?,?)(?,?)", "gorose",18,"fizzday",19)
@@ -205,6 +207,7 @@ db := engin.NewOrm()
 err := db.Table(&u).Fields("name").AddFields("uid","age").Distinct().Where("uid",">",0).OrWhere("age",18).
 	Group("age").Having("age>1").OrderBy("uid desc").Limit(10).Offset(1).Select()
 ```
+也可以使用`xxx.Limit().Page()`,这个是固定用法,`Page()`必须在`Limit()`后边
 - 2. 如果不想定义struct, 又想绑定指定类型的map结果, 则可以定义map类型, 如
 ```go
 type user gorose.Map

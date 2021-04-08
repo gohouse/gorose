@@ -34,7 +34,7 @@ func (b *BuilderDriver) Register(driver string, val IBuilder) {
 func (b *BuilderDriver) Getter(driver string) IBuilder {
 
 	//return b.builders[driver]
-	if v, ok := (b.b.Load(driver)); ok {
+	if v, ok := b.b.Load(driver); ok {
 		return v.(IBuilder)
 	}
 	return nil
