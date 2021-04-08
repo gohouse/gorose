@@ -231,7 +231,7 @@ func (dba *Orm) Pluck_bak(field string, fieldKey ...string) (v interface{}, err 
 	return
 }
 
-// Value is get a row of a field value
+// Type is get a row of a field value
 func (dba *Orm) Value(field string) (v interface{}, err error) {
 	res, err := dba.First()
 	if v, ok := res[field]; ok {
