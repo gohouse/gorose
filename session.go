@@ -100,13 +100,13 @@ func (s *Session) GetTableName() (string, error) {
 
 // Begin ...
 func (s *Session) Begin() (err error) {
+	s.SetTransaction(true)
 	if s.tx == nil {
 		s.tx, err = s.master.Begin()
 		s.tx_index = beginStatus
 	} else {
 		s.tx_index++
 	}
-	s.SetTransaction(true)
 	return
 }
 
@@ -131,7 +131,6 @@ func (s *Session) Commit() (err error) {
 			s.SetTransaction(false)
 			err = s.tx.Commit()
 			s.tx = nil
-
 		} else {
 			s.tx_index--
 		}
