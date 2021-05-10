@@ -12,6 +12,8 @@ github.com/gohouse/golib v0.0.0-20200312063614-067523159413 h1:3tNun2DPBEsxv4kCO
 github.com/gohouse/golib v0.0.0-20200312063614-067523159413/go.mod h1:80IWOo3CRajPn7UsEtJdFwYbJ0zs4Je5RNE4EfyR0BM=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79 h1:R5Zdy/CBTqppDoUCwH33RugxEe14TPJFr8JwqkNSJKQ=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79/go.mod h1:uvI6dMBJXJI1hR+0ZI/v7/NTVNpj7hSQhcCnGXjY/GI=
+github.com/gohouse/golib v0.0.0-20201013092821-ca87ab19b554 h1:AZYfIDGLgoEmbK17KOeliRP7Qc+VQFs3QksjCCAd//s=
+github.com/gohouse/golib v0.0.0-20201013092821-ca87ab19b554/go.mod h1:uvI6dMBJXJI1hR+0ZI/v7/NTVNpj7hSQhcCnGXjY/GI=
 github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c h1:IybZ8H8UTProCeixo0FQKreVaS9pd+xTPPPXRkZko2Y=
 github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c/go.mod h1:JZl4QiZrsKArORKRFgfwSiMpMR32C4pvTky0FlGs88U=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
