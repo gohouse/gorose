@@ -1,4 +1,4 @@
-module github.com/tobycroft/gorose/v2
+module github.com/gohouse/gorose/v2
 
 go 1.16
 
