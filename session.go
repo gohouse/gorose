@@ -217,8 +217,8 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 
 	var operType = strings.ToLower(sqlstring[0:6])
 	if operType == "select" {
-		s.GetIEngin().GetLogger().Error(err.Error())
 		err = errors.New("Execute does not allow select operations, please use Query")
+		s.GetIEngin().GetLogger().Error(err.Error())
 		return
 	}
 
