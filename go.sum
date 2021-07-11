@@ -8,12 +8,12 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/gohouse/e v0.0.3-rc.0.20200724104652-25ebf8c9c305/go.mod h1:1rpOAa2dVfkpkhb9vgH5XHcvyCh/NJCx1bkudcX/TcM=
-github.com/gohouse/golib v0.0.0-20200312063614-067523159413 h1:3tNun2DPBEsxv4kCO8hFoPrOg8ySsU13WWH2b+8H+A4=
 github.com/gohouse/golib v0.0.0-20200312063614-067523159413/go.mod h1:80IWOo3CRajPn7UsEtJdFwYbJ0zs4Je5RNE4EfyR0BM=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79 h1:R5Zdy/CBTqppDoUCwH33RugxEe14TPJFr8JwqkNSJKQ=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79/go.mod h1:uvI6dMBJXJI1hR+0ZI/v7/NTVNpj7hSQhcCnGXjY/GI=
-github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c h1:IybZ8H8UTProCeixo0FQKreVaS9pd+xTPPPXRkZko2Y=
 github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c/go.mod h1:JZl4QiZrsKArORKRFgfwSiMpMR32C4pvTky0FlGs88U=
+github.com/gohouse/t v0.0.0-20201007094014-630049a6bfe9 h1:dRFRgLiddQthn4ZJqDk/R1IaXc626TRqAZZYC6L7HGo=
+github.com/gohouse/t v0.0.0-20201007094014-630049a6bfe9/go.mod h1:kUDPW94gfrQKjvhhqW1l0rGCJ/1BUnhD4AIzdEmnI6M=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
