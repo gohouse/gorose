@@ -3,11 +3,12 @@ package gorose
 import (
 	"errors"
 	"fmt"
-	"github.com/gohouse/golib/structEngin"
-	"github.com/gohouse/t"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/gohouse/golib/structEngin"
+	"github.com/gohouse/t"
 )
 
 var operator = []string{"=", ">", "<", "!=", "<>", ">=", "<=", "like", "not like",
@@ -20,11 +21,11 @@ type BuilderDefault struct {
 	placeholder int
 	driver      string
 	bindValues  []interface{}
-	current IBuilder
+	current     IBuilder
 }
 
 // NewBuilderDefault 初始化
-func NewBuilderDefault(o IOrm,current IBuilder) *BuilderDefault {
+func NewBuilderDefault(o IOrm, current IBuilder) *BuilderDefault {
 	//onceBuilderDefault.Do(func() {
 	//	builderDefault = new(BuilderDefault)
 	//	builderDefault.operator = operator
@@ -118,6 +119,8 @@ func (b *BuilderDefault) BuildExecute(operType string) (sqlStr string, args []in
 
 	var where string
 	switch operType {
+	case "replace":
+		sqlStr = fmt.Sprintf("REPLACE INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 	case "insert":
 		sqlStr = fmt.Sprintf("INSERT INTO %s (%s) VALUES %s", b.BuildTable(), insertkey, insertval)
 	case "update":
@@ -275,14 +278,14 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		for _, key := range insertFields {
 			placeholder := b.GetPlaceholder()
 			if item[key] == nil {
-				if operType == "insert" {
+				if operType == "insert" || operType == "replace" {
 					// 放入占位符
 					insertValuesSub = append(insertValuesSub, placeholder)
 				}
 				// 保存真正的值为null
 				b.SetBindValues("null")
 			} else {
-				if operType == "insert" {
+				if operType == "insert" || operType == "replace" {
 					// 放入占位符
 					insertValuesSub = append(insertValuesSub, placeholder)
 				}
@@ -296,7 +299,7 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 	}
 	var tmpInsertFields = insertFields[:0]
-	for _,v := range insertFields {
+	for _, v := range insertFields {
 		tmpInsertFields = append(tmpInsertFields, b.current.AddFieldQuotes(v))
 	}
 	return strings.Join(dataObj, ","), strings.Join(tmpInsertFields, ","), strings.Join(insertValues, ",")

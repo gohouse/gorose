@@ -242,7 +242,7 @@ func (s *Session) Execute(sqlstring string, args ...interface{}) (rowsAffected i
 		return
 	}
 
-	if operType == "insert" {
+	if operType == "insert" || operType == "replace" {
 		// get last insert id
 		lastInsertId, err := result.LastInsertId()
 		if err == nil {

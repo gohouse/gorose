@@ -2,9 +2,15 @@ package gorose
 
 import (
 	"errors"
-	"github.com/gohouse/t"
 	"reflect"
+
+	"github.com/gohouse/t"
 )
+
+// Replace : replace data and get affected rows
+func (dba *Orm) Replace(data ...interface{}) (int64, error) {
+	return dba.exec("replace", data...)
+}
 
 // Insert : insert data and get affected rows
 func (dba *Orm) Insert(data ...interface{}) (int64, error) {

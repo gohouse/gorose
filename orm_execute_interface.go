@@ -4,6 +4,7 @@ package gorose
 type IOrmExecute interface {
 	GetForce() bool
 	// insert,insertGetId
+	Replace(data ...interface{}) (int64, error)
 	Insert(data ...interface{}) (int64, error)
 	InsertGetId(data ...interface{}) (int64, error)
 	Update(data ...interface{}) (int64, error)
