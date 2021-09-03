@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/leeyisoft/gorose/v2"
 	//_ "github.com/lib/pq"
 )
 
