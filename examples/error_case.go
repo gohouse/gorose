@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/gohouse/gorose/v2"
+	"github.com/gohouse/gorose/v2/examples/dbobj"
 )
 
 func main() {

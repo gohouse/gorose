@@ -4,6 +4,8 @@ import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"time"
+
+	"github.com/gohouse/gorose/v2"
 )
 
 var engin *gorose.Engin

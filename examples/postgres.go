@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/gohouse/gorose/v2"
 	//_ "github.com/lib/pq"
 )
 

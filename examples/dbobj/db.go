@@ -1,6 +1,7 @@
 package dbobj
 
 import (
+	"github.com/gohouse/gorose/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 

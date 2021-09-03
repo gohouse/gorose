@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
+	"github.com/gohouse/gorose/v2"
 )
 
 func initEngin() *gorose.Engin {
