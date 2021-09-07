@@ -155,7 +155,7 @@ func (s *Session) RollbackTo(savepoint string) (err error) {
 
 func (s *Session) SavePoint(savepoint string) (err error) {
 	if s.tx != nil && s.transaction == true {
-		_, err := s.tx.Exec("savepoint " + savepoint)
+		_, err = s.tx.Exec("savepoint " + savepoint)
 		if err != nil {
 			s.GetIEngin().GetLogger().Error(err.Error())
 			return
