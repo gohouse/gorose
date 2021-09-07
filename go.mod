@@ -1,4 +1,4 @@
-module github.com/gohouse/gorose/v2
+module github.com/tobycroft/gorose/v2
 
 go 1.17
 
@@ -7,3 +7,4 @@ require (
 	github.com/gohouse/t v0.0.0-20201007094014-630049a6bfe9
 	github.com/mattn/go-sqlite3 v1.10.0
 )
+
