@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"github.com/gohouse/t"
 	"reflect"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
-const beginStatus = 1
+const beginStatus = 0
 
 // Session ...
 type Session struct {
@@ -24,7 +26,7 @@ type Session struct {
 	lastSql      string
 	union        interface{}
 	transaction  bool
-	tx_index     int
+	tx_index     int64
 	err          error
 }
 
@@ -40,6 +42,8 @@ func NewSession(e IEngin) *Session {
 
 	s.master = e.GetExecuteDB()
 	s.slave = e.GetQueryDB()
+	//初始化数据
+	s.tx_index = beginStatus
 
 	return s
 }
@@ -103,9 +107,15 @@ func (s *Session) Begin() (err error) {
 	s.SetTransaction(true)
 	if s.tx == nil {
 		s.tx, err = s.master.Begin()
-		s.tx_index = beginStatus
 	} else {
-		s.tx_index++
+		num := atomic.LoadInt64(&s.tx_index)
+		err = s.SavePoint("sp_" + strconv.FormatInt(num, 10))
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		} else {
+			atomic.AddInt64(&s.tx_index, 1)
+		}
 	}
 	return
 }
@@ -113,12 +123,42 @@ func (s *Session) Begin() (err error) {
 // Rollback ...
 func (s *Session) Rollback() (err error) {
 	if s.tx != nil && s.transaction == true {
-		if s.tx_index == beginStatus {
+		if atomic.LoadInt64(&s.tx_index) == beginStatus {
 			s.SetTransaction(false)
 			err = s.tx.Rollback()
 			s.tx = nil
 		} else {
-			s.tx_index--
+			num := atomic.LoadInt64(&s.tx_index)
+			err = s.RollbackTo("sp_" + strconv.FormatInt(num, 10))
+			if err != nil {
+				s.GetIEngin().GetLogger().Error(err.Error())
+				return
+			} else {
+				atomic.AddInt64(&s.tx_index, -1)
+			}
+		}
+	}
+	return
+}
+
+// RollbackTo ...
+func (s *Session) RollbackTo(savepoint string) (err error) {
+	if s.tx != nil && s.transaction == true {
+		_, err = s.tx.Exec("rollback to " + savepoint)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
+		}
+	}
+	return
+}
+
+func (s *Session) SavePoint(savepoint string) (err error) {
+	if s.tx != nil && s.transaction == true {
+		_, err := s.tx.Exec("savepoint " + savepoint)
+		if err != nil {
+			s.GetIEngin().GetLogger().Error(err.Error())
+			return
 		}
 	}
 	return
@@ -127,12 +167,12 @@ func (s *Session) Rollback() (err error) {
 // Commit ...
 func (s *Session) Commit() (err error) {
 	if s.tx != nil {
-		if s.tx_index == beginStatus {
+		if atomic.LoadInt64(&s.tx_index) == beginStatus {
 			s.SetTransaction(false)
 			err = s.tx.Commit()
 			s.tx = nil
 		} else {
-			s.tx_index--
+			atomic.AddInt64(&s.tx_index, -1)
 		}
 	} else {
 		s.SetTransaction(false)
