@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gohouse/t"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/gohouse/t"
 )
 
 const beginStatus = 0
@@ -205,8 +206,8 @@ func (s *Session) Query(sqlstring string, args ...interface{}) (result []Data, e
 	start := time.Now()
 	//withRunTimeContext(func() {
 	if s.err != nil {
-		s.GetIEngin().GetLogger().Error(err.Error())
 		err = s.err
+		s.GetIEngin().GetLogger().Error(err.Error())
 	}
 	// 记录sqlLog
 	s.lastSql = fmt.Sprint(sqlstring, ", ", args)

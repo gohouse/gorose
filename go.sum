@@ -16,15 +16,12 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0 h1:EQciDnbrYxy13PgWoY8AqoxGiPrp
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/gohouse/e v0.0.3-rc.0.20200724104652-25ebf8c9c305 h1:wLaXYLITR034c39SArpd7Y3krD7F2qRx9qg9w59wvXM=
 github.com/gohouse/e v0.0.3-rc.0.20200724104652-25ebf8c9c305/go.mod h1:1rpOAa2dVfkpkhb9vgH5XHcvyCh/NJCx1bkudcX/TcM=
-github.com/gohouse/golib v0.0.0-20200312063614-067523159413 h1:3tNun2DPBEsxv4kCO8hFoPrOg8ySsU13WWH2b+8H+A4=
 github.com/gohouse/golib v0.0.0-20200312063614-067523159413/go.mod h1:80IWOo3CRajPn7UsEtJdFwYbJ0zs4Je5RNE4EfyR0BM=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79 h1:R5Zdy/CBTqppDoUCwH33RugxEe14TPJFr8JwqkNSJKQ=
 github.com/gohouse/golib v0.0.0-20200727025018-43fec7d17e79/go.mod h1:uvI6dMBJXJI1hR+0ZI/v7/NTVNpj7hSQhcCnGXjY/GI=
-github.com/gohouse/golib v0.0.0-20201013092821-ca87ab19b554 h1:AZYfIDGLgoEmbK17KOeliRP7Qc+VQFs3QksjCCAd//s=
-github.com/gohouse/golib v0.0.0-20201013092821-ca87ab19b554/go.mod h1:uvI6dMBJXJI1hR+0ZI/v7/NTVNpj7hSQhcCnGXjY/GI=
-github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c h1:IybZ8H8UTProCeixo0FQKreVaS9pd+xTPPPXRkZko2Y=
 github.com/gohouse/t v0.0.0-20200724104622-78e2ef6ec88c/go.mod h1:JZl4QiZrsKArORKRFgfwSiMpMR32C4pvTky0FlGs88U=
-github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
+github.com/gohouse/t v0.0.0-20201007094014-630049a6bfe9 h1:dRFRgLiddQthn4ZJqDk/R1IaXc626TRqAZZYC6L7HGo=
+github.com/gohouse/t v0.0.0-20201007094014-630049a6bfe9/go.mod h1:kUDPW94gfrQKjvhhqW1l0rGCJ/1BUnhD4AIzdEmnI6M=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1 h1:G5FRp8JnTd7RQH5kemVNlMeyXQAztQ3mOWV95KxsXH8=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
