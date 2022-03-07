@@ -19,3 +19,4 @@ glide.lock
 *.out
 *.sqlite
 *.log
+filter.sh
