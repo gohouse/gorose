@@ -150,6 +150,7 @@ func trans1(s ISession) error {
 
 	return nil
 }
+
 func trans2(s ISession) error {
 	var err error
 	var aff int64

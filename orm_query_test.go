@@ -31,6 +31,7 @@ func TestOrm_BuildSql4(t *testing.T) {
 	db := DB()
 	//var wheres interface{}
 	//wheres = [][]interface{}{{"a", ">", "b"},{"lock",1}}
+
 	wheres := Data{"lock": 1,"`date`": 1}
 	obj := db.Table(Users{}).Where(wheres).Where(func() {
 		db.Where("c", 2).OrWhere("lock", ">", 4)
@@ -47,7 +48,6 @@ func TestOrm_BuildSql4(t *testing.T) {
 }
 
 func TestOrm_BuildSql5(t *testing.T) {
-	//ticker := time.NewTicker(100*time.Millisecond)
 	go func(t *testing.T) {
 		for {
 			//<-ticker.C
