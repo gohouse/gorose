@@ -150,8 +150,8 @@ func TestOrm_Get2(t *testing.T) {
 	var u []Users2
 
 	res, err := db.Table("users").Where("uid", ">", 2).
-		//Where("1","=","1").
-		Where("1 = 1").
+		Where("1","=","1").
+		//Where("1 = 1").
 		Limit(2).Get()
 	//res, err := db.Table(&u).Where("uid", ">", 0).Limit(2).Get()
 	fmt.Println(db.LastSql())
