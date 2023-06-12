@@ -291,6 +291,11 @@ func (b *BuilderDefault) parseData(operType string, data []map[string]interface{
 			}
 			//insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
 			// update
+			// struct字段存在别名时，去掉别名
+			keySplits := strings.Split(key, ".")
+			if len(keySplits) == 2 {
+				key = keySplits[1]
+			}
 			dataObj = append(dataObj, fmt.Sprintf("%s = %s", b.current.AddFieldQuotes(key), placeholder))
 		}
 		insertValues = append(insertValues, "("+strings.Join(insertValuesSub, ",")+")")
