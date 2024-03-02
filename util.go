@@ -1,136 +1,203 @@
 package gorose
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/gohouse/t"
-	"log"
 	"math/rand"
-	"os"
-	"path"
 	"reflect"
+	"regexp"
+	"sort"
 	"strings"
-	"sync"
 	"time"
 )
 
-func getRandomInt(num int) int {
-	rand.Seed(time.Now().UnixNano())
+func init() {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+}
+func GetRandomInt(num int) int {
 	return rand.Intn(num)
 }
+func GetRandomWeightedIndex(weights []int) int {
+	if len(weights) == 0 {
+		return 0
+	}
+	if len(weights) == 1 {
+		return 0
+	}
+	totalWeight := 0
+	for _, w := range weights {
+		totalWeight += w
+	}
+	if totalWeight == 0 {
+		return rand.Intn(len(weights))
+	}
 
-func structForScan(u interface{}) []interface{} {
-	val := reflect.Indirect(reflect.ValueOf(u))
-	v := make([]interface{}, 0)
-	for i := 0; i < val.NumField(); i++ {
-		valueField := val.Field(i)
-		if val.Type().Field(i).Tag.Get(TAGNAME) != IGNORE {
-			if valueField.CanAddr() {
-				v = append(v, valueField.Addr().Interface())
-			} else {
-				//v[i] = valueField
-				v = append(v, valueField)
-			}
+	rnd := rand.Intn(totalWeight)
+
+	currentWeight := 0
+	for i, w := range weights {
+		currentWeight += w
+		if rnd < currentWeight {
+			return i
 		}
 	}
-	return v
+	return -1 // 如果权重都为 0，或者总权重为 0，则返回 -1
 }
 
-// StructToMap ...
-func StructToMap(obj interface{}) map[string]interface{} {
-	ty := reflect.TypeOf(obj)
-	v := reflect.ValueOf(obj)
+//////////// struct field ptr 4 orm helpers ////////////
 
-	var data = make(map[string]interface{})
-	for i := 0; i < ty.NumField(); i++ {
-		data[ty.Field(i).Name] = v.Field(i).Interface()
-	}
-	return data
+// PtrBool helper
+func PtrBool(arg bool) *bool {
+	return &arg
 }
 
-// getTagName 获取结构体中Tag的值，如果没有tag则返回字段值
-func getTagName(structName interface{}, tagstr string) []string {
-	// 获取type
-	tag := reflect.TypeOf(structName)
-	// 如果是反射Ptr类型, 就获取他的 element type
-	if tag.Kind() == reflect.Ptr {
-		tag = tag.Elem()
-	}
+// PtrString helper
+func PtrString(arg string) *string {
+	return &arg
+}
 
-	// 判断是否是struct
-	if tag.Kind() != reflect.Struct {
-		log.Println("Check type error not Struct")
-		return nil
-	}
-	// 获取字段数量
-	fieldNum := tag.NumField()
-	result := make([]string, 0, fieldNum)
-	for i := 0; i < fieldNum; i++ {
-		// tag 名字
-		tagName := tag.Field(i).Tag.Get(tagstr)
-		if tagName != IGNORE {
-			// tag为-时, 不解析
-			if tagName == "-" || tagName == "" {
-				// 字段名字
-				tagName = tag.Field(i).Name
-			}
-			result = append(result, tagName)
+// PtrInt helper
+func PtrInt(arg int) *int {
+	return &arg
+}
+
+// PtrInt8 helper
+func PtrInt8(arg int8) *int8 {
+	return &arg
+}
+
+// PtrInt16 helper
+func PtrInt16(arg int16) *int16 {
+	return &arg
+}
+
+// PtrInt64 helper
+func PtrInt64(arg int64) *int64 {
+	return &arg
+}
+
+// PtrFloat64 helper
+func PtrFloat64(arg float64) *float64 {
+	return &arg
+}
+
+// PtrTime helper
+func PtrTime(arg time.Time) *time.Time {
+	return &arg
+}
+
+//////////// sql.Null* type helpers ////////////
+
+// NullInt64From helper
+func NullInt64From(arg int64) sql.NullInt64 { return sql.NullInt64{Int64: arg, Valid: true} }
+
+// NullInt32From helper
+func NullInt32From(arg int32) sql.NullInt32 { return sql.NullInt32{Int32: arg, Valid: true} }
+
+// NullInt16From helper
+func NullInt16From(arg int16) sql.NullInt16 { return sql.NullInt16{Int16: arg, Valid: true} }
+
+// NullByteFrom helper
+func NullByteFrom(arg byte) sql.NullByte { return sql.NullByte{Byte: arg, Valid: true} }
+
+// NullFloat64From helper
+func NullFloat64From(arg float64) sql.NullFloat64 { return sql.NullFloat64{Float64: arg, Valid: true} }
+
+// NullBoolFrom helper
+func NullBoolFrom(arg bool) sql.NullBool { return sql.NullBool{Bool: arg, Valid: true} }
+
+// NullTimeFrom helper
+func NullTimeFrom(arg time.Time) sql.NullTime { return sql.NullTime{Time: arg, Valid: true} }
+
+func ToSlice(arg any) []any {
+	ref := reflect.Indirect(reflect.ValueOf(arg))
+	var res []any
+	switch ref.Kind() {
+	case reflect.Slice:
+		l := ref.Len()
+		v := ref.Slice(0, l)
+		for i := 0; i < l; i++ {
+			res = append(res, v.Index(i).Interface())
 		}
+	default:
+		res = append(res, ref.Interface())
 	}
-	return result
+	return res
 }
-
-// If : ternary operator (三元运算)
-// condition:比较运算
-// trueVal:运算结果为真时的值
-// falseVal:运算结果为假时的值
-// return: 由于不知道传入值的类型, 所有, 必须在接收结果时, 指定对应的值类型
-func If(condition bool, trueVal, falseVal interface{}) interface{} {
-	if condition {
-		return trueVal
+func ToSliceAddressable(arg any) []any {
+	ref := reflect.Indirect(reflect.ValueOf(arg))
+	var res []any
+	switch ref.Kind() {
+	case reflect.Slice:
+		l := ref.Len()
+		v := ref.Slice(0, l)
+		for i := 0; i < l; i++ {
+			res = append(res, v.Index(i).Addr().Interface())
+		}
+	default:
+		res = append(res, ref.Addr().Interface())
 	}
-	return falseVal
+	return res
 }
-
-func addQuotes(data interface{}, sep string) string {
-	ret := t.New(data).String()
-	ret = strings.Replace(ret, `\`, `\\`, -1)
-	ret = strings.Replace(ret, `"`, `\"`, -1)
-	ret = strings.Replace(ret, `'`, `\'`, -1)
-	return fmt.Sprintf("%s%s%s", sep, ret, sep)
-}
-
-// InArray :给定元素值 是否在 指定的数组中
-func inArray(needle, hystack interface{}) bool {
-	nt := t.New(needle)
-	for _, item := range t.New(hystack).Slice() {
-		if strings.ToLower(nt.String()) == strings.ToLower(item.String()) {
+func SliceContains(haystack []string, needle string) bool {
+	for _, v := range haystack {
+		if v == needle {
 			return true
 		}
 	}
 	return false
 }
-
-func withLockContext(fn func()) {
-	var mu sync.Mutex
-	mu.Lock()
-	defer mu.Unlock()
-	fn()
-}
-
-func withRunTimeContext(closer func(), callback func(time.Duration)) {
-	// 记录开始时间
-	start := time.Now()
-	closer()
-	timeduration := time.Since(start)
-	//log.Println("执行完毕,用时:", timeduration.Seconds(),timeduration.Seconds()>1.1)
-	callback(timeduration)
-}
-
-func readFile(filepath string) *os.File {
-	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil && os.IsNotExist(err) {
-		_ = os.MkdirAll(path.Dir(filepath), os.ModePerm)
-		file, _ = os.Create(filepath)
+func Map[Data any, Datas ~[]Data, Result any](datas Datas, mapper func(Data) Result) []Result {
+	results := make([]Result, 0, len(datas))
+	for _, data := range datas {
+		results = append(results, mapper(data))
 	}
-	return file
+	return results
+}
+
+func NamedSprintf(format string, a ...any) string {
+	return strings.TrimSpace(regexp.MustCompile(`\s{2,}`).ReplaceAllString(fmt.Sprintf(regexp.MustCompile(`:\w+`).ReplaceAllString(format, "%s"), a...), " "))
+}
+
+func BackQuotes(arg any) string {
+	var tmp []string
+	if v, ok := arg.(string); ok {
+		split := strings.Split(v, " ")
+		split2 := strings.Split(split[0], ".")
+		if len(split2) > 1 {
+			if split2[1] == "*" {
+				tmp = append(tmp, fmt.Sprintf("`%s`.%s", split2[0], split2[1]))
+			} else {
+				tmp = append(tmp, fmt.Sprintf("`%s`.`%s`", split2[0], split2[1]))
+			}
+		} else {
+			tmp = append(tmp, fmt.Sprintf("`%s`", split2[len(split2)-1]))
+		}
+		tmp = append(tmp, split[1:]...)
+	}
+	return strings.Join(tmp, " ")
+}
+
+func SortedMapKeys(data any) (cols []string) {
+	// 从 map 中获取所有的键，并转换为切片
+	keys := reflect.ValueOf(data).MapKeys()
+
+	// 对切片进行排序
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].String() < keys[j].String()
+	})
+
+	// 输出排序后的结果
+	for _, key := range keys {
+		cols = append(cols, key.String())
+	}
+	return
+}
+
+func IsExpression(obj any) (b bool) {
+	rfv := reflect.Indirect(reflect.ValueOf(obj))
+	if rfv.Kind() == reflect.String && strings.Contains(rfv.String(), "?") {
+		b = true
+	}
+	return
 }

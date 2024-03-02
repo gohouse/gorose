@@ -1,20 +1,59 @@
 package gorose
 
-// Config ...
+import (
+	"database/sql"
+	"time"
+)
+
 type Config struct {
-	Driver string `json:"driver"` // 驱动: mysql/sqlite3/oracle/mssql/postgres/clickhouse, 如果集群配置了驱动, 这里可以省略
-	// mysql 示例:
-	// root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true
-	Dsn             string `json:"dsn"`             // 数据库链接
-	SetMaxOpenConns int    `json:"setMaxOpenConns"` // (连接池)最大打开的连接数，默认值为0表示不限制
-	SetMaxIdleConns int    `json:"setMaxIdleConns"` // (连接池)闲置的连接数, 默认0
-	Prefix          string `json:"prefix"`          // 表前缀, 如果集群配置了前缀, 这里可以省略
+	Driver          string
+	DSN             string
+	Prefix          string
+	Weight          int8 // 权重越高,选中的概率越大
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime time.Duration
+	ConnMaxIdleTime time.Duration
 }
 
-// ConfigCluster ...
 type ConfigCluster struct {
-	Master []Config // 主
-	Slave  []Config // 从
-	Driver string   // 驱动
-	Prefix string   // 前缀
+	WriteConf []Config
+	ReadConf  []Config
+}
+
+//type ConfigMulti map[string]ConfigCluster
+
+func (c ConfigCluster) init() (master []*sql.DB, slave []*sql.DB) {
+	if len(c.WriteConf) > 0 {
+		for _, v := range c.WriteConf {
+			master = append(master, c.initDB(&v))
+		}
+	}
+	if len(c.ReadConf) > 0 {
+		for _, v := range c.ReadConf {
+			slave = append(master, c.initDB(&v))
+		}
+	}
+	return
+}
+func (c ConfigCluster) initDB(v *Config) *sql.DB {
+	db, err := sql.Open(v.Driver, v.DSN)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if v.MaxIdleConns > 0 {
+		db.SetMaxIdleConns(v.MaxIdleConns)
+	}
+	if v.MaxOpenConns > 0 {
+		db.SetMaxOpenConns(v.MaxOpenConns)
+	}
+	if v.ConnMaxLifetime > 0 {
+		db.SetConnMaxLifetime(v.ConnMaxLifetime)
+	}
+	if v.ConnMaxIdleTime > 0 {
+		db.SetConnMaxIdleTime(v.ConnMaxIdleTime)
+	}
+
+	return db
 }

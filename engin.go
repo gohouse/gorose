@@ -2,243 +2,231 @@ package gorose
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
+	"reflect"
 )
 
-// TAGNAME ...
-var TAGNAME = "gorose"
 
-// IGNORE ...
-var IGNORE = "-"
-
-type cluster struct {
-	master     []*sql.DB
-	masterSize int
-	slave      []*sql.DB
-	slaveSize  int
-}
-
-// Engin ...
 type Engin struct {
-	config *ConfigCluster
-	driver string
-	prefix string
-	dbs    *cluster
-	logger ILogger
+	*GoRose
+	tx            *sql.Tx
+	autoSavePoint uint8
 }
 
-var _ IEngin = (*Engin)(nil)
+func NewEngin(g *GoRose) *Engin {
+	return &Engin{g, nil, 0}
+}
 
-// NewEngin : init Engin struct pointer
-// NewEngin : 初始化 Engin 结构体对象指针
-func NewEngin(conf ...interface{}) (e *Engin, err error) {
-	engin := new(Engin)
-	if len(conf) == 0 {
+func (s *Engin) execute(query string, args ...any) (int64, error) {
+	exec, err := s.Exec(query, args...)
+	if err != nil {
+		return 0, err
+	}
+	return exec.RowsAffected()
+}
+func (s *Engin) Exec(query string, args ...any) (sql.Result, error) {
+	if s.tx != nil {
+		return s.tx.Exec(query, args...)
+	}
+	return s.MasterDB().Exec(query, args...)
+}
+func (s *Engin) Begin() (err error) {
+	if s.tx != nil {
+		s.autoSavePoint += 1
+		return s.SavePoint(s.autoSavePoint)
+	}
+	s.tx, err = s.MasterDB().Begin()
+	return
+}
+func (s *Engin) SavePoint(name any) (err error) {
+	_, err = s.tx.Exec("SAVEPOINT ?", name)
+	return
+}
+func (s *Engin) RollbackTo(name any) (err error) {
+	_, err = s.tx.Exec("ROLLBACK TO ?", name)
+	return
+}
+func (s *Engin) Rollback() (err error) {
+	if s.autoSavePoint > 0 {
+		// decrease in advance whether rollbackTo fail
+		currentPoint := s.autoSavePoint
+		s.autoSavePoint -= 1
+		return s.RollbackTo(currentPoint)
+	}
+	err = s.tx.Rollback()
+	if err != nil {
 		return
 	}
+	s.tx = nil
+	return
+}
+func (s *Engin) Commit() (err error) {
+	if s.autoSavePoint > 0 {
+		s.autoSavePoint -= 1
+		return
+	}
+	err = s.tx.Commit()
+	if err != nil {
+		return
+	}
+	s.tx = nil
+	return
+}
+func (s *Engin) Transaction(closure ...func(*Engin) error) (err error) {
+	if err = s.Begin(); err != nil {
+		return
+	}
+	for _, v := range closure {
+		err = v(s)
+		if err != nil {
+			return s.Rollback()
+		}
+	}
+	return s.Commit()
+}
 
-	// 使用默认的log, 如果自定义了logger, 则只需要调用 Use() 方法即可覆盖
-	engin.Use(DefaultLogger())
+func (s *Engin) Query(query string, args ...any) (rows *sql.Rows, err error) {
+	if s.tx != nil {
+		return s.tx.Query(query, args...)
+	} else {
+		return s.SlaveDB().Query(query, args...)
+	}
+}
 
-	switch conf[0].(type) {
-	// 传入的是单个配置
-	case *Config:
-		err = engin.bootSingle(conf[0].(*Config))
-	// 传入的是集群配置
-	case *ConfigCluster:
-		engin.config = conf[0].(*ConfigCluster)
-		err = engin.bootCluster()
+func (s *Engin) QueryRow(query string, args ...any) *sql.Row {
+	if s.tx != nil {
+		return s.tx.QueryRow(query, args...)
+	} else {
+		return s.SlaveDB().QueryRow(query, args...)
+	}
+}
+func (s *Engin) QueryTo(bind any, query string, args ...any) (err error) {
+	var rows *sql.Rows
+	if rows, err = s.Query(query, args...); err != nil {
+		return
+	}
+	return s.rowsToBind(rows, bind)
+}
+func (s *Engin) rowsToBind(rows *sql.Rows, bind any) (err error) {
+	rfv := reflect.Indirect(reflect.ValueOf(bind))
+	switch rfv.Kind() {
+	case reflect.Slice:
+		switch rfv.Type().Elem().Kind() {
+		case reflect.Map:
+			return s.rowsToMap(rows, rfv)
+		case reflect.Struct:
+			return s.rowsToStruct(rows, rfv)
+		default:
+			return errors.New("only struct(slice) or map(slice) supported")
+		}
+	case reflect.Map:
+		return s.rowsToMap(rows, rfv)
+	case reflect.Struct:
+		return s.rowsToStruct(rows, rfv)
 	default:
-		panic(fmt.Sprint("Open() need *gorose.Config or *gorose.ConfigCluster param, also can empty for build sql string only, but ",
-			conf, " given"))
-	}
-
-	return engin, err
-}
-
-// Use ...
-func (c *Engin) Use(closers ...func(e *Engin)) {
-	for _, closer := range closers {
-		closer(c)
+		return errors.New("only struct(slice) or map(slice) supported")
 	}
 }
 
-// Ping ...
-func (c *Engin) Ping() error {
-	//for _,item := range c.dbs.master {
-	//
-	//}
-	return c.GetQueryDB().Ping()
-}
+func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
+	//FieldTag, FieldStruct, _ := structsParse(rfv)
+	FieldTag, FieldStruct, _ := structsTypeParse(rfv.Type())
 
-// TagName 自定义结构体对应的orm字段,默认gorose
-func (c *Engin) TagName(arg string) {
-	//c.tagName = arg
-	TAGNAME = arg
-}
+	defer rows.Close()
 
-// IgnoreName 自定义结构体对应的orm忽略字段名字,默认-
-func (c *Engin) IgnoreName(arg string) {
-	//c.ignoreName = arg
-	IGNORE = arg
-}
-
-// SetPrefix 设置表前缀
-func (c *Engin) SetPrefix(pre string) {
-	c.prefix = pre
-}
-
-// GetPrefix 获取前缀
-func (c *Engin) GetPrefix() string {
-	return c.prefix
-}
-
-// GetDriver ...
-func (c *Engin) GetDriver() string {
-	return c.driver
-}
-
-// GetQueryDB : get a slave db for using query operation
-// GetQueryDB : 获取一个从库用来做查询操作
-func (c *Engin) GetQueryDB() *sql.DB {
-	if c.dbs.slaveSize == 0 {
-		return c.GetExecuteDB()
+	columns, err := rows.Columns()
+	if err != nil {
+		return err
 	}
-	var randint = getRandomInt(c.dbs.slaveSize)
-	return c.dbs.slave[randint]
-}
 
-// GetExecuteDB : get a master db for using execute operation
-// GetExecuteDB : 获取一个主库用来做查询之外的操作
-func (c *Engin) GetExecuteDB() *sql.DB {
-	if c.dbs.masterSize == 0 {
-		return nil
-	}
-	var randint = getRandomInt(c.dbs.masterSize)
-	return c.dbs.master[randint]
-}
+	// 列的个数
+	count := len(columns)
 
-// GetLogger ...
-func (c *Engin) GetLogger() ILogger {
-	return c.logger
-}
-
-// SetLogger ...
-func (c *Engin) SetLogger(lg ILogger) {
-	c.logger = lg
-}
-
-func (c *Engin) bootSingle(conf *Config) error {
-	// 如果传入的是单一配置, 则转换成集群配置, 方便统一管理
-	var cc = new(ConfigCluster)
-	cc.Master = append(cc.Master, *conf)
-	c.config = cc
-	return c.bootCluster()
-}
-
-func (c *Engin) bootCluster() error {
-	//fmt.Println(len(c.config.Slave))
-	if len(c.config.Slave) > 0 {
-		for _, item := range c.config.Slave {
-			if c.config.Driver != "" {
-				item.Driver = c.config.Driver
-			}
-			if c.config.Prefix != "" {
-				item.Prefix = c.config.Prefix
-			}
-			db, err := c.bootReal(item)
-			if err != nil {
-				return err
-			}
-			if c.dbs == nil {
-				c.dbs = new(cluster)
-			}
-			c.dbs.slave = append(c.dbs.slave, db)
-			c.dbs.slaveSize++
-			c.driver = item.Driver
+	for rows.Next() {
+		// 要先扫描到map, 再做字段比对, 因为这里不确定具体字段数量
+		// 主要针对 select * 或者直接sql语句
+		//todo 如果是由struct转换而来, 可以新开一个方法, 不需要做转换比对过程
+		entry, err := s.rowsToMapSingle(rows, columns, count)
+		if err != nil {
+			return err
 		}
-	}
-	var pre, dr string
-	if len(c.config.Master) > 0 {
-		for _, item := range c.config.Master {
-			if c.config.Driver != "" {
-				item.Driver = c.config.Driver
-			}
-			if c.config.Prefix != "" {
-				item.Prefix = c.config.Prefix
-			}
-			db, err := c.bootReal(item)
 
-			if err != nil {
-				return err
+		if rfv.Kind() == reflect.Slice {
+			rfvItem := reflect.Indirect(reflect.New(rfv.Type().Elem()))
+			for i, key := range FieldTag {
+				if v, ok := entry[key]; ok {
+					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(v))
+				}
 			}
-			if c.dbs == nil {
-				c.dbs = new(cluster)
+			rfv.Set(reflect.Append(rfv, rfvItem))
+		} else {
+			for i, key := range FieldTag {
+				if v, ok := entry[key]; ok {
+					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(v))
+				}
 			}
-			c.dbs.master = append(c.dbs.master, db)
-			c.dbs.masterSize = c.dbs.masterSize + 1
-			c.driver = item.Driver
-			//fmt.Println(c.dbs.masterSize)
-			if item.Prefix != "" {
-				pre = item.Prefix
-			}
-			if item.Driver != "" {
-				dr = item.Driver
-			}
+			//rfv.Set(entry)
 		}
-	}
-	// 如果config没有设置prefix,且configcluster设置了prefix,则使用cluster的prefix
-	if pre != "" && c.prefix == "" {
-		c.prefix = pre
-	}
-	// 如果config没有设置driver,且configcluster设置了driver,则使用cluster的driver
-	if dr != "" && c.driver == "" {
-		c.driver = dr
 	}
 
 	return nil
 }
 
-// boot sql driver
-func (c *Engin) bootReal(dbConf Config) (db *sql.DB, err error) {
-	//db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8mb4")
-	// 开始驱动
-	db, err = sql.Open(dbConf.Driver, dbConf.Dsn)
+func (s *Engin) rowsToMapSingle(rows *sql.Rows, columns []string, count int) (entry map[string]any, err error) {
+	// 一条数据的各列的值（需要指定长度为列的个数，以便获取地址）
+	values := make([]any, count)
+	// 一条数据的各列的值的地址
+	valPointers := make([]any, count)
+	// 获取各列的值的地址
+	for i := 0; i < count; i++ {
+		valPointers[i] = &values[i]
+	}
+	// 获取各列的值，放到对应的地址中
+	err = rows.Scan(valPointers...)
 	if err != nil {
 		return
 	}
+	// 一条数据的Map (列名和值的键值对)
+	entry = make(map[string]any)
 
-	// 检查是否可以ping通
-	err = db.Ping()
-	if err != nil {
-		return
+	// Map 赋值
+	for i, col := range columns {
+		var v any
+		// 值复制给val(所以Scan时指定的地址可重复使用)
+		val := values[i]
+		b, ok := val.([]byte)
+		if ok {
+			// 字符切片转为字符串
+			v = string(b)
+		} else {
+			v = val
+		}
+		entry[col] = v
 	}
-
-	// 连接池设置
-	if dbConf.SetMaxOpenConns > 0 {
-		db.SetMaxOpenConns(dbConf.SetMaxOpenConns)
-	}
-	if dbConf.SetMaxIdleConns > 0 {
-		db.SetMaxIdleConns(dbConf.SetMaxIdleConns)
-	}
-
 	return
 }
 
-// NewSession 获取session实例
-// 这是一个语法糖, 为了方便使用(engin.NewSession())添加的
-// 添加后会让engin和session耦合, 如果不想耦合, 就删掉此方法
-// 删掉这个方法后,可以使用 gorose.NewSession(gorose.IEngin)
-// 通过 gorose.IEngin 依赖注入的方式, 达到解耦的目的
-func (c *Engin) NewSession() ISession {
-	return NewSession(c)
-}
+func (s *Engin) rowsToMap(rows *sql.Rows, rfv reflect.Value) error {
+	defer rows.Close()
 
-// NewOrm 获取orm实例
-// 这是一个语法糖, 为了方便使用(engin.NewOrm())添加的
-// 添加后会让engin和 orm 耦合, 如果不想耦合, 就删掉此方法
-// 删掉这个方法后,可以使用 gorose.NewOrm(gorose.NewSession(gorose.IEngin))
-// 通过 gorose.ISession 依赖注入的方式, 达到解耦的目的
-func (c *Engin) NewOrm() IOrm {
-	return NewOrm(c)
+	columns, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+
+	// 列的个数
+	count := len(columns)
+
+	for rows.Next() {
+		entry, err := s.rowsToMapSingle(rows, columns, count)
+		if err != nil {
+			return err
+		}
+		if rfv.Kind() == reflect.Slice {
+			rfv.Set(reflect.Append(rfv, reflect.ValueOf(entry)))
+		} else {
+			rfv.Set(reflect.ValueOf(entry))
+		}
+	}
+	return nil
 }
