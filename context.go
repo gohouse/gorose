@@ -10,7 +10,8 @@ type Context struct {
 	OrderByClause     *OrderByClause
 	LimitOffsetClause *LimitOffsetClause
 
-	Prefix            string
+	PessimisticLocking string
+	Prefix             string
 }
 
 func NewContext(prefix string) *Context {

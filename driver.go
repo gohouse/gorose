@@ -9,6 +9,7 @@ type Bindings struct {
 	err         error
 	bindings    []any
 }
+
 type IDriver interface {
 	ToSql(c *Context) (sql4prepare string, binds []any, err error)
 	ToSqlIncDec(c *Context, symbol string, data map[string]any) (sql4prepare string, values []any, err error)

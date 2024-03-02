@@ -135,3 +135,57 @@ func (db *Database) Page(num int) *Database {
 	db.Context.LimitOffsetClause.Page = num
 	return db
 }
+
+// SharedLock 4 select ... locking in share mode
+func (db *Database) SharedLock() *Database {
+	db.Context.PessimisticLocking = "LOCK IN SHARE MODE"
+	return db
+}
+
+// LockForUpdate 4 select ... for update
+func (db *Database) LockForUpdate() *Database {
+	db.Context.PessimisticLocking = "FOR UPDATE"
+	return db
+}
+
+// Get 获取查询结果集。
+//
+// columns: 要获取的列名数组，如果不提供，则获取所有列。
+func (db *Database) Get(columns ...string) (res []map[string]any, err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.Select(columns...).ToSql()
+	if err != nil {
+		return
+	}
+
+	err = db.queryToBindResult(&res, prepare, binds...)
+	return
+}
+func (db *Database) First(columns ...string) (res map[string]any, err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.Select(columns...).Limit(1).ToSql()
+	if err != nil {
+		return
+	}
+
+	res = make(map[string]any)
+	err = db.queryToBindResult(&res, prepare, binds...)
+	return
+}
+func (db *Database) Find(id int) (res map[string]any, err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.Where("id", id).Limit(1).ToSql()
+	if err != nil {
+		return
+	}
+
+	res = make(map[string]any)
+	err = db.queryToBindResult(&res, prepare, binds...)
+	return
+}
+func (db *Database) queryToBindResult(bind any, query string, args ...any) (err error) {
+	return db.Engin.QueryTo(bind, query, args...)
+}
