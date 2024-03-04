@@ -11,15 +11,14 @@ type Bindings struct {
 }
 
 type IDriver interface {
-	//ToSqlIncDec(c *Context, symbol string, data map[string]any) (sql4prepare string, values []any, err error)
-
-	ToSql(c *Context) (sql4prepare string, binds []any, err error)
 	ToSqlSelect(c *Context) (sql4prepare string, binds []any)
 	ToSqlTable(c *Context) (sql4prepare string, values []any, err error)
 	ToSqlJoin(c *Context) (sql4prepare string, binds []any, err error)
 	ToSqlWhere(c *Context) (sql4prepare string, values []any, err error)
 	ToSqlOrderBy(c *Context) (sql4prepare string)
 	ToSqlLimitOffset(c *Context) (sqlSegment string, binds []any)
+
+	ToSql(c *Context) (sql4prepare string, binds []any, err error)
 	ToSqlInsert(c *Context, obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error)
 	ToSqlUpdate(c *Context, arg any) (sqlSegment string, binds []any, err error)
 	ToSqlDelete(c *Context, obj any) (sqlSegment string, binds []any, err error)

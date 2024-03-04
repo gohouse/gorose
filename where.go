@@ -13,22 +13,18 @@ type IWhere interface {
 	OrWhere(column any, args ...any) IWhere
 	WhereRaw(raw string, bindingsAndBoolean ...any) IWhere
 	OrWhereRaw(sqlSeg string, bindingsAndBoolean ...any) IWhere
-
 	WhereBetween(column string, values any) IWhere
 	OrWhereBetween(column string, values any) IWhere
 	WhereNotBetween(column string, values any) IWhere
 	OrWhereNotBetween(column string, values any) IWhere
-
 	WhereIn(column string, values any) IWhere
 	OrWhereIn(column string, values any) IWhere
 	WhereNotIn(column string, values any) IWhere
 	OrWhereNotIn(column string, values any) IWhere
-
 	WhereNull(column string) IWhere
 	OrWhereNull(column string) IWhere
 	WhereNotNull(column string) IWhere
 	OrWhereNotNull(column string) IWhere
-
 	WhereLike(column string, value string) IWhere
 	OrWhereLike(column string, value string) IWhere
 	WhereNotLike(column string, value string) IWhere
