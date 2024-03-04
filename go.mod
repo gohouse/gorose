@@ -1,3 +1,3 @@
-module github.com/gohouse/gorose
+module github.com/gohouse/gorose/v3
 
-go 1.21.5
+go 1.21

@@ -19,8 +19,8 @@ type IBuilder interface {
 	ToSqlIncDec(symbol string, data map[string]any) (sql4prepare string, values []any, err error)
 }
 type Database struct {
+	*Engin
 	Driver  *Driver
-	Engin   *Engin
 	Context *Context
 }
 
