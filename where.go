@@ -34,8 +34,8 @@ type IWhere interface {
 	WhereNotLike(column string, value string) IWhere
 	OrWhereNotLike(column string, value string) IWhere
 
-	WhereExists(clause IDriver) IWhere
-	WhereNotExists(clause IDriver) IWhere
+	WhereExists(clause IBuilder) IWhere
+	WhereNotExists(clause IBuilder) IWhere
 }
 
 // WhereClause 存储所有WHERE条件 ///////////////////start
@@ -57,7 +57,7 @@ type TypeWhereSubQuery struct {
 	LogicalOp string
 	Column    string
 	Operator  string
-	SubQuery  IDriver
+	SubQuery  IBuilder
 }
 type TypeWhereStandard struct {
 	LogicalOp string
@@ -78,7 +78,7 @@ type TypeWhereBetween struct {
 	Value     any
 }
 type TypeWhereExists struct {
-	IDriver
+	IBuilder
 	Not bool
 }
 
@@ -237,7 +237,7 @@ func (w *WhereClause) where(boolean string, column any, args ...any) IWhere {
 					w.addTypeWhereBetween(args[2].(string), column.(string), args[0].(string), ToSlice(args[1]))
 				}
 			}
-		} else if builder, ok := args[1].(IDriver); ok {
+		} else if builder, ok := args[1].(IBuilder); ok {
 			w.addTypeWhereSubQuery(args[2].(string), column.(string), args[0].(string), builder)
 		} else {
 			w.addTypeWhereStandard(args[2].(string), column.(string), args[0].(string), args[1])
@@ -333,16 +333,17 @@ func (w *WhereClause) OrWhereNotLike(column string, value string) IWhere {
 func (w *WhereClause) whereLike(relation string, column string, value string, not ...bool) IWhere {
 	if len(not) > 0 && not[0] {
 		return w.addTypeWhereStandard(relation, column, "NOT LIKE", value)
+	} else {
+		return w.addTypeWhereStandard(relation, column, "LIKE", value)
 	}
-	return w.addTypeWhereStandard(relation, column, "LIKE", value)
 }
 
 // WhereExists 使用WHERE EXISTS子查询条件。
 //
-// clause: Database 语句,或者实现了 IDriver.ToSql() 接口的对象
-func (w *WhereClause) WhereExists(clause IDriver) IWhere    { return w.whereExists(clause, false) }
-func (w *WhereClause) WhereNotExists(clause IDriver) IWhere { return w.whereExists(clause, true) }
-func (w *WhereClause) whereExists(clause IDriver, not ...bool) IWhere {
+// clause: Database 语句,或者实现了 IBuilder.ToSql() 接口的对象
+func (w *WhereClause) WhereExists(clause IBuilder) IWhere    { return w.whereExists(clause, false) }
+func (w *WhereClause) WhereNotExists(clause IBuilder) IWhere { return w.whereExists(clause, true) }
+func (w *WhereClause) whereExists(clause IBuilder, not ...bool) IWhere {
 	var b bool
 	if len(not) > 0 {
 		b = not[0]
@@ -364,7 +365,7 @@ func (w *WhereClause) addTypeWhereNested(boolean string, value func(where IWhere
 	w.Conditions = append(w.Conditions, TypeWhereNested{LogicalOp: boolean, Column: value})
 	return w
 }
-func (w *WhereClause) addTypeWhereSubQuery(boolean string, column string, operator string, value IDriver) *WhereClause {
+func (w *WhereClause) addTypeWhereSubQuery(boolean string, column string, operator string, value IBuilder) *WhereClause {
 	w.Conditions = append(w.Conditions, TypeWhereSubQuery{LogicalOp: boolean, Column: column, Operator: operator, SubQuery: value})
 	return w
 }

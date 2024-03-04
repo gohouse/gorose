@@ -5,13 +5,12 @@ import (
 	"math"
 )
 
-
 type GoRose struct {
-	Cluster *ConfigCluster
-	master  []*sql.DB
-	slave   []*sql.DB
-	driver  string
-	prefix  string
+	Cluster  *ConfigCluster
+	master   []*sql.DB
+	slave    []*sql.DB
+	driver   string
+	prefix   string
 	handlers HandlersChain
 }
 
@@ -115,6 +114,6 @@ func (g *GoRose) NewDatabase() *Database {
 	return NewDatabase(g)
 }
 
-func (g *GoRose) NewSession() *Engin {
+func (g *GoRose) NewEngin() *Engin {
 	return NewEngin(g)
 }

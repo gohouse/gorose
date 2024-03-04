@@ -57,10 +57,10 @@ func (db *Database) OrWhereNotBetween(column string, value any) *Database {
 	db.Context.WhereClause.whereBetween("OR", column, value, true)
 	return db
 }
-func (db *Database) WhereExists(clause IDriver) {
+func (db *Database) WhereExists(clause IBuilder) {
 	db.Context.WhereClause.WhereExists(clause)
 }
-func (db *Database) WhereNotExists(clause IDriver) {
+func (db *Database) WhereNotExists(clause IBuilder) {
 	db.Context.WhereClause.WhereNotExists(clause)
 }
 func (db *Database) WhereLike(column, value string) *Database {

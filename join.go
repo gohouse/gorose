@@ -25,7 +25,7 @@ type JoinClause struct {
 
 // TypeJoinSub 描述JOIN操作
 type TypeJoinSub struct {
-	IDriver
+	IBuilder
 }
 type TypeJoinStandard struct {
 	TableClause
@@ -49,6 +49,31 @@ type TypeJoinOnConditionItem struct {
 	Column2  string
 }
 
+func (jc *TypeJoinOnCondition) onClause(relation, column1 string, column2OrOperator ...string) IJoinOn {
+	if len(column2OrOperator) == 0 {
+		return jc
+	}
+	var operator = "="
+	var column2 = column2OrOperator[0]
+	if len(column2OrOperator) == 2 {
+		operator = column2OrOperator[0]
+		column2 = column2OrOperator[1]
+	}
+	jc.Conditions = append(jc.Conditions, TypeJoinOnConditionItem{
+		Relation: relation,
+		Column1:  column1,
+		Operator: operator,
+		Column2:  column2,
+	})
+	return jc
+}
+func (jc *TypeJoinOnCondition) On(column1 string, operatorOrColumn2 ...string) IJoinOn {
+	return jc.onClause("AND", column1, operatorOrColumn2...)
+}
+func (jc *TypeJoinOnCondition) OrOn(column1 string, operatorOrColumn2 ...string) IJoinOn {
+	return jc.onClause("OR", column1, operatorOrColumn2...)
+}
+
 func (db *JoinClause) join(joinType string, table any, argOrFn ...any) *JoinClause {
 	var tab TableClause
 	switch table.(type) {
@@ -56,8 +81,8 @@ func (db *JoinClause) join(joinType string, table any, argOrFn ...any) *JoinClau
 		tab.Tables = table
 	case TableClause:
 		tab = table.(TableClause)
-	case IDriver:
-		db.JoinItems = append(db.JoinItems, TypeJoinSub{table.(IDriver)})
+	case IBuilder:
+		db.JoinItems = append(db.JoinItems, TypeJoinSub{table.(IBuilder)})
 		return db
 	}
 
