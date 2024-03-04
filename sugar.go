@@ -92,39 +92,3 @@ func (db *Database) OrderByDesc(column string) *Database {
 	return db.OrderBy(column, "DESC")
 }
 
-//func (db *Database) Paginate(obj ...any) (result Paginator, err error) {
-//	if len(obj) > 0 {
-//		db.Table(obj[0])
-//	}
-//	var count int64
-//	count, err = db.Count()
-//	if err != nil || count == 0 {
-//		return
-//	}
-//	if db.Context.LimitOffsetClause.Limit == 0 {
-//		db.Limit(15)
-//	}
-//	if db.Context.LimitOffsetClause.Page == 0 {
-//		db.Page(1)
-//	}
-//
-//	res, err := db.Get()
-//	if err != nil {
-//		return result, err
-//	}
-//
-//	result.Total = count
-//	result.Data = res
-//	result.Limit = db.Context.LimitOffsetClause.Limit
-//	result.Pages = int(math.Ceil(float64(count) / float64(db.Context.LimitOffsetClause.Limit)))
-//	result.CurrentPage = db.Context.LimitOffsetClause.Page
-//	result.PrevPage = db.Context.LimitOffsetClause.Page - 1
-//	result.NextPage = db.Context.LimitOffsetClause.Page + 1
-//	if db.Context.LimitOffsetClause.Page == 1 {
-//		result.PrevPage = 1
-//	}
-//	if db.Context.LimitOffsetClause.Page == result.Pages {
-//		result.NextPage = result.Pages
-//	}
-//	return
-//}

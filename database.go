@@ -18,6 +18,7 @@ type IBuilder interface {
 	ToSqlUpdate(obj any, mustFields ...string) (sqlSegment string, binds []any, err error)
 	ToSqlIncDec(symbol string, data map[string]any) (sql4prepare string, values []any, err error)
 }
+
 type Database struct {
 	*Engin
 	Driver  *Driver
