@@ -114,4 +114,3 @@ func (db *Database) ToSqlIncDec(symbol string, data map[string]any) (sql4prepare
 	//return db.Driver.ToSqlIncDec(db.Context, symbol, data)
 	return db.Driver.ToSqlUpdate(db.Context, TypeToSqlIncDecCase{symbol, data})
 }
-

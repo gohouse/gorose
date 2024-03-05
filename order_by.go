@@ -1,6 +1,5 @@
 package gorose
 
-
 type OrderByItem struct {
 	Column    string
 	Direction string // "asc" 或 "desc"

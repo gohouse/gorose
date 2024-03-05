@@ -91,4 +91,3 @@ func (db *Database) OrderByAsc(column string) *Database {
 func (db *Database) OrderByDesc(column string) *Database {
 	return db.OrderBy(column, "DESC")
 }
-

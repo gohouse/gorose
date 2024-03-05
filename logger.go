@@ -1,8 +1,9 @@
 package gorose
 
 import (
+	"errors"
+	"io"
 	"log/slog"
-	"os"
 )
 
 type ILogger interface {
@@ -14,30 +15,37 @@ type ILogger interface {
 // logger implementation by default
 
 type SqlItem struct {
-	Sqls     string
+	Sql      string
 	Bindings []any
+	Err      error
 }
 
 type logger struct {
 	*slog.Logger
+	lv      slog.Level
 	lastSql SqlItem
 }
 
-func DefaultLogger(lv slog.Level) *logger {
+func DefaultLogger(lv slog.Level, writer io.Writer) ILogger {
 	opts := slog.HandlerOptions{
 		Level: lv,
 		//AddSource: true,
 	}
-	return &logger{Logger: slog.New(slog.NewTextHandler(os.Stdout, &opts))}
+	return &logger{Logger: slog.New(slog.NewTextHandler(writer, &opts)), lv: lv}
 }
 
 func (l *logger) LastSql() SqlItem {
+	if l.lv > slog.LevelDebug {
+		return SqlItem{Err: errors.New("only record when slog level in debug mod")}
+	}
 	return l.lastSql
 }
 
 func (l *logger) Log(sqls string, bindings ...any) {
-	l.lastSql = SqlItem{Sqls: sqls, Bindings: bindings}
 	l.With("bindings", bindings).Debug(sqls)
+	if l.lv <= slog.LevelDebug {
+		l.lastSql = SqlItem{Sql: sqls, Bindings: bindings}
+	}
 }
 
 func (l *logger) Error(err error) {

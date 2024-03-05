@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log/slog"
 	"math"
+	"os"
 )
 
 type GoRose struct {
@@ -49,7 +50,7 @@ func (g *GoRose) Use(h ...HandlerFunc) *GoRose {
 //	Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true")
 //	Open(&ConfigCluster{...})
 func Open(conf ...any) *GoRose {
-	var g = GoRose{ILogger: DefaultLogger(slog.LevelDebug)}
+	var g = GoRose{ILogger: DefaultLogger(slog.LevelDebug, os.Stdout)}
 	switch len(conf) {
 	case 1:
 		if single, ok := conf[0].(*Config); ok {

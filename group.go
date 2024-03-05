@@ -7,6 +7,7 @@ type TypeGroupItem struct {
 type GroupClause struct {
 	Groups []TypeGroupItem
 }
+
 // GroupBy 添加 GROUP BY 子句
 func (db *GroupClause) GroupBy(columns ...string) {
 	for _, col := range columns {
