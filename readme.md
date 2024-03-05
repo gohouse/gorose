@@ -138,6 +138,9 @@ tx.Commit()
 - [x] Join  
 - [x] GroupBy  
 - [x] Having  
+- [x] HavingRaw  
+- [x] OrHaving  
+- [x] OrHavingRaw  
 - [x] OrderBy  
 - [x] Limit  
 - [x] Offset
@@ -212,3 +215,18 @@ db().Update(&user)
 // 这里会强制将sex更改为0, update user set name="test", sex=0 where id=1
 db().Update(&user, "sex")
 ```
+
+## join
+```go
+type UserInfo struct {
+    UserId      int64   `db:"user_id"`
+    TableName   string  `db:"user_info"`
+}
+// select * from users a inner join user_info b on a.id=b.user_id
+db().Table("users", "u").Join(gorose.As(UserInfo{}, "b"), "u.id", "=", "b.user_id").Get()
+// 等同于
+db().Table(User{}, "u").Join(gorose.As("user_info", "b"), "u.id", "=", "b.user_id").Get()
+```
+`gorose.As(UserInfo{}, "b")` 中, `user_info` 取别名 `b`
+
+

@@ -80,7 +80,11 @@ func (b Builder) ToSqlTable(c *gorose.Context) (sql4prepare string, binds []any,
 
 func (b Builder) buildSqlTable(tab gorose.TableClause, prefix string) (sql4prepare string, binds []any, err error) {
 	if v, ok := tab.Tables.(gorose.IBuilder); ok {
-		return v.ToSql()
+		sql4prepare,binds,err = v.ToSql()
+		if tab.Alias != "" {
+			sql4prepare = fmt.Sprintf("(%s) %s", sql4prepare, tab.Alias)
+		}
+		return
 	}
 	rfv := reflect.Indirect(reflect.ValueOf(tab.Tables))
 	switch rfv.Kind() {
