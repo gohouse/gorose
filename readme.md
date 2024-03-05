@@ -9,9 +9,9 @@ go风格用法
 package main
 
 import (
-	"github.com/gohouse/gorose/v3"
-    // 引入驱动,这里将驱动单独存储,避免多驱动的不必要引入,只要实现了 gorose.IDriver 接口,理论上可以支持任意数据库
-	_ "github.com/gohouse/gorose-driver-mysql"
+    gorose "github.com/gohouse/gorose/v3"
+    // 引入驱动,这里可以将驱动独立出去,避免多驱动的不必要引入,只要实现了 gorose.IDriver 接口即可,理论上可以支持任意数据库
+    _ "github.com/gohouse/gorose/v3/drivers/mysql"
 )
 
 type User struct {
