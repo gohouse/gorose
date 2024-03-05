@@ -1,4 +1,4 @@
-package drivers
+package mysql
 
 import (
 	"github.com/gohouse/gorose/v3"
