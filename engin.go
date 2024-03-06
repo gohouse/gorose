@@ -24,7 +24,7 @@ func (s *Engin) execute(query string, args ...any) (int64, error) {
 	return exec.RowsAffected()
 }
 func (s *Engin) Exec(query string, args ...any) (sql.Result, error) {
-	s.ILogger.Log(query, args...)
+	s.Logger.Log(query, args...)
 	if s.tx != nil {
 		return s.tx.Exec(query, args...)
 	}
@@ -86,7 +86,7 @@ func (s *Engin) Transaction(closure ...func(*Engin) error) (err error) {
 }
 
 func (s *Engin) Query(query string, args ...any) (rows *sql.Rows, err error) {
-	s.ILogger.Log(query, args...)
+	s.Logger.Log(query, args...)
 	if s.tx != nil {
 		return s.tx.Query(query, args...)
 	} else {
@@ -95,7 +95,7 @@ func (s *Engin) Query(query string, args ...any) (rows *sql.Rows, err error) {
 }
 
 func (s *Engin) QueryRow(query string, args ...any) *sql.Row {
-	s.ILogger.Log(query, args...)
+	s.Logger.Log(query, args...)
 	if s.tx != nil {
 		return s.tx.QueryRow(query, args...)
 	} else {
