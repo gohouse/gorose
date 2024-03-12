@@ -94,40 +94,43 @@ var gr = gorose.Open(
 ```go
 // 全自动事务, 有错误会自动回滚, 无错误会自动提交
 // Transaction 方法可以接收多个操作, 同用一个 tx, 方便在不同方法内处理同一个事务
-db().Transaction(func(tx dbgo.Database) error {
-    tx.Insert(&user)
-    tx.Update(&user)
-    tx.To(&user)
+db().Transaction(func(tx gorose.TxHandler) error {
+    tx().Insert(&user)
+    tx().Update(&user)
+    tx().To(&user)
 }
 
 // 手动事务
-var tx = db()
-tx.Begin()
-tx.Rollback()
-tx.Commit()
+tx = db().Begin()
+tx().Insert(&user)
+tx().Update(&user)
+tx().To(&user)
+tx().Rollback()
+tx().Commit()
 
 // 全自动嵌套事务
-var tx = db()
-tx.Transaction(func(db1 dbgo.Database) error {
-    db1.Insert(&user)
+db().Transaction(func(tx gorose.TxHandler) error {
+    tx().Insert(&user)
     ...
     // 自动子事务
-    tx.Transaction(func(db2 dbgo.Database) error {
-        db2.Update(&user)
+    tx().Transaction(func(tx2 gorose.TxHandler) error {
+        tx2().Update(&user)
         ...
     }
 }
 
 // 手动嵌套事务
-var tx = db()
-tx.Begin()
+var tx = db().Begin()
 // 自动子事务
-tx.Begin() // 自动 savepoint 子事务
-tx.Rollback()   // 自动回滚到上一个 savepoint
+tx().Begin() // 自动 savepoint 子事务
+...
+tx().Rollback()   // 自动回滚到上一个 savepoint
+...
 // 手动子事务
-tx.SavePoint("savepoint1")    // 手动 savepoint 到 savepoint1(自定义名字)
-tx.RollbackTo("savepoint1") // 手动回滚到自定义的 savepoint
-tx.Commit()
+tx().SavePoint("savepoint1")    // 手动 savepoint 到 savepoint1(自定义名字)
+...
+tx().RollbackTo("savepoint1") // 手动回滚到自定义的 savepoint
+tx().Commit()
 ```
 
 ## 已经支持的 laravel query builder 方法
@@ -215,6 +218,9 @@ db().Update(&user)
 // 这里会强制将sex更改为0, update user set name="test", sex=0 where id=1
 db().Update(&user, "sex")
 ```
+
+## insert
+同 update
 
 ## join
 ```go

@@ -421,3 +421,26 @@ func (db *Database) Truncate(obj ...any) (affectedRows int64, err error) {
 	}
 	return db.Engin.execute(fmt.Sprintf("TRUNCATE TABLE %s", BackQuotes(table)))
 }
+
+type TxHandler func() *Database
+
+func (db *Database) Begin() (tx TxHandler, err error) {
+	return func() *Database {
+		db.Context = NewContext(db.prefix)
+		return db
+	}, db.Engin.Begin()
+}
+
+func (db *Database) Transaction(closure ...func(TxHandler) error) (err error) {
+	tx,err := db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, v := range closure {
+		err = v(tx)
+		if err != nil {
+			return db.Rollback()
+		}
+	}
+	return db.Commit()
+}
