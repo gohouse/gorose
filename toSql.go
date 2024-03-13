@@ -57,7 +57,7 @@ func (db *Database) ToSql() (sql4prepare string, values []any, err error) {
 }
 func (db *Database) ToSqlExists(bind ...any) (sql4prepare string, values []any, err error) {
 	if len(bind) > 0 {
-		sql4prepare, values, err = db.Table(bind[0]).Driver.ToSql(db.Context)
+		sql4prepare, values, err = db.ToSqlTo(bind[0])
 	} else {
 		sql4prepare, values, err = db.Driver.ToSql(db.Context)
 	}
