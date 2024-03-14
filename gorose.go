@@ -2,14 +2,10 @@ package gorose
 
 import (
 	"database/sql"
-	"log/slog"
 	"math"
-	"os"
 )
 
 type GoRose struct {
-	Logger ILogger
-
 	Cluster  *ConfigCluster
 	master   []*sql.DB
 	slave    []*sql.DB
@@ -50,7 +46,7 @@ func (g *GoRose) Use(h ...HandlerFunc) *GoRose {
 //	Open("mysql", "root:root@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true")
 //	Open(&ConfigCluster{...})
 func Open(conf ...any) *GoRose {
-	var g = GoRose{Logger: DefaultLogger(slog.LevelInfo, os.Stdout)}
+	var g = GoRose{}
 	switch len(conf) {
 	case 1:
 		if single, ok := conf[0].(*Config); ok {
