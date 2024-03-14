@@ -3,6 +3,12 @@ PHP Laravel ORM 的 go 实现, 与 laravel 官方文档保持一致 https://lara
 分为 go 风格 (struct 结构绑定用法) 和 php 风格 (map 结构用法).  
 php 风格用法, 完全可以使用 laravel query builder 的文档做参考, 尽量做到 1:1 还原.  
 
+## 安装
+目前还处于beta阶段, 请谨慎使用.
+```shell
+go get github.com/gohouse/gorose/v3@master
+```
+
 ## 概览
 go风格用法
 ```go
@@ -15,9 +21,9 @@ import (
 )
 
 type User struct {
-	Id    int64  `db:"id,pk" json:"id"`
-	Name  string `db:"name" json:"name"`
-	Email string `db:"email" json:"email"`
+	Id    int64  `db:"id,pk"`   // 这里的 pk 是指主键
+	Name  string `db:"name"`
+	Email string `db:"email"`
     
 	TableName string `db:"users" json:"-"` // 定义表名字,等同于 func (User) TableName() string {return "users"}, 二选一即可
 }
@@ -48,10 +54,18 @@ func main() {
 php风格用法
 ```go
 // select id,name,email from users where id=1 or name="test" group by id having id>1 order by id desc limit 2 offset 2
-db().Table("users").Select("id","name","email").Where("id", "=", 1).OrWhere("name", "test").GroupBy("id").Having("id", ">", 1).Limit(2).Offset(2).OrderBy("id", "desc").Get()
+db().Table("users").
+    Select("id","name","email").
+    Where("id", "=", 1).OrWhere("name", "test").
+    GroupBy("id").Having("id", ">", 1).
+    Limit(2).Offset(2).OrderBy("id", "desc").
+    Get()
 // 等同于
 var users []User
-db().Where("id", "=", 1).OrWhere("name", "test").GroupBy("id").Having("id", ">", 1).Limit(2).Offset(2).OrderBy("id", "desc").To(&users)
+db().Where("id", "=", 1).OrWhere("name", "test").
+    GroupBy("id").Having("id", ">", 1).
+    Limit(2).Offset(2).OrderBy("id", "desc").
+    To(&users)
 ```
 由此可以看出, 除了对 表 模型的绑定区别, 其他方法通用, table 参数, 可以是字符串, 也可以是 User 结构体(db().Table(User{}, "u"))
 
