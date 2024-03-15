@@ -170,23 +170,45 @@ func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
 		// 要先扫描到map, 再做字段比对, 因为这里不确定具体字段数量
 		// 主要针对 select * 或者直接sql语句
 		//todo 如果是由struct转换而来, 可以新开一个方法, 不需要做转换比对过程
-		entry, err := s.rowsToMapSingle(rows, columns, count)
+		//entry, err := s.rowsToMapSingle(rows, columns, count)
+		//if err != nil {
+		//	return err
+		//}
+
+		// 一条数据的各列的值（需要指定长度为列的个数，以便获取地址）
+		values := make([]any, count)
+		// 一条数据的各列的值的地址
+		valPointers := make([]any, count)
+		// 获取各列的值的地址
+		for i := 0; i < count; i++ {
+			valPointers[i] = &values[i]
+		}
+		// 获取各列的值，放到对应的地址中
+		err = rows.Scan(valPointers...)
 		if err != nil {
 			return err
 		}
 
 		if rfv.Kind() == reflect.Slice {
 			rfvItem := reflect.Indirect(reflect.New(rfv.Type().Elem()))
-			for i, key := range FieldTag {
-				if v, ok := entry[key]; ok {
-					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(v))
+			for i, _ := range FieldTag {
+				b, ok := values[i].([]byte)
+				if ok {
+					// 字符切片转为字符串
+					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(string(b)))
+				} else {
+					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(values[i]))
 				}
 			}
 			rfv.Set(reflect.Append(rfv, rfvItem))
 		} else {
-			for i, key := range FieldTag {
-				if v, ok := entry[key]; ok {
-					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(v))
+			for i := range FieldTag {
+				b, ok := values[i].([]byte)
+				if ok {
+					// 字符切片转为字符串
+					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(string(b)))
+				} else {
+					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(values[i]))
 				}
 			}
 			//rfv.Set(entry)
