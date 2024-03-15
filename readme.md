@@ -70,7 +70,7 @@ db().Where("id", "=", 1).OrWhere("name", "test").
     Limit(2).Offset(2).OrderBy("id", "desc").
     To(&users)
 ```
-由此可以看出, 除了对 表 模型的绑定区别, 其他方法通用, table 参数, 可以是字符串, 也可以是 User 结构体(db().Table(User{}, "u"))
+由此可以看出, 除了对 表 模型的绑定区别, 其他方法通用
 
 ## 配置
 单数据库连接, 可以直接同官方接口一样用法
@@ -234,12 +234,43 @@ var user = User{Id: 1, Name: "test"}
 db().Update(&user)
 // 这里会强制将sex更改为0, update user set name="test", sex=0 where id=1
 db().Update(&user, "sex")
+// 等同于
+db().Table(&user).Where("id", 1).Update(map[string]any{"name": "test"}))
 ```
+如果没有where条件,则会自动添加tag中指定了pk的字段作为条件,如: `db:"id,pk"`, 因为指定了 pk,如果 id 的值不为0值, 则 id 会作为主键条件更新
 
 ## insert
 同 update
 
+## delete
+```shell
+var user = User{Id: 1}
+db().Delete(&user)
+// 等同于
+db().Table(&user).Where("id", 1).Delete()
+```
+
+## table 
+- 参数  
+table 参数, 可以是字符串, 也可以是 User 结构体
+```go
+db().Table(User{})
+db().Table("users")
+// 取别名
+db().Table(User{}, "u")
+db().Table("users", "u")
+```
+
+- 子查询
+
+
 ## join
+- 简单用法
+```go
+db().Table("users").Join(UserInfo{}, "user.id", "=", "user_info.user_id").Get()
+```
+
+- 取别名
 ```go
 type UserInfo struct {
     UserId      int64   `db:"user_id"`
@@ -252,4 +283,25 @@ db().Table(User{}, "u").Join(gorose.As("user_info", "b"), "u.id", "=", "b.user_i
 ```
 `gorose.As(UserInfo{}, "b")` 中, `user_info` 取别名 `b`
 
+- 复杂用法
+```go
+db().Table("users").Join(UserInfo{}, func(sub gorose.IJoinOn) {
+    sub.On("a.id", "b.user_id").OrOn("a.sex", "b.sex")
+}).Get()
+```
 
+## where
+- sub query
+```go
+// where id in (select user_id from user_info)
+dbu := db().Table("user_info").Select("user_id")
+xx.WhereIn("id", dbu).Get()
+```
+
+- where nested
+```go
+// where id>1 and (sex=1 or sex=2)
+xx.Where("id",">", 1).Where(func(wh gorose.IWhere) {
+    wh.Where("sex", 1).OrWhere("sex", 2)
+})
+```

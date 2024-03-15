@@ -175,47 +175,35 @@ func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
 		//	return err
 		//}
 
-		// 一条数据的各列的值（需要指定长度为列的个数，以便获取地址）
-		values := make([]any, count)
-		// 一条数据的各列的值的地址
-		valPointers := make([]any, count)
-		// 获取各列的值的地址
-		for i := 0; i < count; i++ {
-			valPointers[i] = &values[i]
-		}
-		// 获取各列的值，放到对应的地址中
-		err = rows.Scan(valPointers...)
-		if err != nil {
-			return err
-		}
-
 		if rfv.Kind() == reflect.Slice {
 			rfvItem := reflect.Indirect(reflect.New(rfv.Type().Elem()))
-			for i, _ := range FieldTag {
-				b, ok := values[i].([]byte)
-				if ok {
-					// 字符切片转为字符串
-					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(string(b)))
-				} else {
-					rfvItem.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(values[i]))
-				}
+			err = s.scanStructRow(rfvItem, rows, count, FieldTag, FieldStruct)
+			if err != nil {
+				return err
 			}
 			rfv.Set(reflect.Append(rfv, rfvItem))
 		} else {
-			for i := range FieldTag {
-				b, ok := values[i].([]byte)
-				if ok {
-					// 字符切片转为字符串
-					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(string(b)))
-				} else {
-					rfv.FieldByName(FieldStruct[i]).Set(reflect.ValueOf(values[i]))
-				}
+			err = s.scanStructRow(rfv, rows, count, FieldTag, FieldStruct)
+			if err != nil {
+				return err
 			}
-			//rfv.Set(entry)
 		}
 	}
-
 	return nil
+}
+func (s *Engin) scanStructRow(rfv reflect.Value, rows *sql.Rows, count int, FieldTag, FieldStruct []string) error {
+	// 一条数据的各列的值的地址
+	valPointers := make([]any, count)
+
+	for i, tag := range FieldStruct {
+		valueField := rfv.FieldByName(tag)
+		if valueField.CanAddr() {
+			valPointers[i] = valueField.Addr().Interface()
+		} else {
+			valPointers[i] = valueField
+		}
+	}
+	return rows.Scan(valPointers...)
 }
 
 func (s *Engin) rowsToMapSingle(rows *sql.Rows, columns []string, count int) (entry map[string]any, err error) {
