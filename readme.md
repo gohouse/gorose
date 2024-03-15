@@ -6,7 +6,9 @@ php 风格用法, 完全可以使用 laravel query builder 的文档做参考, �
 ## 安装
 目前还处于beta阶段, 请谨慎使用.
 ```shell
-go get github.com/gohouse/gorose/v3@master
+# go.mod
+
+require github.com/gohouse/gorose/v3 master
 ```
 
 ## 概览
