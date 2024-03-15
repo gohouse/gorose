@@ -27,7 +27,8 @@ type User struct {
 	Name  string `db:"name"`
 	Email string `db:"email"`
     
-	TableName string `db:"users" json:"-"` // 定义表名字,等同于 func (User) TableName() string {return "users"}, 二选一即可
+    // 定义表名字,等同于 func (User) TableName() string {return "users"}, 二选一即可
+	TableName string `db:"users" json:"-"` 
 }
 
 var gr = gorose.Open("mysql", "root:123456@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true")
