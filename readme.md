@@ -225,6 +225,7 @@ tx().Commit()
 - [x] Page  
 - [x] LastSql  
 - [x] To  
+- [x] Bind  
 
 ## update
 在插入和更新数据时,如果使用 struct 模型作为数据对象的时候, 默认忽略类型零值,如果想强制写入,则可以从第二个参数开始传入需要强制写入的字段即可,如:
@@ -304,4 +305,33 @@ xx.WhereIn("id", dbu).Get()
 xx.Where("id",">", 1).Where(func(wh gorose.IWhere) {
     wh.Where("sex", 1).OrWhere("sex", 2)
 })
+```
+
+## To 查询结果绑定到对象
+使用结构体字段作为 select 字段  
+使用结构体字段值作为 where 条件  
+查询结果绑定到结构体,支持一条或多条    
+```go
+// 查询一条数据
+var user User
+// 查询多条数据
+var users []User
+
+db().To(&user)
+db().To(&users)
+```
+
+## Bind 查询结果绑定到对象
+仅仅用作查询结果的绑定   
+结构体字段,不作为查询字段和条件  
+常用作join或者手动指定字段查询绑定  
+```go
+type Result struct {
+    Id    int64 `db:"id"`
+    Aname string `db:"aname"`
+    Bname string `db:"bname"`
+}
+var res Result
+// select a.id, a.name aname, b.name bname from a inner join b on a.id=b.id where a.id>1
+db().Table("a").Join("b", "a.id","b.id").Select("a.id", "a.name aname","b.name bname").Where("a.id", ">", 1).Bind(&res)
 ```
