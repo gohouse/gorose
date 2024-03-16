@@ -194,17 +194,22 @@ func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
 func (s *Engin) scanStructRow(rfv reflect.Value, rows *sql.Rows, count int, FieldTag, FieldStruct, columns []string) error {
 	// 一条数据的各列的值的地址
 	valPointers := make([]any, count)
-
 	for i, v1 := range columns {
 		var valueField reflect.Value
 		// 比对字段
+		var fieldExists bool
 		for i2, v2 := range FieldTag {
 			if v1 == v2 {
 				valueField = rfv.FieldByName(FieldStruct[i2])
+				fieldExists = true
 				break
 			}
 		}
-		//valueField := rfv.FieldByName(FieldStruct[i])
+		if !fieldExists {
+			var value any
+			valPointers[i] = &value
+			continue
+		}
 		if valueField.CanAddr() {
 			valPointers[i] = valueField.Addr().Interface()
 		} else {
