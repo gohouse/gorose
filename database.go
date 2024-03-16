@@ -173,19 +173,6 @@ func (db *Database) LockForUpdate() *Database {
 	return db
 }
 
-// To 通用查询,go 绑定 struct/map
-func (db *Database) To(obj any, mustFields ...string) (err error) {
-	var prepare string
-	var binds []any
-	prepare, binds, err = db.ToSqlTo(obj, mustFields...)
-	if err != nil {
-		return
-	}
-
-	err = db.queryToBindResult(obj, prepare, binds...)
-	return
-}
-
 // Get 获取查询结果集。
 //
 // columns: 要获取的列名数组，如果不提供，则获取所有列。
@@ -432,7 +419,7 @@ func (db *Database) Begin() (tx TxHandler, err error) {
 }
 
 func (db *Database) Transaction(closure ...func(TxHandler) error) (err error) {
-	tx,err := db.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
@@ -443,4 +430,32 @@ func (db *Database) Transaction(closure ...func(TxHandler) error) (err error) {
 		}
 	}
 	return db.Commit()
+}
+
+// To 通用查询,go 绑定 struct/map
+func (db *Database) To(obj any, mustFields ...string) (err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.ToSqlTo(obj, mustFields...)
+	if err != nil {
+		return
+	}
+
+	err = db.queryToBindResult(obj, prepare, binds...)
+	return
+}
+
+// Bind 查询结果,绑定到结构体
+// 与 To 的区别是,绑定字段不作为查询依据
+// 经常用在join语句中,手动指定查询字段,然后直接绑定到一个结构体
+func (db *Database) Bind(obj any) (err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.ToSql()
+	if err != nil {
+		return
+	}
+
+	err = db.queryToBindResult(obj, prepare, binds...)
+	return
 }

@@ -177,13 +177,13 @@ func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
 
 		if rfv.Kind() == reflect.Slice {
 			rfvItem := reflect.Indirect(reflect.New(rfv.Type().Elem()))
-			err = s.scanStructRow(rfvItem, rows, count, FieldTag, FieldStruct)
+			err = s.scanStructRow(rfvItem, rows, count, FieldTag, FieldStruct, columns)
 			if err != nil {
 				return err
 			}
 			rfv.Set(reflect.Append(rfv, rfvItem))
 		} else {
-			err = s.scanStructRow(rfv, rows, count, FieldTag, FieldStruct)
+			err = s.scanStructRow(rfv, rows, count, FieldTag, FieldStruct, columns)
 			if err != nil {
 				return err
 			}
@@ -191,12 +191,20 @@ func (s *Engin) rowsToStruct(rows *sql.Rows, rfv reflect.Value) error {
 	}
 	return nil
 }
-func (s *Engin) scanStructRow(rfv reflect.Value, rows *sql.Rows, count int, FieldTag, FieldStruct []string) error {
+func (s *Engin) scanStructRow(rfv reflect.Value, rows *sql.Rows, count int, FieldTag, FieldStruct, columns []string) error {
 	// 一条数据的各列的值的地址
 	valPointers := make([]any, count)
 
-	for i, tag := range FieldStruct {
-		valueField := rfv.FieldByName(tag)
+	for i, v1 := range columns {
+		var valueField reflect.Value
+		// 比对字段
+		for i2, v2 := range FieldTag {
+			if v1 == v2 {
+				valueField = rfv.FieldByName(FieldStruct[i2])
+				break
+			}
+		}
+		//valueField := rfv.FieldByName(FieldStruct[i])
 		if valueField.CanAddr() {
 			valPointers[i] = valueField.Addr().Interface()
 		} else {
