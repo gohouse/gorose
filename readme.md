@@ -335,5 +335,5 @@ var res Result
 // select a.id, a.name aname, b.name bname from a inner join b on a.id=b.id where a.id>1
 db().Table("a").Join("b", "a.id","b.id").Select("a.id", "a.name aname","b.name bname").Where("a.id", ">", 1).Bind(&res)
 ```
-查询字段的显示名字一定要跟 结构体的字段 tag(db) 名字相同, 否则绑定会失败  
+查询字段的显示名字一定要跟 结构体的字段 tag(db) 名字相同, 否则不会被赋值  
 字段数量可以不一样
