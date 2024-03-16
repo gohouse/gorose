@@ -6,8 +6,8 @@ type TableClause struct {
 	Alias  string
 }
 
-func As(table any, alias string) *TableClause {
-	return &TableClause{
+func As(table any, alias string) TableClause {
+	return TableClause{
 		Tables: table,
 		Alias:  alias,
 	}

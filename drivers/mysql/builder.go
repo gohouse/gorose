@@ -80,7 +80,7 @@ func (b Builder) ToSqlTable(c *gorose.Context) (sql4prepare string, binds []any,
 
 func (b Builder) buildSqlTable(tab gorose.TableClause, prefix string) (sql4prepare string, binds []any, err error) {
 	if v, ok := tab.Tables.(gorose.IBuilder); ok {
-		sql4prepare,binds,err = v.ToSql()
+		sql4prepare, binds, err = v.ToSql()
 		if tab.Alias != "" {
 			sql4prepare = fmt.Sprintf("(%s) %s", sql4prepare, tab.Alias)
 		}
@@ -100,7 +100,7 @@ func (b Builder) buildSqlTable(tab gorose.TableClause, prefix string) (sql4prepa
 			return
 		}
 	default:
-		err = errors.New("table must string | struct | slice")
+		err = errors.New("table must be string | struct | slice")
 		return
 	}
 	return strings.TrimSpace(fmt.Sprintf("%s %s", sql4prepare, tab.Alias)), binds, err
@@ -174,17 +174,19 @@ func (b Builder) ToSqlJoin(c *gorose.Context) (sql4prepare string, binds []any, 
 	if len(c.JoinClause.JoinItems) == 0 {
 		return
 	}
-	var prepare string
 	for _, v := range c.JoinClause.JoinItems {
+		var prepare string
+		var sql4 string
+		var bind []any
 		switch item := v.(type) {
 		case gorose.TypeJoinStandard:
-			prepare, binds, err = b.buildSqlTable(item.TableClause, c.Prefix)
+			prepare, bind, err = b.buildSqlTable(item.TableClause, c.Prefix)
 			if err != nil {
 				return
 			}
-			sql4prepare = fmt.Sprintf("%s JOIN %s ON %s %s %s", item.Type, prepare, BackQuotes(item.Column1), item.Operator, BackQuotes(item.Column2))
+			sql4 = fmt.Sprintf("%s %s ON %s %s %s", item.Type, prepare, BackQuotes(item.Column1), item.Operator, BackQuotes(item.Column2))
 		case gorose.TypeJoinSub:
-			sql4prepare, binds, err = item.ToSql()
+			sql4, bind, err = item.ToSql()
 			if err != nil {
 				return
 			}
@@ -199,8 +201,10 @@ func (b Builder) ToSqlJoin(c *gorose.Context) (sql4prepare string, binds []any, 
 				sqlArr = append(sqlArr, fmt.Sprintf("%s %s %s %s", cond.Relation, BackQuotes(cond.Column1), cond.Operator, BackQuotes(cond.Column2)))
 			}
 
-			sql4prepare = TrimPrefixAndOr(strings.Join(sqlArr, " "))
+			sql4 = TrimPrefixAndOr(strings.Join(sqlArr, " "))
 		}
+		sql4prepare = fmt.Sprintf("%s %s", sql4prepare, sql4)
+		binds = append(binds, bind...)
 	}
 	return
 }
