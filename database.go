@@ -3,6 +3,7 @@ package gorose
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 )
 
 type IBuilder interface {
@@ -352,6 +353,19 @@ func (db *Database) List(column string) (res []any, err error) {
 	return
 }
 
+// ListTo 获取指定列的值列表。
+func (db *Database) ListTo(column string, obj any) (err error) {
+	ress, err := db.Get(column)
+	if err != nil {
+		return err
+	}
+	rfv := reflect.Indirect(reflect.ValueOf(obj))
+	for _, v := range ress {
+		rfv.Set(reflect.Append(rfv, reflect.ValueOf(v[column])))
+	}
+	return
+}
+
 // Pluck 从查询结果集中获取键值对列表。
 func (db *Database) Pluck(column string, keyColumn string) (res map[any]any, err error) {
 	ress, err := db.Get(column, keyColumn)
@@ -360,6 +374,19 @@ func (db *Database) Pluck(column string, keyColumn string) (res map[any]any, err
 	}
 	for _, v := range ress {
 		res[v[keyColumn]] = v[column]
+	}
+	return
+}
+
+// PluckTo 从查询结果集中获取键值对列表。
+func (db *Database) PluckTo(column string, keyColumn string, obj any) (err error) {
+	ress, err := db.Get(column, keyColumn)
+	if err != nil {
+		return err
+	}
+	rfv := reflect.Indirect(reflect.ValueOf(obj))
+	for _, v := range ress {
+		rfv.SetMapIndex(reflect.ValueOf(v[keyColumn]), reflect.ValueOf(v[column]))
 	}
 	return
 }
