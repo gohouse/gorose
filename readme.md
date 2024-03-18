@@ -317,6 +317,24 @@ xxx.Where("id",">", 1).Where(func(wh gorose.IWhere) {
 })
 ```
 
+## Pluck
+返回两列数据到一个map中,第一列为value,第二列为key
+```go
+// select id,name from users
+db().Table("users").Pluck("name", "id")
+// 返回 map[<id>]<name>
+// 得到 map[int64]string{1: "张三", 2: "李四"}
+```
+
+## List
+返回一列数据到一个数组中
+```go
+// select id,name from users
+db().Table("users").List("id")
+// 返回 []<id>
+// 得到 []int64{1,2,3}
+```
+
 ## To 查询结果绑定到对象
 使用结构体字段作为 select 字段  
 使用结构体字段值作为 where 条件  

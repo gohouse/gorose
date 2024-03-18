@@ -340,8 +340,8 @@ func (db *Database) Count() (res int64, err error) {
 	return
 }
 
-// Pluck 从查询结果集中获取指定列的值列表。
-func (db *Database) Pluck(column string) (res []any, err error) {
+// List 获取指定列的值列表。
+func (db *Database) List(column string) (res []any, err error) {
 	ress, err := db.Get(column)
 	if err != nil {
 		return res, err
@@ -352,16 +352,14 @@ func (db *Database) Pluck(column string) (res []any, err error) {
 	return
 }
 
-// List 获取指定列的键值对列表。
-func (db *Database) List(column string, keyColumn string) (res []map[any]any, err error) {
+// Pluck 从查询结果集中获取键值对列表。
+func (db *Database) Pluck(column string, keyColumn string) (res map[any]any, err error) {
 	ress, err := db.Get(column, keyColumn)
 	if err != nil {
 		return res, err
 	}
 	for _, v := range ress {
-		res = append(res, map[any]any{
-			v[keyColumn]: v[column],
-		})
+		res[v[keyColumn]] = v[column]
 	}
 	return
 }
