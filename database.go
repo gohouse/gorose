@@ -252,12 +252,12 @@ func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustFields ...stri
 	}
 	return result.RowsAffected()
 }
-func (db *Database) Replace(obj any, mustFields ...string) (lastInsertId int64, err error) {
+func (db *Database) Replace(obj any, mustFields ...string) (aff int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustFields: mustFields})
 	if err != nil {
-		return lastInsertId, err
+		return aff, err
 	}
-	return result.LastInsertId()
+	return result.RowsAffected()
 }
 func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedRows int64, err error) {
 	dbTmp := db.Where(attributes)
