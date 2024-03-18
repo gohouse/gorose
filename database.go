@@ -246,7 +246,7 @@ func (db *Database) InsertOrIgnore(obj any, mustFields ...string) (aff int64, er
 	return result.RowsAffected()
 }
 func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", OnDuplicateKeys: onDuplicateKeys, MustFields: mustFields})
+	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustFields: mustFields})
 	if err != nil {
 		return aff, err
 	}
