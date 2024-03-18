@@ -215,41 +215,49 @@ func (db *Database) queryToBindResult(bind any, query string, args ...any) (err 
 	return db.Engin.QueryTo(bind, query, args...)
 }
 
-func (db *Database) insert(obj any, ignoreCase string, onDuplicateKeys []string, mustFields ...string) (res sql.Result, err error) {
+// func (db *Database) insert(obj any, ignoreCase string, onDuplicateKeys []string, mustFields ...string) (res sql.Result, err error) {
+func (db *Database) insert(obj any, arg TypeToSqlInsertCase) (res sql.Result, err error) {
 	//segment, binds, err := db.ToSqlInsert(obj, ignoreCase, onDuplicateKeys, mustFields...)
-	segment, binds, err := db.ToSqlInsert(obj, TypeToSqlInsertCase{ignoreCase, onDuplicateKeys, mustFields})
+	segment, binds, err := db.ToSqlInsert(obj, arg)
 	if err != nil {
 		return res, err
 	}
 	return db.Engin.Exec(segment, binds...)
 }
 func (db *Database) InsertGetId(obj any, mustFields ...string) (lastInsertId int64, err error) {
-	result, err := db.insert(obj, "", nil, mustFields...)
+	result, err := db.insert(obj, TypeToSqlInsertCase{MustFields: mustFields})
 	if err != nil {
 		return lastInsertId, err
 	}
 	return result.LastInsertId()
 }
 func (db *Database) Insert(obj any, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, "", nil, mustFields...)
+	result, err := db.insert(obj, TypeToSqlInsertCase{MustFields: mustFields})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
 }
 func (db *Database) InsertOrIgnore(obj any, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, "IGNORE", nil, mustFields...)
+	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", MustFields: mustFields})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
 }
 func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, "IGNORE", onDuplicateKeys, mustFields...)
+	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", OnDuplicateKeys: onDuplicateKeys, MustFields: mustFields})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
+}
+func (db *Database) Replace(obj any, mustFields ...string) (lastInsertId int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustFields: mustFields})
+	if err != nil {
+		return lastInsertId, err
+	}
+	return result.LastInsertId()
 }
 func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedRows int64, err error) {
 	dbTmp := db.Where(attributes)
@@ -269,8 +277,8 @@ func (db *Database) Update(obj any, mustFields ...string) (aff int64, err error)
 	}
 	return db.Engin.execute(segment, binds...)
 }
-func (db *Database) Delete(obj any) (aff int64, err error) {
-	segment, binds, err := db.ToSqlDelete(obj)
+func (db *Database) Delete(obj any, mustFields ...string) (aff int64, err error) {
+	segment, binds, err := db.ToSqlDelete(obj, mustFields...)
 	if err != nil {
 		return aff, err
 	}

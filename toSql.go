@@ -20,13 +20,20 @@ type TypeToSqlUpdateCase struct {
 	BindOrData any
 	MustFields []string
 }
+//type TypeToSqlDeleteCase struct {
+//	Bind       any
+//	MustFields []string
+//}
+
 type TypeToSqlIncDecCase struct {
 	Symbol string
 	Data   map[string]any
 }
 type TypeToSqlInsertCase struct {
-	IgnoreCase                  string
-	OnDuplicateKeys, MustFields []string
+	IsReplace       bool
+	IgnoreCase      string
+	OnDuplicateKeys []string
+	MustFields      []string
 }
 
 func (db *Database) ToSqlSelect() (sql4prepare string, binds []any) {
@@ -103,8 +110,8 @@ func (db *Database) ToSqlTo(obj any, mustFields ...string) (sql4prepare string, 
 func (db *Database) ToSqlInsert(obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error) {
 	return db.Driver.ToSqlInsert(db.Context, obj, args...)
 }
-func (db *Database) ToSqlDelete(obj any) (sqlSegment string, binds []any, err error) {
-	return db.Driver.ToSqlDelete(db.Context, obj)
+func (db *Database) ToSqlDelete(obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
+	return db.Driver.ToSqlDelete(db.Context, obj, mustFields...)
 }
 
 func (db *Database) ToSqlUpdate(obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {

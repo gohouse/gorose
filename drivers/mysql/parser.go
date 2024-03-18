@@ -13,7 +13,8 @@ func (b Builder) buildTableName(rft reflect.Type, prefix string) (tab string) {
 	return BackQuotes(fmt.Sprintf("%s%s", prefix, gorose.StructsToTableName(rft)))
 }
 
-func (b Builder) toSqlInsert(c *gorose.Context, data any, ignoreCase string, onDuplicateKeys []string) (sql4prepare string, values []any, err error) {
+// func (b Builder) toSqlInsert(c *gorose.Context, data any, ignoreCase string, onDuplicateKeys []string) (sql4prepare string, values []any, err error) {
+func (b Builder) toSqlInsert(c *gorose.Context, data any, insertCase gorose.TypeToSqlInsertCase) (sql4prepare string, values []any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(data))
 	var fields []string
 	var valuesPlaceholderArr []string
@@ -65,12 +66,19 @@ func (b Builder) toSqlInsert(c *gorose.Context, data any, ignoreCase string, onD
 	}
 
 	var onDuplicateKey string
-	if len(onDuplicateKeys) > 0 {
+	if len(insertCase.OnDuplicateKeys) > 0 {
 		var tmp []string
-		for _, v := range onDuplicateKeys {
+		for _, v := range insertCase.OnDuplicateKeys {
 			tmp = append(tmp, fmt.Sprintf("%s=VALUES(%s)", BackQuotes(v), BackQuotes(v)))
 		}
 		onDuplicateKey = fmt.Sprintf("ON DUPLICATE KEY UPDATE %s", strings.Join(tmp, ", "))
+	}
+
+	var insert = "INSERT"
+	if insertCase.IsReplace {
+		insert = "REPLACE"
+	} else if insertCase.IgnoreCase != "" {
+		insert = "INSERT IGNORE"
 	}
 
 	var tables string
@@ -78,7 +86,7 @@ func (b Builder) toSqlInsert(c *gorose.Context, data any, ignoreCase string, onD
 	if err != nil {
 		return
 	}
-	sql4prepare = NamedSprintf("INSERT :ignoreCase INTO :tables (:fields) VALUES :placeholder :onDuplicateKey", ignoreCase, tables, strings.Join(fields, ","), strings.Join(valuesPlaceholderArr, ","), onDuplicateKey)
+	sql4prepare = NamedSprintf(":insert INTO :tables (:fields) VALUES :placeholder :onDuplicateKey", insert, tables, strings.Join(fields, ","), strings.Join(valuesPlaceholderArr, ","), onDuplicateKey)
 	return
 }
 

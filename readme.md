@@ -226,29 +226,35 @@ tx().Commit()
 - [x] LastSql  
 - [x] To  
 - [x] Bind  
+- [x] Replace  
 
 ## update
 在插入和更新数据时,如果使用 struct 模型作为数据对象的时候, 默认忽略类型零值,如果想强制写入,则可以从第二个参数开始传入需要强制写入的字段即可,如:
 ```go
 var user = User{Id: 1, Name: "test"}
-// 这里不会对 sex 做任何操作, update user set name="test" where id=1
+// 这里不会对 sex 做任何操作, 
+//update user set name="test" where id=1
 db().Update(&user)
-// 这里会强制将sex更改为0, update user set name="test", sex=0 where id=1
+// 这里会强制将sex更改为0
+//update user set name="test", sex=0 where id=1
 db().Update(&user, "sex")
 // 等同于
-db().Table(&user).Where("id", 1).Update(map[string]any{"name": "test"}))
+db().Table(&user).Where("id", 1).Update(map[string]any{"name": "test", "sex": 0}))
 ```
 如果没有where条件,则会自动添加tag中指定了pk的字段作为条件,如: `db:"id,pk"`, 因为指定了 pk,如果 id 的值不为0值, 则 id 会作为主键条件更新
 
 ## insert
-同 update
+参考 update
 
 ## delete
-```shell
+```go
 var user = User{Id: 1}
 db().Delete(&user)
 // 等同于
 db().Table(&user).Where("id", 1).Delete()
+// 要加上字段0值条件,只需要传入第二个字段,如:
+// delete from users where id=1 and sex=0 and name=""
+db().Delete(&user, "sex", "name")
 ```
 
 ## table 
@@ -257,13 +263,17 @@ table 参数, 可以是字符串, 也可以是 User 结构体
 ```go
 db().Table(User{})
 db().Table("users")
-// 取别名
+```
+- 取别名
+```go
 db().Table(User{}, "u")
 db().Table("users", "u")
 ```
-
-- 子查询
-
+- 结果集查询
+```go
+sub := db().Table("users").Select("id", "name")
+db().Table(sub).Where("id", ">", 1).Get()
+```
 
 ## join
 - 简单用法
@@ -286,8 +296,8 @@ db().Table(User{}, "u").Join(gorose.As("user_info", "b"), "u.id", "=", "b.user_i
 
 - 复杂用法
 ```go
-db().Table("users").Join(UserInfo{}, func(sub gorose.IJoinOn) {
-    sub.On("a.id", "b.user_id").OrOn("a.sex", "b.sex")
+db().Table("users").Join(UserInfo{}, func(wh gorose.IJoinOn) {
+    wh.On("a.id", "b.user_id").OrOn("a.sex", "b.sex")
 }).Get()
 ```
 
@@ -295,14 +305,14 @@ db().Table("users").Join(UserInfo{}, func(sub gorose.IJoinOn) {
 - sub query
 ```go
 // where id in (select user_id from user_info)
-dbu := db().Table("user_info").Select("user_id")
-xx.WhereIn("id", dbu).Get()
+sub := db().Table("user_info").Select("user_id")
+xxx.Where("id", "in", sub).Get()
 ```
 
 - where nested
 ```go
 // where id>1 and (sex=1 or sex=2)
-xx.Where("id",">", 1).Where(func(wh gorose.IWhere) {
+xxx.Where("id",">", 1).Where(func(wh gorose.IWhere) {
     wh.Where("sex", 1).OrWhere("sex", 2)
 })
 ```
@@ -333,7 +343,7 @@ type Result struct {
 }
 var res Result
 // select a.id, a.name aname, b.name bname from a inner join b on a.id=b.id where a.id>1
-db().Table("a").Join("b", "a.id","b.id").Select("a.id", "a.name aname","b.name bname").Where("a.id", ">", 1).Bind(&res)
+db().Table("a").Join("b", "a.id","b.aid").Select("a.id", "a.name aname","b.name bname").Where("a.id", ">", 1).Bind(&res)
 ```
 查询字段的显示名字一定要跟 结构体的字段 tag(db) 名字相同, 否则不会被赋值  
 字段数量可以不一样

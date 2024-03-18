@@ -71,10 +71,10 @@ func TestDatabase_ToSqlUpdate(t *testing.T) {
 }
 func TestDatabase_ToSqlDelete(t *testing.T) {
 	var user = User{Id: 1}
-	prepare, values, err := db().ToSqlDelete(&user)
+	prepare, values, err := db().ToSqlDelete(&user, "name")
 	assertsError(t, err)
-	var expect = "DELETE FROM `User` WHERE `id` = ?"
+	var expect = "DELETE FROM `User` WHERE `id` = ? AND `name` = ?"
 	assertsEqual(t, expect, prepare)
-	var expectValues = []any{1}
+	var expectValues = []any{1, ""}
 	assertsEqual(t, expectValues, values)
 }

@@ -287,7 +287,7 @@ func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSq
 			return
 		}
 		ctx.TableClause.Table(obj)
-		return b.toSqlInsert(&ctx, datas, arg.IgnoreCase, arg.OnDuplicateKeys)
+		return b.toSqlInsert(&ctx, datas, arg)
 	case reflect.Slice:
 		switch rfv.Type().Elem().Kind() {
 		case reflect.Struct:
@@ -297,21 +297,21 @@ func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSq
 			if err != nil {
 				return
 			}
-			return b.toSqlInsert(c, datas, arg.IgnoreCase, arg.OnDuplicateKeys)
+			return b.toSqlInsert(c, datas, arg)
 		default:
-			return b.toSqlInsert(c, obj, arg.IgnoreCase, arg.OnDuplicateKeys)
+			return b.toSqlInsert(c, obj, arg)
 		}
 	default:
-		return b.toSqlInsert(c, obj, arg.IgnoreCase, arg.OnDuplicateKeys)
+		return b.toSqlInsert(c, obj, arg)
 	}
 }
 
-func (b Builder) ToSqlDelete(c *gorose.Context, obj any) (sqlSegment string, binds []any, err error) {
+func (b Builder) ToSqlDelete(c *gorose.Context, obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
 	var ctx = *c
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	switch rfv.Kind() {
 	case reflect.Struct:
-		data, err := gorose.StructToDelete(obj)
+		data, err := gorose.StructToDelete(obj, mustFields...)
 		if err != nil {
 			return sqlSegment, binds, err
 		}
@@ -352,8 +352,11 @@ func (b Builder) toSqlUpdate(c *gorose.Context, obj any, mustFields ...string) (
 			ctx.WhereClause.Where(pk, pkValue)
 		}
 		return b.toSqlUpdateReal(&ctx, dataMap)
-	default:
+	case reflect.Map:
 		return b.toSqlUpdateReal(c, obj)
+	default:
+		err = errors.New("no support update obj")
+		return
 	}
 }
 

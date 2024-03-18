@@ -133,11 +133,11 @@ func structUpdateDataToMap(rfv reflect.Value, tags, fieldStruct []string, pkFiel
 	return
 }
 
-func StructToDelete(obj any) (data map[string]any, err error) {
+func StructToDelete(obj any, mustFields ...string) (data map[string]any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	if rfv.Kind() == reflect.Struct {
 		tag, fieldStruct, _ := structsTypeParse(rfv.Type())
-		data, err = structDataToMap(rfv, tag, fieldStruct)
+		data, err = structDataToMap(rfv, tag, fieldStruct, mustFields...)
 	}
 	return
 }
