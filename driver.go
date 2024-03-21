@@ -21,7 +21,7 @@ type IDriver interface {
 	ToSql(c *Context) (sql4prepare string, binds []any, err error)
 	ToSqlInsert(c *Context, obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error)
 	ToSqlUpdate(c *Context, arg any) (sqlSegment string, binds []any, err error)
-	ToSqlDelete(c *Context, obj any, mustFields ...string) (sqlSegment string, binds []any, err error)
+	ToSqlDelete(c *Context, obj any, mustColumn ...string) (sqlSegment string, binds []any, err error)
 }
 
 type Driver struct {

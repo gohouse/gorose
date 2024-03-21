@@ -342,11 +342,20 @@ db().Table("users").List("id")
 ```go
 // 查询一条数据
 var user User
+db().To(&user)
+
+// 查询条件,一条数据
+// select id,name,email from users where id=1
+var user = User{Id: 1}
+db().To(&user)
+
 // 查询多条数据
 var users []User
-
-db().To(&user)
 db().To(&users)
+
+// 查询条件,多条数据
+var users []User
+db().Where("id", ">", 1).To(&users)
 ```
 
 ## Bind 查询结果绑定到对象

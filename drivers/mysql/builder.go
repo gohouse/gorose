@@ -269,7 +269,7 @@ func (b Builder) ToSqlLimitOffset(c *gorose.Context) (sqlSegment string, binds [
 	return
 }
 
-//func (b Builder) ToSqlInsert(c *gorose.Context, obj any, ignoreCase string, onDuplicateKeys []string, mustFields ...string) (sqlSegment string, binds []any, err error) {
+//func (b Builder) ToSqlInsert(c *gorose.Context, obj any, ignoreCase string, onDuplicateKeys []string, mustColumn ...string) (sqlSegment string, binds []any, err error) {
 
 // ToSqlInsert insert
 func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSqlInsertCase) (sqlSegment string, binds []any, err error) {
@@ -282,7 +282,7 @@ func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSq
 	switch rfv.Kind() {
 	case reflect.Struct:
 		var datas []map[string]any
-		datas, err = gorose.StructsToInsert(obj, arg.MustFields...)
+		datas, err = gorose.StructsToInsert(obj, arg.MustColumn...)
 		if err != nil {
 			return
 		}
@@ -293,7 +293,7 @@ func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSq
 		case reflect.Struct:
 			c.TableClause.Table(obj)
 			var datas []map[string]any
-			datas, err = gorose.StructsToInsert(obj, arg.MustFields...)
+			datas, err = gorose.StructsToInsert(obj, arg.MustColumn...)
 			if err != nil {
 				return
 			}
@@ -306,12 +306,12 @@ func (b Builder) ToSqlInsert(c *gorose.Context, obj any, args ...gorose.TypeToSq
 	}
 }
 
-func (b Builder) ToSqlDelete(c *gorose.Context, obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
+func (b Builder) ToSqlDelete(c *gorose.Context, obj any, mustColumn ...string) (sqlSegment string, binds []any, err error) {
 	var ctx = *c
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	switch rfv.Kind() {
 	case reflect.Struct:
-		data, err := gorose.StructToDelete(obj, mustFields...)
+		data, err := gorose.StructToDelete(obj, mustColumn...)
 		if err != nil {
 			return sqlSegment, binds, err
 		}
@@ -330,7 +330,7 @@ func (b Builder) ToSqlDelete(c *gorose.Context, obj any, mustFields ...string) (
 func (b Builder) ToSqlUpdate(c *gorose.Context, arg any) (sqlSegment string, binds []any, err error) {
 	switch v := arg.(type) {
 	case gorose.TypeToSqlUpdateCase:
-		return b.toSqlUpdate(c, v.BindOrData, v.MustFields...)
+		return b.toSqlUpdate(c, v.BindOrData, v.MustColumn...)
 	case gorose.TypeToSqlIncDecCase:
 		return b.toSqlIncDec(c, v.Symbol, v.Data)
 	default:
@@ -338,11 +338,11 @@ func (b Builder) ToSqlUpdate(c *gorose.Context, arg any) (sqlSegment string, bin
 	}
 }
 
-func (b Builder) toSqlUpdate(c *gorose.Context, obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
+func (b Builder) toSqlUpdate(c *gorose.Context, obj any, mustColumn ...string) (sqlSegment string, binds []any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	switch rfv.Kind() {
 	case reflect.Struct:
-		dataMap, pk, pkValue, err := gorose.StructToUpdate(obj, mustFields...)
+		dataMap, pk, pkValue, err := gorose.StructToUpdate(obj, mustColumn...)
 		if err != nil {
 			return sqlSegment, binds, err
 		}

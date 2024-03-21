@@ -16,7 +16,7 @@ type IBuilder interface {
 	ToSqlLimitOffset() (sqlSegment string, binds []any)
 	ToSqlInsert(obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error)
 	ToSqlDelete(obj any) (sqlSegment string, binds []any, err error)
-	ToSqlUpdate(obj any, mustFields ...string) (sqlSegment string, binds []any, err error)
+	ToSqlUpdate(obj any, mustColumn ...string) (sqlSegment string, binds []any, err error)
 	ToSqlIncDec(symbol string, data map[string]any) (sql4prepare string, values []any, err error)
 }
 
@@ -216,45 +216,45 @@ func (db *Database) queryToBindResult(bind any, query string, args ...any) (err 
 	return db.Engin.QueryTo(bind, query, args...)
 }
 
-// func (db *Database) insert(obj any, ignoreCase string, onDuplicateKeys []string, mustFields ...string) (res sql.Result, err error) {
+// func (db *Database) insert(obj any, ignoreCase string, onDuplicateKeys []string, mustColumn ...string) (res sql.Result, err error) {
 func (db *Database) insert(obj any, arg TypeToSqlInsertCase) (res sql.Result, err error) {
-	//segment, binds, err := db.ToSqlInsert(obj, ignoreCase, onDuplicateKeys, mustFields...)
+	//segment, binds, err := db.ToSqlInsert(obj, ignoreCase, onDuplicateKeys, mustColumn...)
 	segment, binds, err := db.ToSqlInsert(obj, arg)
 	if err != nil {
 		return res, err
 	}
 	return db.Engin.Exec(segment, binds...)
 }
-func (db *Database) InsertGetId(obj any, mustFields ...string) (lastInsertId int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{MustFields: mustFields})
+func (db *Database) InsertGetId(obj any, mustColumn ...string) (lastInsertId int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
 	if err != nil {
 		return lastInsertId, err
 	}
 	return result.LastInsertId()
 }
-func (db *Database) Insert(obj any, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{MustFields: mustFields})
+func (db *Database) Insert(obj any, mustColumn ...string) (aff int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
 }
-func (db *Database) InsertOrIgnore(obj any, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", MustFields: mustFields})
+func (db *Database) InsertOrIgnore(obj any, mustColumn ...string) (aff int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", MustColumn: mustColumn})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
 }
-func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustFields: mustFields})
+func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustColumn ...string) (aff int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustColumn: mustColumn})
 	if err != nil {
 		return aff, err
 	}
 	return result.RowsAffected()
 }
-func (db *Database) Replace(obj any, mustFields ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustFields: mustFields})
+func (db *Database) Replace(obj any, mustColumn ...string) (aff int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustColumn: mustColumn})
 	if err != nil {
 		return aff, err
 	}
@@ -271,15 +271,15 @@ func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedR
 	}
 	return dbTmp.Insert(values)
 }
-func (db *Database) Update(obj any, mustFields ...string) (aff int64, err error) {
-	segment, binds, err := db.ToSqlUpdate(obj, mustFields...)
+func (db *Database) Update(obj any, mustColumn ...string) (aff int64, err error) {
+	segment, binds, err := db.ToSqlUpdate(obj, mustColumn...)
 	if err != nil {
 		return aff, err
 	}
 	return db.Engin.execute(segment, binds...)
 }
-func (db *Database) Delete(obj any, mustFields ...string) (aff int64, err error) {
-	segment, binds, err := db.ToSqlDelete(obj, mustFields...)
+func (db *Database) Delete(obj any, mustColumn ...string) (aff int64, err error) {
+	segment, binds, err := db.ToSqlDelete(obj, mustColumn...)
 	if err != nil {
 		return aff, err
 	}
@@ -440,10 +440,10 @@ func (db *Database) Transaction(closure ...func(TxHandler) error) (err error) {
 }
 
 // To 通用查询,go 绑定 struct/map
-func (db *Database) To(obj any, mustFields ...string) (err error) {
+func (db *Database) To(obj any, mustColumn ...string) (err error) {
 	var prepare string
 	var binds []any
-	prepare, binds, err = db.ToSqlTo(obj, mustFields...)
+	prepare, binds, err = db.ToSqlTo(obj, mustColumn...)
 	if err != nil {
 		return
 	}

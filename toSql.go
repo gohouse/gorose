@@ -18,11 +18,12 @@ import (
 
 type TypeToSqlUpdateCase struct {
 	BindOrData any
-	MustFields []string
+	MustColumn []string
 }
+
 //type TypeToSqlDeleteCase struct {
 //	Bind       any
-//	MustFields []string
+//	MustColumn []string
 //}
 
 type TypeToSqlIncDecCase struct {
@@ -33,7 +34,7 @@ type TypeToSqlInsertCase struct {
 	IsReplace       bool
 	IgnoreCase      string
 	OnDuplicateKeys []string
-	MustFields      []string
+	MustColumn      []string
 }
 
 func (db *Database) ToSqlSelect() (sql4prepare string, binds []any) {
@@ -86,13 +87,13 @@ func (db *Database) ToSqlAggregate(function, column string) (sql4prepare string,
 	return db.Driver.ToSql(&ctx)
 }
 
-func (db *Database) ToSqlTo(obj any, mustFields ...string) (sql4prepare string, binds []any, err error) {
+func (db *Database) ToSqlTo(obj any, mustColumn ...string) (sql4prepare string, binds []any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	columns, fieldStruct, _ := StructsParse(obj)
 	switch rfv.Kind() {
 	case reflect.Struct:
 		var data = make(map[string]any)
-		data, err = structDataToMap(rfv, columns, fieldStruct, mustFields...)
+		data, err = structDataToMap(rfv, columns, fieldStruct, mustColumn...)
 		if err != nil {
 			return
 		}
@@ -110,12 +111,12 @@ func (db *Database) ToSqlTo(obj any, mustFields ...string) (sql4prepare string, 
 func (db *Database) ToSqlInsert(obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error) {
 	return db.Driver.ToSqlInsert(db.Context, obj, args...)
 }
-func (db *Database) ToSqlDelete(obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
-	return db.Driver.ToSqlDelete(db.Context, obj, mustFields...)
+func (db *Database) ToSqlDelete(obj any, mustColumn ...string) (sqlSegment string, binds []any, err error) {
+	return db.Driver.ToSqlDelete(db.Context, obj, mustColumn...)
 }
 
-func (db *Database) ToSqlUpdate(obj any, mustFields ...string) (sqlSegment string, binds []any, err error) {
-	return db.Driver.ToSqlUpdate(db.Context, TypeToSqlUpdateCase{obj, mustFields})
+func (db *Database) ToSqlUpdate(obj any, mustColumn ...string) (sqlSegment string, binds []any, err error) {
+	return db.Driver.ToSqlUpdate(db.Context, TypeToSqlUpdateCase{obj, mustColumn})
 }
 func (db *Database) ToSqlIncDec(symbol string, data map[string]any) (sql4prepare string, values []any, err error) {
 	//return db.Driver.ToSqlIncDec(db.Context, symbol, data)

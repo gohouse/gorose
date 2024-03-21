@@ -89,11 +89,11 @@ func structsTypeParse(rft reflect.Type) (fieldTag []string, fieldStruct []string
 //	}
 //}
 
-func structDataToMap(rfv reflect.Value, tags, fieldStruct []string, mustFields ...string) (data map[string]any, err error) {
+func structDataToMap(rfv reflect.Value, tags, fieldStruct []string, mustColumn ...string) (data map[string]any, err error) {
 	data = make(map[string]any)
 	for i, fieldName := range fieldStruct {
 		field := rfv.FieldByName(fieldName)
-		if (field.Kind() == reflect.Ptr && field.IsNil()) || (field.IsZero() && !slices.Contains(mustFields, tags[i])) {
+		if (field.Kind() == reflect.Ptr && field.IsNil()) || (field.IsZero() && !slices.Contains(mustColumn, tags[i])) {
 			continue
 		}
 		var rfvVal = field.Interface()
@@ -111,11 +111,11 @@ func structDataToMap(rfv reflect.Value, tags, fieldStruct []string, mustFields .
 	return
 }
 
-func structUpdateDataToMap(rfv reflect.Value, tags, fieldStruct []string, pkField string, mustFields ...string) (data map[string]any, err error) {
+func structUpdateDataToMap(rfv reflect.Value, tags, fieldStruct []string, pkField string, mustColumn ...string) (data map[string]any, err error) {
 	data = make(map[string]any)
 	for i, fieldName := range fieldStruct {
 		field := rfv.FieldByName(fieldName)
-		if (field.Kind() == reflect.Ptr && field.IsNil()) || (field.IsZero() && !slices.Contains(mustFields, tags[i])) || fieldName == pkField {
+		if (field.Kind() == reflect.Ptr && field.IsNil()) || (field.IsZero() && !slices.Contains(mustColumn, tags[i])) || fieldName == pkField {
 			continue
 		}
 		var rfvVal = field.Interface()
@@ -133,22 +133,22 @@ func structUpdateDataToMap(rfv reflect.Value, tags, fieldStruct []string, pkFiel
 	return
 }
 
-func StructToDelete(obj any, mustFields ...string) (data map[string]any, err error) {
+func StructToDelete(obj any, mustColumn ...string) (data map[string]any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	if rfv.Kind() == reflect.Struct {
 		tag, fieldStruct, _ := structsTypeParse(rfv.Type())
-		data, err = structDataToMap(rfv, tag, fieldStruct, mustFields...)
+		data, err = structDataToMap(rfv, tag, fieldStruct, mustColumn...)
 	}
 	return
 }
 
-func StructsToInsert(obj any, mustFields ...string) (datas []map[string]any, err error) {
+func StructsToInsert(obj any, mustColumn ...string) (datas []map[string]any, err error) {
 	rfv := reflect.Indirect(reflect.ValueOf(obj))
 	switch rfv.Kind() {
 	case reflect.Struct:
 		fieldTag, fieldStruct, _ := structsTypeParse(rfv.Type())
 		var data = make(map[string]any)
-		data, err = structDataToMap(rfv, fieldTag, fieldStruct, mustFields...)
+		data, err = structDataToMap(rfv, fieldTag, fieldStruct, mustColumn...)
 		if err != nil {
 			return
 		}
@@ -157,7 +157,7 @@ func StructsToInsert(obj any, mustFields ...string) (datas []map[string]any, err
 		tag, fieldStruct, _ := structsTypeParse(rfv.Type())
 		for i := 0; i < rfv.Len(); i++ {
 			var data = make(map[string]any)
-			data, err = structDataToMap(rfv.Index(i), tag, fieldStruct, mustFields...)
+			data, err = structDataToMap(rfv.Index(i), tag, fieldStruct, mustColumn...)
 			if err != nil {
 				return
 			}
@@ -169,12 +169,12 @@ func StructsToInsert(obj any, mustFields ...string) (datas []map[string]any, err
 	return
 }
 
-func StructToUpdate(obj any, mustFields ...string) (data map[string]any, pkTag string, pkValue any, err error) {
+func StructToUpdate(obj any, mustColumn ...string) (data map[string]any, pkTag string, pkValue any, err error) {
 	tag, fieldStruct, pkField := StructsParse(obj)
 	if len(tag) > 0 {
 		data = make(map[string]any)
 		rfv := reflect.Indirect(reflect.ValueOf(obj))
-		data, err = structUpdateDataToMap(rfv, tag, fieldStruct, pkField, mustFields...)
+		data, err = structUpdateDataToMap(rfv, tag, fieldStruct, pkField, mustColumn...)
 		if err != nil {
 			return
 		}
