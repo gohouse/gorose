@@ -28,7 +28,10 @@ type User struct {
 	Email string `db:"email"`
     
     // 定义表名字,等同于 func (User) TableName() string {return "users"}, 二选一即可
-	TableName string `db:"users" json:"-"` 
+	// TableName string `db:"users" json:"-"` 
+}
+func (User) TableName() string {
+    return "users"
 }
 
 var gr = gorose.Open("mysql", "root:123456@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=true")
@@ -150,84 +153,6 @@ tx().RollbackTo("savepoint1") // 手动回滚到自定义的 savepoint
 tx().Commit()
 ```
 
-## 已经支持的 laravel query builder 方法
-- [x] Table  
-- [x] Select  
-- [x] SelectRaw  
-- [x] AddSelect  
-- [x] Join  
-- [x] GroupBy  
-- [x] Having  
-- [x] HavingRaw  
-- [x] OrHaving  
-- [x] OrHavingRaw  
-- [x] OrderBy  
-- [x] Limit  
-- [x] Offset
-
-- [x] Where
-- [x] WhereRaw
-- [x] OrWhere
-- [x] OrWhereRaw
-- [x] WhereBetween
-- [x] OrWhereBetween
-- [x] WhereNotBetween
-- [x] OrWhereNotBetween
-- [x] WhereIn
-- [x] OrWhereIn
-- [x] WhereNotIn
-- [x] OrWhereNotIn
-- [x] WhereNull
-- [x] OrWhereNull
-- [x] WhereNotNull
-- [x] OrWhereNotNull
-- [x] WhereLike
-- [x] OrWhereLike
-- [x] WhereNotLike
-- [x] OrWhereNotLike
-- [x] WhereExists
-- [x] WhereNotExists
-- [x] WhereNot
-
-- [x] Get  
-- [x] First  
-- [x] Find  
-- [x] Insert  
-- [x] Update  
-- [x] Delete  
-- [x] Max  
-- [x] Min  
-- [x] Sum  
-- [x] Avg  
-- [x] Count  
-
-- [x] InsertGetId  
-- [x] Upsert  
-- [x] InsertOrIgnore  
-- [x] Exists
-- [x] DoesntExist
-
-- [x] Pluck  
-- [x] List  
-- [x] Value  
-
-- [x] Increment  
-- [x] Decrement  
-- [x] IncrementEach  
-- [x] DecrementEach  
-- [x] Truncate  
-- [x] Union  
-- [x] UnionAll  
-- [x] SharedLock  
-- [x] LockForUpdate  
-
-## 额外增加的 api
-- [x] Page  
-- [x] LastSql  
-- [x] To  
-- [x] Bind  
-- [x] Replace  
-
 ## update
 在插入和更新数据时,如果使用 struct 模型作为数据对象的时候, 默认忽略类型零值,如果想强制写入,则可以从第二个参数开始传入需要强制写入的字段即可,如:
 ```go
@@ -257,9 +182,9 @@ db().Table(&user).Where("id", 1).Delete()
 db().Delete(&user, "sex", "name")
 ```
 
-## table 
+## table
 - 参数  
-table 参数, 可以是字符串, 也可以是 User 结构体
+  table 参数, 可以是字符串, 也可以是 User 结构体
 ```go
 db().Table(User{})
 db().Table("users")
@@ -338,7 +263,7 @@ db().Table("users").List("id")
 ## To 查询结果绑定到对象
 使用结构体字段作为 select 字段  
 使用结构体字段值作为 where 条件  
-查询结果绑定到结构体,支持一条或多条    
+查询结果绑定到结构体,支持一条或多条
 ```go
 // 查询一条数据
 var user User
@@ -361,7 +286,7 @@ db().Where("id", ">", 1).To(&users)
 ## Bind 查询结果绑定到对象
 仅仅用作查询结果的绑定   
 结构体字段,不作为查询字段和条件  
-常用作join或者手动指定字段查询绑定  
+常用作join或者手动指定字段查询绑定
 ```go
 type Result struct {
     Id    int64 `db:"id"`
@@ -374,3 +299,107 @@ db().Table("a").Join("b", "a.id","b.aid").Select("a.id", "a.name aname","b.name 
 ```
 查询字段的显示名字一定要跟 结构体的字段 tag(db) 名字相同, 否则不会被赋值  
 字段数量可以不一样
+
+## ListTo,PluckTo,ValueTo
+```go
+var list []int
+db().Table("users").ListTo("age", &list)
+var pluck map[int64]string
+db().Table("users").PluckTo("name","id", &pluck)
+var value int
+db().Table("users").ValueTo("age", &value)
+```
+## SumTo,MaxTo,MinTo
+```go
+var sum int
+db().Table("users").SumTo("age", &sum)
+var max int
+db().Table("users").MaxTo("age", &max)
+var min int
+db().Table("users").MinTo("age", &min)
+```
+
+
+## 已经支持的 laravel query builder 方法
+- [x] Table  
+- [x] Select  
+- [x] SelectRaw  
+- [x] AddSelect  
+- [x] Join  
+- [x] GroupBy  
+- [x] Having  
+- [x] HavingRaw  
+- [x] OrHaving  
+- [x] OrHavingRaw  
+- [x] OrderBy  
+- [x] Limit  
+- [x] Offset
+
+- [x] Where
+- [x] WhereRaw
+- [x] OrWhere
+- [x] OrWhereRaw
+- [x] WhereBetween
+- [x] OrWhereBetween
+- [x] WhereNotBetween
+- [x] OrWhereNotBetween
+- [x] WhereIn
+- [x] OrWhereIn
+- [x] WhereNotIn
+- [x] OrWhereNotIn
+- [x] WhereNull
+- [x] OrWhereNull
+- [x] WhereNotNull
+- [x] OrWhereNotNull
+- [x] WhereLike
+- [x] OrWhereLike
+- [x] WhereNotLike
+- [x] OrWhereNotLike
+- [x] WhereExists
+- [x] WhereNotExists
+- [x] WhereNot
+
+- [x] Get  
+- [x] First  
+- [x] Find  
+- [x] Insert  
+- [x] Update  
+- [x] Delete  
+- [x] Max  
+- [x] Min  
+- [x] Sum  
+- [x] Avg  
+- [x] Count  
+
+- [x] InsertGetId  
+- [x] Upsert  
+- [x] InsertOrIgnore  
+- [x] Exists
+- [x] DoesntExist
+
+- [x] Pluck  
+- [x] List  
+- [x] Value  
+
+- [x] Increment  
+- [x] Decrement  
+- [x] IncrementEach  
+- [x] DecrementEach  
+- [x] Truncate  
+- [x] Union  
+- [x] UnionAll  
+- [x] SharedLock  
+- [x] LockForUpdate  
+
+## 额外增加的 api
+- [x] Replace
+- [x] Page  
+- [x] LastSql  
+- [x] To  
+- [x] Bind  
+- [x] ListTo  
+- [x] PluckTo  
+- [x] ValueTo  
+- [x] SumTo  
+- [x] MaxTo  
+- [x] MinTo  

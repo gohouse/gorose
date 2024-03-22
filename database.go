@@ -216,7 +216,6 @@ func (db *Database) queryToBindResult(bind any, query string, args ...any) (err 
 	return db.Engin.QueryTo(bind, query, args...)
 }
 
-// func (db *Database) insert(obj any, ignoreCase string, onDuplicateKeys []string, mustColumn ...string) (res sql.Result, err error) {
 func (db *Database) insert(obj any, arg TypeToSqlInsertCase) (res sql.Result, err error) {
 	//segment, binds, err := db.ToSqlInsert(obj, ignoreCase, onDuplicateKeys, mustColumn...)
 	segment, binds, err := db.ToSqlInsert(obj, arg)
@@ -260,6 +259,7 @@ func (db *Database) Replace(obj any, mustColumn ...string) (aff int64, err error
 	}
 	return result.RowsAffected()
 }
+
 func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedRows int64, err error) {
 	dbTmp := db.Where(attributes)
 	var exists bool
@@ -271,6 +271,7 @@ func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedR
 	}
 	return dbTmp.Insert(values)
 }
+
 func (db *Database) Update(obj any, mustColumn ...string) (aff int64, err error) {
 	segment, binds, err := db.ToSqlUpdate(obj, mustColumn...)
 	if err != nil {
@@ -278,6 +279,7 @@ func (db *Database) Update(obj any, mustColumn ...string) (aff int64, err error)
 	}
 	return db.Engin.execute(segment, binds...)
 }
+
 func (db *Database) Delete(obj any, mustColumn ...string) (aff int64, err error) {
 	segment, binds, err := db.ToSqlDelete(obj, mustColumn...)
 	if err != nil {
@@ -285,6 +287,7 @@ func (db *Database) Delete(obj any, mustColumn ...string) (aff int64, err error)
 	}
 	return db.Engin.execute(segment, binds...)
 }
+
 func (db *Database) incDecEach(symbol string, data map[string]any) (aff int64, err error) {
 	prepare, values, err := db.ToSqlIncDec(symbol, data)
 	if err != nil {
@@ -439,6 +442,13 @@ func (db *Database) Transaction(closure ...func(TxHandler) error) (err error) {
 	return db.Commit()
 }
 
+////////////////////// To 相关的操作 //////////////////////
+// 绑定到具体类型上
+// Get(),First(),Find() => To()/Bind()
+// Value() => ValueTo()
+// List()  => ListTo()
+// Pluck() => PluckTo()
+
 // To 通用查询,go 绑定 struct/map
 func (db *Database) To(obj any, mustColumn ...string) (err error) {
 	var prepare string
@@ -501,4 +511,20 @@ func (db *Database) ValueTo(column string, obj any) (err error) {
 	}
 	reflect.Indirect(reflect.ValueOf(obj)).Set(reflect.ValueOf(first[column]))
 	return nil
+}
+// MaxTo 同 Max
+// 	obj为具体类型的变量,如: var a int, obj 为 &a, 可以得到具体类型
+func (db *Database) MaxTo(column string, obj any) (err error) {
+	err = db.aggregateSingle(obj, "max", column)
+	return
+}
+// MinTo 同 Min, 参考 MaxTo
+func (db *Database) MinTo(column string, obj any) (err error) {
+	err = db.aggregateSingle(obj, "min", column)
+	return
+}
+// SumTo 同 Sum, 参考 MaxTo
+func (db *Database) SumTo(column string, obj any) (err error) {
+	err = db.aggregateSingle(obj, "sum", column)
+	return
 }
