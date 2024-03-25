@@ -224,6 +224,17 @@ func (db *Database) insert(obj any, arg TypeToSqlInsertCase) (res sql.Result, er
 	}
 	return db.Engin.Exec(segment, binds...)
 }
+func (db *Database) Insert(obj any, mustColumn ...string) (affectedRows int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
+	if err != nil {
+		return affectedRows, err
+	}
+	return result.RowsAffected()
+}
+
+// InsertGetId 插入数据,获取并自增id
+//
+//	参考 https://laravel.com/docs/10.x/queries#auto-incrementing-ids
 func (db *Database) InsertGetId(obj any, mustColumn ...string) (lastInsertId int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
 	if err != nil {
@@ -231,87 +242,95 @@ func (db *Database) InsertGetId(obj any, mustColumn ...string) (lastInsertId int
 	}
 	return result.LastInsertId()
 }
-func (db *Database) Insert(obj any, mustColumn ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
-	if err != nil {
-		return aff, err
-	}
-	return result.RowsAffected()
-}
-func (db *Database) InsertOrIgnore(obj any, mustColumn ...string) (aff int64, err error) {
+
+// InsertOrIgnore 插入数据，忽略错误。
+//
+//	参考 https://laravel.com/docs/10.x/queries#insert-statements
+func (db *Database) InsertOrIgnore(obj any, mustColumn ...string) (affectedRows int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", MustColumn: mustColumn})
 	if err != nil {
-		return aff, err
-	}
-	return result.RowsAffected()
-}
-func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustColumn ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustColumn: mustColumn})
-	if err != nil {
-		return aff, err
-	}
-	return result.RowsAffected()
-}
-func (db *Database) Replace(obj any, mustColumn ...string) (aff int64, err error) {
-	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustColumn: mustColumn})
-	if err != nil {
-		return aff, err
+		return affectedRows, err
 	}
 	return result.RowsAffected()
 }
 
-func (db *Database) UpdateOrInsert(attributes, values map[string]any) (affectedRows int64, err error) {
-	dbTmp := db.Where(attributes)
+// Upsert 插入数据，如果存在则更新。
+//
+//	参考 https://laravel.com/docs/10.x/queries#upserts
+func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustColumn ...string) (affectedRows int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustColumn: mustColumn})
+	if err != nil {
+		return affectedRows, err
+	}
+	return result.RowsAffected()
+}
+
+// Replace 插入数据，如果存在则替换。
+//
+//	参考 mysql replace into 用法
+func (db *Database) Replace(obj any, mustColumn ...string) (affectedRows int64, err error) {
+	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustColumn: mustColumn})
+	if err != nil {
+		return affectedRows, err
+	}
+	return result.RowsAffected()
+}
+
+// UpdateOrInsert 更新数据，如果存在则更新，否则插入。
+//
+//	参考 https://laravel.com/docs/10.x/queries#update-or-insert
+func (db *Database) UpdateOrInsert(conditions, data map[string]any) (affectedRows int64, err error) {
+	dbTmp := db.Where(conditions)
 	var exists bool
 	if exists, err = dbTmp.Exists(); err != nil {
 		return
 	}
 	if exists {
-		return dbTmp.Update(values)
+		return dbTmp.Update(data)
 	}
-	return dbTmp.Insert(values)
+	return dbTmp.Insert(data)
 }
 
-func (db *Database) Update(obj any, mustColumn ...string) (aff int64, err error) {
+func (db *Database) Update(obj any, mustColumn ...string) (affectedRows int64, err error) {
 	segment, binds, err := db.ToSqlUpdate(obj, mustColumn...)
 	if err != nil {
-		return aff, err
+		return affectedRows, err
 	}
 	return db.Engin.execute(segment, binds...)
 }
 
-func (db *Database) Delete(obj any, mustColumn ...string) (aff int64, err error) {
+func (db *Database) Delete(obj any, mustColumn ...string) (affectedRows int64, err error) {
 	segment, binds, err := db.ToSqlDelete(obj, mustColumn...)
 	if err != nil {
-		return aff, err
+		return affectedRows, err
 	}
 	return db.Engin.execute(segment, binds...)
 }
 
-func (db *Database) incDecEach(symbol string, data map[string]any) (aff int64, err error) {
+func (db *Database) incDecEach(symbol string, data map[string]any) (affectedRows int64, err error) {
 	prepare, values, err := db.ToSqlIncDec(symbol, data)
 	if err != nil {
-		return aff, err
+		return affectedRows, err
 	}
 	return db.Engin.execute(prepare, values...)
 }
-func (db *Database) incDec(symbol string, column string, steps ...any) (aff int64, err error) {
+func (db *Database) incDec(symbol string, column string, steps ...any) (affectedRows int64, err error) {
 	var step any = 1
 	if len(steps) > 0 {
 		step = steps[0]
 	}
 	return db.incDecEach(symbol, map[string]any{column: step})
 }
-func (db *Database) Increment(column string, steps ...any) (aff int64, err error) {
+func (db *Database) Increment(column string, steps ...any) (affectedRows int64, err error) {
 	return db.incDec("+", column, steps...)
 }
-func (db *Database) Decrement(column string, steps ...any) (aff int64, err error) {
+func (db *Database) Decrement(column string, steps ...any) (affectedRows int64, err error) {
 	return db.incDec("-", column, steps...)
 }
-func (db *Database) IncrementEach(data map[string]any) (aff int64, err error) {
+func (db *Database) IncrementEach(data map[string]any) (affectedRows int64, err error) {
 	return db.incDecEach("+", data)
 }
-func (db *Database) DecrementEach(data map[string]any) (aff int64, err error) {
+func (db *Database) DecrementEach(data map[string]any) (affectedRows int64, err error) {
 	return db.incDecEach("-", data)
 }
 
@@ -512,17 +531,21 @@ func (db *Database) ValueTo(column string, obj any) (err error) {
 	reflect.Indirect(reflect.ValueOf(obj)).Set(reflect.ValueOf(first[column]))
 	return nil
 }
+
 // MaxTo 同 Max
-// 	obj为具体类型的变量,如: var a int, obj 为 &a, 可以得到具体类型
+//
+//	obj为具体类型的变量,如: var a int, obj 为 &a, 可以得到具体类型
 func (db *Database) MaxTo(column string, obj any) (err error) {
 	err = db.aggregateSingle(obj, "max", column)
 	return
 }
+
 // MinTo 同 Min, 参考 MaxTo
 func (db *Database) MinTo(column string, obj any) (err error) {
 	err = db.aggregateSingle(obj, "min", column)
 	return
 }
+
 // SumTo 同 Sum, 参考 MaxTo
 func (db *Database) SumTo(column string, obj any) (err error) {
 	err = db.aggregateSingle(obj, "sum", column)
