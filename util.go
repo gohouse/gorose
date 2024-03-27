@@ -147,10 +147,10 @@ func SliceContains(haystack []string, needle string) bool {
 	}
 	return false
 }
-func Map[Data any, Datas ~[]Data, Result any](datas Datas, mapper func(Data) Result) []Result {
-	results := make([]Result, 0, len(datas))
-	for _, data := range datas {
-		results = append(results, mapper(data))
+func Map[E any, T any](data []E, mapper func(E) T) []T {
+	results := make([]T, 0, len(data))
+	for _, v := range data {
+		results = append(results, mapper(v))
 	}
 	return results
 }

@@ -9,6 +9,30 @@ package gorose
 //	return
 //}
 
+func (db *Database) WhereSub(column string, operation string, sub WhereSubHandler) *Database {
+	db.Context.WhereClause.WhereSub(column, operation, sub)
+	return db
+}
+func (db *Database) OrWhereSub(column string, operation string, sub WhereSubHandler) *Database {
+	db.Context.WhereClause.OrWhereSub(column, operation, sub)
+	return db
+}
+func (db *Database) WhereBuilder(column string, operation string, sub IBuilder) *Database {
+	db.Context.WhereClause.WhereBuilder(column, operation, sub)
+	return db
+}
+func (db *Database) OrWhereBuilder(column string, operation string, sub IBuilder) *Database {
+	db.Context.WhereClause.OrWhereBuilder(column, operation, sub)
+	return db
+}
+func (db *Database) WhereNested(handler WhereNestedHandler) *Database {
+	db.Context.WhereClause.WhereNested(handler)
+	return db
+}
+func (db *Database) OrWhereNested(handler WhereNestedHandler) *Database {
+	db.Context.WhereClause.OrWhereNested(handler)
+	return db
+}
 func (db *Database) WhereIn(column string, value any) *Database {
 	db.Context.WhereClause.whereIn("AND", column, value)
 	return db

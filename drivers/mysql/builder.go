@@ -106,49 +106,59 @@ func (b Builder) buildSqlTable(tab gorose.TableClause, prefix string) (sql4prepa
 	return strings.TrimSpace(fmt.Sprintf("%s %s", sql4prepare, tab.Alias)), binds, err
 }
 
-func (b Builder) toSqlWhere(wc gorose.WhereClause) (sql4prepare string, binds []any, err error) {
+func (b Builder) toSqlWhere(c *gorose.Context, wc gorose.WhereClause) (sql4prepare string, binds []any, err error) {
 	if len(wc.Conditions) == 0 {
 		return
 	}
 	var sql4prepareArr []string
 	for _, v := range wc.Conditions {
-		switch v.(type) {
+		switch item := v.(type) {
 		case gorose.TypeWhereRaw:
-			item := v.(gorose.TypeWhereRaw)
+			//item := v.(gorose.TypeWhereRaw)
 			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s", item.LogicalOp, item.Column))
 			binds = append(binds, item.Bindings...)
+		case gorose.TypeWhereStandard:
+			//item := v.(gorose.TypeWhereStandard)
+			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s ?", item.LogicalOp, BackQuotes(item.Column), item.Operator))
+			binds = append(binds, item.Value)
+		case gorose.TypeWhereIn:
+			//item := v.(gorose.TypeWhereIn)
+			values := ToSlice(item.Value)
+			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s (%s)", item.LogicalOp, BackQuotes(item.Column), item.Operator, strings.Repeat("?,", len(values)-1)+"?"))
+			binds = append(binds, values...)
+		case gorose.TypeWhereBetween:
+			//item := v.(gorose.TypeWhereBetween)
+			values := ToSlice(item.Value)
+			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s ? AND ?", item.LogicalOp, BackQuotes(item.Column), item.Operator))
+			binds = append(binds, values...)
 		case gorose.TypeWhereNested:
-			item := v.(gorose.TypeWhereNested)
+			//item := v.(gorose.TypeWhereNested)
 			var tmp = gorose.Context{}
-			item.Column(&tmp.WhereClause)
+			item.WhereNested(&tmp.WhereClause)
 			prepare, anies, err := b.ToSqlWhere(&tmp)
 			if err != nil {
 				return sql4prepare, binds, err
 			}
-			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s (%s)", item.LogicalOp, prepare))
+			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s (%s)", item.LogicalOp, strings.TrimPrefix(prepare, "WHERE ")))
 			binds = append(binds, anies...)
 		case gorose.TypeWhereSubQuery:
-			item := v.(gorose.TypeWhereSubQuery)
+			//item := v.(gorose.TypeWhereSubQuery)
 			query, anies, err := item.SubQuery.ToSql()
 			if err != nil {
 				return sql4prepare, binds, err
 			}
 			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s (%s)", item.LogicalOp, BackQuotes(item.Column), item.Operator, query))
 			binds = append(binds, anies...)
-		case gorose.TypeWhereStandard:
-			item := v.(gorose.TypeWhereStandard)
-			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s ?", item.LogicalOp, BackQuotes(item.Column), item.Operator))
-			binds = append(binds, item.Value)
-		case gorose.TypeWhereIn:
-			item := v.(gorose.TypeWhereIn)
-			values := ToSlice(item.Value)
-			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s (%s)", item.LogicalOp, BackQuotes(item.Column), item.Operator, strings.Repeat("?,", len(values)-1)+"?"))
-			binds = append(binds, values...)
-		case gorose.TypeWhereBetween:
-			item := v.(gorose.TypeWhereBetween)
-			values := ToSlice(item.Value)
-			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s ? AND ?", item.LogicalOp, BackQuotes(item.Column), item.Operator))
-			binds = append(binds, values...)
+		case gorose.TypeWhereSubHandler:
+			//item := v.(gorose.TypeWhereSubQuery)
+			var ctx = gorose.NewContext(c.Prefix)
+			item.Sub(ctx)
+			query, anies, err := b.ToSql(ctx)
+			if err != nil {
+				return sql4prepare, binds, err
+			}
+			sql4prepareArr = append(sql4prepareArr, fmt.Sprintf("%s %s %s (%s)", item.LogicalOp, BackQuotes(item.Column), item.Operator, query))
+			binds = append(binds, anies...)
 		}
 	}
 	if len(sql4prepareArr) > 0 {
@@ -157,10 +167,10 @@ func (b Builder) toSqlWhere(wc gorose.WhereClause) (sql4prepare string, binds []
 	return
 }
 func (b Builder) ToSqlWhere(c *gorose.Context) (sql4prepare string, binds []any, err error) {
-	sql4prepare, binds, err = b.toSqlWhere(c.WhereClause)
+	sql4prepare, binds, err = b.toSqlWhere(c, c.WhereClause)
 	if sql4prepare != "" {
 		if c.WhereClause.Not {
-			sql4prepare = fmt.Sprintf("NOT %s", sql4prepare)
+			sql4prepare = fmt.Sprintf("WHERE NOT %s", sql4prepare)
 		}
 		sql4prepare = fmt.Sprintf("WHERE %s", sql4prepare)
 	}
@@ -224,7 +234,7 @@ func (b Builder) ToSqlGroupBy(c *gorose.Context) (sql4prepare string) {
 	return
 }
 func (b Builder) ToSqlHaving(c *gorose.Context) (sql4prepare string, binds []any, err error) {
-	sql4prepare, binds, err = b.toSqlWhere(c.HavingClause.WhereClause)
+	sql4prepare, binds, err = b.toSqlWhere(c, c.HavingClause.WhereClause)
 	if sql4prepare != "" {
 		sql4prepare = fmt.Sprintf("HAVING %s", sql4prepare)
 	}

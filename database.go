@@ -234,7 +234,7 @@ func (db *Database) Insert(obj any, mustColumn ...string) (affectedRows int64, e
 
 // InsertGetId 插入数据,获取并自增id
 //
-//	参考 https://laravel.com/docs/10.x/queries#auto-incrementing-ids
+// 参考 https://laravel.com/docs/10.x/queries#auto-incrementing-ids
 func (db *Database) InsertGetId(obj any, mustColumn ...string) (lastInsertId int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{MustColumn: mustColumn})
 	if err != nil {
@@ -245,7 +245,7 @@ func (db *Database) InsertGetId(obj any, mustColumn ...string) (lastInsertId int
 
 // InsertOrIgnore 插入数据，忽略错误。
 //
-//	参考 https://laravel.com/docs/10.x/queries#insert-statements
+// 参考 https://laravel.com/docs/10.x/queries#insert-statements
 func (db *Database) InsertOrIgnore(obj any, mustColumn ...string) (affectedRows int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{IgnoreCase: "IGNORE", MustColumn: mustColumn})
 	if err != nil {
@@ -256,7 +256,9 @@ func (db *Database) InsertOrIgnore(obj any, mustColumn ...string) (affectedRows 
 
 // Upsert 插入数据，如果存在则更新。
 //
-//	参考 https://laravel.com/docs/10.x/queries#upserts
+// 参考 https://laravel.com/docs/10.x/queries#upserts
+//
+//	eg: Upsert(obj, []string{"id"}, "id", "name")
 func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustColumn ...string) (affectedRows int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{OnDuplicateKeys: onDuplicateKeys, MustColumn: mustColumn})
 	if err != nil {
@@ -267,7 +269,7 @@ func (db *Database) Upsert(obj any, onDuplicateKeys []string, mustColumn ...stri
 
 // Replace 插入数据，如果存在则替换。
 //
-//	参考 mysql replace into 用法
+// 参考 mysql replace into 用法
 func (db *Database) Replace(obj any, mustColumn ...string) (affectedRows int64, err error) {
 	result, err := db.insert(obj, TypeToSqlInsertCase{IsReplace: true, MustColumn: mustColumn})
 	if err != nil {
@@ -278,7 +280,7 @@ func (db *Database) Replace(obj any, mustColumn ...string) (affectedRows int64, 
 
 // UpdateOrInsert 更新数据，如果存在则更新，否则插入。
 //
-//	参考 https://laravel.com/docs/10.x/queries#update-or-insert
+// 参考 https://laravel.com/docs/10.x/queries#update-or-insert
 func (db *Database) UpdateOrInsert(conditions, data map[string]any) (affectedRows int64, err error) {
 	dbTmp := db.Where(conditions)
 	var exists bool

@@ -30,9 +30,19 @@ type IWhere interface {
 	WhereNotLike(column string, value string) IWhere
 	OrWhereNotLike(column string, value string) IWhere
 
+	WhereBuilder(column string, operation string, build IBuilder) IWhere
+	OrWhereBuilder(column string, operation string, sub IBuilder) IWhere
+	WhereSub(column string, operation string, sub WhereSubHandler) IWhere
+	OrWhereSub(column string, operation string, sub WhereSubHandler) IWhere
+	WhereNested(handler WhereNestedHandler) IWhere
+	OrWhereNested(handler WhereNestedHandler) IWhere
+
 	WhereExists(clause IBuilder) IWhere
 	WhereNotExists(clause IBuilder) IWhere
 }
+
+type WhereNestedHandler func(where IWhere)
+type WhereSubHandler func(tx *Context)
 
 // WhereClause 存储所有WHERE条件 ///////////////////start
 type WhereClause struct {
@@ -46,14 +56,20 @@ type TypeWhereRaw struct {
 	Bindings  []any
 }
 type TypeWhereNested struct {
-	LogicalOp string
-	Column    func(where IWhere)
+	LogicalOp   string
+	WhereNested WhereNestedHandler
 }
 type TypeWhereSubQuery struct {
 	LogicalOp string
 	Column    string
 	Operator  string
 	SubQuery  IBuilder
+}
+type TypeWhereSubHandler struct {
+	LogicalOp string
+	Column    string
+	Operator  string
+	Sub       WhereSubHandler
 }
 type TypeWhereStandard struct {
 	LogicalOp string
@@ -334,6 +350,25 @@ func (w *WhereClause) whereLike(relation string, column string, value string, no
 	}
 }
 
+func (w *WhereClause) WhereBuilder(column string, operation string, build IBuilder) IWhere {
+	return w.addTypeWhereSubQuery("AND", column, operation, build)
+}
+func (w *WhereClause) OrWhereBuilder(column string, operation string, sub IBuilder) IWhere {
+	return w.addTypeWhereSubQuery("OR", column, operation, sub)
+}
+func (w *WhereClause) WhereSub(column string, operation string, sub WhereSubHandler) IWhere {
+	return w.addTypeWhereSubHandler("AND", column, operation, sub)
+}
+func (w *WhereClause) OrWhereSub(column string, operation string, sub WhereSubHandler) IWhere {
+	return w.addTypeWhereSubHandler("OR", column, operation, sub)
+}
+func (w *WhereClause) WhereNested(handler WhereNestedHandler) IWhere {
+	return w.addTypeWhereNested("AND", handler)
+}
+func (w *WhereClause) OrWhereNested(handler WhereNestedHandler) IWhere {
+	return w.addTypeWhereNested("OR", handler)
+}
+
 // WhereExists 使用WHERE EXISTS子查询条件。
 //
 // clause: Database 语句,或者实现了 IBuilder.ToSql() 接口的对象
@@ -358,11 +393,15 @@ func (w *WhereClause) addTypeWhereRaw(boolean string, value string, bindings []a
 	return w
 }
 func (w *WhereClause) addTypeWhereNested(boolean string, value func(where IWhere)) *WhereClause {
-	w.Conditions = append(w.Conditions, TypeWhereNested{LogicalOp: boolean, Column: value})
+	w.Conditions = append(w.Conditions, TypeWhereNested{LogicalOp: boolean, WhereNested: value})
 	return w
 }
 func (w *WhereClause) addTypeWhereSubQuery(boolean string, column string, operator string, value IBuilder) *WhereClause {
 	w.Conditions = append(w.Conditions, TypeWhereSubQuery{LogicalOp: boolean, Column: column, Operator: operator, SubQuery: value})
+	return w
+}
+func (w *WhereClause) addTypeWhereSubHandler(boolean string, column string, operator string, value WhereSubHandler) *WhereClause {
+	w.Conditions = append(w.Conditions, TypeWhereSubHandler{LogicalOp: boolean, Column: column, Operator: operator, Sub: value})
 	return w
 }
 func (w *WhereClause) addTypeWhereIn(boolean string, column string, operator string, value any) *WhereClause {
