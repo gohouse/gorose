@@ -15,7 +15,7 @@ type IBuilder interface {
 	ToSqlOrderBy() (sql4prepare string)
 	ToSqlLimitOffset() (sqlSegment string, binds []any)
 	ToSqlInsert(obj any, args ...TypeToSqlInsertCase) (sqlSegment string, binds []any, err error)
-	ToSqlDelete(obj any) (sqlSegment string, binds []any, err error)
+	ToSqlDelete(obj any, mustColumn ...string) (sqlSegment string, binds []any, err error)
 	ToSqlUpdate(obj any, mustColumn ...string) (sqlSegment string, binds []any, err error)
 	ToSqlIncDec(symbol string, data map[string]any) (sql4prepare string, values []any, err error)
 }
@@ -172,6 +172,18 @@ func (db *Database) SharedLock() *Database {
 func (db *Database) LockForUpdate() *Database {
 	db.Context.PessimisticLocking = "FOR UPDATE"
 	return db
+}
+
+func (db *Database) toBind(bind any) (err error) {
+	var prepare string
+	var binds []any
+	prepare, binds, err = db.ToSql()
+	if err != nil {
+		return
+	}
+
+	err = db.queryToBindResult(bind, prepare, binds...)
+	return
 }
 
 // Get 获取查询结果集。
