@@ -395,6 +395,7 @@ func (db *Database) Pluck(column string, keyColumn string) (res map[any]any, err
 	if err != nil {
 		return res, err
 	}
+	res = make(map[any]any)
 	for _, v := range ress {
 		res[v[keyColumn]] = v[column]
 	}
